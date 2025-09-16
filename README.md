@@ -345,7 +345,7 @@ You have two options to run RapidRAW:
 - Grab the pre-built installer or application bundle for your operating system from the [**Releases**](https://github.com/CyberTimon/RapidRAW/releases) page.
 
 **Linux:**
-- The official Flatpak package supports all Linux distributions and is available on [Flathub](https://flathub.org/apps/details/com.getrapidraw.RapidRAW).
+- The official Flatpak package supports all Linux distributions and is available on [Flathub](https://flathub.org/apps/com.getrapidraw.RapidRAW).
 - On Debian-based distributions, install the `.deb` package from the [**Releases**](https://github.com/CyberTimon/RapidRAW/releases) page.
 - On Arch-based distributions, use the [`rapidraw-bin`](https://aur.archlinux.org/packages/rapidraw-bin) package from the AUR.
 
