@@ -1,7 +1,7 @@
-id: io.github.CyberTimon.RapidRAW
+id: com.getrapidraw.RapidRAW
 
 runtime: org.gnome.Platform
-runtime-version: "48"
+runtime-version: '48'
 sdk: org.gnome.Sdk
 sdk-extensions:
   - org.freedesktop.Sdk.Extension.rust-stable
@@ -51,8 +51,8 @@ modules:
         CARGO_HOME: /run/build/RapidRAW/cargo
         XDG_CACHE_HOME: /run/build/RapidRAW/flatpak-node/cache
         npm_config_cache: /run/build/RapidRAW/flatpak-node/npm-cache
-        npm_config_offline: "true"
-        ORT_STRATEGY: "system"
+        npm_config_offline: 'true'
+        ORT_STRATEGY: system
 
     build-commands:
       - mkdir -p /run/build/RapidRAW/src-tauri/resources
@@ -62,19 +62,19 @@ modules:
       - cargo --offline fetch --manifest-path src-tauri/Cargo.toml --verbose
       - npm run --offline tauri build -- --no-bundle
 
-      - install -Dm644 -t /app/share/metainfo/ data/io.github.CyberTimon.RapidRAW.metainfo.xml
-      - install -Dm644 -t /app/share/applications/ data/io.github.CyberTimon.RapidRAW.desktop
+      - install -Dm644 -t /app/share/metainfo/ data/com.getrapidraw.RapidRAW.metainfo.xml
+      - install -Dm644 -t /app/share/applications/ data/com.getrapidraw.RapidRAW.desktop
       - install -Dm755 -t /app/bin/ src-tauri/target/release/RapidRAW
 
-      - desktop-file-edit --set-key=Icon --set-value="io.github.CyberTimon.RapidRAW" /app/share/applications/io.github.CyberTimon.RapidRAW.desktop
+      - desktop-file-edit --set-key=Icon --set-value="com.getrapidraw.RapidRAW" /app/share/applications/com.getrapidraw.RapidRAW.desktop
 
-      - install -Dm644 src-tauri/icons/32x32.png /app/share/icons/hicolor/32x32/apps/io.github.CyberTimon.RapidRAW.png
-      - install -Dm644 src-tauri/icons/128x128.png /app/share/icons/hicolor/128x128/apps/io.github.CyberTimon.RapidRAW.png
-      - install -Dm644 src-tauri/icons/128x128@2x.png /app/share/icons/hicolor/256x256/apps/io.github.CyberTimon.RapidRAW.png
-      - install -Dm644 src-tauri/icons/icon.png /app/share/icons/hicolor/256x256@2/apps/io.github.CyberTimon.RapidRAW.png
+      - install -Dm644 src-tauri/icons/32x32.png /app/share/icons/hicolor/32x32/apps/com.getrapidraw.RapidRAW.png
+      - install -Dm644 src-tauri/icons/128x128.png /app/share/icons/hicolor/128x128/apps/com.getrapidraw.RapidRAW.png
+      - install -Dm644 src-tauri/icons/128x128@2x.png /app/share/icons/hicolor/256x256/apps/com.getrapidraw.RapidRAW.png
+      - install -Dm644 src-tauri/icons/icon.png /app/share/icons/hicolor/256x256@2/apps/com.getrapidraw.RapidRAW.png
 
       - mkdir -p /app/lib/RapidRAW
       - cp -rf src-tauri/resources /app/lib/RapidRAW
       - cp -rf src-tauri/workflows /app/lib/RapidRAW
 
-      - install -Dm644 LICENSE /app/share/licenses/io.github.CyberTimon.RapidRAW/LICENSE
+      - install -Dm644 LICENSE /app/share/licenses/com.getrapidraw.RapidRAW/LICENSE

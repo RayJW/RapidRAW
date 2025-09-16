@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <component type="desktop-application">
-  <id>io.github.CyberTimon.RapidRAW</id>
+  <id>com.getrapidraw.RapidRAW</id>
 
   <name>RapidRAW</name>
   <summary>A non-destructive, and GPU-accelerated RAW image editor built with performance in mind</summary>
@@ -26,7 +26,7 @@
     </p>
   </description>
 
-  <launchable type="desktop-id">io.github.CyberTimon.RapidRAW.desktop</launchable>
+  <launchable type="desktop-id">com.getrapidraw.RapidRAW.desktop</launchable>
   <screenshots>
     <screenshot type="default">
       <image>https://raw.githubusercontent.com/CyberTimon/RapidRAW/refs/tags/v1.3.12/.github/assets/editor.png</image>
