@@ -2553,7 +2553,7 @@ fn apply_window_effect(theme: String, window: impl raw_window_handle::HasWindowH
                 .expect("Failed to apply acrylic effect on Windows 11");
         } else {
             window_vibrancy::apply_blur(&window, color)
-                .expect("Failed to apply blur-sm effect on Windows 10 or older");
+                .expect("Failed to apply blur effect on Windows 10 or older");
         }
     }
 
