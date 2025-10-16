@@ -122,7 +122,7 @@ const FilmstripThumbnail = ({
   return (
     <motion.div
       className={clsx(
-        'h-full rounded-md overflow-hidden cursor-pointer flex-shrink-0 group relative transition-all duration-150',
+        'h-full rounded-md overflow-hidden cursor-pointer shrink-0 group relative transition-all duration-150',
         thumbnailAspectRatio === ThumbnailAspectRatio.Cover && 'aspect-square',
         ringClass,
       )}
@@ -181,7 +181,7 @@ const FilmstripThumbnail = ({
         </div>
       )}
       {(colorLabel || rating > 0) && (
-        <div className="absolute top-1 right-1 bg-primary rounded-full px-1.5 py-0.5 text-xs text-white flex items-center gap-1 backdrop-blur-sm">
+        <div className="absolute top-1 right-1 bg-primary rounded-full px-1.5 py-0.5 text-xs text-white flex items-center gap-1 backdrop-blur-xs">
           {colorLabel && (
             <div
               className="w-3 h-3 rounded-full ring-1 ring-black/20"

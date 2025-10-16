@@ -83,7 +83,7 @@ function SubMenu({ cancelCloseSubmenu, closeSubmenu, hideContextMenu, options, p
   const menuMarkup = (
     <motion.div
       animate={{ opacity: 1, scale: 1 }}
-      className="fixed z-[51]"
+      className="fixed z-51"
       exit={{ opacity: 0, scale: 0.95 }}
       initial={{ opacity: 0, scale: 0.95 }}
       onContextMenu={(e: any) => e.preventDefault()}

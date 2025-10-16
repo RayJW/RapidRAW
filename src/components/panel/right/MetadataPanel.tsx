@@ -53,7 +53,7 @@ function parseDms(dmsString: string) {
 
 function MetadataItem({ label, value }: MetaDataItemProps) {
   return (
-    <div className="grid grid-cols-3 gap-2 text-xs py-1.5 px-2 rounded odd:bg-bg-primary">
+    <div className="grid grid-cols-3 gap-2 text-xs py-1.5 px-2 rounded-sm odd:bg-bg-primary">
       <p className="font-semibold text-text-primary col-span-1 break-words">{label}</p>
       <p className="text-text-secondary col-span-2 break-words truncate" title={String(value)}>
         {String(value)}
@@ -144,10 +144,10 @@ export default function MetadataPanel({ selectedImage }: MetaDataPanelProps) {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="p-4 flex justify-between items-center flex-shrink-0 border-b border-surface">
+      <div className="p-4 flex justify-between items-center shrink-0 border-b border-surface">
         <h2 className="text-xl font-bold text-primary text-shadow-shiny">Metadata</h2>
       </div>
-      <div className="flex-grow overflow-y-auto p-4 text-text-secondary">
+      <div className="grow overflow-y-auto p-4 text-text-secondary">
         {selectedImage ? (
           <div className="flex flex-col gap-6">
             <div>

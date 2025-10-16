@@ -92,7 +92,7 @@ const EditorToolbar = memo(
     }, [isAnyLoading, isLoading, isLoaderVisible]);
 
     return (
-      <div className="relative flex-shrink-0 flex justify-between items-center px-4 h-14">
+      <div className="relative shrink-0 flex justify-between items-center px-4 h-14">
         <button
           className="bg-surface text-text-primary p-2 rounded-full hover:bg-card-active transition-colors"
           onClick={onBackToLibrary}
@@ -125,7 +125,7 @@ const EditorToolbar = memo(
           <div
             className={clsx(
               'transition-all duration-300 ease-out overflow-hidden whitespace-nowrap',
-              showResolution ? 'max-w-[10rem] opacity-100 ml-2' : 'max-w-0 opacity-0 ml-0',
+              showResolution ? 'max-w-40 opacity-100 ml-2' : 'max-w-0 opacity-0 ml-0',
             )}
           >
             <span
@@ -141,7 +141,7 @@ const EditorToolbar = memo(
           <div
             className={clsx(
               'overflow-hidden',
-              isLoaderVisible ? 'max-w-[1rem] opacity-100 ml-2' : 'max-w-0 opacity-0 ml-0',
+              isLoaderVisible ? 'max-w-4 opacity-100 ml-2' : 'max-w-0 opacity-0 ml-0',
               disableLoaderTransition ? 'transition-none' : 'transition-all duration-300',
             )}
           >

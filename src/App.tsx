@@ -3494,7 +3494,7 @@ function App() {
 
     if (selectedImage) {
       return (
-        <div className="flex flex-row flex-grow h-full min-h-0">
+        <div className="flex flex-row grow h-full min-h-0">
           <div className="flex-1 flex flex-col min-w-0">
             <Editor
               activeAiPatchContainerId={activeAiPatchContainerId}
@@ -3717,7 +3717,7 @@ function App() {
       );
     }
     return (
-      <div className="flex flex-row flex-grow h-full min-h-0">
+      <div className="flex flex-row grow h-full min-h-0">
         <div className="flex-1 flex flex-col min-w-0 gap-2">
           {activeView === 'community' ? (
             <CommunityPage
@@ -3821,7 +3821,7 @@ function App() {
             </button>
           </div>
         )}
-        <div className="flex flex-row flex-grow h-full min-h-0">
+        <div className="flex flex-row grow h-full min-h-0">
           {rootPath && (
             <>
               <FolderTree
@@ -3857,7 +3857,7 @@ function App() {
             />
           )}
           <div
-            className={clsx('flex-shrink-0 overflow-hidden', !isResizing && 'transition-all duration-300 ease-in-out')}
+            className={clsx('shrink-0 overflow-hidden', !isResizing && 'transition-all duration-300 ease-in-out')}
             style={{ width: isLibraryExportPanelVisible ? `${rightPanelWidth}px` : '0px' }}
           >
             <LibraryExportPanel

@@ -398,7 +398,7 @@ export default function AIControls({
               >
                 <div className="flex items-center gap-2">
                   <Input
-                    className="flex-grow"
+                    className="grow"
                     disabled={isGeneratingAi}
                     onChange={(e: any) => setPrompt(e.target.value)}
                     onKeyDown={(e: any) => {

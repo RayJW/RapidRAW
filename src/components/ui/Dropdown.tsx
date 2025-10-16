@@ -48,7 +48,7 @@ export default function Dropdown({
       <button
         aria-expanded={isOpen}
         aria-haspopup="listbox"
-        className="w-full bg-bg-primary border border-border-color rounded-md px-3 py-2 focus:ring-accent focus:border-accent focus:outline-none focus:ring-2 flex justify-between items-center text-left"
+        className="w-full bg-bg-primary border border-border-color rounded-md px-3 py-2 focus:ring-accent focus:border-accent focus:outline-hidden focus:ring-2 flex justify-between items-center text-left"
         onClick={() => setIsOpen(!isOpen)}
         type="button"
       >

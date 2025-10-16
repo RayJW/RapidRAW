@@ -155,26 +155,29 @@ function TreeNode({
         onContextMenu={(e: any) => onContextMenu(e, node.path, isPinned)}
       >
         <div
-          className={clsx('cursor-pointer p-0.5 rounded hover:bg-surface', {
+          className={clsx('cursor-pointer p-0.5 rounded-sm hover:bg-surface', {
             'cursor-default': !hasChildren,
           })}
           onClick={handleFolderIconClick}
         >
           {isExpanded ? (
-            <FolderOpen size={16} className="text-hover-color flex-shrink-0" />
+            <FolderOpen size={16} className="text-hover-color shrink-0" />
           ) : (
-            <Folder size={16} className="text-text-secondary flex-shrink-0" />
+            <Folder size={16} className="text-text-secondary shrink-0" />
           )}
         </div>
         <span onDoubleClick={handleNameDoubleClick} className="truncate select-none cursor-pointer flex-1">
           {node.name}
         </span>
         {hasChildren && (
-          <div className="p-0.5 rounded hover:bg-surface cursor-pointer" onClick={handleFolderIconClick}>
+          <div
+            className="p-0.5 rounded-sm hover:bg-surface cursor-pointer"
+            onClick={handleFolderIconClick}
+          >
             {isExpanded ? (
-              <ChevronUp size={16} className="text-text-secondary flex-shrink-0" />
+              <ChevronUp size={16} className="text-text-secondary shrink-0" />
             ) : (
-              <ChevronDown size={16} className="text-text-secondary flex-shrink-0" />
+              <ChevronDown size={16} className="text-text-secondary shrink-0" />
             )}
           </div>
         )}
@@ -303,7 +306,7 @@ export default function FolderTree({
   return (
     <div
       className={clsx(
-        'relative bg-bg-secondary rounded-lg flex-shrink-0',
+        'relative bg-bg-secondary rounded-lg shrink-0',
         !isResizing && 'transition-[width] duration-300 ease-in-out',
       )}
       style={style}

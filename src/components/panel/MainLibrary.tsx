@@ -467,7 +467,7 @@ function ColorFilterOptions({ filterCriteria, setFilterCriteria }: FilterOptionP
               key={color.name}
               title={title}
               onClick={(e: any) => handleColorClick(color.name, e)}
-              className="w-6 h-6 rounded-full focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-surface transition-transform hover:scale-110"
+              className="w-6 h-6 rounded-full focus:outline-hidden focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-surface transition-transform hover:scale-110"
               role="menuitem"
             >
               <div className="relative w-full h-full">
@@ -668,7 +668,7 @@ function SortOptions({ sortCriteria, setSortCriteria, sortOptions }: SortOptions
           title={`Sort ${
             sortCriteria.order === SortDirection.Ascending ? 'Descending' : 'Ascending'
           }`}
-          className="absolute top-1/2 right-3 -translate-y-1/2 p-1 bg-transparent border-none text-text-secondary hover:text-text-primary focus:outline-none focus:ring-1 focus:ring-accent rounded"
+          className="absolute top-1/2 right-3 -translate-y-1/2 p-1 bg-transparent border-none text-text-secondary hover:text-text-primary focus:outline-hidden focus:ring-1 focus:ring-accent rounded-sm"
         >
           {sortCriteria.order === SortDirection.Ascending ? (
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m18 15-6-6-6 6"/></svg>
@@ -888,7 +888,7 @@ function Thumbnail({
       </AnimatePresence>
 
       {(colorLabel || rating > 0) && (
-        <div className="absolute top-1.5 right-1.5 bg-bg-primary/50 rounded-full px-1.5 py-0.5 text-xs text-text-primary flex items-center gap-1 backdrop-blur-sm">
+        <div className="absolute top-1.5 right-1.5 bg-bg-primary/50 rounded-full px-1.5 py-0.5 text-xs text-text-primary flex items-center gap-1 backdrop-blur-xs">
           {colorLabel && (
             <div
               className="w-3 h-3 rounded-full ring-1 ring-black/20"
@@ -1260,7 +1260,7 @@ export default function MainLibrary({
                   )}
                   <div className="flex items-center gap-2">
                     <Button
-                      className={`rounded-md flex-grow flex justify-start items-center h-11 ${
+                      className={`rounded-md grow flex justify-start items-center h-11 ${
                         hasLastPath ? 'bg-surface text-text-primary shadow-none' : ''
                       }`}
                       onClick={onOpenFolder}
@@ -1361,7 +1361,7 @@ export default function MainLibrary({
             <p className="text-sm text-text-secondary truncate">{currentFolderPath}</p>
             <div
               className={`overflow-hidden transition-all duration-300 ${
-                isLoaderVisible ? 'max-w-[1rem] opacity-100' : 'max-w-0 opacity-0'
+                isLoaderVisible ? 'max-w-4 opacity-100' : 'max-w-0 opacity-0'
               }`}
             >
               <Loader2 size={14} className="animate-spin text-text-secondary" />

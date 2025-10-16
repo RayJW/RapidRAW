@@ -154,7 +154,7 @@ export default function Controls({
 
   return (
     <div className="flex flex-col h-full">
-      <div className="p-4 flex justify-between items-center flex-shrink-0 border-b border-surface">
+      <div className="p-4 flex justify-between items-center shrink-0 border-b border-surface">
         <h2 className="text-xl font-bold text-primary text-shadow-shiny">Adjustments</h2>
         <div className="flex items-center gap-1">
           <button
@@ -175,7 +175,7 @@ export default function Controls({
           </button>
         </div>
       </div>
-      <div className="flex-grow overflow-y-auto p-4 flex flex-col gap-2">
+      <div className="grow overflow-y-auto p-4 flex flex-col gap-2">
         {Object.keys(ADJUSTMENT_SECTIONS).map((sectionName: string) => {
           const SectionComponent: any = {
             basic: BasicAdjustments,
@@ -189,7 +189,7 @@ export default function Controls({
           const sectionVisibility = adjustments.sectionVisibility || INITIAL_ADJUSTMENTS.sectionVisibility;
 
           return (
-            <div className="flex-shrink-0 group" key={sectionName}>
+            <div className="shrink-0 group" key={sectionName}>
               <CollapsibleSection
                 isContentVisible={sectionVisibility[sectionName]}
                 isOpen={collapsibleState[sectionName]}

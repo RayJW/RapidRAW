@@ -112,7 +112,7 @@ export default function PanoramaModal({
           <Loader2 className="w-16 h-16 text-accent animate-spin" />
         </div>
         <h3 className="text-lg font-semibold text-text-primary mb-2 text-center">Stitching Panorama</h3>
-        <p className="text-sm text-text-secondary text-center min-h-[1.25rem]">{progressMessage}</p>
+        <p className="text-sm text-text-secondary text-center min-h-5">{progressMessage}</p>
       </>
     );
   };
@@ -163,7 +163,7 @@ export default function PanoramaModal({
 
   return (
     <div
-      className={`fixed inset-0 flex items-center justify-center z-50 bg-black/30 backdrop-blur-sm transition-opacity duration-300 ease-in-out ${
+      className={`fixed inset-0 flex items-center justify-center z-50 bg-black/30 backdrop-blur-xs transition-opacity duration-300 ease-in-out ${
         show ? 'opacity-100' : 'opacity-0'
       }`}
       onClick={handleClose}

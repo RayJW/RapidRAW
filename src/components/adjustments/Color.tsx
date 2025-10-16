@@ -43,7 +43,7 @@ const HSL_COLORS: Array<ColorProps> = [
 const ColorSwatch = ({ color, name, isActive, onClick }: ColorSwatchProps) => (
   <button
     aria-label={`Select ${name} color`}
-    className={`w-6 h-6 rounded-full focus:outline-none transition-transform duration-150 ${
+    className={`w-6 h-6 rounded-full focus:outline-hidden transition-transform duration-150 ${
       isActive ? 'ring-2 ring-accent ring-offset-2 ring-offset-bg-secondary transform scale-110' : 'hover:scale-110'
     }`}
     onClick={() => onClick(name)}

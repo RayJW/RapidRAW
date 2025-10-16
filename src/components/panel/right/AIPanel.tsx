@@ -274,19 +274,19 @@ export default function AIPanel({
     const activeSubMask = editingPatch.subMasks?.find((sm: SubMask) => sm.id === activeSubMaskId) ?? null;
     return (
       <div className="flex flex-col h-full">
-        <div className="p-4 flex justify-between items-center flex-shrink-0 border-b border-surface h-[69px]">
+        <div className="p-4 flex justify-between items-center shrink-0 border-b border-surface h-[69px]">
           <button
-            className="p-2 rounded-full hover:bg-surface transition-colors flex-shrink-0"
+            className="p-2 rounded-full hover:bg-surface transition-colors shrink-0"
             onClick={handleBackToList}
             title="Back to AI Edit List"
           >
             <ArrowLeft size={18} />
           </button>
-          <div className="flex-grow min-w-0 text-center px-2">
+          <div className="grow min-w-0 text-center px-2">
             {renamingContainerId === editingPatch.id ? (
               <input
                 autoFocus
-                className="bg-transparent w-full text-xl font-bold text-primary text-shadow-shiny focus:outline-none focus:ring-1 focus:ring-accent rounded px-1 py-1 text-center"
+                className="bg-transparent w-full text-xl font-bold text-primary text-shadow-shiny focus:outline-hidden focus:ring-1 focus:ring-accent rounded-sm px-1 py-1 text-center"
                 onBlur={handleFinishRename}
                 onChange={(e: any) => setTempName(e.target.value)}
                 onClick={(e: any) => e.stopPropagation()}
@@ -305,14 +305,14 @@ export default function AIPanel({
             )}
           </div>
           <button
-            className="p-2 rounded-full hover:bg-surface transition-colors flex-shrink-0"
+            className="p-2 rounded-full hover:bg-surface transition-colors shrink-0"
             onClick={() => updatePatch(editingPatch.id, { subMasks: [] })}
             title="Reset Selection"
           >
             <RotateCcw size={18} />
           </button>
         </div>
-        <div className="flex-grow overflow-y-auto">
+        <div className="grow overflow-y-auto">
           <AIControls
             activeSubMask={activeSubMask}
             activeSubMaskId={activeSubMaskId}
@@ -341,7 +341,7 @@ export default function AIPanel({
 
   return (
     <div className="flex flex-col h-full">
-      <div className="p-4 flex justify-between items-center flex-shrink-0 border-b border-surface h-[69px]">
+      <div className="p-4 flex justify-between items-center shrink-0 border-b border-surface h-[69px]">
         <h2 className="text-xl font-bold text-primary text-shadow-shiny">AI Tools</h2>
         <button
           className="p-2 rounded-full hover:bg-surface transition-colors"
@@ -353,7 +353,7 @@ export default function AIPanel({
         </button>
       </div>
 
-      <div className="flex-grow overflow-y-auto p-4 text-text-secondary space-y-6" onClick={handleDeselect}>
+      <div className="grow overflow-y-auto p-4 text-text-secondary space-y-6" onClick={handleDeselect}>
         {!selectedImage ? (
           <p className="text-center text-text-tertiary mt-4">No image selected.</p>
         ) : (
@@ -410,7 +410,7 @@ export default function AIPanel({
                             onContextMenu={(e: any) => handleContainerContextMenu(e, patch)}
                             variants={itemVariants}
                           >
-                            <div className="flex items-center gap-3 flex-grow min-w-0">
+                            <div className="flex items-center gap-3 grow min-w-0">
                               {patch.isLoading ? (
                                 <Loader2 size={16} className="text-accent animate-spin" />
                               ) : (
@@ -419,7 +419,7 @@ export default function AIPanel({
                               {renamingContainerId === patch.id ? (
                                 <input
                                   autoFocus
-                                  className="bg-transparent w-full text-sm font-medium text-text-primary focus:outline-none focus:ring-1 focus:ring-accent rounded px-1 -mx-1"
+                                  className="bg-transparent w-full text-sm font-medium text-text-primary focus:outline-hidden focus:ring-1 focus:ring-accent rounded-sm px-1 -mx-1"
                                   onBlur={handleFinishRename}
                                   onChange={(e: any) => setTempName(e.target.value)}
                                   onClick={(e: any) => e.stopPropagation()}
@@ -432,7 +432,7 @@ export default function AIPanel({
                                 <span className="font-medium text-sm text-text-primary truncate">{patch.name}</span>
                               )}
                             </div>
-                            <div className="flex items-center gap-1 flex-shrink-0">
+                            <div className="flex items-center gap-1 shrink-0">
                               <button
                                 className="p-1.5 rounded-full text-text-secondary hover:bg-bg-primary"
                                 onClick={(e: any) => {
