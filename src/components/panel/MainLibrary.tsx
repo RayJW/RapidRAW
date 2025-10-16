@@ -257,7 +257,7 @@ function SearchInput({ indexingProgress, isIndexing, searchQuery, setSearchQuery
         <Search className="w-4 h-4" />
       </button>
       <input
-        className="w-full h-full pl-12 pr-10 bg-transparent text-text-primary placeholder-text-secondary border border-transparent rounded-md focus:outline-none focus:ring-2 focus:ring-accent transition-opacity"
+        className="w-full h-full pl-12 pr-10 bg-transparent text-text-primary placeholder-text-secondary border border-transparent rounded-md focus:outline-hidden focus:ring-2 focus:ring-accent transition-opacity"
         disabled={isIndexing}
         onBlur={() => {
           if (!searchQuery) {
@@ -325,7 +325,7 @@ function ColorFilterOptions({ filterCriteria, setFilterCriteria }: FilterOptionP
               key={color.name}
               title={title}
               onClick={(e: any) => handleColorClick(color.name, e)}
-              className="w-6 h-6 rounded-full focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-surface transition-transform hover:scale-110"
+              className="w-6 h-6 rounded-full focus:outline-hidden focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-surface transition-transform hover:scale-110"
               role="menuitem"
             >
               <div className="relative w-full h-full">
@@ -526,7 +526,7 @@ function SortOptions({ sortCriteria, setSortCriteria, sortOptions }: SortOptions
           title={`Sort ${
             sortCriteria.order === SortDirection.Ascending ? 'Descending' : 'Ascending'
           }`}
-          className="absolute top-1/2 right-3 -translate-y-1/2 p-1 bg-transparent border-none text-text-secondary hover:text-text-primary focus:outline-none focus:ring-1 focus:ring-accent rounded"
+          className="absolute top-1/2 right-3 -translate-y-1/2 p-1 bg-transparent border-none text-text-secondary hover:text-text-primary focus:outline-hidden focus:ring-1 focus:ring-accent rounded-sm"
         >
           {sortCriteria.order === SortDirection.Ascending ? (
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m18 15-6-6-6 6"/></svg>
@@ -737,7 +737,7 @@ function Thumbnail({
       </AnimatePresence>
 
       {(colorLabel || rating > 0) && (
-        <div className="absolute top-1.5 right-1.5 bg-bg-primary/50 rounded-full px-1.5 py-0.5 text-xs text-text-primary flex items-center gap-1 backdrop-blur-sm">
+        <div className="absolute top-1.5 right-1.5 bg-bg-primary/50 rounded-full px-1.5 py-0.5 text-xs text-text-primary flex items-center gap-1 backdrop-blur-xs">
           {colorLabel && (
             <div
               className="w-3 h-3 rounded-full ring-1 ring-black/20"
@@ -753,7 +753,7 @@ function Thumbnail({
           )}
         </div>
       )}
-      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2">
+      <div className="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/70 to-transparent p-2">
         <p className="text-white text-xs truncate">{path.split(/[\\/]/).pop()}</p>
       </div>
     </div>
@@ -1050,7 +1050,7 @@ export default function MainLibrary({
                   )}
                   <div className="flex items-center gap-2">
                     <Button
-                      className={`rounded-md flex-grow flex justify-start items-center h-11 ${
+                      className={`rounded-md grow flex justify-start items-center h-11 ${
                         hasLastPath ? 'bg-surface text-text-primary shadow-none' : ''
                       }`}
                       onClick={onOpenFolder}
@@ -1144,14 +1144,14 @@ export default function MainLibrary({
       className="flex-1 flex flex-col h-full min-w-0 bg-bg-secondary rounded-lg overflow-hidden"
       ref={libraryContainerRef}
     >
-      <header className="p-4 flex-shrink-0 flex justify-between items-center border-b border-border-color">
+      <header className="p-4 shrink-0 flex justify-between items-center border-b border-border-color">
         <div>
           <h2 className="text-2xl font-bold text-primary">Library</h2>
           <div className="flex items-center gap-2">
             <p className="text-sm text-text-secondary truncate">{currentFolderPath}</p>
             <div
               className={`overflow-hidden transition-all duration-300 ${
-                isLoaderVisible ? 'max-w-[1rem] opacity-100' : 'max-w-0 opacity-0'
+                isLoaderVisible ? 'max-w-4 opacity-100' : 'max-w-0 opacity-0'
               }`}
             >
               <Loader2 size={14} className="animate-spin text-text-secondary" />

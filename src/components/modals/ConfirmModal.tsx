@@ -78,7 +78,7 @@ export default function ConfirmModal({
       aria-modal="true"
       className={`
         fixed inset-0 flex items-center justify-center z-50 
-        bg-black/30 backdrop-blur-sm 
+        bg-black/30 backdrop-blur-xs 
         transition-opacity duration-300 ease-in-out
         ${show ? 'opacity-100' : 'opacity-0'}
       `}

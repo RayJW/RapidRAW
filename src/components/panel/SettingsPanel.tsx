@@ -462,7 +462,7 @@ export default function SettingsPanel({
     <>
       <ConfirmModal {...confirmModalState} onClose={closeConfirmModal} />
       <div className="flex flex-col h-full w-full text-text-primary">
-        <header className="flex-shrink-0 flex items-center mb-6">
+        <header className="shrink-0 flex items-center mb-6">
           <Button
             className="mr-4 hover:bg-surface text-text-primary rounded-full"
             onClick={onBack}
@@ -711,7 +711,7 @@ export default function SettingsPanel({
                       >
                         <div className="flex items-center gap-2">
                           <Input
-                            className="flex-grow"
+                            className="grow"
                             id="comfyui-address"
                             onBlur={() => onSettingsChange({ ...appSettings, comfyuiAddress: comfyUiAddress })}
                             onChange={(e: any) => setComfyUiAddress(e.target.value)}
@@ -749,7 +749,7 @@ export default function SettingsPanel({
                           <Input
                             readOnly
                             value={comfyConfig.workflowPath || 'Using built-in workflow'}
-                            className="flex-grow"
+                            className="grow"
                           />
                           <Button onClick={handleSelectWorkflowFile}>Select</Button>
                           <Button variant="secondary" onClick={resetToDefaults}>
@@ -784,7 +784,7 @@ export default function SettingsPanel({
                                 <ol className="list-decimal list-inside space-y-1 pl-2">
                                   <li>
                                     In ComfyUI, build your workflow, then click{' '}
-                                    <code className="bg-bg-primary px-1 rounded text-text-primary">
+                                    <code className="bg-bg-primary px-1 rounded-sm text-text-primary">
                                       Save (API Format)
                                     </code>
                                     .
@@ -1009,9 +1009,9 @@ export default function SettingsPanel({
                 buttonText="Delete All Edits in Folder"
                 description={
                   <>
-                    This will delete all <code className="bg-bg-primary px-1 rounded text-text-primary">.rrdata</code>{' '}
+                    This will delete all <code className="bg-bg-primary px-1 rounded-sm text-text-primary">.rrdata</code>{' '}
                     files (containing your edits) within the current root folder:
-                    <span className="block font-mono text-xs bg-bg-primary p-2 rounded mt-2 break-all border border-border-color">
+                    <span className="block font-mono text-xs bg-bg-primary p-2 rounded-sm mt-2 break-all border border-border-color">
                       {effectiveRootPath || 'No folder selected'}
                     </span>
                   </>

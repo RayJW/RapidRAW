@@ -127,7 +127,7 @@ export default function Waveform({ waveformData, onClose }: WaveformProps) {
       }
     : {};
 
-  const baseButtonClass = 'flex-grow text-center px-2 py-1 text-xs rounded font-medium transition-colors duration-150';
+  const baseButtonClass = 'grow text-center px-2 py-1 text-xs rounded-sm font-medium transition-colors duration-150';
   const inactiveButtonClass = 'text-text-secondary hover:bg-bg-tertiary';
 
   return (
@@ -135,7 +135,7 @@ export default function Waveform({ waveformData, onClose }: WaveformProps) {
       <div ref={nodeRef} className="absolute top-20 left-20 w-[280px] z-50">
         <motion.div
           animate={{ opacity: 1, scale: 1 }}
-          className="bg-bg-secondary/80 backdrop-blur-sm rounded-lg shadow-lg text-text-secondary border border-surface/40 overflow-hidden"
+          className="bg-bg-secondary/80 backdrop-blur-xs rounded-lg shadow-lg text-text-secondary border border-surface/40 overflow-hidden"
           exit={{ opacity: 0, scale: 0.95 }}
           initial={{ opacity: 0, scale: 0.95 }}
           key="waveform-content"
@@ -158,7 +158,7 @@ export default function Waveform({ waveformData, onClose }: WaveformProps) {
           </div>
           {waveformData && (
             <div className="p-2 pt-0">
-              <div className="relative w-[256px] h-[256px] bg-black/50 rounded">
+              <div className="relative w-[256px] h-[256px] bg-black/50 rounded-sm">
                 {displayMode === DisplayMode.Rgb && (
                   <RgbWaveformDisplay
                     blueData={blue}

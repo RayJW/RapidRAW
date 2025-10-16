@@ -129,7 +129,7 @@ function WatermarkPreview({
       {watermarkPath && (
         <div style={getPositionStyles()}>
           <div
-            className="w-full bg-accent/50 border-2 border-dashed border-accent rounded-sm flex items-center justify-center"
+            className="w-full bg-accent/50 border-2 border-dashed border-accent rounded-xs flex items-center justify-center"
             style={{ aspectRatio: watermarkImageAspectRatio }}
           >
             <span className="text-white text-[8px] font-bold">Logo</span>
@@ -414,12 +414,12 @@ export default function ExportPanel({
 
   return (
     <div className="flex flex-col h-full">
-      <div className="p-4 flex justify-between items-center flex-shrink-0 border-b border-surface">
+      <div className="p-4 flex justify-between items-center shrink-0 border-b border-surface">
         <h2 className="text-xl font-bold text-primary text-shadow-shiny">
           Export {numImages > 1 ? `(${numImages})` : ''}
         </h2>
       </div>
-      <div className="flex-grow overflow-y-auto p-4 text-text-secondary space-y-6">
+      <div className="grow overflow-y-auto p-4 text-text-secondary space-y-6">
         {canExport ? (
           <>
             <Section title="File Settings">
@@ -589,7 +589,7 @@ export default function ExportPanel({
         )}
       </div>
 
-      <div className="p-4 border-t border-surface flex-shrink-0 space-y-3">
+      <div className="p-4 border-t border-surface shrink-0 space-y-3">
         <div className="text-center text-xs text-text-tertiary h-4">
           {isEstimating ? (
             <span className="italic">Estimating size...</span>

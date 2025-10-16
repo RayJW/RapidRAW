@@ -80,7 +80,7 @@ const FullScreenViewer = memo(
       <div
         aria-modal="true"
         className={clsx(
-          'fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm transition-opacity duration-300 ease-in-out',
+          'fixed inset-0 z-100 flex items-center justify-center bg-black/60 backdrop-blur-xs transition-opacity duration-300 ease-in-out',
           show ? 'opacity-100' : 'opacity-0',
         )}
         onClick={handleClose}
@@ -88,7 +88,7 @@ const FullScreenViewer = memo(
       >
         <button
           className={clsx(
-            'absolute top-4 right-4 text-white hover:text-gray-300 z-[102] transition-opacity duration-300',
+            'absolute top-4 right-4 text-white hover:text-gray-300 z-102 transition-opacity duration-300',
             show ? 'opacity-100' : 'opacity-0',
           )}
           onClick={(e: any) => {

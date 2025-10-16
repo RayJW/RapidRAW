@@ -519,7 +519,7 @@ export default function CollageModal({ isOpen, onClose, onSave, sourceImages }: 
   };
 
   const renderControls = () => (
-    <div className="w-80 flex-shrink-0 bg-bg-secondary p-4 flex flex-col gap-6 overflow-y-auto">
+    <div className="w-80 shrink-0 bg-bg-secondary p-4 flex flex-col gap-6 overflow-y-auto">
       <div>
         <h4 className="text-sm font-semibold mb-3 flex items-center justify-between">
           <span className="flex items-center gap-2"><LayoutTemplate size={16} /> Layout</span>
@@ -596,7 +596,7 @@ export default function CollageModal({ isOpen, onClose, onSave, sourceImages }: 
             type="color" 
             value={backgroundColor} 
             onChange={e => setBackgroundColor(e.target.value)}
-            className="w-8 h-8 p-0 border-none rounded cursor-pointer bg-transparent"
+            className="w-8 h-8 p-0 border-none rounded-sm cursor-pointer bg-transparent"
           />
           <input 
             type="text" 
@@ -642,7 +642,7 @@ export default function CollageModal({ isOpen, onClose, onSave, sourceImages }: 
 
     return (
       <div className="flex flex-row h-full w-full" onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp}>
-        <div ref={previewContainerRef} className="flex-grow h-full flex items-center justify-center bg-bg-secondary p-4 relative min-w-0">
+        <div ref={previewContainerRef} className="grow h-full flex items-center justify-center bg-bg-secondary p-4 relative min-w-0">
           {isLoading && (
             <div className="absolute inset-0 flex items-center justify-center bg-black/20 z-10">
               <Loader2 className="w-12 h-12 text-accent animate-spin" />
@@ -677,7 +677,7 @@ export default function CollageModal({ isOpen, onClose, onSave, sourceImages }: 
 
   return (
     <div
-      className={`fixed inset-0 flex items-center justify-center z-50 bg-black/50 backdrop-blur-sm transition-opacity duration-300 ease-in-out ${show ? 'opacity-100' : 'opacity-0'}`}
+      className={`fixed inset-0 flex items-center justify-center z-50 bg-black/50 backdrop-blur-xs transition-opacity duration-300 ease-in-out ${show ? 'opacity-100' : 'opacity-0'}`}
       onMouseDown={onClose}
       role="dialog"
       aria-modal="true"
@@ -692,10 +692,10 @@ export default function CollageModal({ isOpen, onClose, onSave, sourceImages }: 
             exit={{ scale: 0.95, opacity: 0 }}
             transition={{ duration: 0.2, ease: 'easeOut' }}
           >
-            <div className="flex-grow min-h-0">
+            <div className="grow min-h-0">
               {renderContent()}
             </div>
-            <div className="flex-shrink-0 p-4 flex justify-end gap-3 border-t border-surface">
+            <div className="shrink-0 p-4 flex justify-end gap-3 border-t border-surface">
               {renderButtons()}
             </div>
           </motion.div>

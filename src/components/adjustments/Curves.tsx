@@ -299,7 +299,7 @@ export default function CurveGraph({ adjustments, setAdjustments, histogram, the
             className={clsx(
               'w-7 h-7 rounded-full text-xs font-bold flex items-center justify-center transition-all opacity-0 group-hover:opacity-100',
               {
-                'ring-2 ring-offset-2 ring-offset-surface ring-accent bg-accent text-button-text !opacity-100':
+                'ring-2 ring-offset-2 ring-offset-surface ring-accent bg-accent text-button-text opacity-100!':
                   adjustments.showClipping,
                 'bg-surface-secondary text-text-primary': !adjustments.showClipping,
               },

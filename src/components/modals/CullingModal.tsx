@@ -47,7 +47,7 @@ function ImageThumbnail({ path, thumbnails, isSelected, onToggle, children }: an
           isSelected ? 'opacity-0' : 'opacity-100 group-hover:opacity-0'
         }`}
       />
-      <div className="absolute top-2 right-2 w-5 h-5 bg-bg-primary rounded-sm border border-surface flex items-center justify-center">
+      <div className="absolute top-2 right-2 w-5 h-5 bg-bg-primary rounded-xs border border-surface flex items-center justify-center">
         {isSelected && <CheckCircle size={16} className="text-accent" />}
       </div>
       {children && <div className="absolute bottom-0 left-0 right-0 p-1 bg-black/60 text-white text-xs">{children}</div>}
@@ -374,7 +374,7 @@ export default function CullingModal({
 
   return (
     <div
-      className={`fixed inset-0 flex items-center justify-center z-50 bg-black/30 backdrop-blur-sm transition-opacity duration-300 ease-in-out ${
+      className={`fixed inset-0 flex items-center justify-center z-50 bg-black/30 backdrop-blur-xs transition-opacity duration-300 ease-in-out ${
         show ? 'opacity-100' : 'opacity-0'
       }`}
       onClick={onClose}
