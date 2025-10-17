@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, forwardRef, useMemo, useCallback } from 'react';
+import { useState, useEffect, useRef, forwardRef, useMemo, useCallback, memo } from 'react';
 import { getVersion } from '@tauri-apps/api/app';
 import { invoke } from '@tauri-apps/api/core';
 import { open } from '@tauri-apps/plugin-shell';
@@ -18,8 +18,7 @@ import {
   Users,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FixedSizeGrid as Grid } from 'react-window';
-import AutoSizer from 'react-virtualized-auto-sizer';
+import { Grid, CellComponentProps } from 'react-window';
 import Button from '../ui/Button';
 import SettingsPanel from './SettingsPanel';
 import { ThemeProps, THEMES, DEFAULT_THEME_ID } from '../../utils/themes';
@@ -39,11 +38,18 @@ import {
 import { Color, COLOR_LABELS } from '../../utils/adjustments';
 import { ImportState, Status } from './right/ExportImportProperties';
 
-interface CellProps {
-  columnIndex: number;
-  data: any;
-  rowIndex: number;
-  style: any;
+interface CellProps extends CellComponentProps {
+  activePath: string | null;
+  columnCount: number;
+  imageList: Array<ImageFile>;
+  imageRatings: Record<string, number>;
+  multiSelectedPaths: Array<string>;
+  onContextMenu: (event: any, path: string) => void;
+  onImageClick: (path: string, event: any) => void;
+  onImageDoubleClick: (path: string) => void;
+  thumbnails: Record<string, string>;
+  thumbnailAspectRatio: ThumbnailAspectRatio;
+  loadedThumbnails: Set<string>;
 }
 
 interface DropdownMenuProps {
@@ -760,20 +766,23 @@ function Thumbnail({
   );
 }
 
-const Cell = ({ columnIndex, rowIndex, style, data }: CellProps) => {
-  const {
-    activePath,
-    columnCount,
-    imageList,
-    imageRatings,
-    multiSelectedPaths,
-    onContextMenu,
-    onImageClick,
-    onImageDoubleClick,
-    thumbnails,
-    thumbnailAspectRatio,
-    loadedThumbnails,
-  } = data;
+// Memoize Cell for performance (v2 treats it as a component)
+const Cell = memo(({
+  columnIndex,
+  rowIndex,
+  style,
+  activePath,
+  columnCount,
+  imageList,
+  imageRatings,
+  multiSelectedPaths,
+  onContextMenu,
+  onImageClick,
+  onImageDoubleClick,
+  thumbnails,
+  thumbnailAspectRatio,
+  loadedThumbnails,
+}: CellProps) => {
   const index = rowIndex * columnCount + columnIndex;
   if (index >= imageList.length) {
     return null;
@@ -809,7 +818,8 @@ const Cell = ({ columnIndex, rowIndex, style, data }: CellProps) => {
       </motion.div>
     </div>
   );
-};
+});
+Cell.displayName = 'Cell'; // Optional: For debugging
 
 export default function MainLibrary({
   activePath,
@@ -860,6 +870,11 @@ export default function MainLibrary({
   const [latestVersion, setLatestVersion] = useState('');
   const [isLoaderVisible, setIsLoaderVisible] = useState(false);
   const loadedThumbnailsRef = useRef(new Set<string>());
+
+  // Add state for container dimensions
+  const [containerWidth, setContainerWidth] = useState(0);
+  const [containerHeight, setContainerHeight] = useState(0);
+  const gridContainerRef = useRef<HTMLDivElement>(null);
 
   const sortOptions = useMemo(() => {
     const exifEnabled = appSettings?.enableExifReading ?? false;
@@ -981,6 +996,53 @@ export default function MainLibrary({
       window.removeEventListener('wheel', handleWheel);
     };
   }, [thumbnailSize, onThumbnailSizeChange]);
+
+  // Use ResizeObserver to track the Grid container's size
+  useEffect(() => {
+    const container = gridContainerRef.current;
+    if (!container) return;
+
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const { width, height } = entry.contentRect;
+        setContainerWidth(width);
+        setContainerHeight(height);
+      }
+    });
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, []);
+
+  const cellWidth = thumbnailSizeOptions.find((o: ThumbnailSizeOption) => o.id === thumbnailSize)?.size || 160;
+  const cellHeight = cellWidth;
+  const columnCount = containerWidth > 0 ? Math.floor(containerWidth / cellWidth) : 1;
+  const rowCount = columnCount > 0 ? Math.ceil(imageList.length / columnCount) : 0;
+
+  const cellProps = useMemo(() => ({
+    activePath,
+    columnCount,
+    imageList,
+    imageRatings,
+    multiSelectedPaths,
+    onContextMenu,
+    onImageClick,
+    onImageDoubleClick,
+    thumbnails,
+    thumbnailAspectRatio,
+    loadedThumbnails: loadedThumbnailsRef.current,
+  }), [
+    activePath,
+    columnCount,
+    imageList,
+    imageRatings,
+    multiSelectedPaths,
+    onContextMenu,
+    onImageClick,
+    onImageDoubleClick,
+    thumbnails,
+    thumbnailAspectRatio,
+    loadedThumbnailsRef.current,
+  ]);
 
   if (!rootPath) {
     if (!appSettings) {
@@ -1220,53 +1282,26 @@ export default function MainLibrary({
         </div>
       </header>
       {imageList.length > 0 ? (
-        <div className="flex-1 w-full h-full" onClick={onClearSelection} onContextMenu={onEmptyAreaContextMenu}>
-          <AutoSizer>
-            {({ height, width }) => {
-              const SCROLLBAR_SIZE = 10;
-              const PADDING = 8;
-              const minThumbWidth = thumbnailSizeOptions.find((o) => o.id === thumbnailSize)?.size || 240;
-              const columnCount = Math.max(1, Math.floor(width / (minThumbWidth + PADDING * 2)));
-              const rowCount = Math.ceil(imageList.length / columnCount);
-              const preliminaryCellWidth = width / columnCount;
-              const isScrollbarVisible = rowCount * preliminaryCellWidth > height;
-              const gridWidth = isScrollbarVisible ? width - SCROLLBAR_SIZE : width;
-              const cellWidth = gridWidth / columnCount;
-              const cellHeight = cellWidth;
-
-              return (
-                <Grid
-                  columnCount={columnCount}
-                  columnWidth={cellWidth}
-                  height={height}
-                  initialScrollTop={libraryScrollTop}
-                  itemData={{
-                    activePath,
-                    columnCount,
-                    imageList,
-                    imageRatings,
-                    multiSelectedPaths,
-                    onContextMenu,
-                    onImageClick,
-                    onImageDoubleClick,
-                    thumbnails,
-                    thumbnailAspectRatio,
-                    loadedThumbnails: loadedThumbnailsRef.current,
-                  }}
-                  key={`${sortCriteria.key}-${sortCriteria.order}-${filterCriteria.rating}-${
-                    filterCriteria.rawStatus || RawStatus.All
-                  }-${searchQuery}`}
-                  onScroll={({ scrollTop }) => setLibraryScrollTop(scrollTop)}
-                  outerElementType={customOuterElement}
-                  rowCount={rowCount}
-                  rowHeight={cellHeight}
-                  width={width}
-                >
-                  {Cell}
-                </Grid>
-              );
-            }}
-          </AutoSizer>
+        <div
+          ref={gridContainerRef} // Add ref to the Grid's container
+          className="flex-1 w-full h-full"
+          onClick={onClearSelection}
+          onContextMenu={onEmptyAreaContextMenu}
+        >
+          <Grid
+            cellComponent={Cell}
+            cellProps={cellProps}
+            columnCount={columnCount}
+            columnWidth={cellWidth}
+            initialScrollTop={libraryScrollTop}
+            key={`${sortCriteria.key}-${sortCriteria.order}-${filterCriteria.rating}-${
+              filterCriteria.rawStatus || RawStatus.All
+            }-${searchQuery}`}
+            onScroll={({ scrollTop }) => setLibraryScrollTop(scrollTop)}
+            outerElementType={customOuterElement}
+            rowCount={rowCount}
+            rowHeight={cellHeight}
+          />
         </div>
       ) : isIndexing || aiModelDownloadStatus || importState.status === Status.Importing ? (
         <div
