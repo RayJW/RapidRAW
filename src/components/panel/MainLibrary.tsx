@@ -19,8 +19,7 @@ import {
   X,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FixedSizeGrid as Grid } from 'react-window';
-import AutoSizer from 'react-virtualized-auto-sizer';
+import { Grid } from 'react-window';
 import Button from '../ui/Button';
 import SettingsPanel from './SettingsPanel';
 import { ThemeProps, THEMES, DEFAULT_THEME_ID } from '../../utils/themes';
@@ -970,6 +969,24 @@ const Cell = ({ columnIndex, rowIndex, style, data }: CellProps) => {
   );
 };
 
+function useSize(target: HTMLElement | null) {
+  const [size, setSize] = useState<{ width: number; height: number }>({ width: 0, height: 0 });
+
+  useEffect(() => {
+    if (!target) return;
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const { width, height } = entry.contentRect;
+        setSize({ width, height });
+      }
+    });
+    resizeObserver.observe(target);
+    return () => resizeObserver.disconnect();
+  }, [target]);
+
+  return size;
+}
+
 export default function MainLibrary({
   activePath,
   aiModelDownloadStatus,
@@ -1020,6 +1037,22 @@ export default function MainLibrary({
   const [isLoaderVisible, setIsLoaderVisible] = useState(false);
   const loadedThumbnailsRef = useRef(new Set<string>());
   const layoutCache = useRef({ columnCount: 0, cellHeight: 0 });
+  const [gridContainer, setGridContainer] = useState<HTMLDivElement | null>(null);
+  const gridRef = useRef<any>(null);
+  const { width, height } = useSize(gridContainer);
+
+  useEffect(() => {
+    if (gridRef.current && libraryScrollTop > 0) {
+      // Try standard scrollTo or react-window specific method if available
+      if (typeof gridRef.current.scrollTo === 'function') {
+        gridRef.current.scrollTo({ top: libraryScrollTop });
+      } else if (gridRef.current.scrollToItem) {
+        // Fallback or different API
+      } else if (gridRef.current instanceof HTMLElement) {
+        gridRef.current.scrollTop = libraryScrollTop;
+      }
+    }
+  }, []); // Run once on mount to restore scroll
 
   const handleSortChange = useCallback(
     (criteria: SortCriteria | ((prev: SortCriteria) => SortCriteria)) => {
@@ -1070,7 +1103,7 @@ export default function MainLibrary({
 
     const currentScrollTop = scrollableElement.scrollTop;
     const gridHeight = scrollableElement.clientHeight;
-    const PADDING = 32; 
+    const PADDING = 32;
 
     if (cellTop < currentScrollTop) {
       scrollableElement.scrollTo({
@@ -1430,28 +1463,46 @@ export default function MainLibrary({
         </div>
       </header>
       {imageList.length > 0 ? (
-        <div className="flex-1 w-full h-full" onClick={onClearSelection} onContextMenu={onEmptyAreaContextMenu}>
-          <AutoSizer>
-            {({ height, width }) => {
-              const SCROLLBAR_SIZE = 10;
-              const PADDING = 8;
-              const minThumbWidth = thumbnailSizeOptions.find((o) => o.id === thumbnailSize)?.size || 240;
-              const columnCount = Math.max(1, Math.floor(width / (minThumbWidth + PADDING * 2)));
-              const rowCount = Math.ceil(imageList.length / columnCount);
-              const preliminaryCellWidth = width / columnCount;
-              const isScrollbarVisible = rowCount * preliminaryCellWidth > height;
-              const gridWidth = isScrollbarVisible ? width - SCROLLBAR_SIZE : width;
-              const cellWidth = gridWidth / columnCount;
-              const cellHeight = cellWidth;
-              layoutCache.current = { columnCount, cellHeight };
+        <div
+          className="flex-1 w-full h-full"
+          onClick={onClearSelection}
+          onContextMenu={onEmptyAreaContextMenu}
+          ref={setGridContainer}
+        >
+          {(() => {
+            const SCROLLBAR_SIZE = 10;
+            const PADDING = 8;
+            const minThumbWidth = thumbnailSizeOptions.find((o) => o.id === thumbnailSize)?.size || 240;
+            const columnCount = Math.max(1, Math.floor(width / (minThumbWidth + PADDING * 2)));
+            const rowCount = Math.ceil(imageList.length / columnCount);
+            const preliminaryCellWidth = width / columnCount;
+            const isScrollbarVisible = rowCount * preliminaryCellWidth > height;
+            const gridWidth = isScrollbarVisible ? width - SCROLLBAR_SIZE : width;
+            const cellWidth = gridWidth / columnCount;
+            const cellHeight = cellWidth;
+            layoutCache.current = { columnCount, cellHeight };
 
-              return (
-                <Grid
-                  columnCount={columnCount}
-                  columnWidth={cellWidth}
-                  height={height}
-                  initialScrollTop={libraryScrollTop}
-                  itemData={{
+            return (
+              <Grid
+                columnCount={columnCount}
+                columnWidth={cellWidth}
+                ref={gridRef}
+                key={`${currentFolderPath}-${sortCriteria.key}-${sortCriteria.order}-${filterCriteria.rating}-${filterCriteria.rawStatus || RawStatus.All
+                  }-${JSON.stringify(searchCriteria)}`}
+                onScroll={(event: any) => {
+                  // In v2, onScroll might be a native event or object. 
+                  // If it's an object { scrollTop }, we use it. If it's an event, we use currentTarget.
+                  // To be safe, we check both.
+                  const scrollTop = event.scrollTop ?? event.currentTarget?.scrollTop;
+                  if (typeof scrollTop === 'number') {
+                    setLibraryScrollTop(scrollTop);
+                  }
+                }}
+                tagName={customOuterElement}
+                rowCount={rowCount}
+                rowHeight={cellHeight}
+                cellProps={{
+                  data: {
                     activePath,
                     columnCount,
                     imageList,
@@ -1463,21 +1514,12 @@ export default function MainLibrary({
                     thumbnails,
                     thumbnailAspectRatio,
                     loadedThumbnails: loadedThumbnailsRef.current,
-                  }}
-                  key={`${currentFolderPath}-${sortCriteria.key}-${sortCriteria.order}-${filterCriteria.rating}-${
-                    filterCriteria.rawStatus || RawStatus.All
-                  }-${JSON.stringify(searchCriteria)}`}
-                  onScroll={({ scrollTop }) => setLibraryScrollTop(scrollTop)}
-                  outerElementType={customOuterElement}
-                  rowCount={rowCount}
-                  rowHeight={cellHeight}
-                  width={width}
-                >
-                  {Cell}
-                </Grid>
-              );
-            }}
-          </AutoSizer>
+                  },
+                }}
+                cellComponent={Cell}
+              />
+            );
+          })()}
         </div>
       ) : isIndexing || aiModelDownloadStatus || importState.status === Status.Importing ? (
         <div
