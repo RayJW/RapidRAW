@@ -4,8 +4,8 @@ use mimalloc::MiMalloc;
 #[global_allocator]
 static GLOBAL: MiMalloc = MiMalloc;
 
-mod ai_processing;
 mod ai_connector;
+mod ai_processing;
 mod culling;
 mod denoising;
 mod exif_processing;
@@ -15,16 +15,16 @@ mod gpu_processing;
 mod image_loader;
 mod image_processing;
 mod inpainting;
+mod lens_correction;
 mod lut_processing;
 mod mask_generation;
+mod negative_conversion;
 mod panorama_stitching;
 mod panorama_utils;
 mod preset_converter;
 mod raw_processing;
 mod tagging;
 mod tagging_utils;
-mod lens_correction;
-mod negative_conversion;
 
 use log;
 use std::collections::{HashMap, hash_map::DefaultHasher};
@@ -38,8 +38,8 @@ use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::sync::mpsc::{self, Receiver, Sender};
 use std::thread;
 
-use std::time::Duration;
 use std::sync::{Arc, Mutex};
+use std::time::Duration;
 
 use base64::{Engine as _, engine::general_purpose};
 use image::codecs::jpeg::JpegEncoder;
@@ -52,6 +52,7 @@ use image_hdr::input::HDRInput;
 use imageproc::drawing::draw_line_segment_mut;
 use imageproc::edges::canny;
 use imageproc::hough::{LineDetectionOptions, detect_lines};
+use mozjpeg_rs::{Encoder, Preset};
 use rayon::prelude::*;
 use reqwest;
 use serde::{Deserialize, Serialize};
@@ -61,7 +62,6 @@ use tempfile::NamedTempFile;
 use tokio::sync::Mutex as TokioMutex;
 use tokio::task::JoinHandle;
 use wgpu::{Texture, TextureView};
-use mozjpeg_rs::{Encoder, Preset};
 
 use crate::ai_processing::{
     AiForegroundMaskParameters, AiSkyMaskParameters, AiState, AiSubjectMaskParameters,
@@ -97,7 +97,7 @@ struct WindowState {
 #[derive(Clone)]
 pub struct LoadedImage {
     path: String,
-    image: Arc<DynamicImage>, 
+    image: Arc<DynamicImage>,
     is_raw: bool,
 }
 
@@ -269,12 +269,23 @@ fn apply_all_transformations(
 }
 
 const GEOMETRY_KEYS: &[&str] = &[
-    "transformDistortion", "transformVertical", "transformHorizontal",
-    "transformRotate", "transformAspect", "transformScale",
-    "transformXOffset", "transformYOffset", "lensDistortionAmount",
-    "lensVignetteAmount", "lensTcaAmount", "lensDistortionParams",
-    "lensMaker", "lensModel", "lensDistortionEnabled",
-    "lensTcaEnabled", "lensVignetteEnabled",
+    "transformDistortion",
+    "transformVertical",
+    "transformHorizontal",
+    "transformRotate",
+    "transformAspect",
+    "transformScale",
+    "transformXOffset",
+    "transformYOffset",
+    "lensDistortionAmount",
+    "lensVignetteAmount",
+    "lensTcaAmount",
+    "lensDistortionParams",
+    "lensMaker",
+    "lensModel",
+    "lensDistortionEnabled",
+    "lensTcaEnabled",
+    "lensVignetteEnabled",
 ];
 
 pub fn calculate_geometry_hash(adjustments: &serde_json::Value) -> u64 {
@@ -411,10 +422,19 @@ fn calculate_full_job_hash(path: &str, adjustments: &serde_json::Value) -> u64 {
 fn hydrate_adjustments(state: &tauri::State<AppState>, adjustments: &mut serde_json::Value) {
     let mut cache = state.patch_cache.lock().unwrap();
 
-    if let Some(patches) = adjustments.get_mut("aiPatches").and_then(|v| v.as_array_mut()) {
+    if let Some(patches) = adjustments
+        .get_mut("aiPatches")
+        .and_then(|v| v.as_array_mut())
+    {
         for patch in patches {
-            let id = patch.get("id").and_then(|v| v.as_str()).unwrap_or_default().to_string();
-            if id.is_empty() { continue; }
+            let id = patch
+                .get("id")
+                .and_then(|v| v.as_str())
+                .unwrap_or_default()
+                .to_string();
+            if id.is_empty() {
+                continue;
+            }
 
             let has_data = patch.get("patchData").map_or(false, |v| !v.is_null());
 
@@ -432,19 +452,34 @@ fn hydrate_adjustments(state: &tauri::State<AppState>, adjustments: &mut serde_j
 
     if let Some(masks) = adjustments.get_mut("masks").and_then(|v| v.as_array_mut()) {
         for mask_container in masks {
-            if let Some(sub_masks) = mask_container.get_mut("subMasks").and_then(|v| v.as_array_mut()) {
+            if let Some(sub_masks) = mask_container
+                .get_mut("subMasks")
+                .and_then(|v| v.as_array_mut())
+            {
                 for sub_mask in sub_masks {
-                    let id = sub_mask.get("id").and_then(|v| v.as_str()).unwrap_or_default().to_string();
-                    if id.is_empty() { continue; }
+                    let id = sub_mask
+                        .get("id")
+                        .and_then(|v| v.as_str())
+                        .unwrap_or_default()
+                        .to_string();
+                    if id.is_empty() {
+                        continue;
+                    }
 
-                    if let Some(params) = sub_mask.get_mut("parameters").and_then(|p| p.as_object_mut()) {
+                    if let Some(params) = sub_mask
+                        .get_mut("parameters")
+                        .and_then(|p| p.as_object_mut())
+                    {
                         if params.contains_key("mask_data_base64") {
                             let val = params.get("mask_data_base64").unwrap();
                             if !val.is_null() {
                                 cache.insert(id.clone(), val.clone());
                             } else {
                                 if let Some(cached_data) = cache.get(&id) {
-                                    params.insert("mask_data_base64".to_string(), cached_data.clone());
+                                    params.insert(
+                                        "mask_data_base64".to_string(),
+                                        cached_data.clone(),
+                                    );
                                 }
                             }
                         }
@@ -549,23 +584,22 @@ async fn load_image(
             return Err("Load cancelled".to_string());
         }
 
-        let result: Result<(DynamicImage, HashMap<String, String>), String> = (|| {
-            match read_file_mapped(Path::new(&path_clone)) {
+        let result: Result<(DynamicImage, HashMap<String, String>), String> =
+            (|| match read_file_mapped(Path::new(&path_clone)) {
                 Ok(mmap) => {
                     if generation_tracker.load(Ordering::SeqCst) != my_generation {
                         return Err("Load cancelled".to_string());
                     }
 
-                    let img =
-                        load_base_image_from_bytes(
-                            &mmap, 
-                            &path_clone, 
-                            false, 
-                            highlight_compression, 
-                            linear_mode.clone(), 
-                            cancel_token.clone()
-                        )
-                            .map_err(|e| e.to_string())?;
+                    let img = load_base_image_from_bytes(
+                        &mmap,
+                        &path_clone,
+                        false,
+                        highlight_compression,
+                        linear_mode.clone(),
+                        cancel_token.clone(),
+                    )
+                    .map_err(|e| e.to_string())?;
                     let exif = exif_processing::read_exif_data(&path_clone, &mmap);
                     Ok((img, exif))
                 }
@@ -589,14 +623,13 @@ async fn load_image(
                         false,
                         highlight_compression,
                         linear_mode.clone(),
-                        cancel_token.clone()
+                        cancel_token.clone(),
                     )
                     .map_err(|e| e.to_string())?;
                     let exif = exif_processing::read_exif_data(&path_clone, &bytes);
                     Ok((img, exif))
                 }
-            }
-        })();
+            })();
         result
     })
     .await
@@ -782,11 +815,7 @@ fn process_preview_job(
         let transition_start = 1536.0;
         let transition_end = max_interactive_dim;
 
-        let (start_div, end_div) = if hq_live {
-            (1.0, 1.5)
-        } else {
-            (1.5, 2.0)
-        };
+        let (start_div, end_div) = if hq_live { (1.0, 1.5) } else { (1.5, 2.0) };
 
         if preview_dim_f >= transition_end {
             end_div
@@ -927,7 +956,10 @@ fn process_preview_job(
             .encode_rgb(&rgb_pixels, width as u32, height as u32)
         {
             Ok(bytes) => {
-                log::info!("[process_preview_job] completed in {:?}", fn_start.elapsed());
+                log::info!(
+                    "[process_preview_job] completed in {:?}",
+                    fn_start.elapsed()
+                );
                 return Ok(bytes);
             }
             Err(e) => {
@@ -953,7 +985,13 @@ fn start_preview_worker(app_handle: tauri::AppHandle) {
 
             let state = app_handle.state::<AppState>();
             let responder = job.responder;
-            match process_preview_job(&app_handle, state, job.adjustments, job.is_interactive, job.target_resolution) {
+            match process_preview_job(
+                &app_handle,
+                state,
+                job.adjustments,
+                job.is_interactive,
+                job.target_resolution,
+            ) {
                 Ok(bytes) => {
                     let _ = responder.send(bytes);
                 }
@@ -983,7 +1021,9 @@ async fn apply_adjustments(
                 target_resolution,
                 responder: tx,
             };
-            worker_tx.send(job).map_err(|e| format!("Failed to send to preview worker: {}", e))?;
+            worker_tx
+                .send(job)
+                .map_err(|e| format!("Failed to send to preview worker: {}", e))?;
         } else {
             return Err("Preview worker not running".to_string());
         }
@@ -1031,7 +1071,9 @@ fn generate_uncropped_preview(
         let orientation_steps = adjustments_clone["orientationSteps"].as_u64().unwrap_or(0) as u8;
         let coarse_rotated_image = apply_coarse_rotation(warped_image, orientation_steps);
 
-        let flip_horizontal = adjustments_clone["flipHorizontal"].as_bool().unwrap_or(false);
+        let flip_horizontal = adjustments_clone["flipHorizontal"]
+            .as_bool()
+            .unwrap_or(false);
         let flip_vertical = adjustments_clone["flipVertical"].as_bool().unwrap_or(false);
 
         let flipped_image = apply_flip(coarse_rotated_image, flip_horizontal, flip_vertical);
@@ -1175,7 +1217,12 @@ async fn preview_geometry_transform(
     let visual_hash = calculate_visual_hash(&loaded_image_path, &js_adjustments);
 
     let base_image_to_warp = {
-        let maybe_cached_image = state.geometry_cache.lock().unwrap().get(&visual_hash).cloned();
+        let maybe_cached_image = state
+            .geometry_cache
+            .lock()
+            .unwrap()
+            .get(&visual_hash)
+            .cloned();
 
         if let Some(cached_image) = maybe_cached_image {
             cached_image
@@ -1195,7 +1242,9 @@ async fn preview_geometry_transform(
 
             let preview_base = tokio::task::spawn_blocking(move || -> DynamicImage {
                 downscale_f32_image(&original_image, target_dim, target_dim)
-            }).await.map_err(|e| e.to_string())?;
+            })
+            .await
+            .map_err(|e| e.to_string())?;
 
             let mut temp_adjustments = js_adjustments.clone();
             hydrate_adjustments(&state, &mut temp_adjustments);
@@ -1208,22 +1257,18 @@ async fn preview_geometry_transform(
                 obj.insert("flipVertical".to_string(), serde_json::json!(false));
                 for key in GEOMETRY_KEYS {
                     match *key {
-                        "transformScale" |
-                        "lensDistortionAmount" |
-                        "lensVignetteAmount" |
-                        "lensTcaAmount" => {
+                        "transformScale"
+                        | "lensDistortionAmount"
+                        | "lensVignetteAmount"
+                        | "lensTcaAmount" => {
                             obj.insert(key.to_string(), serde_json::json!(100.0));
-                        },
-                        "lensDistortionParams" |
-                        "lensMaker" |
-                        "lensModel" => {
+                        }
+                        "lensDistortionParams" | "lensMaker" | "lensModel" => {
                             obj.insert(key.to_string(), serde_json::Value::Null);
-                        },
-                        "lensDistortionEnabled" |
-                        "lensTcaEnabled" |
-                        "lensVignetteEnabled" => {
+                        }
+                        "lensDistortionEnabled" | "lensTcaEnabled" | "lensVignetteEnabled" => {
                             obj.insert(key.to_string(), serde_json::json!(true));
-                        },
+                        }
                         _ => {
                             obj.insert(key.to_string(), serde_json::json!(0.0));
                         }
@@ -1260,7 +1305,8 @@ async fn preview_geometry_transform(
     let final_image = tokio::task::spawn_blocking(move || -> DynamicImage {
         let mut adjusted_params = params;
 
-        if is_raw { // approximate linear vignetting correction on gamma-baked & tonemapped geometry preview
+        if is_raw {
+            // approximate linear vignetting correction on gamma-baked & tonemapped geometry preview
             adjusted_params.lens_vignette_amount *= 0.4;
         } else {
             adjusted_params.lens_vignette_amount *= 0.8;
@@ -1292,7 +1338,8 @@ async fn preview_geometry_transform(
                 let angle_deg = line.angle_in_degrees as f32;
                 let angle_norm = angle_deg % 180.0;
                 let alignment_threshold = 0.5;
-                let is_vertical = angle_norm < alignment_threshold || angle_norm > (180.0 - alignment_threshold);
+                let is_vertical =
+                    angle_norm < alignment_threshold || angle_norm > (180.0 - alignment_threshold);
                 let is_horizontal = (angle_norm - 90.0).abs() < alignment_threshold;
 
                 let color = if is_vertical || is_horizontal {
@@ -1315,12 +1362,7 @@ async fn preview_geometry_transform(
                 let x2 = x0 - dist * (-b);
                 let y2 = y0 - dist * (a);
 
-                draw_line_segment_mut(
-                    &mut visualization,
-                    (x1, y1),
-                    (x2, y2),
-                    color,
-                );
+                draw_line_segment_mut(&mut visualization, (x1, y1), (x2, y2), color);
                 draw_line_segment_mut(
                     &mut visualization,
                     (x1 + a, y1 + b),
@@ -1333,7 +1375,9 @@ async fn preview_geometry_transform(
         } else {
             flipped_image
         }
-    }).await.map_err(|e| e.to_string())?;
+    })
+    .await
+    .map_err(|e| e.to_string())?;
 
     let (width, height) = final_image.dimensions();
     let rgb_pixels = final_image.to_rgb8().into_vec();
@@ -1354,7 +1398,10 @@ fn get_full_image_for_processing(
     let loaded_image = original_image_lock
         .as_ref()
         .ok_or("No original image loaded")?;
-    Ok((loaded_image.image.clone().as_ref().clone(), loaded_image.is_raw))
+    Ok((
+        loaded_image.image.clone().as_ref().clone(),
+        loaded_image.is_raw,
+    ))
 }
 
 fn calculate_resize_target(
@@ -1398,7 +1445,7 @@ fn apply_export_resize_and_watermark(
     if let Some(resize_opts) = &export_settings.resize {
         let (current_w, current_h) = image.dimensions();
         let (target_w, target_h) = calculate_resize_target(current_w, current_h, resize_opts);
-        
+
         if target_w != current_w || target_h != current_h {
             image = image.resize(target_w, target_h, imageops::FilterType::Lanczos3);
         }
@@ -1465,8 +1512,7 @@ fn save_image_with_metadata(
         .unwrap_or("")
         .to_lowercase();
 
-    let mut image_bytes =
-        encode_image_to_bytes(image, &extension, export_settings.jpeg_quality)?;
+    let mut image_bytes = encode_image_to_bytes(image, &extension, export_settings.jpeg_quality)?;
 
     exif_processing::write_image_with_metadata(
         &mut image_bytes,
@@ -1591,18 +1637,23 @@ fn export_masks_for_image(
         let lut_path = js_adjustments["lutPath"].as_str();
         let lut = lut_path.and_then(|p| get_or_load_lut(&state, p).ok());
         let unique_hash = calculate_full_job_hash(&source_path_str, &js_adjustments);
-        let output_dir = output_path_obj.parent().unwrap_or_else(|| output_path_obj.as_ref());
+        let output_dir = output_path_obj
+            .parent()
+            .unwrap_or_else(|| output_path_obj.as_ref());
         let stem = output_path_obj
             .file_stem()
             .and_then(|s| s.to_str())
             .unwrap_or("export");
-        let extension = output_path_obj.extension().and_then(|s| s.to_str()).unwrap_or("jpg");
+        let extension = output_path_obj
+            .extension()
+            .and_then(|s| s.to_str())
+            .unwrap_or("jpg");
 
         for (i, _) in mask_bitmaps.iter().enumerate() {
             let single_adjustments = build_single_mask_adjustments(&all_adjustments, i);
             let full_white_mask = ImageBuffer::from_fn(img_w, img_h, |_, _| Luma([255u8]));
             let single_bitmaps: Vec<ImageBuffer<Luma<u8>, Vec<u8>>> = vec![full_white_mask];
-            
+
             let processed = process_and_get_dynamic_image(
                 &context,
                 &state,
@@ -1613,10 +1664,10 @@ fn export_masks_for_image(
                 lut.clone(),
                 "export_mask_image",
             )?;
-            
+
             let with_options = apply_export_resize_and_watermark(processed, &export_settings)?;
             let (out_w, out_h) = with_options.dimensions();
-            
+
             let alpha_resized = imageops::resize(
                 &mask_bitmaps[i],
                 out_w,
@@ -1624,10 +1675,16 @@ fn export_masks_for_image(
                 imageops::FilterType::Lanczos3,
             );
 
-            let mask_image_path = output_dir.join(format!("{}_mask_{}_image.{}", stem, i, extension));
+            let mask_image_path =
+                output_dir.join(format!("{}_mask_{}_image.{}", stem, i, extension));
             let mask_alpha_path = output_dir.join(format!("{}_mask_{}_alpha.png", stem, i));
 
-            save_image_with_metadata(&with_options, &mask_image_path, &source_path_str, &export_settings)?;
+            save_image_with_metadata(
+                &with_options,
+                &mask_image_path,
+                &source_path_str,
+                &export_settings,
+            )?;
 
             let alpha_bytes = encode_grayscale_to_png(&alpha_resized)?;
             fs::write(&mask_alpha_path, alpha_bytes).map_err(|e| e.to_string())?;
@@ -1680,7 +1737,12 @@ async fn export_image(
             )?;
 
             let output_path_obj = std::path::Path::new(&output_path);
-            save_image_with_metadata(&final_image, output_path_obj, &source_path_str, &export_settings)?;
+            save_image_with_metadata(
+                &final_image,
+                output_path_obj,
+                &source_path_str,
+                &export_settings,
+            )?;
 
             if export_settings.export_masks {
                 export_masks_for_image(
@@ -1691,7 +1753,7 @@ async fn export_image(
                     &source_path_str,
                     &context,
                     &state,
-                    is_raw
+                    is_raw,
                 )?;
             }
 
@@ -1732,10 +1794,16 @@ async fn batch_export_images(
     let context = Arc::new(context);
     let progress_counter = Arc::new(AtomicUsize::new(0));
 
-    let available_cores = std::thread::available_parallelism().map(|n| n.get()).unwrap_or(1);
+    let available_cores = std::thread::available_parallelism()
+        .map(|n| n.get())
+        .unwrap_or(1);
     let num_threads = (available_cores / 2).clamp(1, 4);
 
-    log::info!("Starting batch export. System cores: {}, Export threads: {}", available_cores, num_threads);
+    log::info!(
+        "Starting batch export. System cores: {}, Export threads: {}",
+        available_cores,
+        num_threads
+    );
 
     let task = tokio::spawn(async move {
         let state = app_handle.state::<AppState>();
@@ -1750,8 +1818,15 @@ async fn batch_export_images(
             .build();
 
         if let Err(e) = pool_result {
-            let _ = app_handle.emit("export-error", format!("Failed to initialize worker threads: {}", e));
-            *app_handle.state::<AppState>().export_task_handle.lock().unwrap() = None;
+            let _ = app_handle.emit(
+                "export-error",
+                format!("Failed to initialize worker threads: {}", e),
+            );
+            *app_handle
+                .state::<AppState>()
+                .export_task_handle
+                .lock()
+                .unwrap() = None;
             return;
         }
         let pool = pool_result.unwrap();
@@ -1864,7 +1939,7 @@ async fn batch_export_images(
                         let output_path = output_folder_path.join(new_filename);
 
                         save_image_with_metadata(&final_image, &output_path, &source_path_str, &export_settings)?;
-                        
+
                         if export_settings.export_masks {
                             export_masks_for_image(
                                 &base_image,
@@ -1955,7 +2030,7 @@ async fn estimate_export_size(
 
     let new_transform_hash = calculate_transform_hash(&adjustments_clone);
     let cached_preview_lock = state.cached_preview.lock().unwrap();
-    
+
     let settings = load_settings(app_handle.clone()).unwrap_or_default();
     let preview_dim = settings.editor_preview_resolution.unwrap_or(1920);
 
@@ -1996,7 +2071,8 @@ async fn estimate_export_size(
 
     let lut_path = adjustments_clone["lutPath"].as_str();
     let lut = lut_path.and_then(|p| get_or_load_lut(&state, p).ok());
-    let unique_hash = calculate_full_job_hash(&loaded_image.path, &adjustments_clone).wrapping_add(1);
+    let unique_hash =
+        calculate_full_job_hash(&loaded_image.path, &adjustments_clone).wrapping_add(1);
 
     let processed_preview = process_and_get_dynamic_image(
         &context,
@@ -2071,8 +2147,8 @@ async fn estimate_batch_export_size(
 
     const ESTIMATE_DIM: u32 = 1280;
 
-    let mmap_guard; 
-    let vec_guard; 
+    let mmap_guard;
+    let vec_guard;
 
     let file_slice: &[u8] = match read_file_mapped(Path::new(&source_path_str)) {
         Ok(mmap) => {
@@ -2092,19 +2168,20 @@ async fn estimate_batch_export_size(
     };
 
     let original_image = load_base_image_from_bytes(
-        file_slice, 
-        &source_path_str, 
+        file_slice,
+        &source_path_str,
         true,
-        highlight_compression, 
+        highlight_compression,
         linear_mode.clone(),
-        None
-    ).map_err(|e| e.to_string())?;
+        None,
+    )
+    .map_err(|e| e.to_string())?;
 
     let raw_scale_factor = if is_raw {
         crate::raw_processing::get_fast_demosaic_scale_factor(
-            file_slice, 
-            original_image.width(), 
-            original_image.height()
+            file_slice,
+            original_image.width(),
+            original_image.height(),
         )
     } else {
         1.0
@@ -2118,7 +2195,8 @@ async fn estimate_batch_export_size(
                 y: c.y * raw_scale_factor as f64,
                 width: c.width * raw_scale_factor as f64,
                 height: c.height * raw_scale_factor as f64,
-            }).unwrap_or(serde_json::Value::Null);
+            })
+            .unwrap_or(serde_json::Value::Null);
         }
     }
 
@@ -2133,7 +2211,11 @@ async fn estimate_batch_export_size(
     };
 
     let (preview_w, preview_h) = preview_base.dimensions();
-    let gpu_scale = if shrunk_w > 0 { preview_w as f32 / shrunk_w as f32 } else { 1.0 };
+    let gpu_scale = if shrunk_w > 0 {
+        preview_w as f32 / shrunk_w as f32
+    } else {
+        1.0
+    };
 
     let total_scale = gpu_scale * raw_scale_factor;
 
@@ -2149,7 +2231,9 @@ async fn estimate_batch_export_size(
 
     let mask_bitmaps: Vec<ImageBuffer<Luma<u8>, Vec<u8>>> = mask_definitions
         .iter()
-        .filter_map(|def| generate_mask_bitmap(def, preview_w, preview_h, total_scale, scaled_crop_offset))
+        .filter_map(|def| {
+            generate_mask_bitmap(def, preview_w, preview_h, total_scale, scaled_crop_offset)
+        })
         .collect();
 
     let mut all_adjustments = get_all_adjustments_from_json(&scaled_adjustments, is_raw);
@@ -2157,7 +2241,8 @@ async fn estimate_batch_export_size(
 
     let lut_path = scaled_adjustments["lutPath"].as_str();
     let lut = lut_path.and_then(|p| get_or_load_lut(&state, p).ok());
-    let unique_hash = calculate_full_job_hash(&source_path_str, &scaled_adjustments).wrapping_add(1);
+    let unique_hash =
+        calculate_full_job_hash(&source_path_str, &scaled_adjustments).wrapping_add(1);
 
     let processed_preview = process_and_get_dynamic_image(
         &context,
@@ -2340,7 +2425,6 @@ async fn generate_ai_subject_mask(
             }
         }
         hasher.update(&geo_hasher.finish().to_le_bytes());
-
 
         let path_hash = hasher.finalize().to_hex().to_string();
 
@@ -2618,8 +2702,10 @@ async fn invoke_generative_replace_with_mask_def(
             &real_path_str,
             &source_image,
             &mask_image_dynamic,
-            patch_definition.prompt
-        ).await.map_err(|e| e.to_string())?
+            patch_definition.prompt,
+        )
+        .await
+        .map_err(|e| e.to_string())?
     } else if let Some(auth_token) = token {
         // convenience cloud service
         let client = reqwest::Client::new();
@@ -2780,9 +2866,15 @@ async fn generate_all_community_previews(
         let (source_path, _) = parse_virtual_path(image_path);
         let source_path_str = source_path.to_string_lossy().to_string();
         let image_bytes = fs::read(&source_path).map_err(|e| e.to_string())?;
-        let original_image =
-            crate::image_loader::load_base_image_from_bytes(&image_bytes, &source_path_str, true, highlight_compression, linear_mode.clone(), None)
-                .map_err(|e| e.to_string())?;
+        let original_image = crate::image_loader::load_base_image_from_bytes(
+            &image_bytes,
+            &source_path_str,
+            true,
+            highlight_compression,
+            linear_mode.clone(),
+            None,
+        )
+        .map_err(|e| e.to_string())?;
         let is_raw = is_raw_file(&source_path_str);
         base_thumbnails.push((
             downscale_f32_image(&original_image, PROCESSING_DIM, PROCESSING_DIM),
@@ -2929,11 +3021,8 @@ async fn stitch_panorama(
                     ((800.0 * w as f32 / h as f32).round() as u32, 800)
                 };
 
-                let preview_f32 = crate::image_processing::downscale_f32_image(
-                    &panorama_image,
-                    new_w,
-                    new_h
-                );
+                let preview_f32 =
+                    crate::image_processing::downscale_f32_image(&panorama_image, new_w, new_h);
 
                 let preview_u8 = preview_f32.to_rgb8();
 
@@ -2994,13 +3083,20 @@ async fn save_panorama(
         .and_then(|s| s.to_str())
         .unwrap_or("panorama");
 
-    let (output_filename, image_to_save): (String, DynamicImage) = if panorama_image.color().has_alpha() {
-        (format!("{}_Pano.png", stem), DynamicImage::ImageRgba8(panorama_image.to_rgba8()))
-    } else if panorama_image.as_rgb32f().is_some() {
-        (format!("{}_Pano.tiff", stem), panorama_image)
-    } else {
-        (format!("{}_Pano.png", stem), DynamicImage::ImageRgb8(panorama_image.to_rgb8()))
-    };
+    let (output_filename, image_to_save): (String, DynamicImage) =
+        if panorama_image.color().has_alpha() {
+            (
+                format!("{}_Pano.png", stem),
+                DynamicImage::ImageRgba8(panorama_image.to_rgba8()),
+            )
+        } else if panorama_image.as_rgb32f().is_some() {
+            (format!("{}_Pano.tiff", stem), panorama_image)
+        } else {
+            (
+                format!("{}_Pano.png", stem),
+                DynamicImage::ImageRgb8(panorama_image.to_rgb8()),
+            )
+        };
 
     let output_path = parent_dir.join(output_filename);
 
@@ -3043,12 +3139,12 @@ async fn merge_hdr(
             let file_bytes =
                 fs::read(path).map_err(|e| format!("Failed to read image {}: {}", path, e))?;
             let dynamic_image = load_base_image_from_bytes(
-                &file_bytes, 
-                path, 
-                false, 
-                highlight_compression, 
+                &file_bytes,
+                path,
+                false,
+                highlight_compression,
                 linear_mode.clone(),
-                None
+                None,
             )
             .map_err(|e| format!("Failed to load image {}: {}", path, e))?;
 
@@ -3073,10 +3169,18 @@ async fn merge_hdr(
             if img.width() != width || img.height() != height {
                 return Err(format!(
                     "Dimension mismatch detected.\n\nBase image ({}): {}x{}\nTarget image ({}): {}x{}\n\nHDR merge requires all images to be exactly the same size.",
-                    Path::new(first_path).file_name().unwrap_or_default().to_string_lossy(),
-                    width, height,
-                    Path::new(path).file_name().unwrap_or_default().to_string_lossy(),
-                    img.width(), img.height()
+                    Path::new(first_path)
+                        .file_name()
+                        .unwrap_or_default()
+                        .to_string_lossy(),
+                    width,
+                    height,
+                    Path::new(path)
+                        .file_name()
+                        .unwrap_or_default()
+                        .to_string_lossy(),
+                    img.width(),
+                    img.height()
                 ));
             }
         }
@@ -3188,15 +3292,10 @@ async fn save_denoised_image(
     original_path_str: String,
     state: tauri::State<'_, AppState>,
 ) -> Result<String, String> {
-    let denoised_image = state
-        .denoise_result
-        .lock()
-        .unwrap()
-        .take()
-        .ok_or_else(|| {
-            "No denoised image found in memory. It might have already been saved or cleared."
-                .to_string()
-        })?;
+    let denoised_image = state.denoise_result.lock().unwrap().take().ok_or_else(|| {
+        "No denoised image found in memory. It might have already been saved or cleared."
+            .to_string()
+    })?;
 
     let is_raw = crate::formats::is_raw_file(&original_path_str);
 
@@ -3211,7 +3310,10 @@ async fn save_denoised_image(
 
     let (output_filename, image_to_save): (String, DynamicImage) = if is_raw {
         let filename = format!("{}_Denoised.tiff", stem);
-        (filename, DynamicImage::ImageRgb16(denoised_image.to_rgb16()))
+        (
+            filename,
+            DynamicImage::ImageRgb16(denoised_image.to_rgb16()),
+        )
     } else {
         let filename = format!("{}_Denoised.png", stem);
         (filename, DynamicImage::ImageRgb8(denoised_image.to_rgb8()))
@@ -3489,7 +3591,11 @@ fn frontend_log(level: String, message: String) -> Result<(), String> {
         _ => log::info!("[frontend] {}", line),
     };
 
-    for line in trimmed.lines().map(str::trim).filter(|line| !line.is_empty()) {
+    for line in trimmed
+        .lines()
+        .map(str::trim)
+        .filter(|line| !line.is_empty())
+    {
         log_line(line);
     }
 
@@ -3508,9 +3614,11 @@ fn handle_file_open(app_handle: &tauri::AppHandle, path: PathBuf) {
 fn frontend_ready(
     app_handle: tauri::AppHandle,
     window: tauri::Window,
-    state: tauri::State<AppState>
+    state: tauri::State<AppState>,
 ) -> Result<(), String> {
-    let is_first_run = !state.window_setup_complete.swap(true, std::sync::atomic::Ordering::Relaxed);
+    let is_first_run = !state
+        .window_setup_complete
+        .swap(true, std::sync::atomic::Ordering::Relaxed);
     let mut should_maximize = false;
     let mut should_fullscreen = false;
 
@@ -3527,19 +3635,33 @@ fn frontend_ready(
                     }
 
                     if should_maximize || should_fullscreen {
-                        if let Some(monitor) = window.current_monitor().ok().flatten()
+                        if let Some(monitor) = window
+                            .current_monitor()
+                            .ok()
+                            .flatten()
                             .or_else(|| window.primary_monitor().ok().flatten())
-                            .or_else(|| window.available_monitors().ok().and_then(|m| m.into_iter().next()))
+                            .or_else(|| {
+                                window
+                                    .available_monitors()
+                                    .ok()
+                                    .and_then(|m| m.into_iter().next())
+                            })
                         {
                             let monitor_size = monitor.size();
                             let monitor_pos = monitor.position();
                             let default_width = 1280i32;
                             let default_height = 720i32;
-                            let center_x = monitor_pos.x + (monitor_size.width as i32 - default_width) / 2;
-                            let center_y = monitor_pos.y + (monitor_size.height as i32 - default_height) / 2;
+                            let center_x =
+                                monitor_pos.x + (monitor_size.width as i32 - default_width) / 2;
+                            let center_y =
+                                monitor_pos.y + (monitor_size.height as i32 - default_height) / 2;
 
-                            let _ = window.set_size(tauri::PhysicalSize::new(default_width as u32, default_height as u32));
-                            let _ = window.set_position(tauri::PhysicalPosition::new(center_x, center_y));
+                            let _ = window.set_size(tauri::PhysicalSize::new(
+                                default_width as u32,
+                                default_height as u32,
+                            ));
+                            let _ = window
+                                .set_position(tauri::PhysicalPosition::new(center_x, center_y));
                         }
                     }
                 }
@@ -3563,7 +3685,10 @@ fn frontend_ready(
     }
 
     if let Some(path) = state.initial_file_path.lock().unwrap().take() {
-        log::info!("Frontend is ready, emitting open-with-file for initial path: {}", &path);
+        log::info!(
+            "Frontend is ready, emitting open-with-file for initial path: {}",
+            &path
+        );
         handle_file_open(&app_handle, PathBuf::from(path));
     }
     Ok(())
@@ -3729,7 +3854,7 @@ fn main() {
                             let path = config_dir.join("window_state.json");
                             let _ = std::fs::create_dir_all(&config_dir);
                             if let Ok(json) = serde_json::to_string(&state) {
-                                let _ = std::fs::write(&path, json); 
+                                let _ = std::fs::write(&path, json);
                             }
                         }
                     }
