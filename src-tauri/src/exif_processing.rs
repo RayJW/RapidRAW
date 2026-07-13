@@ -783,6 +783,7 @@ pub fn write_image_with_metadata(
             as_zTXt_chunk: true,
         },
         "tiff" => FileExtension::TIFF,
+        "webp" => FileExtension::WEBP,
         _ => return Ok(()),
     };
 
@@ -1595,5 +1596,50 @@ mod tests {
             (Some(32), Some(64)),
             "dimension tags must match the exported pixels"
         );
+    }
+
+    #[test]
+    fn issue_1322_webp_export_carries_exif() {
+        let dir = TempDir::new().unwrap();
+        let (jpeg_path, _) = setup_jpeg_with_sidecar(&dir);
+
+        let img: ImageBuffer<Rgb<u8>, Vec<u8>> =
+            ImageBuffer::from_pixel(64, 64, Rgb([200, 100, 50]));
+        let mut lossless_bytes = Vec::new();
+        img.write_to(
+            &mut Cursor::new(&mut lossless_bytes),
+            image::ImageFormat::WebP,
+        )
+        .unwrap();
+        // Same encoder the export pipeline uses (lossy VP8).
+        let lossy_bytes = webp::Encoder::from_image(&image::DynamicImage::ImageRgb8(img))
+            .unwrap()
+            .encode(80.0)
+            .to_vec();
+
+        for mut export_bytes in [lossless_bytes, lossy_bytes] {
+            write_image_with_metadata(
+                &mut export_bytes,
+                jpeg_path.to_str().unwrap(),
+                "webp",
+                true,
+                false,
+            )
+            .unwrap();
+
+            let exif_obj = read_export_exif(&export_bytes);
+            for tag in [
+                exif::Tag::Make,
+                exif::Tag::Flash,
+                exif::Tag::MakerNote,
+                exif::Tag::GPSLatitude,
+            ] {
+                assert!(
+                    exif_obj.get_field(tag, In::PRIMARY).is_some(),
+                    "{} must be written to the WebP EXIF chunk (issue #1322)",
+                    tag
+                );
+            }
+        }
     }
 }
