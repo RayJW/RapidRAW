@@ -9,6 +9,7 @@ use chrono::{DateTime, NaiveDateTime, Utc};
 use exif::{Exif, In, Value};
 use little_exif::exif_tag::ExifTag;
 use little_exif::filetype::FileExtension;
+use little_exif::ifd::ExifTagGroup;
 use little_exif::metadata::Metadata;
 use little_exif::rational::{iR64, uR64};
 use rawler::decoders::RawMetadata;
@@ -666,6 +667,89 @@ pub fn get_creation_date_from_bytes(path_hint: &str, file_bytes: &[u8]) -> DateT
     Utc::now()
 }
 
+// Copies the complete EXIF block (IFD0 and its sub-IFDs, including MakerNote
+// and unknown tags) from the source file. IFD1 is skipped because it holds the
+// original's thumbnail, which no longer matches the exported pixels.
+fn copy_full_exif_from_source(
+    metadata: &mut Metadata,
+    original_path: &Path,
+    strip_gps: bool,
+) -> bool {
+    let Ok(source_metadata) = Metadata::new_from_path(original_path) else {
+        return false;
+    };
+
+    let mut copied_any = false;
+    for ifd in source_metadata.get_ifds() {
+        if ifd.get_generic_ifd_nr() != 0 {
+            continue;
+        }
+        if strip_gps && ifd.get_ifd_type() == ExifTagGroup::GPS {
+            continue;
+        }
+        for tag in ifd.get_tags() {
+            metadata.set_tag(tag.clone());
+            copied_any = true;
+        }
+    }
+    copied_any
+}
+
+// The metadata panel edits (title, author, copyright, comments) only live in
+// the sidecar, so they take precedence over the values copied from the source
+// file. A key that is missing from the sidecar was cleared by the user.
+fn apply_sidecar_field_overrides(metadata: &mut Metadata, map: &HashMap<String, String>) {
+    let clean_s = |s: &String| s.replace('"', "").trim().to_string();
+    // Values that clean down to nothing or to the "..." marker left behind by
+    // truncate_large_exif are not user edits, so the value copied from the
+    // source file is kept for those.
+    let is_user_edit = |s: &str| !s.is_empty() && s != "...";
+
+    match map.get("Artist").map(clean_s) {
+        Some(val) => {
+            if is_user_edit(&val) {
+                metadata.set_tag(ExifTag::Artist(val));
+            }
+        }
+        None => {
+            metadata.remove_tag(ExifTag::Artist(String::new()));
+        }
+    }
+    match map.get("Copyright").map(clean_s) {
+        Some(val) => {
+            if is_user_edit(&val) {
+                metadata.set_tag(ExifTag::Copyright(val));
+            }
+        }
+        None => {
+            metadata.remove_tag(ExifTag::Copyright(String::new()));
+        }
+    }
+    match map.get("ImageDescription").map(clean_s) {
+        Some(val) => {
+            if is_user_edit(&val) {
+                metadata.set_tag(ExifTag::ImageDescription(val));
+            }
+        }
+        None => {
+            metadata.remove_tag(ExifTag::ImageDescription(String::new()));
+        }
+    }
+    match map.get("UserComment").map(clean_s) {
+        Some(val) => {
+            // Unedited sidecars store kamadak-exif's hex dump of the original
+            // UserComment bytes; only write back plain-text (i.e. user-entered)
+            // values and otherwise keep the bytes copied from the source.
+            if is_user_edit(&val) && !val.starts_with("0x") {
+                metadata.set_tag(ExifTag::UserComment(val.into_bytes()));
+            }
+        }
+        None => {
+            metadata.remove_tag(ExifTag::UserComment(Vec::new()));
+        }
+    }
+}
+
 pub fn write_image_with_metadata(
     image_bytes: &mut Vec<u8>,
     original_path_str: &str,
@@ -703,9 +787,15 @@ pub fn write_image_with_metadata(
     };
 
     let mut metadata = Metadata::new();
-    let mut source_read_success = false;
 
-    if let Some(map) = read_rrexif_sidecar(original_path) {
+    // Prefer copying the complete EXIF block from the source file: the sidecar
+    // only carries a display-formatted subset of the tags, which used to drop
+    // most of the metadata from exports (issue #1165).
+    let full_exif_copied = !is_raw_file(original_path_str)
+        && copy_full_exif_from_source(&mut metadata, original_path, strip_gps);
+    let mut source_read_success = full_exif_copied;
+
+    if !source_read_success && let Some(map) = read_rrexif_sidecar(original_path) {
         source_read_success = true;
 
         let clean_s = |s: &String| s.replace('"', "").trim().to_string();
@@ -1060,9 +1150,23 @@ pub fn write_image_with_metadata(
         }
     }
 
+    if full_exif_copied && let Some(map) = read_rrexif_sidecar(original_path) {
+        apply_sidecar_field_overrides(&mut metadata, &map);
+    }
+
     metadata.set_tag(ExifTag::Software("RapidRAW".to_string()));
     metadata.set_tag(ExifTag::Orientation(vec![1u16]));
     metadata.set_tag(ExifTag::ColorSpace(vec![1u16]));
+
+    // The export has any rotation baked into the pixels, so the dimension tags
+    // copied from the source may be stale.
+    if let Ok(reader) =
+        image::ImageReader::new(Cursor::new(image_bytes.as_slice())).with_guessed_format()
+        && let Ok((width, height)) = reader.into_dimensions()
+    {
+        metadata.set_tag(ExifTag::ExifImageWidth(vec![width]));
+        metadata.set_tag(ExifTag::ExifImageHeight(vec![height]));
+    }
 
     if let Err(e) = metadata.write_to_vec(image_bytes, file_type) {
         log::warn!("Failed to write metadata: {}", e);
@@ -1201,4 +1305,295 @@ pub fn write_rrexif_sidecar(source_path_str: &str, target_image_path: &Path) -> 
     metadata.exif = Some(exif_data);
     save_primary_metadata(target_image_path, &metadata)
         .map_err(|e| format!("Failed to write sidecar: {}", e))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use image::{ImageBuffer, Rgb};
+    use tempfile::TempDir;
+
+    const MAKER_NOTE: &[u8] = b"FUJIFILM-test-maker-note-blob";
+
+    fn create_jpeg_with_full_exif(path: &Path) {
+        let img: ImageBuffer<Rgb<u8>, Vec<u8>> =
+            ImageBuffer::from_pixel(64, 64, Rgb([200, 100, 50]));
+        img.save(path).unwrap();
+
+        let mut metadata = Metadata::new();
+        metadata.set_tag(ExifTag::Make("TestCam".to_string()));
+        metadata.set_tag(ExifTag::Model("RapidRAW-Test".to_string()));
+        metadata.set_tag(ExifTag::Artist("Original Author".to_string()));
+        metadata.set_tag(ExifTag::Copyright("Original Copyright".to_string()));
+        metadata.set_tag(ExifTag::Orientation(vec![6u16]));
+        metadata.set_tag(ExifTag::Flash(vec![16u16]));
+        metadata.set_tag(ExifTag::ApertureValue(vec![uR64 {
+            nominator: 13,
+            denominator: 1,
+        }]));
+        metadata.set_tag(ExifTag::OffsetTimeOriginal("+02:00".to_string()));
+        metadata.set_tag(ExifTag::SubSecTimeOriginal("00".to_string()));
+        metadata.set_tag(ExifTag::SerialNumber("4B035054".to_string()));
+        metadata.set_tag(ExifTag::LensSerialNumber("59627836".to_string()));
+        metadata.set_tag(ExifTag::MakerNote(MAKER_NOTE.to_vec()));
+        metadata.set_tag(ExifTag::GPSLatitudeRef("N".to_string()));
+        metadata.set_tag(ExifTag::GPSLatitude(vec![
+            uR64 {
+                nominator: 53,
+                denominator: 1,
+            },
+            uR64 {
+                nominator: 29,
+                denominator: 1,
+            },
+            uR64 {
+                nominator: 5299,
+                denominator: 100,
+            },
+        ]));
+        metadata.set_tag(ExifTag::GPSLongitudeRef("E".to_string()));
+        metadata.set_tag(ExifTag::GPSLongitude(vec![
+            uR64 {
+                nominator: 7,
+                denominator: 1,
+            },
+            uR64 {
+                nominator: 2,
+                denominator: 1,
+            },
+            uR64 {
+                nominator: 4427,
+                denominator: 100,
+            },
+        ]));
+        metadata.set_tag(ExifTag::GPSAltitude(vec![uR64 {
+            nominator: 50,
+            denominator: 1,
+        }]));
+        metadata.set_tag(ExifTag::GPSAltitudeRef(vec![0u8]));
+
+        let mut bytes = fs::read(path).unwrap();
+        metadata
+            .write_to_vec(&mut bytes, FileExtension::JPEG)
+            .unwrap();
+        fs::write(path, &bytes).unwrap();
+    }
+
+    // Reproduces the bug trigger: opening an image in the app populates the
+    // .rrdata sidecar, which made write_image_with_metadata reconstruct the
+    // export EXIF from the sidecar's small display-formatted subset.
+    fn setup_jpeg_with_sidecar(dir: &TempDir) -> (PathBuf, Vec<u8>) {
+        let jpeg_path = dir.path().join("photo.jpg");
+        create_jpeg_with_full_exif(&jpeg_path);
+        let file_bytes = fs::read(&jpeg_path).unwrap();
+        persist_exif_if_missing(&jpeg_path, jpeg_path.to_str().unwrap(), &file_bytes);
+        assert!(
+            get_primary_sidecar_path(&jpeg_path).exists(),
+            ".rrdata sidecar must exist to trigger issue #1165"
+        );
+        (jpeg_path, file_bytes)
+    }
+
+    fn read_export_exif(bytes: &[u8]) -> Exif {
+        exif::Reader::new()
+            .read_from_container(&mut Cursor::new(bytes))
+            .unwrap()
+    }
+
+    fn string_field(exif_obj: &Exif, tag: exif::Tag) -> Option<String> {
+        let field = exif_obj.get_field(tag, In::PRIMARY)?;
+        match &field.value {
+            Value::Ascii(vec) => Some(
+                vec.iter()
+                    .map(|v| String::from_utf8_lossy(v).to_string())
+                    .collect::<Vec<String>>()
+                    .join(" "),
+            ),
+            _ => Some(field.display_value().to_string()),
+        }
+    }
+
+    #[test]
+    fn issue_1165_full_exif_preserved_when_sidecar_exists() {
+        let dir = TempDir::new().unwrap();
+        let (jpeg_path, file_bytes) = setup_jpeg_with_sidecar(&dir);
+
+        let mut export_bytes = file_bytes.clone();
+        write_image_with_metadata(
+            &mut export_bytes,
+            jpeg_path.to_str().unwrap(),
+            "jpg",
+            true,
+            false,
+        )
+        .unwrap();
+
+        let exif_obj = read_export_exif(&export_bytes);
+        for tag in [
+            exif::Tag::Make,
+            exif::Tag::Model,
+            exif::Tag::Artist,
+            exif::Tag::Copyright,
+            exif::Tag::Flash,
+            exif::Tag::ApertureValue,
+            exif::Tag::OffsetTimeOriginal,
+            exif::Tag::SubSecTimeOriginal,
+            exif::Tag::BodySerialNumber,
+            exif::Tag::LensSerialNumber,
+            exif::Tag::MakerNote,
+            exif::Tag::GPSLatitude,
+            exif::Tag::GPSLongitude,
+            exif::Tag::GPSAltitude,
+        ] {
+            assert!(
+                exif_obj.get_field(tag, In::PRIMARY).is_some(),
+                "{} must survive the export (issue #1165)",
+                tag
+            );
+        }
+
+        let maker_note = exif_obj
+            .get_field(exif::Tag::MakerNote, In::PRIMARY)
+            .unwrap();
+        assert!(
+            matches!(&maker_note.value, Value::Undefined(bytes, _) if bytes == MAKER_NOTE),
+            "MakerNote bytes must be copied unchanged"
+        );
+    }
+
+    #[test]
+    fn issue_1165_gps_stripped_when_strip_gps_true() {
+        let dir = TempDir::new().unwrap();
+        let (jpeg_path, file_bytes) = setup_jpeg_with_sidecar(&dir);
+
+        let mut export_bytes = file_bytes.clone();
+        write_image_with_metadata(
+            &mut export_bytes,
+            jpeg_path.to_str().unwrap(),
+            "jpg",
+            true,
+            true,
+        )
+        .unwrap();
+
+        let exif_obj = read_export_exif(&export_bytes);
+        for tag in [
+            exif::Tag::GPSLatitude,
+            exif::Tag::GPSLatitudeRef,
+            exif::Tag::GPSLongitude,
+            exif::Tag::GPSLongitudeRef,
+            exif::Tag::GPSAltitude,
+            exif::Tag::GPSAltitudeRef,
+        ] {
+            assert!(
+                exif_obj.get_field(tag, In::PRIMARY).is_none(),
+                "{} must be stripped when strip_gps=true",
+                tag
+            );
+        }
+        assert!(
+            exif_obj.get_field(exif::Tag::Flash, In::PRIMARY).is_some(),
+            "non-GPS tags must still be preserved"
+        );
+    }
+
+    #[test]
+    fn sidecar_edits_override_source_values() {
+        let dir = TempDir::new().unwrap();
+        let (jpeg_path, file_bytes) = setup_jpeg_with_sidecar(&dir);
+
+        // Simulate edits in the metadata panel: Artist gets a new value,
+        // Copyright is cleared (update_exif_fields removes the key).
+        let mut sidecar = load_primary_metadata(&jpeg_path);
+        let mut exif_map = sidecar.exif.unwrap();
+        exif_map.insert("Artist".to_string(), "Edited Author".to_string());
+        exif_map.remove("Copyright");
+        // Marker that truncate_large_exif leaves for oversized values; must
+        // not be mistaken for a user edit.
+        exif_map.insert("ImageDescription".to_string(), "\"   ...   \"".to_string());
+        sidecar.exif = Some(exif_map);
+        save_primary_metadata(&jpeg_path, &sidecar).unwrap();
+
+        let mut export_bytes = file_bytes.clone();
+        write_image_with_metadata(
+            &mut export_bytes,
+            jpeg_path.to_str().unwrap(),
+            "jpg",
+            true,
+            false,
+        )
+        .unwrap();
+
+        let exif_obj = read_export_exif(&export_bytes);
+        assert_eq!(
+            string_field(&exif_obj, exif::Tag::Artist).as_deref(),
+            Some("Edited Author"),
+            "sidecar edits must override the source value"
+        );
+        assert!(
+            exif_obj
+                .get_field(exif::Tag::Copyright, In::PRIMARY)
+                .is_none(),
+            "cleared fields must not reappear from the source file"
+        );
+        assert!(
+            exif_obj.get_field(exif::Tag::Flash, In::PRIMARY).is_some(),
+            "unedited tags must still come from the source file"
+        );
+        assert!(
+            exif_obj
+                .get_field(exif::Tag::ImageDescription, In::PRIMARY)
+                .is_none(),
+            "truncation artifacts in the sidecar must not become tags"
+        );
+    }
+
+    #[test]
+    fn orientation_reset_and_dimension_tags_updated() {
+        let dir = TempDir::new().unwrap();
+        let (jpeg_path, _) = setup_jpeg_with_sidecar(&dir);
+
+        // The export pipeline bakes the rotation into the pixels, so the
+        // export of the 64x64 source is 32x64 here to make stale dimension
+        // tags detectable.
+        let rotated: ImageBuffer<Rgb<u8>, Vec<u8>> =
+            ImageBuffer::from_pixel(32, 64, Rgb([200, 100, 50]));
+        let mut export_bytes = Vec::new();
+        rotated
+            .write_to(
+                &mut Cursor::new(&mut export_bytes),
+                image::ImageFormat::Jpeg,
+            )
+            .unwrap();
+
+        write_image_with_metadata(
+            &mut export_bytes,
+            jpeg_path.to_str().unwrap(),
+            "jpg",
+            true,
+            false,
+        )
+        .unwrap();
+
+        let exif_obj = read_export_exif(&export_bytes);
+        let orientation = exif_obj
+            .get_field(exif::Tag::Orientation, In::PRIMARY)
+            .and_then(|f| f.value.get_uint(0));
+        assert_eq!(
+            orientation,
+            Some(1),
+            "rotation is baked into the pixels, so Orientation must be reset"
+        );
+        let width = exif_obj
+            .get_field(exif::Tag::PixelXDimension, In::PRIMARY)
+            .and_then(|f| f.value.get_uint(0));
+        let height = exif_obj
+            .get_field(exif::Tag::PixelYDimension, In::PRIMARY)
+            .and_then(|f| f.value.get_uint(0));
+        assert_eq!(
+            (width, height),
+            (Some(32), Some(64)),
+            "dimension tags must match the exported pixels"
+        );
+    }
 }
