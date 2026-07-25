@@ -1044,6 +1044,11 @@
       "medium": "Mittel",
       "small": "Klein"
     },
+    "toasts": {
+      "copiedPath": "Pfad in die Zwischenablage kopiert",
+      "copiedPaths": "Pfade in die Zwischenablage kopiert",
+      "failedCopyPath": "Pfad konnte nicht kopiert werden: {{err}}"
+    },
     "tooltips": {
       "communityPresets": "Community-Vorgaben",
       "goHome": "Zur Startseite",
@@ -1496,6 +1501,7 @@
         "color_label_yellow": "Farbmarkierung: Gelb",
         "copy_adjustments": "Ausgewählte Anpassungen kopieren",
         "copy_files": "Ausgewählte Datei(en) kopieren",
+        "copy_image_path": "Pfad des/der ausgewählten Bilder kopieren",
         "cycle_zoom": "Zoom durchwechseln (Einpassen, 2x Einpassen, 100%)",
         "delete_selected": "Ausgewählte Datei(en) löschen",
         "focus_search": "Suchfeld fokussieren",

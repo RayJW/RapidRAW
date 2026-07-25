@@ -1042,6 +1042,11 @@
       "medium": "中",
       "small": "小"
     },
+    "toasts": {
+      "copiedPath": "路徑已複製到剪貼簿",
+      "copiedPaths": "路徑已複製到剪貼簿",
+      "failedCopyPath": "複製路徑失敗：{{err}}"
+    },
     "tooltips": {
       "communityPresets": "社群預設",
       "goHome": "返回首頁",
@@ -1494,6 +1499,7 @@
         "color_label_yellow": "顏色標籤：黃色",
         "copy_adjustments": "複製選中的調整",
         "copy_files": "複製選中的檔案",
+        "copy_image_path": "複製所選圖片的路徑",
         "cycle_zoom": "迴圈縮放（適應、2倍適應、100%）",
         "delete_selected": "刪除選中的檔案",
         "focus_search": "聚焦搜尋框",

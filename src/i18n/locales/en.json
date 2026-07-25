@@ -1044,6 +1044,11 @@
       "medium": "Medium",
       "small": "Small"
     },
+    "toasts": {
+      "copiedPath": "Copied path to clipboard",
+      "copiedPaths": "Copied paths to clipboard",
+      "failedCopyPath": "Failed to copy path: {{err}}"
+    },
     "tooltips": {
       "communityPresets": "Community Presets",
       "goHome": "Go to Home",
@@ -1496,6 +1501,7 @@
         "color_label_yellow": "Color label: Yellow",
         "copy_adjustments": "Copy selected adjustments",
         "copy_files": "Copy selected file(s)",
+        "copy_image_path": "Copy path of selected image(s)",
         "cycle_zoom": "Cycle zoom (Fit, 2x Fit, 100%)",
         "delete_selected": "Delete selected file(s)",
         "focus_search": "Focus search field",

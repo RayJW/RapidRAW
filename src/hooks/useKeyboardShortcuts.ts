@@ -1,4 +1,6 @@
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
+import { toast } from 'react-toastify';
 import { ImageFile, Panel, ExifOverlay } from '../components/ui/AppProperties';
 import { KEYBIND_DEFINITIONS, normalizeCombo } from '../utils/keyboardUtils';
 import { useEditorStore } from '../store/useEditorStore';
@@ -28,6 +30,7 @@ export const useKeyboardShortcuts = ({
   handleToggleFullScreen,
   handleZoomChange,
 }: KeyboardShortcutsProps) => {
+  const { t } = useTranslation();
   const { handleRotate, handleCopyAdjustments, handlePasteAdjustments } = useEditorActions();
   const { handleRate, handleSetColorLabel } = useLibraryActions();
 
@@ -35,6 +38,23 @@ export const useKeyboardShortcuts = ({
   useEffect(() => {
     sortedListRef.current = sortedImageList;
   }, [sortedImageList]);
+
+  const handleCopyImagePaths = useCallback(
+    async (paths: Array<string>) => {
+      const physicalPaths = [...new Set(paths.map((path) => path.split('?vc=')[0]))];
+      if (physicalPaths.length === 0) {
+        return;
+      }
+      try {
+        await navigator.clipboard.writeText(physicalPaths.join('\n'));
+        toast.success(physicalPaths.length > 1 ? t('library.toasts.copiedPaths') : t('library.toasts.copiedPath'));
+      } catch (err) {
+        console.error('Failed to copy image path to clipboard', err);
+        toast.error(t('library.toasts.failedCopyPath', { err }));
+      }
+    },
+    [t],
+  );
 
   useEffect(() => {
     const getStoreState = () => ({
@@ -56,6 +76,21 @@ export const useKeyboardShortcuts = ({
       }
     }
 
+    const getImagePathsForCopy = (s: any): Array<string> => {
+      if (s.editor.selectedImage) {
+        return [s.editor.selectedImage.path];
+      }
+      const { libraryActivePath, multiSelectedPaths } = s.library;
+      if (multiSelectedPaths.length > 0) {
+        const listOrder = new Map(sortedListRef.current.map((image: ImageFile, index: number) => [image.path, index]));
+        return [...multiSelectedPaths].sort(
+          (a: string, b: string) =>
+            (listOrder.get(a) ?? Number.MAX_SAFE_INTEGER) - (listOrder.get(b) ?? Number.MAX_SAFE_INTEGER),
+        );
+      }
+      return libraryActivePath ? [libraryActivePath] : [];
+    };
+
     const actions: Record<string, any> = {
       open_image: {
         shouldFire: (s: any) => !s.editor.selectedImage && s.library.libraryActivePath !== null,
@@ -76,6 +111,13 @@ export const useKeyboardShortcuts = ({
         execute: (e: any) => {
           e.preventDefault();
           handlePasteAdjustments();
+        },
+      },
+      copy_image_path: {
+        shouldFire: (s: any) => getImagePathsForCopy(s).length > 0,
+        execute: (e: any, s: any) => {
+          e.preventDefault();
+          handleCopyImagePaths(getImagePathsForCopy(s));
         },
       },
       copy_files: {
@@ -590,6 +632,7 @@ export const useKeyboardShortcuts = ({
     handleZoomChange,
     handleRotate,
     handleCopyAdjustments,
+    handleCopyImagePaths,
     handlePasteAdjustments,
     handleRate,
     handleSetColorLabel,

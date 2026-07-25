@@ -1042,6 +1042,11 @@
       "medium": "中",
       "small": "小"
     },
+    "toasts": {
+      "copiedPath": "パスをクリップボードにコピーしました",
+      "copiedPaths": "パスをクリップボードにコピーしました",
+      "failedCopyPath": "パスをコピーできませんでした: {{err}}"
+    },
     "tooltips": {
       "communityPresets": "コミュニティプリセット",
       "goHome": "ホームへ移動",
@@ -1494,6 +1499,7 @@
         "color_label_yellow": "カラーラベル: イエロー",
         "copy_adjustments": "選択した補正設定をコピー",
         "copy_files": "選択したファイルをコピー",
+        "copy_image_path": "選択した画像のパスをコピー",
         "cycle_zoom": "ズームの切り替え (全体表示、2倍拡大、100%)",
         "delete_selected": "選択したファイルを削除",
         "focus_search": "検索フィールドにフォーカス",

@@ -1068,6 +1068,11 @@
       "medium": "Media",
       "small": "Piccola"
     },
+    "toasts": {
+      "copiedPath": "Percorso copiato negli appunti",
+      "copiedPaths": "Percorsi copiati negli appunti",
+      "failedCopyPath": "Copia del percorso non riuscita: {{err}}"
+    },
     "tooltips": {
       "communityPresets": "Predefiniti della Community",
       "goHome": "Torna alla Home page",
@@ -1529,6 +1534,7 @@
         "color_label_yellow": "Etichetta colore: Giallo",
         "copy_adjustments": "Copia regolazioni selezionate",
         "copy_files": "Copia file selezionati",
+        "copy_image_path": "Copia il percorso delle immagini selezionate",
         "cycle_zoom": "Ruota zoom (Adatta, Adatta 2x, 100%)",
         "delete_selected": "Elimina file selezionati",
         "focus_search": "Attiva il campo di ricerca",

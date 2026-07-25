@@ -1068,6 +1068,11 @@
       "medium": "Mediano",
       "small": "Pequeño"
     },
+    "toasts": {
+      "copiedPath": "Ruta copiada al portapapeles",
+      "copiedPaths": "Rutas copiadas al portapapeles",
+      "failedCopyPath": "No se pudo copiar la ruta: {{err}}"
+    },
     "tooltips": {
       "communityPresets": "Ajustes de la comunidad",
       "goHome": "Ir al Inicio",
@@ -1529,6 +1534,7 @@
         "color_label_yellow": "Etiqueta de color: Amarillo",
         "copy_adjustments": "Copiar ajustes seleccionados",
         "copy_files": "Copiar archivo(s) seleccionado(s)",
+        "copy_image_path": "Copiar la ruta de la(s) imagen(es) seleccionada(s)",
         "cycle_zoom": "Alternar zoom (Ajustar, 2x Ajustar, 100%)",
         "delete_selected": "Eliminar archivo(s) seleccionado(s)",
         "focus_search": "Enfocar el campo de búsqueda",
