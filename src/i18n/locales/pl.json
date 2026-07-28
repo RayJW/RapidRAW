@@ -1092,11 +1092,6 @@
       "medium": "Średni",
       "small": "Mały"
     },
-    "toasts": {
-      "copiedPath": "Skopiowano ścieżkę do schowka",
-      "copiedPaths": "Skopiowano ścieżki do schowka",
-      "failedCopyPath": "Nie udało się skopiować ścieżki: {{err}}"
-    },
     "tooltips": {
       "communityPresets": "Presety społeczności",
       "goHome": "Przejdź do strony głównej",

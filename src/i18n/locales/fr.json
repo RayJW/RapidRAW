@@ -1068,11 +1068,6 @@
       "medium": "Moyen",
       "small": "Petit"
     },
-    "toasts": {
-      "copiedPath": "Chemin copié dans le presse-papiers",
-      "copiedPaths": "Chemins copiés dans le presse-papiers",
-      "failedCopyPath": "Échec de la copie du chemin : {{err}}"
-    },
     "tooltips": {
       "communityPresets": "Paramètres prédéfinis de la communauté",
       "goHome": "Aller à l'accueil",

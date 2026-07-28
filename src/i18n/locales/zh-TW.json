@@ -1042,11 +1042,6 @@
       "medium": "中",
       "small": "小"
     },
-    "toasts": {
-      "copiedPath": "路徑已複製到剪貼簿",
-      "copiedPaths": "路徑已複製到剪貼簿",
-      "failedCopyPath": "複製路徑失敗：{{err}}"
-    },
     "tooltips": {
       "communityPresets": "社群預設",
       "goHome": "返回首頁",

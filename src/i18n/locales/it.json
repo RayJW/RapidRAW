@@ -1068,11 +1068,6 @@
       "medium": "Media",
       "small": "Piccola"
     },
-    "toasts": {
-      "copiedPath": "Percorso copiato negli appunti",
-      "copiedPaths": "Percorsi copiati negli appunti",
-      "failedCopyPath": "Copia del percorso non riuscita: {{err}}"
-    },
     "tooltips": {
       "communityPresets": "Predefiniti della Community",
       "goHome": "Torna alla Home page",

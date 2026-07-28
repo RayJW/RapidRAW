@@ -1042,11 +1042,6 @@
       "medium": "보통",
       "small": "작게"
     },
-    "toasts": {
-      "copiedPath": "경로를 클립보드에 복사했습니다",
-      "copiedPaths": "경로를 클립보드에 복사했습니다",
-      "failedCopyPath": "경로를 복사하지 못했습니다: {{err}}"
-    },
     "tooltips": {
       "communityPresets": "커뮤니티 프리셋",
       "goHome": "홈으로 이동",

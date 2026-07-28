@@ -1068,11 +1068,6 @@
       "medium": "Médio",
       "small": "Pequeno"
     },
-    "toasts": {
-      "copiedPath": "Caminho copiado para a área de transferência",
-      "copiedPaths": "Caminhos copiados para a área de transferência",
-      "failedCopyPath": "Falha ao copiar o caminho: {{err}}"
-    },
     "tooltips": {
       "communityPresets": "Predefinições da Comunidade",
       "goHome": "Ir para Início",

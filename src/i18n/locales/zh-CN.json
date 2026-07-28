@@ -1042,11 +1042,6 @@
       "medium": "中",
       "small": "小"
     },
-    "toasts": {
-      "copiedPath": "路径已复制到剪贴板",
-      "copiedPaths": "路径已复制到剪贴板",
-      "failedCopyPath": "复制路径失败：{{err}}"
-    },
     "tooltips": {
       "communityPresets": "社区预设",
       "goHome": "返回首页",

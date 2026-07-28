@@ -1044,11 +1044,6 @@
       "medium": "Mittel",
       "small": "Klein"
     },
-    "toasts": {
-      "copiedPath": "Pfad in die Zwischenablage kopiert",
-      "copiedPaths": "Pfade in die Zwischenablage kopiert",
-      "failedCopyPath": "Pfad konnte nicht kopiert werden: {{err}}"
-    },
     "tooltips": {
       "communityPresets": "Community-Vorgaben",
       "goHome": "Zur Startseite",

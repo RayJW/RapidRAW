@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef } from 'react';
-import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import { ImageFile, Panel, ExifOverlay } from '../components/ui/AppProperties';
 import { KEYBIND_DEFINITIONS, normalizeCombo } from '../utils/keyboardUtils';
@@ -30,7 +29,6 @@ export const useKeyboardShortcuts = ({
   handleToggleFullScreen,
   handleZoomChange,
 }: KeyboardShortcutsProps) => {
-  const { t } = useTranslation();
   const { handleRotate, handleCopyAdjustments, handlePasteAdjustments } = useEditorActions();
   const { handleRate, handleSetColorLabel } = useLibraryActions();
 
@@ -39,22 +37,18 @@ export const useKeyboardShortcuts = ({
     sortedListRef.current = sortedImageList;
   }, [sortedImageList]);
 
-  const handleCopyImagePaths = useCallback(
-    async (paths: Array<string>) => {
-      const physicalPaths = [...new Set(paths.map((path) => path.split('?vc=')[0]))];
-      if (physicalPaths.length === 0) {
-        return;
-      }
-      try {
-        await navigator.clipboard.writeText(physicalPaths.join('\n'));
-        toast.success(physicalPaths.length > 1 ? t('library.toasts.copiedPaths') : t('library.toasts.copiedPath'));
-      } catch (err) {
-        console.error('Failed to copy image path to clipboard', err);
-        toast.error(t('library.toasts.failedCopyPath', { err }));
-      }
-    },
-    [t],
-  );
+  const handleCopyImagePaths = useCallback(async (paths: Array<string>) => {
+    const physicalPaths = [...new Set(paths.map((path) => path.split('?vc=')[0]))];
+    if (physicalPaths.length === 0) {
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(physicalPaths.join('\n'));
+    } catch (err) {
+      console.error('Failed to copy image path to clipboard', err);
+      toast.error(`Failed to copy path: ${err}`);
+    }
+  }, []);
 
   useEffect(() => {
     const getStoreState = () => ({

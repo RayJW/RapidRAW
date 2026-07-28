@@ -1042,11 +1042,6 @@
       "medium": "中",
       "small": "小"
     },
-    "toasts": {
-      "copiedPath": "パスをクリップボードにコピーしました",
-      "copiedPaths": "パスをクリップボードにコピーしました",
-      "failedCopyPath": "パスをコピーできませんでした: {{err}}"
-    },
     "tooltips": {
       "communityPresets": "コミュニティプリセット",
       "goHome": "ホームへ移動",

@@ -1044,11 +1044,6 @@
       "medium": "Medium",
       "small": "Small"
     },
-    "toasts": {
-      "copiedPath": "Copied path to clipboard",
-      "copiedPaths": "Copied paths to clipboard",
-      "failedCopyPath": "Failed to copy path: {{err}}"
-    },
     "tooltips": {
       "communityPresets": "Community Presets",
       "goHome": "Go to Home",
