@@ -1529,6 +1529,7 @@
         "color_label_yellow": "Rótulo de cor: Amarelo",
         "copy_adjustments": "Copiar ajustes selecionados",
         "copy_files": "Copiar arquivo(s) selecionado(s)",
+        "copy_image_path": "Copiar o caminho da(s) imagem(ns) selecionada(s)",
         "cycle_zoom": "Alternar zoom (Caber, 2x Caber, 100%)",
         "delete_selected": "Excluir arquivo(s) selecionado(s)",
         "focus_search": "Focar o campo de pesquisa",

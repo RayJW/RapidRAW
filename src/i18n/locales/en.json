@@ -1496,6 +1496,7 @@
         "color_label_yellow": "Color label: Yellow",
         "copy_adjustments": "Copy selected adjustments",
         "copy_files": "Copy selected file(s)",
+        "copy_image_path": "Copy path of selected image(s)",
         "cycle_zoom": "Cycle zoom (Fit, 2x Fit, 100%)",
         "delete_selected": "Delete selected file(s)",
         "focus_search": "Focus search field",

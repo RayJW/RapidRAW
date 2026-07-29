@@ -1494,6 +1494,7 @@
         "color_label_yellow": "颜色标签：黄色",
         "copy_adjustments": "复制选中的调整",
         "copy_files": "复制选中的文件",
+        "copy_image_path": "复制所选图片的路径",
         "cycle_zoom": "循环缩放（适应、2倍适应、100%）",
         "delete_selected": "删除选中的文件",
         "focus_search": "聚焦搜索框",

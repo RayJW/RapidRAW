@@ -1529,6 +1529,7 @@
         "color_label_yellow": "Étiquette de couleur : Jaune",
         "copy_adjustments": "Copier les ajustements sélectionnés",
         "copy_files": "Copier le(s) fichier(s) sélectionné(s)",
+        "copy_image_path": "Copier le chemin de la ou des images sélectionnées",
         "cycle_zoom": "Faire défiler le zoom (Ajuster, 2x Ajuster, 100%)",
         "delete_selected": "Supprimer le(s) fichier(s) sélectionné(s)",
         "focus_search": "Activer le champ de recherche",

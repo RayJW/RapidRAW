@@ -1496,6 +1496,7 @@
         "color_label_yellow": "Farbmarkierung: Gelb",
         "copy_adjustments": "Ausgewählte Anpassungen kopieren",
         "copy_files": "Ausgewählte Datei(en) kopieren",
+        "copy_image_path": "Pfad des/der ausgewählten Bilder kopieren",
         "cycle_zoom": "Zoom durchwechseln (Einpassen, 2x Einpassen, 100%)",
         "delete_selected": "Ausgewählte Datei(en) löschen",
         "focus_search": "Suchfeld fokussieren",
