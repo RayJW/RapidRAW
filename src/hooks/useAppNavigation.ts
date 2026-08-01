@@ -57,7 +57,7 @@ export function useAppNavigation({ clearThumbnailQueue, refs }: AppNavigationPro
   }, []);
 
   const handleBackToLibrary = useCallback(() => {
-    const { selectedImage, resetHistory, setEditor } = useEditorStore.getState();
+    const { selectedImage } = useEditorStore.getState();
     const { setLibrary } = useLibraryStore.getState();
     const { setUI } = useUIStore.getState();
 
@@ -67,49 +67,26 @@ export function useAppNavigation({ clearThumbnailQueue, refs }: AppNavigationPro
     if (transformWrapperRef.current) {
       transformWrapperRef.current.resetTransform(0);
     }
-    setEditor({ zoom: 1 });
+    useEditorStore.getState().setEditor({ zoom: 1 });
 
     debouncedSave.flush();
     debouncedSetHistory.cancel();
 
     const lastActivePath = selectedImage?.path ?? null;
 
-    setEditor({
-      hasRenderedFirstFrame: false,
-      selectedImage: null,
-      finalPreviewUrl: null,
-      uncroppedAdjustedPreviewUrl: null,
-      histogram: null,
-      waveform: null,
-      activeMaskId: null,
-      activeMaskContainerId: null,
-      activeAiPatchContainerId: null,
-      isWbPickerActive: false,
-      activeAiSubMaskId: null,
-      transformedOriginalUrl: null,
-    });
-
-    selectedImagePathRef.current = null;
-
     setLibrary({ libraryActivePath: lastActivePath });
-    setUI({ slideDirection: 1 });
-
-    setEditor({ adjustments: INITIAL_ADJUSTMENTS });
-    resetHistory(INITIAL_ADJUSTMENTS);
-    useEditorStore.getState().patchesSentToBackend.clear();
-
-    isBackendReadyRef.current = true;
-    setEditor((state) => {
-      if (state.interactivePatch?.url) URL.revokeObjectURL(state.interactivePatch.url);
-      return { interactivePatch: null };
-    });
+    setUI({ activeView: 'library', slideDirection: 1 });
   }, [refs]);
 
   const handleImageSelect = useCallback(
-    async (path: string) => {
+    async (path: string, openInEditor: boolean = true) => {
       const { selectedImage, isSliderDragging, resetHistory, setEditor } = useEditorStore.getState();
       const { setLibrary, multiSelectedPaths } = useLibraryStore.getState();
       const { setUI } = useUIStore.getState();
+
+      if (openInEditor) {
+        setUI({ activeView: 'editor' });
+      }
 
       if (selectedImage?.path === path) return;
 
@@ -142,7 +119,7 @@ export function useAppNavigation({ clearThumbnailQueue, refs }: AppNavigationPro
 
       setLibrary({
         multiSelectedPaths: newMultiSelectedPaths,
-        libraryActivePath: null,
+        libraryActivePath: path,
         selectionAnchorPath: path,
       });
 
