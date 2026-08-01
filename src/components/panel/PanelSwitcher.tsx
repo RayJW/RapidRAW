@@ -58,10 +58,10 @@ function PanelTab({ panel, region, side }: { panel: Panel; region: PanelRegion; 
 
   const handleClick = () => {
     setActivePanel(region, panel);
-    if (side === 'left' && leftPanelWidth < 150) {
+    if (side === 'left' && leftPanelWidth < 200) {
       setUI({ leftPanelWidth: 320 });
     }
-    if (side === 'right' && rightPanelWidth < 150) {
+    if (side === 'right' && rightPanelWidth < 200) {
       setUI({ rightPanelWidth: 320 });
     }
   };

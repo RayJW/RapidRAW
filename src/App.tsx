@@ -503,12 +503,12 @@ function App() {
 
       if (stateKey === 'left') {
         let w = startSize + (moveEvent.clientX - startX);
-        if (w < 150) w = 48;
+        if (w < 200) w = 48;
         else if (w > 600) w = 600;
         setUI({ leftPanelWidth: Math.round(w) });
       } else if (stateKey === 'right') {
         let w = startSize - (moveEvent.clientX - startX);
-        if (w < 150) w = 48;
+        if (w < 200) w = 48;
         else if (w > 600) w = 600;
         setUI({ rightPanelWidth: Math.round(w) });
       } else if (stateKey === 'bottom') {

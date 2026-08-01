@@ -6,6 +6,8 @@ import { SwitcherPlacement, useUIStore } from '../../store/useUIStore';
 import { Panel, PanelRegion } from '../ui/AppProperties';
 import PanelSwitcher from './PanelSwitcher';
 
+const COLLAPSE_THRESHOLD = 200;
+
 interface SidePanelAreaProps {
   side: 'left' | 'right';
   width: number;
@@ -108,7 +110,7 @@ function RegionDroppableContainer({
 
   const isFlexRow = placement === 'left' || placement === 'right';
   const showSwitcherFirst = placement === 'left' || placement === 'top';
-  const isCollapsed = width < 150;
+  const isCollapsed = width < COLLAPSE_THRESHOLD;
 
   return (
     <div
@@ -151,29 +153,34 @@ function RegionDroppableContainer({
         )}
       </AnimatePresence>
 
-      {showSwitcherFirst && !isCollapsed && <PanelSwitcher region={region} side={side} placement={placement} />}
-
       <div
-        className={clsx('flex-1 overflow-hidden relative min-w-0', isCollapsed && 'opacity-0 pointer-events-none')}
-        onPointerDownCapture={handleContentInteraction}
+        className={clsx(
+          'flex flex-1 w-full h-full min-w-0 min-h-0 overflow-hidden transition-opacity duration-300 ease-in-out',
+          isFlexRow ? 'flex-row' : 'flex-col',
+          isCollapsed ? 'opacity-0 pointer-events-none' : 'opacity-100 pointer-events-auto',
+        )}
       >
-        <AnimatePresence mode="wait">
-          {activePanel && (
-            <motion.div
-              key={activePanel}
-              className="absolute inset-0 overflow-y-auto custom-scrollbar"
-              initial={isInstantTransition || isResizing ? false : { opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.15 }}
-            >
-              {renderPanel(activePanel)}
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+        {showSwitcherFirst && <PanelSwitcher region={region} side={side} placement={placement} />}
 
-      {!showSwitcherFirst && !isCollapsed && <PanelSwitcher region={region} side={side} placement={placement} />}
+        <div className="flex-1 overflow-hidden relative min-w-0" onPointerDownCapture={handleContentInteraction}>
+          <AnimatePresence mode="wait">
+            {activePanel && (
+              <motion.div
+                key={activePanel}
+                className="absolute inset-0 overflow-y-auto custom-scrollbar"
+                initial={isInstantTransition || isResizing ? false : { opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.15 }}
+              >
+                {renderPanel(activePanel)}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {!showSwitcherFirst && <PanelSwitcher region={region} side={side} placement={placement} />}
+      </div>
     </div>
   );
 }
@@ -343,8 +350,6 @@ export default function SidePanelArea({
 
   if (!hasTop && !hasBottom && !isDraggingLayout) return null;
 
-  // A split is only valid if there's more than 1 panel in the existing region,
-  // or if the item being dragged is coming from a different region/side.
   const canSplitTop =
     topPanels.length > 1 || (activeLayoutDragItem !== null && !topPanels.includes(activeLayoutDragItem));
   const canSplitBottom =
@@ -353,12 +358,15 @@ export default function SidePanelArea({
   const topSplitIsTop = topPlacement === 'bottom';
   const bottomSplitIsTop = bottomPlacement !== 'top';
 
+  const isCollapsed = width < COLLAPSE_THRESHOLD;
+  const shouldAnimateWidth = !isInstantTransition && (!isResizing || isCollapsed);
+
   return (
     <div
       className={clsx(
-        'flex shrink-0 h-full relative',
+        'flex shrink-0 h-full relative overflow-hidden',
         isFullScreen ? 'w-0 opacity-0 pointer-events-none' : 'opacity-100',
-        !isInstantTransition && !isResizing && 'transition-all duration-300 ease-in-out',
+        shouldAnimateWidth && 'transition-all duration-300 ease-in-out',
       )}
       style={{ width: isFullScreen ? 0 : width }}
     >
