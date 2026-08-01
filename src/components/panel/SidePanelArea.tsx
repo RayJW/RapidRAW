@@ -317,7 +317,9 @@ export default function SidePanelArea({
   const topPlacement = useUIStore((s) => s.panelSwitcherPlacement[topRegion]);
   const bottomPlacement = useUIStore((s) => s.panelSwitcherPlacement[bottomRegion]);
 
-  const [topHeight, setTopHeight] = useState(450);
+  const topHeight = useUIStore((s) => (side === 'left' ? s.leftTopHeight : s.rightTopHeight));
+  const setUI = useUIStore((s) => s.setUI);
+
   const colContainerRef = useRef<HTMLDivElement>(null);
 
   const handleVerticalResize = useCallback(
@@ -330,8 +332,15 @@ export default function SidePanelArea({
       const doDrag = (moveEvent: PointerEvent) => {
         const containerHeight = colContainerRef.current?.clientHeight || window.innerHeight;
         const maxTopHeight = Math.max(150, containerHeight - 150);
-        setTopHeight(Math.max(150, Math.min(maxTopHeight, startHeight + (moveEvent.clientY - startY))));
+        const newHeight = Math.max(150, Math.min(maxTopHeight, startHeight + (moveEvent.clientY - startY)));
+
+        if (side === 'left') {
+          setUI({ leftTopHeight: newHeight });
+        } else {
+          setUI({ rightTopHeight: newHeight });
+        }
       };
+
       const stopDrag = () => {
         window.removeEventListener('pointermove', doDrag);
         window.removeEventListener('pointerup', stopDrag);
@@ -339,7 +348,7 @@ export default function SidePanelArea({
       window.addEventListener('pointermove', doDrag);
       window.addEventListener('pointerup', stopDrag);
     },
-    [topHeight],
+    [topHeight, side, setUI],
   );
 
   const topPanels = panelLayout[topRegion];
