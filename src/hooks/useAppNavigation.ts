@@ -363,26 +363,50 @@ export function useAppNavigation({ clearThumbnailQueue, refs }: AppNavigationPro
           const paths = files.map((f: ImageFile) => f.path);
 
           if (isExifSortActive) {
-            const exifDataMap: Record<string, any> = await invoke(Invokes.ReadExifForPaths, { paths });
+            let combinedExifMap: Record<string, any> = {};
+            const chunkSize = 100;
+
+            for (let i = 0; i < paths.length; i += chunkSize) {
+              const chunk = paths.slice(i, i + chunkSize);
+              try {
+                const chunkExif: any = await invoke(Invokes.ReadExifForPaths, { paths: chunk });
+                combinedExifMap = { ...combinedExifMap, ...chunkExif };
+              } catch (err) {
+                console.error('Failed to read EXIF chunk:', err);
+              }
+            }
+
             const finalImageList = files.map((image) => ({
               ...image,
-              exif: exifDataMap[image.path] || image.exif || null,
+              exif: combinedExifMap[image.path] || image.exif || null,
             }));
             setLibrary({ imageList: finalImageList });
           } else {
             setLibrary({ imageList: files });
-            invoke(Invokes.ReadExifForPaths, { paths })
-              .then((exifDataMap: any) => {
-                setLibrary((state) => ({
-                  imageList: state.imageList.map((image) => ({
-                    ...image,
-                    exif: exifDataMap[image.path] || image.exif || null,
-                  })),
-                }));
-              })
-              .catch((err) => {
-                console.error('Failed to read EXIF data in background:', err);
-              });
+
+            setTimeout(() => {
+              const fetchExifInChunks = async () => {
+                const chunkSize = 50;
+                for (let i = 0; i < paths.length; i += chunkSize) {
+                  if (useLibraryStore.getState().currentFolderPath !== path) break;
+
+                  const chunk = paths.slice(i, i + chunkSize);
+                  try {
+                    const chunkExif: any = await invoke(Invokes.ReadExifForPaths, { paths: chunk });
+                    setLibrary((state) => ({
+                      imageList: state.imageList.map((image) => ({
+                        ...image,
+                        exif: chunkExif[image.path] || image.exif || null,
+                      })),
+                    }));
+                    await new Promise((resolve) => setTimeout(resolve, 50));
+                  } catch (err) {
+                    console.error('Failed to read EXIF chunk:', err);
+                  }
+                }
+              };
+              fetchExifInChunks();
+            }, 500);
           }
         } else {
           setLibrary({ imageList: files });
