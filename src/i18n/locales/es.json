@@ -539,6 +539,9 @@
       "exporting": "Exportando…",
       "savesTo": "Edición externa: se guarda en"
     },
+    "layout": {
+      "split": "Dividir"
+    },
     "masks": {
       "actions": {
         "addNewComponent": "Añadir nuevo componente",
@@ -936,6 +939,7 @@
         "modified": "Fecha de modificación",
         "name": "Alfabéticamente"
       },
+      "sourcesTitle": "Fuentes",
       "tooltips": {
         "clearSearch": "Borrar búsqueda",
         "collapse": "Contraer",

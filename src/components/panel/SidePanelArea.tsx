@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
 import { useDroppable, useDndMonitor } from '@dnd-kit/core';
 import { SwitcherPlacement, useUIStore } from '../../store/useUIStore';
@@ -194,6 +195,7 @@ function SplitOverlayDropzone({
   side: 'left' | 'right';
   isTop: boolean;
 }) {
+  const { t } = useTranslation();
   const setPanelSwitcherPlacement = useUIStore((s) => s.setPanelSwitcherPlacement);
 
   const [hoverPlacement, setHoverPlacement] = useState<SwitcherPlacement | null>(null);
@@ -294,7 +296,9 @@ function SplitOverlayDropzone({
           </motion.div>
         )}
       </AnimatePresence>
-      <span className="text-xs uppercase tracking-wider relative z-10 pointer-events-none">Split</span>
+      <span className="text-xs uppercase tracking-wider relative z-10 pointer-events-none">
+        {t('editor.layout.split')}
+      </span>
     </motion.div>
   );
 }

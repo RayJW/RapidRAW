@@ -519,6 +519,9 @@
       "exporting": "Exporting…",
       "savesTo": "External edit — saves to"
     },
+    "layout": {
+      "split": "Split"
+    },
     "masks": {
       "actions": {
         "addNewComponent": "Add New Component",
@@ -913,6 +916,7 @@
         "modified": "Date Modified",
         "name": "Alphabetically"
       },
+      "sourcesTitle": "Sources",
       "tooltips": {
         "clearSearch": "Clear search",
         "collapse": "Collapse",

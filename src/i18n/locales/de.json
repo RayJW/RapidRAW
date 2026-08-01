@@ -519,6 +519,9 @@
       "exporting": "Exportieren…",
       "savesTo": "Externe Bearbeitung — speichert in"
     },
+    "layout": {
+      "split": "Teilen"
+    },
     "masks": {
       "actions": {
         "addNewComponent": "Neue Komponente hinzufügen",
@@ -913,6 +916,7 @@
         "modified": "Änderungsdatum",
         "name": "Alphabetisch"
       },
+      "sourcesTitle": "Quellen",
       "tooltips": {
         "clearSearch": "Suche löschen",
         "collapse": "Zuklappen",

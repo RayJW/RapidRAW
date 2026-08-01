@@ -559,6 +559,9 @@
       "exporting": "Eksportowanie…",
       "savesTo": "Zewnętrzna edycja — zapisuje do"
     },
+    "layout": {
+      "split": "Podziel"
+    },
     "masks": {
       "actions": {
         "addNewComponent": "Dodaj nowy komponent",
@@ -959,6 +962,7 @@
         "modified": "Data modyfikacji",
         "name": "Alfabetycznie"
       },
+      "sourcesTitle": "Źródła",
       "tooltips": {
         "clearSearch": "Wyczyść wyszukiwanie",
         "collapse": "Zwiń",
