@@ -779,6 +779,7 @@ function App() {
                       handleBackToLibrary={handleBackToLibrary}
                       handleEditorContextMenu={handleEditorContextMenu}
                       handleThumbnailContextMenu={handleThumbnailContextMenu}
+                      handleMainLibraryContextMenu={handleMainLibraryContextMenu}
                       handleImageClick={handleImageClick}
                       handleClearSelection={handleClearSelection}
                       handleCopyAdjustments={handleCopyAdjustments}

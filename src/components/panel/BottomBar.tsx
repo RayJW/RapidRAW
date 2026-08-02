@@ -31,6 +31,7 @@ interface BottomBarProps {
   multiSelectedPaths?: Array<string>;
   onClearSelection?(): void;
   onContextMenu?(event: any, path: string): void;
+  onEmptyAreaContextMenu?(event: any): void;
   onCopy(): void;
   onExportClick?(): void;
   onImageSelect?(path: string, event: any): void;
@@ -98,26 +99,23 @@ export default function BottomBar({
   imageRatings,
   isCopied,
   isCopyDisabled,
-  isExportDisabled,
   isFilmstripVisible,
   isLibraryView = false,
   isLoading = false,
   isPasted,
   isPasteDisabled,
   isRatingDisabled = false,
-  isResetDisabled = false,
   isResizing,
   multiSelectedPaths = [],
   onClearSelection,
   onContextMenu,
+  onEmptyAreaContextMenu,
   onCopy,
-  onExportClick,
   onImageSelect,
   onOpenCopyPasteSettings,
   onRequestThumbnails,
   onPaste,
   onRate,
-  onReset,
   onZoomChange = () => {},
   rating,
   selectedImage,
@@ -288,6 +286,7 @@ export default function BottomBar({
               multiSelectedPaths={multiSelectedPaths}
               onClearSelection={onClearSelection}
               onContextMenu={onContextMenu}
+              onEmptyAreaContextMenu={onEmptyAreaContextMenu}
               onImageSelect={onImageSelect}
               onRequestThumbnails={onRequestThumbnails}
               selectedImage={selectedImage}
