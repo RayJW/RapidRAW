@@ -512,9 +512,17 @@ function App() {
         else if (w > 600) w = 600;
         setUI({ rightPanelWidth: Math.round(w) });
       } else if (stateKey === 'bottom') {
-        setUI({
-          bottomPanelHeight: Math.round(Math.max(100, Math.min(startSize - (moveEvent.clientY - startY), 400))),
-        });
+        const newHeight = startSize - (moveEvent.clientY - startY);
+        if (newHeight < 100) {
+          setUI((state) => ({
+            uiVisibility: { ...state.uiVisibility, filmstrip: false },
+          }));
+        } else {
+          setUI((state) => ({
+            bottomPanelHeight: Math.round(Math.min(newHeight, 400)),
+            uiVisibility: { ...state.uiVisibility, filmstrip: true },
+          }));
+        }
       } else if (stateKey === 'compact') {
         setUI({
           compactEditorPanelHeightOverride: Math.round(

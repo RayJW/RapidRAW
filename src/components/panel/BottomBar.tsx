@@ -10,6 +10,7 @@ import { GLOBAL_KEYS, ImageFile, SelectedImage, ThumbnailAspectRatio } from '../
 import Text from '../ui/Text';
 import { useEditorStore } from '../../store/useEditorStore';
 import { useLibraryStore } from '../../store/useLibraryStore';
+import { useUIStore } from '../../store/useUIStore';
 import { COLOR_LABELS } from '../../utils/adjustments';
 
 interface BottomBarProps {
@@ -127,6 +128,8 @@ export default function BottomBar({
   totalImages,
 }: BottomBarProps) {
   const { t } = useTranslation();
+  const isInstantTransition = useUIStore((s) => s.isInstantTransition);
+
   const { displaySize, originalSize } = useEditorStore(
     useShallow((state) => ({
       displaySize: state.displaySize,
@@ -163,6 +166,10 @@ export default function BottomBar({
   );
 
   const allColors = [...COLOR_LABELS, { name: 'none', color: '#9ca3af' }];
+  const currentHeight = filmstripHeight ?? 120;
+  const isCollapsed = !isFilmstripVisible;
+  const effectiveHeight = isFilmstripVisible ? currentHeight : 0;
+  const shouldAnimate = !isInstantTransition && (!isResizing || isCollapsed);
 
   useEffect(() => {
     if (isZoomReady && !isDraggingSlider.current) {
@@ -261,10 +268,19 @@ export default function BottomBar({
     <div className="shrink-0 bg-bg-secondary rounded-lg flex flex-col">
       {!isLibraryView && showFilmstrip && (
         <div
-          className={clsx('overflow-hidden', !isResizing && 'transition-all duration-300 ease-in-out')}
-          style={{ height: isFilmstripVisible ? `${filmstripHeight}px` : '0px' }}
+          className={clsx(
+            'overflow-hidden shrink-0 relative',
+            shouldAnimate && 'transition-all duration-300 ease-in-out',
+          )}
+          style={{ height: `${effectiveHeight}px` }}
         >
-          <div className="w-full p-2" style={{ height: `${filmstripHeight}px` }}>
+          <div
+            className={clsx(
+              'w-full p-2 transition-opacity duration-300 ease-in-out',
+              isCollapsed ? 'opacity-0 pointer-events-none' : 'opacity-100 pointer-events-auto',
+            )}
+            style={{ height: `${currentHeight}px` }}
+          >
             <Filmstrip
               imageList={imageList}
               imageRatings={imageRatings}
@@ -284,7 +300,7 @@ export default function BottomBar({
       <div
         className={clsx(
           'shrink-0 h-12 flex items-center justify-between px-3',
-          !isLibraryView && 'border-t',
+          !isLibraryView && 'border-t transition-colors duration-300',
           !isLibraryView && showFilmstrip && isFilmstripVisible ? 'border-surface' : 'border-transparent',
         )}
       >
