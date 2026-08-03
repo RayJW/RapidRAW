@@ -73,7 +73,7 @@ use tokio::sync::Mutex as TokioMutex;
 
 #[cfg(target_os = "linux")]
 use webkit2gtk_nvidia_quirk::{
-    apply_workaround_with_options, needs_workaround, ApplyWorkaroundOptions, WorkaroundKind,
+    ApplyWorkaroundOptions, WorkaroundKind, apply_workaround_with_options, needs_workaround,
 };
 
 use crate::cache_utils::{
