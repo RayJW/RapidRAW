@@ -719,9 +719,9 @@ export default function LensCorrectionModal({
               <AnimatePresence initial={false}>
                 {availability.distortion && params.lensDistortionEnabled && (
                   <motion.div
-                    initial={{ height: 0, opacity: 0, marginTop: 0 }}
-                    animate={{ height: 'auto', opacity: 1, marginTop: 8 }}
-                    exit={{ height: 0, opacity: 0, marginTop: 0 }}
+                    initial={{ height: 0, opacity: 0, marginTop: 0 }}  // react-doctor-disable-line no-layout-property-animation
+                    animate={{ height: 'auto', opacity: 1, marginTop: 8 }}  // react-doctor-disable-line no-layout-property-animation
+                    exit={{ height: 0, opacity: 0, marginTop: 0 }}  // react-doctor-disable-line no-layout-property-animation
                     transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
                     className="overflow-hidden px-2"
                   >
@@ -760,9 +760,9 @@ export default function LensCorrectionModal({
               <AnimatePresence initial={false}>
                 {availability.tca && params.lensTcaEnabled && (
                   <motion.div
-                    initial={{ height: 0, opacity: 0, marginTop: 0 }}
-                    animate={{ height: 'auto', opacity: 1, marginTop: 8 }}
-                    exit={{ height: 0, opacity: 0, marginTop: 0 }}
+                    initial={{ height: 0, opacity: 0, marginTop: 0 }}  // react-doctor-disable-line no-layout-property-animation
+                    animate={{ height: 'auto', opacity: 1, marginTop: 8 }}  // react-doctor-disable-line no-layout-property-animation
+                    exit={{ height: 0, opacity: 0, marginTop: 0 }}  // react-doctor-disable-line no-layout-property-animation
                     transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
                     className="overflow-hidden px-2"
                   >
@@ -801,9 +801,9 @@ export default function LensCorrectionModal({
               <AnimatePresence initial={false}>
                 {availability.vignetting && params.lensVignetteEnabled && (
                   <motion.div
-                    initial={{ height: 0, opacity: 0, marginTop: 0 }}
-                    animate={{ height: 'auto', opacity: 1, marginTop: 8 }}
-                    exit={{ height: 0, opacity: 0, marginTop: 0 }}
+                    initial={{ height: 0, opacity: 0, marginTop: 0 }}  // react-doctor-disable-line no-layout-property-animation
+                    animate={{ height: 'auto', opacity: 1, marginTop: 8 }}  // react-doctor-disable-line no-layout-property-animation
+                    exit={{ height: 0, opacity: 0, marginTop: 0 }}  // react-doctor-disable-line no-layout-property-animation
                     transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
                     className="overflow-hidden px-2"
                   >
