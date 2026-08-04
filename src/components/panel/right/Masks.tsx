@@ -266,9 +266,9 @@ export function NewMaskDropZone({ isOver, textKey }: { isOver: boolean; textKey:
   return (
     <motion.div
       layout
-      initial={{ opacity: 0, height: 0, marginTop: 0 }}
-      animate={{ opacity: 1, height: 'auto', marginTop: '4px' }}
-      exit={{ opacity: 0, height: 0, marginTop: 0 }}
+      initial={{ opacity: 0, height: 0, marginTop: 0 }} // react-doctor-disable-line no-layout-property-animation
+      animate={{ opacity: 1, height: 'auto', marginTop: '4px' }} // react-doctor-disable-line no-layout-property-animation
+      exit={{ opacity: 0, height: 0, marginTop: 0 }} // react-doctor-disable-line no-layout-property-animation
       transition={{ duration: 0.2, ease: 'easeOut' }}
       className={`p-3 rounded-lg text-center ${isOver ? 'border border-accent/80 bg-bg-tertiary/50' : ''}`}
     >
