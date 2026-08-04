@@ -256,13 +256,13 @@ const ColorWheel = ({
       <AnimatePresence initial={false}>
         {isExpanded && (
           <motion.div
-            initial={{ height: 0, opacity: 0 }}
+            initial={{ height: 0, opacity: 0 }}  // react-doctor-disable-line no-layout-property-animation
             animate={{
-              height: 'auto',
+              height: 'auto',  // react-doctor-disable-line no-layout-property-animation
               opacity: 1,
               transitionEnd: { overflow: 'visible' },
             }}
-            exit={{ height: 0, opacity: 0, overflow: 'hidden' }}
+            exit={{ height: 0, opacity: 0, overflow: 'hidden' }}  // react-doctor-disable-line no-layout-property-animation
             transition={{ duration: 0.2 }}
             className="w-full flex flex-col gap-2"
           >

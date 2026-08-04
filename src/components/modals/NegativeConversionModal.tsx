@@ -151,6 +151,7 @@ export default function NegativeConversionModal({
               if (prev) {
                 URL.revokeObjectURL(prev);
               }
+              // react-doctor-disable-next-line no-create-object-url-without-revoke
               return URL.createObjectURL(blob);
             });
           })
