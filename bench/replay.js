@@ -198,13 +198,13 @@
 
   // --- stats -------------------------------------------------------------------
   function median(values) {
-    const s = [...values].sort((a, b) => a - b);
+    const s = values.toSorted((a, b) => a - b);
     const mid = Math.floor(s.length / 2);
     return s.length % 2 ? s[mid] : (s[mid - 1] + s[mid]) / 2;
   }
 
   function p95(values) {
-    const s = [...values].sort((a, b) => a - b);
+    const s = values.toSorted((a, b) => a - b);
     return s[Math.min(s.length - 1, Math.ceil(0.95 * s.length) - 1)];
   }
 
