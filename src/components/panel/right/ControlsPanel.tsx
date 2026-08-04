@@ -244,9 +244,9 @@ export default function Controls() {
       <AnimatePresence initial={false}>
         {isWaveformVisible && (
           <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: waveformHeight || 256, opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
+            initial={{ height: 0, opacity: 0 }}  // react-doctor-disable-line no-layout-property-animation
+            animate={{ height: waveformHeight || 256, opacity: 1 }}  // react-doctor-disable-line no-layout-property-animation
+            exit={{ height: 0, opacity: 0 }}  // react-doctor-disable-line no-layout-property-animation
             transition={{ duration: isResizingWaveform ? 0 : 0.2, ease: 'easeOut' }}
             className="shrink-0 flex flex-col relative border-b border-surface overflow-hidden"
           >

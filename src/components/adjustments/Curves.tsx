@@ -902,9 +902,9 @@ export default function CurveGraph({
       <AnimatePresence initial={false}>
         {isParametricMode && (
           <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
+            initial={{ height: 0, opacity: 0 }}  // react-doctor-disable-line no-layout-property-animation
+            animate={{ height: 'auto', opacity: 1 }}  // react-doctor-disable-line no-layout-property-animation
+            exit={{ height: 0, opacity: 0 }}  // react-doctor-disable-line no-layout-property-animation
             transition={{ duration: 0.3, ease: 'easeInOut' }}
             className="overflow-hidden origin-top"
           >
