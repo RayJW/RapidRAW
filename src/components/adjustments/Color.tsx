@@ -421,19 +421,16 @@ export default function ColorPanel({
     [t],
   );
 
-  const colorHueMap = useMemo<Record<string, number>>(
-    () => ({
-      reds: 0,
-      oranges: 30,
-      yellows: 60,
-      greens: 120,
-      aquas: 180,
-      blues: 240,
-      purples: 300,
-      magentas: 340,
-    }),
-    [],
-  );
+  const colorHueMap: Record<string, number> = {
+    reds: 0,
+    oranges: 30,
+    yellows: 60,
+    greens: 120,
+    aquas: 180,
+    blues: 240,
+    purples: 300,
+    magentas: 340,
+  };
 
   const currentHsl = adjustments?.hsl?.[activeColor] || { hue: 0, saturation: 0, luminance: 0 };
   const baseHue = colorHueMap[activeColor] || 0;
