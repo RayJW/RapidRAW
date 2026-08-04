@@ -139,11 +139,9 @@ function DisplayModeSwitch({ displayMode, setDisplayMode, t }: DisplayModeSwitch
       <div className="relative flex w-full h-full">
         <motion.div
           className="absolute top-0 bottom-0 z-0 bg-bg-primary rounded-md shadow-sm"
+          style={{ width: `${100 / options.length}%` }}
           initial={false}
-          animate={{
-            x: `${safeIndex * 100}%`,
-            width: `${100 / options.length}%`,
-          }}
+          animate={{ x: `${safeIndex * 100}%` }}
           transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
         />
         {options.map((opt) => {
