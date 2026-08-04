@@ -157,7 +157,7 @@ const getAutoExpandedAlbumGroups = (node: AlbumItem, groups: Set<string>) => {
 
 const sortFolderTree = (nodes: FolderTree[], sort: FolderTreeSort): FolderTree[] => {
   if (!nodes) return [];
-  const sorted = [...nodes].sort((a, b) => {
+  const sorted = nodes.toSorted((a, b) => {
     let comparison = 0;
     if (sort.key === 'name') comparison = a.name.localeCompare(b.name);
     else if (sort.key === 'modified') comparison = (a.modified || 0) - (b.modified || 0);

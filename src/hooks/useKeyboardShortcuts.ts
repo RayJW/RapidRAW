@@ -79,7 +79,7 @@ export const useKeyboardShortcuts = ({
       const { libraryActivePath, multiSelectedPaths } = s.library;
       if (multiSelectedPaths.length > 0) {
         const listOrder = new Map(sortedListRef.current.map((image: ImageFile, index: number) => [image.path, index]));
-        return [...multiSelectedPaths].sort(
+        return multiSelectedPaths.toSorted(
           (a: string, b: string) =>
             (listOrder.get(a) ?? Number.MAX_SAFE_INTEGER) - (listOrder.get(b) ?? Number.MAX_SAFE_INTEGER),
         );
