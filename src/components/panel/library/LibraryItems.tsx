@@ -168,7 +168,7 @@ const ThumbnailComponent = ({
       {...listeners}
       {...attributes}
       className={clsx(
-        'aspect-square bg-surface rounded-md overflow-hidden cursor-pointer group relative flex flex-col transition-all duration-150 transform-gpu [-webkit-mask-image:-webkit-radial-gradient(white,black)]',
+        'aspect-square bg-surface rounded-md overflow-hidden cursor-pointer group relative flex flex-col transition-transform duration-150 transform-gpu [-webkit-mask-image:-webkit-radial-gradient(white,black)]',
         isDragging && 'opacity-50 ring-2 ring-accent z-50',
       )}
       data-bench-id="thumbnail"

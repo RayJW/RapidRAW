@@ -267,9 +267,9 @@ export default function LUTControl({
       <AnimatePresence initial={false}>
         {lutName && (
           <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
+            initial={{ height: 0, opacity: 0 }} // react-doctor-disable-line no-layout-property-animation
+            animate={{ height: 'auto', opacity: 1 }} // react-doctor-disable-line no-layout-property-animation
+            exit={{ height: 0, opacity: 0 }} // react-doctor-disable-line no-layout-property-animation
             transition={{ duration: 0.2, ease: 'easeInOut' }}
             className="overflow-hidden"
           >
@@ -293,9 +293,9 @@ export default function LUTControl({
       <AnimatePresence initial={false}>
         {isExpanded && (
           <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
+            initial={{ height: 0, opacity: 0 }} // react-doctor-disable-line no-layout-property-animation
+            animate={{ height: 'auto', opacity: 1 }} // react-doctor-disable-line no-layout-property-animation
+            exit={{ height: 0, opacity: 0 }} // react-doctor-disable-line no-layout-property-animation
             transition={{ duration: 0.25, ease: 'easeInOut' }}
             className="overflow-hidden"
           >
