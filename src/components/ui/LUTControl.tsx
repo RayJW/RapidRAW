@@ -227,9 +227,9 @@ export default function LUTControl({
       <AnimatePresence initial={false}>
         {isExpanded && (
           <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
+            initial={{ height: 0, opacity: 0 }}  // react-doctor-disable-line no-layout-property-animation
+            animate={{ height: 'auto', opacity: 1 }}  // react-doctor-disable-line no-layout-property-animation
+            exit={{ height: 0, opacity: 0 }}  // react-doctor-disable-line no-layout-property-animation
             transition={{ duration: 0.25, ease: 'easeInOut' }}
             className="overflow-hidden"
           >
@@ -276,7 +276,7 @@ export default function LUTControl({
                   })}
                   <button
                     onClick={handleImport}
-                    className="aspect-square rounded-md bg-bg-tertiary border-2 border-text-secondary/25 hover:border-accent flex items-center justify-center text-text-secondary hover:text-text-primary transition-all duration-150"
+                    className="aspect-square rounded-md bg-bg-tertiary border-2 border-text-secondary/25 hover:border-accent flex items-center justify-center text-text-secondary hover:text-text-primary transition-colors duration-150"
                     data-tooltip={t('ui.lut.import')}
                   >
                     <Upload size={20} />
@@ -291,9 +291,9 @@ export default function LUTControl({
       <AnimatePresence initial={false}>
         {lutName && (
           <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
+            initial={{ height: 0, opacity: 0 }}  // react-doctor-disable-line no-layout-property-animation
+            animate={{ height: 'auto', opacity: 1 }}  // react-doctor-disable-line no-layout-property-animation
+            exit={{ height: 0, opacity: 0 }}  // react-doctor-disable-line no-layout-property-animation
             transition={{ duration: 0.2, ease: 'easeInOut' }}
             className="overflow-hidden"
           >

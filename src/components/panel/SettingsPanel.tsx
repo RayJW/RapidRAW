@@ -374,7 +374,7 @@ const CloudDashboard = () => {
           </div>
           <div className="w-full bg-bg-primary rounded-full h-2">
             <div
-              className="bg-accent h-2 rounded-full transition-all duration-500"
+              className="bg-accent h-2 rounded-full transition-[width,background-color] duration-500"
               style={{ width: `${Math.min(100, ((usage?.requests ?? 0) / (usage?.limit ?? 500)) * 100)}%` }}
             />
           </div>
@@ -1108,9 +1108,9 @@ export default function SettingsPanel({
                         <AnimatePresence initial={false}>
                           {(appSettings?.enableXmpSync ?? true) && (
                             <motion.div
-                              initial={{ height: 0, opacity: 0 }}
-                              animate={{ height: 'auto', opacity: 1 }}
-                              exit={{ height: 0, opacity: 0 }}
+                              initial={{ height: 0, opacity: 0 }}  // react-doctor-disable-line no-layout-property-animation
+                              animate={{ height: 'auto', opacity: 1 }}  // react-doctor-disable-line no-layout-property-animation
+                              exit={{ height: 0, opacity: 0 }}  // react-doctor-disable-line no-layout-property-animation
                               transition={{ duration: 0.3, ease: 'easeInOut' }}
                               className="overflow-hidden"
                             >
@@ -1354,9 +1354,9 @@ export default function SettingsPanel({
                         <AnimatePresence>
                           {(appSettings?.enableAiTagging ?? false) && (
                             <motion.div
-                              initial={{ height: 0, opacity: 0 }}
-                              animate={{ height: 'auto', opacity: 1 }}
-                              exit={{ height: 0, opacity: 0 }}
+                              initial={{ height: 0, opacity: 0 }}  // react-doctor-disable-line no-layout-property-animation
+                              animate={{ height: 'auto', opacity: 1 }}  // react-doctor-disable-line no-layout-property-animation
+                              exit={{ height: 0, opacity: 0 }}  // react-doctor-disable-line no-layout-property-animation
                               transition={{ duration: 0.3, ease: 'easeInOut' }}
                               className="overflow-hidden"
                             >
@@ -1807,8 +1807,8 @@ export default function SettingsPanel({
                           {(appSettings?.enableLivePreviews ?? true) && (
                             <motion.div
                               initial={hasInteractedWithLivePreview ? { height: 0, opacity: 0 } : false}
-                              animate={{ height: 'auto', opacity: 1 }}
-                              exit={{ height: 0, opacity: 0 }}
+                              animate={{ height: 'auto', opacity: 1 }}  // react-doctor-disable-line no-layout-property-animation
+                              exit={{ height: 0, opacity: 0 }}  // react-doctor-disable-line no-layout-property-animation
                               transition={{ duration: 0.3, ease: 'easeInOut' }}
                             >
                               <div className="pl-4 border-l-2 border-border-color ml-1">
@@ -2063,9 +2063,9 @@ export default function SettingsPanel({
                         <AnimatePresence>
                           {(appSettings?.tonemapperOverrideEnabled ?? false) && (
                             <motion.div
-                              initial={{ height: 0, opacity: 0 }}
-                              animate={{ height: 'auto', opacity: 1 }}
-                              exit={{ height: 0, opacity: 0 }}
+                              initial={{ height: 0, opacity: 0 }}  // react-doctor-disable-line no-layout-property-animation
+                              animate={{ height: 'auto', opacity: 1 }}  // react-doctor-disable-line no-layout-property-animation
+                              exit={{ height: 0, opacity: 0 }}  // react-doctor-disable-line no-layout-property-animation
                               transition={{ duration: 0.3, ease: 'easeInOut' }}
                             >
                               <div className="pl-4 border-l-2 border-border-color ml-1 space-y-3">

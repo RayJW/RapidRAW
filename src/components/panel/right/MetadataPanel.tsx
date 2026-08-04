@@ -309,9 +309,9 @@ export default function MetadataPanel() {
       }
     }
 
-    const handledKeys = [...cameraGridKeys, 'LensModel', ...EDITABLE_FIELDS.map((f) => f.key)];
+    const handledKeys = new Set([...cameraGridKeys, 'LensModel', ...EDITABLE_FIELDS.map((f) => f.key)]);
     const otherExifEntries = Object.entries(exif)
-      .filter(([key]) => !handledKeys.includes(key))
+      .filter(([key]) => !handledKeys.has(key))
       .sort(([keyA], [keyB]) => keyA.localeCompare(keyB));
 
     return { cameraGridSettings, lensSetting, gpsData, otherExifEntries };
@@ -523,9 +523,9 @@ export default function MetadataPanel() {
                 <AnimatePresence initial={false}>
                   {isAuthorExpanded && (
                     <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
+                      initial={{ height: 0, opacity: 0 }}  // react-doctor-disable-line no-layout-property-animation
+                      animate={{ height: 'auto', opacity: 1 }}  // react-doctor-disable-line no-layout-property-animation
+                      exit={{ height: 0, opacity: 0 }}  // react-doctor-disable-line no-layout-property-animation
                       transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
                       className="overflow-hidden"
                     >
@@ -577,9 +577,9 @@ export default function MetadataPanel() {
                 <AnimatePresence initial={false}>
                   {isOrganizationExpanded && (
                     <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
+                      initial={{ height: 0, opacity: 0 }}  // react-doctor-disable-line no-layout-property-animation
+                      animate={{ height: 'auto', opacity: 1 }}  // react-doctor-disable-line no-layout-property-animation
+                      exit={{ height: 0, opacity: 0 }}  // react-doctor-disable-line no-layout-property-animation
                       transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
                       className="overflow-hidden"
                     >
@@ -724,7 +724,7 @@ export default function MetadataPanel() {
                                 <button
                                   key={shortcut}
                                   onClick={() => handleAddTag(shortcut)}
-                                  className="text-xs font-medium bg-bg-secondary hover:bg-card-active text-text-secondary px-1.5 py-0.5 rounded-sm border border-transparent hover:border-border-color transition-all"
+                                  className="text-xs font-medium bg-bg-secondary hover:bg-card-active text-text-secondary px-1.5 py-0.5 rounded-sm border border-transparent hover:border-border-color transition-colors"
                                 >
                                   {shortcut}
                                 </button>

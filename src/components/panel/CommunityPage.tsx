@@ -289,7 +289,7 @@ const CommunityPage = ({ onBackToLibrary, imageList, currentFolderPath }: Commun
                         <img
                           src={previewUrl}
                           alt={preset.name}
-                          className="w-full h-full object-cover transition-all duration-300 group-hover:blur-xs group-hover:brightness-75"
+                          className="w-full h-full object-cover transition-filter duration-300 group-hover:blur-xs group-hover:brightness-75"
                         />
                       ) : (
                         <Loader2 className="h-8 w-8 animate-spin text-text-secondary" />
