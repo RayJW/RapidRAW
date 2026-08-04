@@ -532,6 +532,7 @@ export function ViewOptionsDropdown({
 
   const [lastClickedColor, setLastClickedColor] = useState<string | null>(null);
   const allColors = useMemo(() => [...COLOR_LABELS, { name: 'none', color: '#9ca3af' }], []);
+  const filterColorsSet = useMemo(() => new Set(filterCriteria.colors || []), [filterCriteria.colors]);
 
   const metadataOptions = useMemo(
     () => [
@@ -730,9 +731,9 @@ export function ViewOptionsDropdown({
               <AnimatePresence initial={false}>
                 {groupingMode !== 'off' && (
                   <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0, height: 0 }}
+                    initial={{ opacity: 0, height: 0 }}  // react-doctor-disable-line no-layout-property-animation
+                    animate={{ opacity: 1, height: 'auto' }}  // react-doctor-disable-line no-layout-property-animation
+                    exit={{ opacity: 0, height: 0 }}  // react-doctor-disable-line no-layout-property-animation
                     transition={{ duration: 0.2, ease: 'easeInOut' }}
                     className="overflow-hidden"
                   >
@@ -772,7 +773,7 @@ export function ViewOptionsDropdown({
             </Text>
             <div className="flex flex-wrap gap-2.5 px-3 py-1.5">
               {allColors.map((color: Color) => {
-                const isSelected = (filterCriteria.colors || []).includes(color.name);
+                const isSelected = filterColorsSet.has(color.name);
                 const title =
                   color.name === 'none'
                     ? t('library.header.viewOptions.noLabel')
