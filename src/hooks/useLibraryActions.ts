@@ -49,6 +49,7 @@ export function useLibraryActions(handleImageSelect?: (path: string, openInEdito
 
     const groupingMode = useSettingsStore.getState().appSettings?.grouping ?? 'off';
     const pathsToUpdate = expandGroupedPaths(imageList, selectedPaths, groupingMode);
+    const pathsToUpdateSet = new Set(pathsToUpdate);
 
     const primaryPath = selectedImage?.path || libraryActivePath;
     const primaryImage = imageList.find((img: ImageFile) => img.path === primaryPath);
@@ -63,7 +64,7 @@ export function useLibraryActions(handleImageSelect?: (path: string, openInEdito
       await invoke(Invokes.SetColorLabelForPaths, { paths: pathsToUpdate, color: finalColor });
       setLibrary((state) => ({
         imageList: state.imageList.map((image: ImageFile) => {
-          if (pathsToUpdate.includes(image.path)) {
+          if (pathsToUpdateSet.has(image.path)) {
             const otherTags = (image.tags || []).filter((tag: string) => !tag.startsWith('color:'));
             const newTags = finalColor ? [...otherTags, `color:${finalColor}`] : otherTags;
             return { ...image, tags: newTags };
@@ -80,10 +81,11 @@ export function useLibraryActions(handleImageSelect?: (path: string, openInEdito
     const { imageList } = useLibraryStore.getState();
     const groupingMode = useSettingsStore.getState().appSettings?.grouping ?? 'off';
     const pathsToUpdate = expandGroupedPaths(imageList, changedPaths, groupingMode);
+    const pathsToUpdateSet = new Set(pathsToUpdate);
 
     useLibraryStore.getState().setLibrary((state) => ({
       imageList: state.imageList.map((image) => {
-        if (pathsToUpdate.includes(image.path)) {
+        if (pathsToUpdateSet.has(image.path)) {
           const colorTags = (image.tags || []).filter((t) => t.startsWith('color:'));
           const prefixedNewTags = newTags.map((t) => (t.isUser ? `user:${t.tag}` : t.tag));
           const finalTags = [...colorTags, ...prefixedNewTags].sort();
