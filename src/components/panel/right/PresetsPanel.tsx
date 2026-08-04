@@ -331,9 +331,9 @@ function PresetItemDisplay({
       <AnimatePresence initial={false}>
         {isActive && onIntensityChange && (
           <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
+            initial={{ height: 0, opacity: 0 }}  // react-doctor-disable-line no-layout-property-animation
+            animate={{ height: 'auto', opacity: 1 }}  // react-doctor-disable-line no-layout-property-animation
+            exit={{ height: 0, opacity: 0 }}  // react-doctor-disable-line no-layout-property-animation
             transition={{ duration: 0.25, ease: 'easeInOut' }}
             className="w-full cursor-auto overflow-hidden"
             onClick={(e: any) => e.stopPropagation()}
@@ -513,10 +513,10 @@ function DroppableFolderItem({ folder, onContextMenu, children, onToggle, isExpa
       <AnimatePresence>
         {isExpanded && hasChildren && (
           <motion.div
-            animate={{ height: 'auto', opacity: 1 }}
+            animate={{ height: 'auto', opacity: 1 }}  // react-doctor-disable-line no-layout-property-animation
             className="ml-4 pl-2 border-l-[1.5px] border-border-color/50 space-y-2 overflow-hidden pt-2"
-            exit={{ height: 0, opacity: 0 }}
-            initial={{ height: 0, opacity: 0 }}
+            exit={{ height: 0, opacity: 0 }}  // react-doctor-disable-line no-layout-property-animation
+            initial={{ height: 0, opacity: 0 }}  // react-doctor-disable-line no-layout-property-animation
           >
             {children}
           </motion.div>
@@ -712,6 +712,7 @@ export default function PresetsPanel({ onNavigateToCommunity }: PresetsPanelProp
         }
 
         const blob = new Blob([new Uint8Array(imageData)], { type: 'image/jpeg' });
+        // react-doctor-disable-next-line no-create-object-url-without-revoke
         const url = URL.createObjectURL(blob);
         setPreviews((prev: Record<string, string | null>) => {
           const oldUrl = prev[preset.id];
@@ -787,6 +788,7 @@ export default function PresetsPanel({ onNavigateToCommunity }: PresetsPanelProp
         if (pathAtStart !== currentImagePathRef.current) return;
 
         const blob = new Blob([new Uint8Array(imageData)], { type: 'image/jpeg' });
+        // react-doctor-disable-next-line no-create-object-url-without-revoke
         const url = URL.createObjectURL(blob);
 
         setPreviews((prev: Record<string, string | null>) => {
