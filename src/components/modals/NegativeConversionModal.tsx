@@ -147,7 +147,12 @@ export default function NegativeConversionModal({
         })
           .then((res: any) => {
             const blob = new Blob([new Uint8Array(res)], { type: 'image/jpeg' });
-            setOriginalUrl(URL.createObjectURL(blob));
+            setOriginalUrl((prev) => {
+              if (prev) {
+                URL.revokeObjectURL(prev);
+              }
+              return URL.createObjectURL(blob);
+            });
           })
           .catch(console.error);
       }
@@ -156,7 +161,12 @@ export default function NegativeConversionModal({
       setTimeout(() => {
         setIsMounted(false);
         setPreviewUrl(null);
-        setOriginalUrl(null);
+        setOriginalUrl((prev) => {
+          if (prev) {
+            URL.revokeObjectURL(prev);
+          }
+          return null;
+        });
         setParams(DEFAULT_PARAMS);
         setZoom(1);
         setPan({ x: 0, y: 0 });
