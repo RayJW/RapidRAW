@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { Star, Copy, ClipboardPaste, ChevronUp, ChevronDown, Check, Settings, Filter } from 'lucide-react';
 import clsx from 'clsx';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -164,6 +164,7 @@ export default function BottomBar({
   );
 
   const allColors = [...COLOR_LABELS, { name: 'none', color: '#9ca3af' }];
+  const filterColorsSet = useMemo(() => new Set(filterCriteria.colors || []), [filterCriteria.colors]);
   const currentHeight = filmstripHeight ?? 120;
   const isCollapsed = !isFilmstripVisible;
   const effectiveHeight = isFilmstripVisible ? currentHeight : 0;
@@ -438,7 +439,7 @@ export default function BottomBar({
 
                 <div className="flex items-center gap-1.5">
                   {allColors.map((color) => {
-                    const isSelected = (filterCriteria.colors || []).includes(color.name);
+                    const isSelected = filterColorsSet.has(color.name);
 
                     const tooltipTitle =
                       color.name === 'none'

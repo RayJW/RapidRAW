@@ -123,6 +123,8 @@ export default function CopyPasteSettingsModal({ isOpen, onClose, onSave, settin
   const [isMounted, setIsMounted] = useState(false);
   const [show, setShow] = useState(false);
   const [localSettings, setLocalSettings] = useState<CopyPasteSettings>(settings || DEFAULT_SETTINGS);
+  
+  const includedAdjustmentsSet = useMemo(() => new Set(localSettings.includedAdjustments), [localSettings.includedAdjustments]);
 
   useEffect(() => {
     if (isOpen) {
@@ -255,7 +257,7 @@ export default function CopyPasteSettingsModal({ isOpen, onClose, onSave, settin
                       {t(`editor.adjustments.sections.${section}`, { defaultValue: capitalize(section) })}
                     </Text>
                     {groups.map((group) => {
-                      const isFullyChecked = group.keys.every((key) => localSettings.includedAdjustments.includes(key));
+                      const isFullyChecked = group.keys.every((key) => includedAdjustmentsSet.has(key));
 
                       return (
                         <div key={group.label} className="mb-1.5 last:mb-0">
