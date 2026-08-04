@@ -788,9 +788,9 @@ function CullingPreview({
         <AnimatePresence>
           {isLoading && (
             <motion.div
-              initial={{ opacity: 0, width: 0 }}
-              animate={{ opacity: 1, width: 'auto' }}
-              exit={{ opacity: 0, width: 0 }}
+              initial={{ opacity: 0, width: 0 }}  // react-doctor-disable-line no-layout-property-animation
+              animate={{ opacity: 1, width: 'auto' }}  // react-doctor-disable-line no-layout-property-animation
+              exit={{ opacity: 0, width: 0 }}  // react-doctor-disable-line no-layout-property-animation
               className="flex items-center justify-center overflow-hidden"
             >
               <Loader2 className="w-4 h-4 animate-spin text-white mr-1" />
