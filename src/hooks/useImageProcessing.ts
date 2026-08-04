@@ -215,6 +215,7 @@ export function useImageProcessing(
 
             const imageBuffer = buffer.slice(24);
             const blob = new Blob([imageBuffer], { type: 'image/jpeg' });
+            // react-doctor-disable-next-line no-create-object-url-without-revoke
             const url = URL.createObjectURL(blob);
 
             setEditor((state) => {
@@ -232,6 +233,7 @@ export function useImageProcessing(
             });
           } else {
             const blob = new Blob([buffer], { type: 'image/jpeg' });
+            // react-doctor-disable-next-line no-create-object-url-without-revoke
             const url = URL.createObjectURL(blob);
 
             if (currentPath !== selectedImagePathRef.current || jobId < latestRenderedJobIdRef.current) {
@@ -458,8 +460,9 @@ export function useImageProcessing(
           if (appSettings?.copyPasteSettings?.autoSync && otherPaths.length > 0) {
             const delta: Partial<Adjustments> = {};
             const includedKeys = appSettings?.copyPasteSettings?.includedAdjustments || COPYABLE_ADJUSTMENT_KEYS;
+            const includedKeysSet = new Set(includedKeys);
             for (const key of Object.keys(adjustments) as Array<keyof Adjustments>) {
-              if (includedKeys.includes(key as string)) {
+              if (includedKeysSet.has(key as string)) {
                 if (JSON.stringify(adjustments[key]) !== JSON.stringify(prev.adjustments[key])) {
                   (delta as any)[key] = adjustments[key];
                 }

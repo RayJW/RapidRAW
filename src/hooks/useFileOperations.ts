@@ -31,6 +31,7 @@ export function useFileOperations(
       const { libraryActivePath, setLibrary } = useLibraryStore.getState();
       const { selectedImage } = useEditorStore.getState();
       const { activeView } = useUIStore.getState(); // <-- Check active view
+      const pathsToDeleteSet = new Set(pathsToDelete);
 
       // Determine the active path based on the current view
       const activePath = selectedImage && activeView === 'editor' ? selectedImage.path : libraryActivePath;
@@ -38,14 +39,14 @@ export function useFileOperations(
 
       if (activePath) {
         const physicalPath = activePath.split('?vc=')[0];
-        const isActiveImageDeleted = pathsToDelete.some((p) => p === activePath || p === physicalPath);
+        const isActiveImageDeleted = pathsToDeleteSet.has(activePath) || pathsToDeleteSet.has(physicalPath);
 
         if (isActiveImageDeleted) {
           const currentIndex = sortedImageList.findIndex((img) => img.path === activePath);
           if (currentIndex !== -1) {
             const nextCandidate = sortedImageList
               .slice(currentIndex + 1)
-              .find((img) => !pathsToDelete.includes(img.path));
+              .find((img) => !pathsToDeleteSet.has(img.path));
 
             if (nextCandidate) {
               nextImagePath = nextCandidate.path;
@@ -53,7 +54,7 @@ export function useFileOperations(
               const prevCandidate = sortedImageList
                 .slice(0, currentIndex)
                 .reverse()
-                .find((img) => !pathsToDelete.includes(img.path));
+                .find((img) => !pathsToDeleteSet.has(img.path));
 
               if (prevCandidate) {
                 nextImagePath = prevCandidate.path;

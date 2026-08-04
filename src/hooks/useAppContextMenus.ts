@@ -106,7 +106,8 @@ export function useAppContextMenus(props: UseAppContextMenusProps) {
   const getCommonTags = useCallback((paths: string[]): { tag: string; isUser: boolean }[] => {
     const { imageList } = useLibraryStore.getState();
     if (paths.length === 0) return [];
-    const imageFiles = imageList.filter((img) => paths.includes(img.path));
+    const pathsSet = new Set(paths);
+    const imageFiles = imageList.filter((img) => pathsSet.has(img.path));
     if (imageFiles.length === 0) return [];
 
     const allTagsSets = imageFiles.map((img) => {
@@ -502,11 +503,12 @@ export function useAppContextMenus(props: UseAppContextMenusProps) {
       const handleRemoveFromAlbum = async () => {
         if (!activeAlbumId) return;
         const newTree = JSON.parse(JSON.stringify(albumTree));
+        const finalSelectionSet = new Set(finalSelection);
 
         const removeImages = (nodes: AlbumItem[]): boolean => {
           for (const n of nodes) {
             if (n.id === activeAlbumId && n.type === 'album') {
-              (n as Album).images = (n as Album).images.filter((p) => !finalSelection.includes(p));
+              (n as Album).images = (n as Album).images.filter((p) => !finalSelectionSet.has(p));
               return true;
             } else if (n.type === 'group') {
               if (removeImages(n.children)) return true;
@@ -532,7 +534,8 @@ export function useAppContextMenus(props: UseAppContextMenusProps) {
             }, null) as Album;
 
             if (albumObj) {
-              setLibrary({ imageList: imageList.filter((i) => albumObj.images.includes(i.path)) });
+              const albumImagesSet = new Set(albumObj.images);
+              setLibrary({ imageList: imageList.filter((i) => albumImagesSet.has(i.path)) });
             }
           } catch (e) {
             toast.error(t('contextMenus.toasts.failedRemoveImages', { err: e }));
@@ -665,6 +668,37 @@ export function useAppContextMenus(props: UseAppContextMenusProps) {
                 });
               },
             },
+            {
+              icon: LayoutTemplate,
+              label: collageLabel,
+              onClick: () => {
+                const finalSelectionSet = new Set(finalSelection);
+                const imagesForCollage = imageList.filter((img) => finalSelectionSet.has(img.path));
+                setUI({ collageModalState: { isOpen: true, sourceImages: imagesForCollage } });
+              },
+              disabled: selectionCount === 0 || selectionCount > 9,
+            },
+            {
+              label: cullLabel,
+              icon: Users,
+              onClick: () =>
+                setUI({
+                  cullingModalState: {
+                    isOpen: true,
+                    progress: null,
+                    suggestions: null,
+                    error: null,
+                    pathsToCull: finalSelection,
+                  },
+                }),
+              disabled: selectionCount < 2,
+            },
+          ],
+        },
+        {
+          label: t('contextMenus.merge.title'),
+          icon: Layers,
+          submenu: [
             {
               disabled: selectionCount < 2,
               icon: Layers,
