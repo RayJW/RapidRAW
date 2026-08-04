@@ -155,6 +155,7 @@ export default function CollageModal({ isOpen, onClose, onSave, sourceImages }: 
             jsAdjustments: adjustments,
           });
           const blob = new Blob([new Uint8Array(imageData)], { type: 'image/jpeg' });
+          // react-doctor-disable-next-line no-create-object-url-without-revoke
           const url = URL.createObjectURL(blob);
           createdUrls.push(url);
 
@@ -541,7 +542,7 @@ export default function CollageModal({ isOpen, onClose, onSave, sourceImages }: 
           ...prev,
           [imagePath]: { ...prev[imagePath], offsetX: newOffsetX, offsetY: newOffsetY },
         }));
-        setPanningImage({ ...panningImage, startX: e.clientX, startY: e.clientY });
+        setPanningImage((prev) => (prev ? { ...prev, startX: e.clientX, startY: e.clientY } : null));
       }
 
       if (thumbnailDrag && activeLayout && previewContainerRef.current) {
@@ -878,7 +879,7 @@ export default function CollageModal({ isOpen, onClose, onSave, sourceImages }: 
                     src={loadedData.url}
                     alt=""
                     onMouseDown={(e) => handleThumbnailMouseDown(e, sourceImg.path, loadedData.url)}
-                    className="h-20 w-20 shrink-0 object-cover rounded-md cursor-grab active:cursor-grabbing hover:ring-2 hover:ring-accent transition-all select-none shadow-xs"
+                    className="h-20 w-20 shrink-0 object-cover rounded-md cursor-grab active:cursor-grabbing hover:ring-2 hover:ring-accent transition-colors select-none shadow-xs"
                   />
                 </motion.div>
               );
