@@ -86,7 +86,7 @@ export default function CollageModal({ isOpen, onClose, onSave, sourceImages }: 
   const [borderRadius, setBorderRadius] = useState(INITIAL_BORDER_RADIUS);
   const [backgroundColor, setBackgroundColor] = useState('#FFFFFF');
   const [exportWidth, setExportWidth] = useState(DEFAULT_EXPORT_WIDTH);
-  const [exportHeight, setExportHeight] = useState(
+  const [exportHeight, setExportHeight] = useState(() =>
     Math.round(DEFAULT_EXPORT_WIDTH / (ASPECT_RATIO_PRESETS[0].value || 1)),
   );
 
@@ -140,6 +140,8 @@ export default function CollageModal({ isOpen, onClose, onSave, sourceImages }: 
   useEffect(() => {
     if (!isOpen || sourceImages.length === 0) return;
 
+    const createdUrls: string[] = [];
+
     const loadImages = async () => {
       setIsLoading(true);
       setError(null);
@@ -154,6 +156,7 @@ export default function CollageModal({ isOpen, onClose, onSave, sourceImages }: 
           });
           const blob = new Blob([new Uint8Array(imageData)], { type: 'image/jpeg' });
           const url = URL.createObjectURL(blob);
+          createdUrls.push(url);
 
           return new Promise<LoadedImage>((resolve, reject) => {
             const img = new Image();
@@ -191,7 +194,8 @@ export default function CollageModal({ isOpen, onClose, onSave, sourceImages }: 
     const timerId = setTimeout(loadImages, 300);
     return () => {
       clearTimeout(timerId);
-      Object.values(imageElementsRef.current).forEach((img) => URL.revokeObjectURL(img.src));
+      createdUrls.forEach((url) => URL.revokeObjectURL(url));
+      imageElementsRef.current = {};
     };
   }, [isOpen, sourceImages, t]);
 
