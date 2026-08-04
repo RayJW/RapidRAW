@@ -234,7 +234,7 @@ const ConnectionStatus = ({
           </div>
           <div className="w-full bg-bg-tertiary rounded-full h-1.5 border border-border-color">
             <div
-              className="bg-accent h-1.5 rounded-full transition-all duration-500"
+              className="bg-accent h-1.5 rounded-full transition-[width,background-color] duration-500"
               style={{ width: `${percent}%` }}
             />
           </div>
@@ -287,9 +287,9 @@ const ConnectionStatus = ({
       {hoverContent && (
         <div className="px-4 pb-3">
           <motion.div
-            animate={{ height: isHovered ? 'auto' : 0, opacity: isHovered ? 1 : 0, marginTop: isHovered ? '2px' : 0 }}
+            animate={{ height: isHovered ? 'auto' : 0, opacity: isHovered ? 1 : 0, marginTop: isHovered ? '2px' : 0 }}  // react-doctor-disable-line no-layout-property-animation
             className="overflow-hidden"
-            initial={{ height: 0, opacity: 0, marginTop: 0 }}
+            initial={{ height: 0, opacity: 0, marginTop: 0 }}  // react-doctor-disable-line no-layout-property-animation
             transition={{ duration: 0.2, ease: 'easeInOut' }}
           >
             {hoverContent}
@@ -1521,8 +1521,8 @@ function ContainerRow({
   return (
     <motion.div
       layout="position"
-      initial={{ opacity: 0, height: 0 }}
-      animate={{ opacity: isDragging ? 0.4 : 1, height: 'auto' }}
+      initial={{ opacity: 0, height: 0 }}  // react-doctor-disable-line no-layout-property-animation
+      animate={{ opacity: isDragging ? 0.4 : 1, height: 'auto' }}  // react-doctor-disable-line no-layout-property-animation
       exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
       ref={setCombinedRef}
       className="overflow-hidden"
@@ -1645,9 +1645,9 @@ function ContainerRow({
       <AnimatePresence initial={false}>
         {!isStandalone && isExpanded && (
           <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
+            initial={{ height: 0, opacity: 0 }}  // react-doctor-disable-line no-layout-property-animation
+            animate={{ height: 'auto', opacity: 1 }}  // react-doctor-disable-line no-layout-property-animation
+            exit={{ height: 0, opacity: 0 }}  // react-doctor-disable-line no-layout-property-animation
             className="overflow-hidden pl-2 border-l-[1.5px] border-border-color/50 ml-3.75"
             layout
           >
@@ -1688,9 +1688,9 @@ function ContainerRow({
                 <motion.div
                   key="add-component-btn"
                   layout="position"
-                  initial={{ opacity: 0, height: 0, overflow: 'hidden' }}
-                  animate={{ opacity: 1, height: 'auto', overflow: 'hidden' }}
-                  exit={{ opacity: 0, height: 0, overflow: 'hidden' }}
+                  initial={{ opacity: 0, height: 0, overflow: 'hidden' }}  // react-doctor-disable-line no-layout-property-animation
+                  animate={{ opacity: 1, height: 'auto', overflow: 'hidden' }}  // react-doctor-disable-line no-layout-property-animation
+                  exit={{ opacity: 0, height: 0, overflow: 'hidden' }}  // react-doctor-disable-line no-layout-property-animation
                   transition={{ duration: 0.2 }}
                 >
                   <Text
@@ -2062,10 +2062,10 @@ function SettingsPanel({
               <AnimatePresence>
                 {!useFastInpaint && !isCloud && (
                   <motion.div
-                    animate={{ opacity: 1, height: 'auto', marginTop: '0.75rem' }}
+                    animate={{ opacity: 1, height: 'auto', marginTop: '0.75rem' }}  // react-doctor-disable-line no-layout-property-animation
                     className="overflow-hidden"
-                    exit={{ opacity: 0, height: 0, marginTop: 0 }}
-                    initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                    exit={{ opacity: 0, height: 0, marginTop: 0 }}  // react-doctor-disable-line no-layout-property-animation
+                    initial={{ opacity: 0, height: 0, marginTop: 0 }}  // react-doctor-disable-line no-layout-property-animation
                     transition={{ duration: 0.2 }}
                   >
                     <div className="flex items-center gap-2">
