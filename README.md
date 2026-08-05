@@ -311,6 +311,7 @@ RapidRAW is still in active development and isn't yet as polished as mature tool
 - [Showcase & Edits](#showcase--edits)
 - [The Idea](#the-idea)
 - [Key Features](#key-features)
+- [Supported Formats, Lenses & Languages](#supported-formats-lenses--languages)
 - [Current Priorities](#current-priorities)
 - [AI Roadmap](#ai-roadmap)
 - [Initial Development Log](#initial-development-log)
@@ -538,6 +539,83 @@ Explore example edits processed entirely within RapidRAW. You can download the `
     </td>
   </tr>
 </table>
+
+## Supported Formats, Lenses & Languages
+
+RapidRAW supports a wide array of camera RAW formats, non-RAW image files, and automatic lens corrections.
+
+<details>
+<summary><strong>Supported Camera RAW Formats</strong></summary>
+
+RapidRAW relies on [dnglab / rawler](https://github.com/dnglab/dnglab) for RAW file decoding. You can check out the full list of specific camera models on the **[dnglab Supported Cameras List](https://github.com/dnglab/dnglab/blob/main/SUPPORTED_CAMERAS.md)**.
+
+| Brand / Manufacturer  | Supported Extensions           | Description                |
+| :-------------------- | :----------------------------- | :------------------------- |
+| **Adobe**             | `.dng`                         | Digital Negative           |
+| **Apple**             | `.pro`                         | Apple ProRAW               |
+| **ARRI**              | `.ari`                         | ARRI Raw                   |
+| **Canon**             | `.crw`, `.cr2`, `.cr3`         | Canon Raw 1, 2, 3          |
+| **Casio**             | `.bay`                         | Casio Raw                  |
+| **Contax**            | `.raw`                         | Contax Raw                 |
+| **Epson**             | `.erf`                         | Epson Raw                  |
+| **Fujifilm**          | `.raf`                         | Fuji Raw (X-Trans & Bayer) |
+| **Hasselblad**        | `.3fr`, `.fff`                 | Hasselblad Raw             |
+| **Kodak**             | `.kdc`, `.k25`, `.dcs`, `.dcr` | Kodak Raw formats          |
+| **Leaf / Imacon**     | `.mos`, `.iiq`                 | Leaf / Imacon Raw          |
+| **Leica**             | `.rwl`                         | Leica Raw                  |
+| **Mamiya**            | `.mef`                         | Mamiya Raw                 |
+| **Minolta**           | `.mrw`                         | Minolta Raw                |
+| **Nikon**             | `.nef`, `.nrw`                 | Nikon Electronic Format    |
+| **Olympus**           | `.orf`                         | Olympus Raw                |
+| **Panasonic / Leica** | `.rw2`, `.raw`                 | Panasonic / Leica Raw      |
+| **Pentax / Ricoh**    | `.pef`, `.ptx`                 | Pentax Electronic File     |
+| **Phase One**         | `.iiq`                         | Phase One Raw              |
+| **Samsung**           | `.srw`                         | Samsung Raw                |
+| **Sigma**             | `.x3f`                         | Sigma Foveon Raw           |
+| **Sony**              | `.arw`, `.srf`, `.sr2`         | Sony Alpha Raw formats     |
+
+> **Note:** Is your camera's RAW file unsupported? Please open an issue directly with **[dnglab](https://github.com/dnglab/dnglab/issues)** to request RAW decoding support for your camera model. Once added there, support will be updated in RapidRAW.
+
+</details>
+
+<details>
+<summary><strong>Supported Non-RAW Formats</strong></summary>
+
+RapidRAW isn't just for RAW files! You can also import, edit, and convert standard image formats:
+
+- **Standard Formats:** `.jpg`, `.jpeg`, `.png`, `.webp`, `.jxl`, `.tiff`, `.tif`, `.bmp`, `.gif`
+- **High Dynamic Range (HDR) / Wide Gamut:** `.exr`, `.hdr`
+- **Graphics & Textures:** `.tga`, `.ico`, `.dds`
+- **Specialist Formats:** `.qoi`, `.ff`
+- **Netpbm Bitmaps:** `.pnm`, `.pbm`, `.pgm`, `.ppm`, `.pam`
+</details>
+
+<details>
+<summary><strong>Lens Correction Support</strong></summary>
+
+RapidRAW supports automatic lens profile detection, distortion, transverse chromatic aberration (TCA), and vignetting correction powered by **[Lensfun](https://lensfun.github.io/)**.
+
+> **Note:** If your lens profile is missing, please open an issue directly on the **[Lensfun repository](https://github.com/lensfun/lensfun/issues)** to request profile addition.
+
+</details>
+
+### Supported Languages
+
+RapidRAW is fully translated and supports 13 languages:
+
+- 🇬🇧 **English**
+- 🇪🇸 **Català**
+- 🇩🇪 **Deutsch**
+- 🇪🇸 **Español**
+- 🇫🇷 **Français**
+- 🇮🇹 **Italiano**
+- 🇵🇱 **Polski**
+- 🇵🇹 **Português**
+- 🇷🇺 **Русский**
+- 🇯🇵 **日本語**
+- 🇰🇷 **한국어**
+- 🇨🇳 **简体中文**
+- 🇹🇼 **繁體中文**
 
 ## Current Priorities
 
