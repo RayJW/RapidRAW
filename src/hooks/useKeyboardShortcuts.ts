@@ -347,6 +347,13 @@ export const useKeyboardShortcuts = ({
           s.ui.setRightPanel(Panel.Metadata);
         },
       },
+      toggle_folder_tree: {
+        shouldFire: () => true,
+        execute: (e: any, s: any) => {
+          e.preventDefault();
+          s.ui.setRightPanel(Panel.FolderTree);
+        },
+      },
       toggle_analytics: {
         shouldFire: (s: any) => !!s.editor.selectedImage,
         execute: (e: any, s: any) => {

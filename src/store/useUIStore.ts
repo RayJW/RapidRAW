@@ -1,23 +1,5 @@
 import { create } from 'zustand';
-import {
-  ImageFile,
-  LibraryViewMode,
-  Panel,
-  UiVisibility,
-  CullingSuggestions,
-  PanelRegion,
-} from '../components/ui/AppProperties';
-
-const RIGHT_PANEL_ORDER = [
-  Panel.Metadata,
-  Panel.Adjustments,
-  Panel.Crop,
-  Panel.Masks,
-  Panel.Ai,
-  Panel.Presets,
-  Panel.Export,
-  Panel.FolderTree,
-];
+import { ImageFile, Panel, UiVisibility, CullingSuggestions, PanelRegion } from '../components/ui/AppProperties';
 
 export type SwitcherPlacement = 'bottom' | 'right' | 'left' | 'top';
 
