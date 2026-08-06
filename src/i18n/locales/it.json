@@ -621,6 +621,7 @@
         "select": "Seleziona",
         "selectPresetTooltip": "Seleziona un predefinito da applicare"
       },
+      "toggleAnalyticsInAdjustments": "Mostra/Nascondi analisi nel pannello Regolazioni",
       "toggleAnalyticsTooltip": "Attiva/Disattiva Visualizzazione Analitiche",
       "tooltips": {
         "addToCurrent": "Aggiungi {{name}} alla Maschera Attuale o Crea Nuova (Tasto Destro)",

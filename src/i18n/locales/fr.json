@@ -621,6 +621,7 @@
         "select": "Sélectionner",
         "selectPresetTooltip": "Sélectionner un paramètre prédéfini à appliquer"
       },
+      "toggleAnalyticsInAdjustments": "Afficher/Masquer l'analyse dans le panneau Réglages",
       "toggleAnalyticsTooltip": "Basculer l'affichage des analyses",
       "tooltips": {
         "addToCurrent": "Ajouter {{name}} au masque actuel ou en créer un nouveau (Clic-droit)",

@@ -642,6 +642,7 @@
         "select": "Wybierz",
         "selectPresetTooltip": "Wybierz preset do zastosowania"
       },
+      "toggleAnalyticsInAdjustments": "Przełącz analizę w panelu Dopasowania",
       "toggleAnalyticsTooltip": "Przełącz widok analityki",
       "tooltips": {
         "addToCurrent": "Dodaj {{name}} do bieżącej maski lub utwórz nową (Prawy przycisk)",

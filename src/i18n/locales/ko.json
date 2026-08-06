@@ -598,6 +598,7 @@
         "select": "선택",
         "selectPresetTooltip": "적용할 프리셋 선택"
       },
+      "toggleAnalyticsInAdjustments": "조정 패널에서 분석 토글",
       "toggleAnalyticsTooltip": "분석 표시 전환",
       "tooltips": {
         "addToCurrent": "{{name}}을(를) 현재 마스크에 추가하거나 새로 만들기 (우클릭)",

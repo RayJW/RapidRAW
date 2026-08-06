@@ -642,6 +642,7 @@
         "select": "Выбрать",
         "selectPresetTooltip": "Выберите пресет для применения"
       },
+      "toggleAnalyticsInAdjustments": "Переключить аналитику на панели «Коррекция»",
       "toggleAnalyticsTooltip": "Показать/скрыть панель гистограммы",
       "tooltips": {
         "addToCurrent": "Добавить {{name}} к текущей маске или создать новую (правый клик)",

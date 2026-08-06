@@ -598,6 +598,7 @@
         "select": "选择",
         "selectPresetTooltip": "选择一个预设以应用"
       },
+      "toggleAnalyticsInAdjustments": "在调整面板中切换分析",
       "toggleAnalyticsTooltip": "切换分析显示",
       "tooltips": {
         "addToCurrent": "将 {{name}} 添加到当前蒙版或创建新蒙版（右键单击）",

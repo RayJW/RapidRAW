@@ -600,6 +600,7 @@
         "select": "Auswählen",
         "selectPresetTooltip": "Eine Vorgabe zum Anwenden auswählen"
       },
+      "toggleAnalyticsInAdjustments": "Analyseanzeige im Anpassungen-Panel umschalten",
       "toggleAnalyticsTooltip": "Analyseanzeige umschalten",
       "tooltips": {
         "addToCurrent": "{{name}} zur aktuellen Maske hinzufügen oder neu erstellen (Rechtsklick)",

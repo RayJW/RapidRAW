@@ -598,6 +598,7 @@
         "select": "選擇",
         "selectPresetTooltip": "選擇一個預設以應用"
       },
+      "toggleAnalyticsInAdjustments": "在調整面板中切換分析",
       "toggleAnalyticsTooltip": "切換分析顯示",
       "tooltips": {
         "addToCurrent": "將 {{name}} 新增到當前遮色片或建立新遮色片（右鍵單擊）",

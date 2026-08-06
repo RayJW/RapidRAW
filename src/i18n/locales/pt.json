@@ -621,6 +621,7 @@
         "select": "Selecionar",
         "selectPresetTooltip": "Selecione uma predefinição para aplicar"
       },
+      "toggleAnalyticsInAdjustments": "Alternar análise no painel de Ajustes",
       "toggleAnalyticsTooltip": "Alternar Exibição de Análises",
       "tooltips": {
         "addToCurrent": "Adicionar {{name}} à Máscara Atual ou Criar Nova (Botão Direito)",

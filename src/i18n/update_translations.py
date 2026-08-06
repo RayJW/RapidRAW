@@ -5,145 +5,93 @@ LOCALES_DIR = Path("./locales")
 
 TRANSLATIONS = {
     "ca": {
-        "settings": {
-            "keybinds": {
-                "actions": {
-                    "toggle_left_panel": "Commutar el panell esquerre",
-                    "toggle_right_panel": "Commutar el panell dret",
-                    "toggle_bottom_panel": "Commutar la tira d'imatges"
-                }
+        "editor": {
+            "masks": {
+                "toggleAnalyticsInAdjustments": "Commutar l'anàlisi al panell d'ajustos"
             }
         }
     },
     "de": {
-        "settings": {
-            "keybinds": {
-                "actions": {
-                    "toggle_left_panel": "Linkes Panel ein-/ausblenden",
-                    "toggle_right_panel": "Rechtes Panel ein-/ausblenden",
-                    "toggle_bottom_panel": "Filmstreifen ein-/ausblenden"
-                }
+        "editor": {
+            "masks": {
+                "toggleAnalyticsInAdjustments": "Analyseanzeige im Anpassungen-Panel umschalten"
             }
         }
     },
     "en": {
-        "settings": {
-            "keybinds": {
-                "actions": {
-                    "toggle_left_panel": "Toggle Left Panel",
-                    "toggle_right_panel": "Toggle Right Panel",
-                    "toggle_bottom_panel": "Toggle Filmstrip"
-                }
+        "editor": {
+            "masks": {
+                "toggleAnalyticsInAdjustments": "Toggle analytics in Adjustments panel"
             }
         }
     },
     "es": {
-        "settings": {
-            "keybinds": {
-                "actions": {
-                    "toggle_left_panel": "Alternar panel izquierdo",
-                    "toggle_right_panel": "Alternar panel derecho",
-                    "toggle_bottom_panel": "Alternar tira de imágenes"
-                }
+        "editor": {
+            "masks": {
+                "toggleAnalyticsInAdjustments": "Alternar análisis en el panel de Ajustes"
             }
         }
     },
     "fr": {
-        "settings": {
-            "keybinds": {
-                "actions": {
-                    "toggle_left_panel": "Afficher/Masquer le panneau gauche",
-                    "toggle_right_panel": "Afficher/Masquer le panneau droit",
-                    "toggle_bottom_panel": "Afficher/Masquer la bande de film"
-                }
+        "editor": {
+            "masks": {
+                "toggleAnalyticsInAdjustments": "Afficher/Masquer l'analyse dans le panneau Réglages"
             }
         }
     },
     "it": {
-        "settings": {
-            "keybinds": {
-                "actions": {
-                    "toggle_left_panel": "Mostra/Nascondi pannello sinistro",
-                    "toggle_right_panel": "Mostra/Nascondi pannello destro",
-                    "toggle_bottom_panel": "Mostra/Nascondi striscia immagini"
-                }
+        "editor": {
+            "masks": {
+                "toggleAnalyticsInAdjustments": "Mostra/Nascondi analisi nel pannello Regolazioni"
             }
         }
     },
     "ja": {
-        "settings": {
-            "keybinds": {
-                "actions": {
-                    "toggle_left_panel": "左パネルの表示/非表示",
-                    "toggle_right_panel": "右パネルの表示/非表示",
-                    "toggle_bottom_panel": "フィルムストリップの表示/非表示"
-                }
+        "editor": {
+            "masks": {
+                "toggleAnalyticsInAdjustments": "調整パネルでアナリティクスを切り替える"
             }
         }
     },
     "ko": {
-        "settings": {
-            "keybinds": {
-                "actions": {
-                    "toggle_left_panel": "왼쪽 패널 토글",
-                    "toggle_right_panel": "오른쪽 패널 토글",
-                    "toggle_bottom_panel": "필름스트립 토글"
-                }
+        "editor": {
+            "masks": {
+                "toggleAnalyticsInAdjustments": "조정 패널에서 분석 토글"
             }
         }
     },
     "pl": {
-        "settings": {
-            "keybinds": {
-                "actions": {
-                    "toggle_left_panel": "Przełącz lewy panel",
-                    "toggle_right_panel": "Przełącz prawy panel",
-                    "toggle_bottom_panel": "Przełącz pasek z klatkami"
-                }
+        "editor": {
+            "masks": {
+                "toggleAnalyticsInAdjustments": "Przełącz analizę w panelu Dopasowania"
             }
         }
     },
     "pt": {
-        "settings": {
-            "keybinds": {
-                "actions": {
-                    "toggle_left_panel": "Alternar painel esquerdo",
-                    "toggle_right_panel": "Alternar painel direito",
-                    "toggle_bottom_panel": "Alternar tira de filme"
-                }
+        "editor": {
+            "masks": {
+                "toggleAnalyticsInAdjustments": "Alternar análise no painel de Ajustes"
             }
         }
     },
     "ru": {
-        "settings": {
-            "keybinds": {
-                "actions": {
-                    "toggle_left_panel": "Показать/скрыть левую панель",
-                    "toggle_right_panel": "Показать/скрыть правую панель",
-                    "toggle_bottom_panel": "Показать/скрыть ленту кадров"
-                }
+        "editor": {
+            "masks": {
+                "toggleAnalyticsInAdjustments": "Переключить аналитику на панели «Коррекция»"
             }
         }
     },
     "zh-CN": {
-        "settings": {
-            "keybinds": {
-                "actions": {
-                    "toggle_left_panel": "切换左侧面板",
-                    "toggle_right_panel": "切换右侧面板",
-                    "toggle_bottom_panel": "切换胶片条"
-                }
+        "editor": {
+            "masks": {
+                "toggleAnalyticsInAdjustments": "在调整面板中切换分析"
             }
         }
     },
     "zh-TW": {
-        "settings": {
-            "keybinds": {
-                "actions": {
-                    "toggle_left_panel": "切換左側面板",
-                    "toggle_right_panel": "切換右側面板",
-                    "toggle_bottom_panel": "切換膠片條"
-                }
+        "editor": {
+            "masks": {
+                "toggleAnalyticsInAdjustments": "在調整面板中切換分析"
             }
         }
     }
@@ -192,7 +140,7 @@ def main():
         print(f"Error: Locales directory '{LOCALES_DIR}' does not exist.")
         return
 
-    print("Starting Keybind translation updates...")
+    print("Starting Analytics translation updates...")
     for lang, trans in TRANSLATIONS.items():
         file_path = LOCALES_DIR / f"{lang}.json"
         update_json_file(file_path, trans)

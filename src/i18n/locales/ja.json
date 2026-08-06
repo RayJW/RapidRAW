@@ -598,6 +598,7 @@
         "select": "選択",
         "selectPresetTooltip": "適用するプリセットを選択"
       },
+      "toggleAnalyticsInAdjustments": "調整パネルでアナリティクスを切り替える",
       "toggleAnalyticsTooltip": "アナリティクス表示の切り替え",
       "tooltips": {
         "addToCurrent": "{{name}}を現在のマスクに追加、または新規作成 (右クリック)",

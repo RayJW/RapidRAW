@@ -600,6 +600,7 @@
         "select": "Select",
         "selectPresetTooltip": "Select a preset to apply"
       },
+      "toggleAnalyticsInAdjustments": "Toggle analytics in Adjustments panel",
       "toggleAnalyticsTooltip": "Toggle Analytics Display",
       "tooltips": {
         "addToCurrent": "Add {{name}} to Current Mask or Create New (Right-click)",

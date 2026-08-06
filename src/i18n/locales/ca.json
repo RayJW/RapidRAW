@@ -600,6 +600,7 @@
         "select": "Seleccionar",
         "selectPresetTooltip": "Seleccioneu un ajust preestablert per aplicar"
       },
+      "toggleAnalyticsInAdjustments": "Commutar l'anàlisi al panell d'ajustos",
       "toggleAnalyticsTooltip": "Alternar visualització d'anàlisi",
       "tooltips": {
         "addToCurrent": "Afegir {{name}} a la màscara actual o crear-ne una de nova (Clic dret)",
