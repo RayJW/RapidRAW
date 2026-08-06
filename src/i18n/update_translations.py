@@ -5,157 +5,144 @@ LOCALES_DIR = Path("./locales")
 
 TRANSLATIONS = {
     "ca": {
-        "ui": {
-            "bottomBar": {
-                "tooltips": {
-                    "collapseLeft": "Plegar el panell esquerre",
-                    "expandLeft": "Desplegar el panell esquerre",
-                    "collapseRight": "Plegar el panell dret",
-                    "expandRight": "Desplegar el panell dret"
+        "settings": {
+            "keybinds": {
+                "actions": {
+                    "toggle_left_panel": "Commutar el panell esquerre",
+                    "toggle_right_panel": "Commutar el panell dret",
+                    "toggle_bottom_panel": "Commutar la tira d'imatges"
                 }
             }
         }
     },
     "de": {
-        "ui": {
-            "bottomBar": {
-                "tooltips": {
-                    "collapseLeft": "Linkes Panel einklappen",
-                    "expandLeft": "Linkes Panel ausklappen",
-                    "collapseRight": "Rechtes Panel einklappen",
-                    "expandRight": "Rechtes Panel ausklappen"
+        "settings": {
+            "keybinds": {
+                "actions": {
+                    "toggle_left_panel": "Linkes Panel ein-/ausblenden",
+                    "toggle_right_panel": "Rechtes Panel ein-/ausblenden",
+                    "toggle_bottom_panel": "Filmstreifen ein-/ausblenden"
                 }
             }
         }
     },
     "en": {
-        "ui": {
-            "bottomBar": {
-                "tooltips": {
-                    "collapseLeft": "Collapse Left Panel",
-                    "expandLeft": "Expand Left Panel",
-                    "collapseRight": "Collapse Right Panel",
-                    "expandRight": "Expand Right Panel"
+        "settings": {
+            "keybinds": {
+                "actions": {
+                    "toggle_left_panel": "Toggle Left Panel",
+                    "toggle_right_panel": "Toggle Right Panel",
+                    "toggle_bottom_panel": "Toggle Filmstrip"
                 }
             }
         }
     },
     "es": {
-        "ui": {
-            "bottomBar": {
-                "tooltips": {
-                    "collapseLeft": "Contraer panel izquierdo",
-                    "expandLeft": "Expandir panel izquierdo",
-                    "collapseRight": "Contraer panel derecho",
-                    "expandRight": "Expandir panel derecho"
+        "settings": {
+            "keybinds": {
+                "actions": {
+                    "toggle_left_panel": "Alternar panel izquierdo",
+                    "toggle_right_panel": "Alternar panel derecho",
+                    "toggle_bottom_panel": "Alternar tira de imágenes"
                 }
             }
         }
     },
     "fr": {
-        "ui": {
-            "bottomBar": {
-                "tooltips": {
-                    "collapseLeft": "Réduire le panneau gauche",
-                    "expandLeft": "Agrandir le panneau gauche",
-                    "collapseRight": "Réduire le panneau droit",
-                    "expandRight": "Agrandir le panneau droit"
+        "settings": {
+            "keybinds": {
+                "actions": {
+                    "toggle_left_panel": "Afficher/Masquer le panneau gauche",
+                    "toggle_right_panel": "Afficher/Masquer le panneau droit",
+                    "toggle_bottom_panel": "Afficher/Masquer la bande de film"
                 }
             }
         }
     },
     "it": {
-        "ui": {
-            "bottomBar": {
-                "tooltips": {
-                    "collapseLeft": "Riduci pannello sinistro",
-                    "expandLeft": "Espandi pannello sinistro",
-                    "collapseRight": "Riduci pannello destro",
-                    "expandRight": "Espandi pannello destro"
+        "settings": {
+            "keybinds": {
+                "actions": {
+                    "toggle_left_panel": "Mostra/Nascondi pannello sinistro",
+                    "toggle_right_panel": "Mostra/Nascondi pannello destro",
+                    "toggle_bottom_panel": "Mostra/Nascondi striscia immagini"
                 }
             }
         }
     },
     "ja": {
-        "ui": {
-            "bottomBar": {
-                "tooltips": {
-                    "collapseLeft": "左パネルを折りたたむ",
-                    "expandLeft": "左パネルを展開",
-                    "collapseRight": "右パネルを折りたたむ",
-                    "expandRight": "右パネルを展開"
+        "settings": {
+            "keybinds": {
+                "actions": {
+                    "toggle_left_panel": "左パネルの表示/非表示",
+                    "toggle_right_panel": "右パネルの表示/非表示",
+                    "toggle_bottom_panel": "フィルムストリップの表示/非表示"
                 }
             }
         }
     },
     "ko": {
-        "ui": {
-            "bottomBar": {
-                "tooltips": {
-                    "collapseLeft": "왼쪽 패널 접기",
-                    "expandLeft": "왼쪽 패널 펼치기",
-                    "collapseRight": "오른쪽 패널 접기",
-                    "expandRight": "오른쪽 패널 펼치기"
+        "settings": {
+            "keybinds": {
+                "actions": {
+                    "toggle_left_panel": "왼쪽 패널 토글",
+                    "toggle_right_panel": "오른쪽 패널 토글",
+                    "toggle_bottom_panel": "필름스트립 토글"
                 }
             }
         }
     },
     "pl": {
-        "ui": {
-            "bottomBar": {
-                "tooltips": {
-                    "collapseLeft": "Zwiń lewy panel",
-                    "expandLeft": "Rozwiń lewy panel",
-                    "collapseRight": "Zwiń prawy panel",
-                    "expandRight": "Rozwiń prawy panel"
+        "settings": {
+            "keybinds": {
+                "actions": {
+                    "toggle_left_panel": "Przełącz lewy panel",
+                    "toggle_right_panel": "Przełącz prawy panel",
+                    "toggle_bottom_panel": "Przełącz pasek z klatkami"
                 }
             }
         }
     },
     "pt": {
-        "ui": {
-            "bottomBar": {
-                "tooltips": {
-                    "collapseLeft": "Recolher painel esquerdo",
-                    "expandLeft": "Expandir painel esquerdo",
-                    "collapseRight": "Recolher painel direito",
-                    "expandRight": "Expandir painel direito"
+        "settings": {
+            "keybinds": {
+                "actions": {
+                    "toggle_left_panel": "Alternar painel esquerdo",
+                    "toggle_right_panel": "Alternar painel direito",
+                    "toggle_bottom_panel": "Alternar tira de filme"
                 }
             }
         }
     },
     "ru": {
-        "ui": {
-            "bottomBar": {
-                "tooltips": {
-                    "collapseLeft": "Свернуть левую панель",
-                    "expandLeft": "Развернуть левую панель",
-                    "collapseRight": "Свернуть правую панель",
-                    "expandRight": "Развернуть правую панель"
+        "settings": {
+            "keybinds": {
+                "actions": {
+                    "toggle_left_panel": "Показать/скрыть левую панель",
+                    "toggle_right_panel": "Показать/скрыть правую панель",
+                    "toggle_bottom_panel": "Показать/скрыть ленту кадров"
                 }
             }
         }
     },
     "zh-CN": {
-        "ui": {
-            "bottomBar": {
-                "tooltips": {
-                    "collapseLeft": "折叠左侧面板",
-                    "expandLeft": "展开左侧面板",
-                    "collapseRight": "折叠右侧面板",
-                    "expandRight": "展开右侧面板"
+        "settings": {
+            "keybinds": {
+                "actions": {
+                    "toggle_left_panel": "切换左侧面板",
+                    "toggle_right_panel": "切换右侧面板",
+                    "toggle_bottom_panel": "切换胶片条"
                 }
             }
         }
     },
     "zh-TW": {
-        "ui": {
-            "bottomBar": {
-                "tooltips": {
-                    "collapseLeft": "折疊左側面板",
-                    "expandLeft": "展開左側面板",
-                    "collapseRight": "折疊右側面板",
-                    "expandRight": "展開右側面板"
+        "settings": {
+            "keybinds": {
+                "actions": {
+                    "toggle_left_panel": "切換左側面板",
+                    "toggle_right_panel": "切換右側面板",
+                    "toggle_bottom_panel": "切換膠片條"
                 }
             }
         }
@@ -205,7 +192,7 @@ def main():
         print(f"Error: Locales directory '{LOCALES_DIR}' does not exist.")
         return
 
-    print("Starting Panel Tooltip translation updates...")
+    print("Starting Keybind translation updates...")
     for lang, trans in TRANSLATIONS.items():
         file_path = LOCALES_DIR / f"{lang}.json"
         update_json_file(file_path, trans)
