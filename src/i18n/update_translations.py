@@ -4,110 +4,158 @@ from pathlib import Path
 LOCALES_DIR = Path("./locales")
 
 TRANSLATIONS = {
+    "ca": {
+        "ui": {
+            "bottomBar": {
+                "tooltips": {
+                    "collapseLeft": "Plegar el panell esquerre",
+                    "expandLeft": "Desplegar el panell esquerre",
+                    "collapseRight": "Plegar el panell dret",
+                    "expandRight": "Desplegar el panell dret"
+                }
+            }
+        }
+    },
     "de": {
-        "settings": {
-            "keybinds": {
-                "actions": {
-                    "toggle_folder_tree": "Ordnerstruktur-Panel ein-/ausblenden"
+        "ui": {
+            "bottomBar": {
+                "tooltips": {
+                    "collapseLeft": "Linkes Panel einklappen",
+                    "expandLeft": "Linkes Panel ausklappen",
+                    "collapseRight": "Rechtes Panel einklappen",
+                    "expandRight": "Rechtes Panel ausklappen"
                 }
             }
         }
     },
     "en": {
-        "settings": {
-            "keybinds": {
-                "actions": {
-                    "toggle_folder_tree": "Toggle Folder Tree panel"
+        "ui": {
+            "bottomBar": {
+                "tooltips": {
+                    "collapseLeft": "Collapse Left Panel",
+                    "expandLeft": "Expand Left Panel",
+                    "collapseRight": "Collapse Right Panel",
+                    "expandRight": "Expand Right Panel"
                 }
             }
         }
     },
     "es": {
-        "settings": {
-            "keybinds": {
-                "actions": {
-                    "toggle_folder_tree": "Alternar panel de árbol de carpetas"
+        "ui": {
+            "bottomBar": {
+                "tooltips": {
+                    "collapseLeft": "Contraer panel izquierdo",
+                    "expandLeft": "Expandir panel izquierdo",
+                    "collapseRight": "Contraer panel derecho",
+                    "expandRight": "Expandir panel derecho"
                 }
             }
         }
     },
     "fr": {
-        "settings": {
-            "keybinds": {
-                "actions": {
-                    "toggle_folder_tree": "Afficher/Masquer le panneau d'arborescence des dossiers"
+        "ui": {
+            "bottomBar": {
+                "tooltips": {
+                    "collapseLeft": "Réduire le panneau gauche",
+                    "expandLeft": "Agrandir le panneau gauche",
+                    "collapseRight": "Réduire le panneau droit",
+                    "expandRight": "Agrandir le panneau droit"
                 }
             }
         }
     },
     "it": {
-        "settings": {
-            "keybinds": {
-                "actions": {
-                    "toggle_folder_tree": "Mostra/Nascondi pannello albero delle cartelle"
+        "ui": {
+            "bottomBar": {
+                "tooltips": {
+                    "collapseLeft": "Riduci pannello sinistro",
+                    "expandLeft": "Espandi pannello sinistro",
+                    "collapseRight": "Riduci pannello destro",
+                    "expandRight": "Espandi pannello destro"
                 }
             }
         }
     },
     "ja": {
-        "settings": {
-            "keybinds": {
-                "actions": {
-                    "toggle_folder_tree": "フォルダーツリーパネルの切り替え"
+        "ui": {
+            "bottomBar": {
+                "tooltips": {
+                    "collapseLeft": "左パネルを折りたたむ",
+                    "expandLeft": "左パネルを展開",
+                    "collapseRight": "右パネルを折りたたむ",
+                    "expandRight": "右パネルを展開"
                 }
             }
         }
     },
     "ko": {
-        "settings": {
-            "keybinds": {
-                "actions": {
-                    "toggle_folder_tree": "폴더 트리 패널 토글"
+        "ui": {
+            "bottomBar": {
+                "tooltips": {
+                    "collapseLeft": "왼쪽 패널 접기",
+                    "expandLeft": "왼쪽 패널 펼치기",
+                    "collapseRight": "오른쪽 패널 접기",
+                    "expandRight": "오른쪽 패널 펼치기"
                 }
             }
         }
     },
     "pl": {
-        "settings": {
-            "keybinds": {
-                "actions": {
-                    "toggle_folder_tree": "Przełącz panel drzewa folderów"
+        "ui": {
+            "bottomBar": {
+                "tooltips": {
+                    "collapseLeft": "Zwiń lewy panel",
+                    "expandLeft": "Rozwiń lewy panel",
+                    "collapseRight": "Zwiń prawy panel",
+                    "expandRight": "Rozwiń prawy panel"
                 }
             }
         }
     },
     "pt": {
-        "settings": {
-            "keybinds": {
-                "actions": {
-                    "toggle_folder_tree": "Alternar painel da árvore de pastas"
+        "ui": {
+            "bottomBar": {
+                "tooltips": {
+                    "collapseLeft": "Recolher painel esquerdo",
+                    "expandLeft": "Expandir painel esquerdo",
+                    "collapseRight": "Recolher painel direito",
+                    "expandRight": "Expandir painel direito"
                 }
             }
         }
     },
     "ru": {
-        "settings": {
-            "keybinds": {
-                "actions": {
-                    "toggle_folder_tree": "Показать/скрыть панель дерева папок"
+        "ui": {
+            "bottomBar": {
+                "tooltips": {
+                    "collapseLeft": "Свернуть левую панель",
+                    "expandLeft": "Развернуть левую панель",
+                    "collapseRight": "Свернуть правую панель",
+                    "expandRight": "Развернуть правую панель"
                 }
             }
         }
     },
     "zh-CN": {
-        "settings": {
-            "keybinds": {
-                "actions": {
-                    "toggle_folder_tree": "切换文件夹树面板"
+        "ui": {
+            "bottomBar": {
+                "tooltips": {
+                    "collapseLeft": "折叠左侧面板",
+                    "expandLeft": "展开左侧面板",
+                    "collapseRight": "折叠右侧面板",
+                    "expandRight": "展开右侧面板"
                 }
             }
         }
     },
     "zh-TW": {
-        "settings": {
-            "keybinds": {
-                "actions": {
-                    "toggle_folder_tree": "切換資料夾樹面板"
+        "ui": {
+            "bottomBar": {
+                "tooltips": {
+                    "collapseLeft": "折疊左側面板",
+                    "expandLeft": "展開左側面板",
+                    "collapseRight": "折疊右側面板",
+                    "expandRight": "展開右側面板"
                 }
             }
         }
@@ -157,7 +205,7 @@ def main():
         print(f"Error: Locales directory '{LOCALES_DIR}' does not exist.")
         return
 
-    print("Starting Folder Tree keybind translation updates...")
+    print("Starting Panel Tooltip translation updates...")
     for lang, trans in TRANSLATIONS.items():
         file_path = LOCALES_DIR / f"{lang}.json"
         update_json_file(file_path, trans)
