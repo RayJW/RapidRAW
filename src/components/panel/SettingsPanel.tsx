@@ -264,7 +264,7 @@ const AiProviderSwitch = ({ selectedProvider, onProviderChange }: AiProviderSwit
     () => [
       { id: 'cpu', label: t('settings.processing.ai.providers.cpu'), icon: Cpu },
       { id: 'ai-connector', label: t('settings.processing.ai.providers.aiConnector'), icon: Server },
-      //{ id: 'cloud', label: t('settings.processing.ai.providers.cloud'), icon: Cloud },
+      { id: 'cloud', label: t('settings.processing.ai.providers.cloud'), icon: Cloud },
     ],
     [t],
   );
@@ -314,7 +314,7 @@ const CloudDashboard = () => {
       try {
         const token = await getToken();
         if (!token) return;
-        const res = await fetch('https://getrapidraw.com/api/usage', {
+        const res = await fetch('http://127.0.0.1:5000/usage', {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (res.ok) {
