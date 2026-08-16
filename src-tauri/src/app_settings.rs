@@ -314,7 +314,7 @@ impl Default for WorkspaceState {
             "folderTree".to_string(),
             "export".to_string(),
         ];
-        
+
         #[cfg(feature = "tethering")]
         left_top.push("tethering".to_string());
 

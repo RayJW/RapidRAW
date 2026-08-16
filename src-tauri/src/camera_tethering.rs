@@ -1,13 +1,13 @@
 #![allow(unused_variables)]
 
-use std::collections::HashMap;
 use serde::Serialize;
+use std::collections::HashMap;
 use tauri::ipc::Response;
 
 #[cfg(feature = "tethering")]
-use tauri::Manager;
-#[cfg(feature = "tethering")]
 use crate::AppState;
+#[cfg(feature = "tethering")]
+use tauri::Manager;
 
 #[derive(Serialize)]
 pub struct CameraConfigChoice {
@@ -49,9 +49,13 @@ pub async fn tether_list_cameras() -> Result<Vec<String>, String> {
     #[cfg(feature = "tethering")]
     {
         tauri::async_runtime::spawn_blocking(move || {
-            let context = gphoto2::Context::new().map_err(|e| format!("Failed to create gphoto2 context: {}", e))?;
+            let context = gphoto2::Context::new()
+                .map_err(|e| format!("Failed to create gphoto2 context: {}", e))?;
             let cameras = gphoto2::Camera::autodetect(&context).map_err(|e| e.to_string())?;
-            Ok(cameras.into_iter().map(|c| format!("{} ({})", c.model, c.port)).collect())
+            Ok(cameras
+                .into_iter()
+                .map(|c| format!("{} ({})", c.model, c.port))
+                .collect())
         })
         .await
         .map_err(|e| format!("Task panicked: {}", e))?
@@ -74,12 +78,14 @@ pub async fn tether_connect(app_handle: tauri::AppHandle) -> Result<String, Stri
 
             std::thread::sleep(std::time::Duration::from_millis(150));
 
-            let context = gphoto2::Context::new().map_err(|e| format!("Failed to initialize gphoto2 context: {}", e))?;
-            
+            let context = gphoto2::Context::new()
+                .map_err(|e| format!("Failed to initialize gphoto2 context: {}", e))?;
+
             let cameras = gphoto2::Camera::autodetect(&context).map_err(|e| e.to_string())?;
             let descriptor = cameras.into_iter().next().ok_or("No camera found")?;
 
-            let camera = match gphoto2::Camera::open(&context, &descriptor.model, &descriptor.port) {
+            let camera = match gphoto2::Camera::open(&context, &descriptor.model, &descriptor.port)
+            {
                 Ok(cam) => cam,
                 Err(_) => {
                     std::thread::sleep(std::time::Duration::from_millis(300));
@@ -90,7 +96,9 @@ pub async fn tether_connect(app_handle: tauri::AppHandle) -> Result<String, Stri
 
             if let Ok(widget) = camera.get_single_config(&context, "capturetarget") {
                 let choices = widget.choices().unwrap_or_default();
-                if let Some(ram_choice) = choices.iter().find(|c| c.to_lowercase().contains("ram") || c.to_lowercase().contains("sdram")) {
+                if let Some(ram_choice) = choices.iter().find(|c| {
+                    c.to_lowercase().contains("ram") || c.to_lowercase().contains("sdram")
+                }) {
                     let _ = widget.set_choice(ram_choice);
                     let _ = camera.set_single_config(&context, "capturetarget", &widget);
                 }
@@ -98,7 +106,9 @@ pub async fn tether_connect(app_handle: tauri::AppHandle) -> Result<String, Stri
 
             if let Ok(widget) = camera.get_single_config(&context, "drivemode") {
                 let choices = widget.choices().unwrap_or_default();
-                if let Some(single_choice) = choices.iter().find(|c| c.to_lowercase().contains("single")) {
+                if let Some(single_choice) =
+                    choices.iter().find(|c| c.to_lowercase().contains("single"))
+                {
                     let _ = widget.set_choice(single_choice);
                     let _ = camera.set_single_config(&context, "drivemode", &widget);
                 }
@@ -107,7 +117,9 @@ pub async fn tether_connect(app_handle: tauri::AppHandle) -> Result<String, Stri
             let _ = camera.capture_preview(&context);
 
             for _ in 0..15 {
-                if let Ok(event) = camera.wait_for_event(&context, std::time::Duration::from_millis(30)) {
+                if let Ok(event) =
+                    camera.wait_for_event(&context, std::time::Duration::from_millis(30))
+                {
                     if let gphoto2::CameraEvent::Timeout = event {
                         break;
                     }
@@ -132,7 +144,9 @@ pub async fn tether_connect(app_handle: tauri::AppHandle) -> Result<String, Stri
 }
 
 #[tauri::command]
-pub async fn tether_get_settings(app_handle: tauri::AppHandle) -> Result<HashMap<String, CameraConfigChoice>, String> {
+pub async fn tether_get_settings(
+    app_handle: tauri::AppHandle,
+) -> Result<HashMap<String, CameraConfigChoice>, String> {
     #[cfg(feature = "tethering")]
     {
         tauri::async_runtime::spawn_blocking(move || {
@@ -145,7 +159,10 @@ pub async fn tether_get_settings(app_handle: tauri::AppHandle) -> Result<HashMap
 
             let keys_to_query: [(&str, &[&str]); 4] = [
                 ("iso", &["iso", "iso-speed", "ISO"]),
-                ("shutterspeed", &["shutterspeed", "exposure-time", "exposurespeed"]),
+                (
+                    "shutterspeed",
+                    &["shutterspeed", "exposure-time", "exposurespeed"],
+                ),
                 ("aperture", &["f-number", "aperture", "fnumber"]),
                 ("whitebalance", &["whitebalance", "white-balance"]),
             ];
@@ -181,8 +198,8 @@ pub async fn tether_get_settings(app_handle: tauri::AppHandle) -> Result<HashMap
                 }
 
                 let has_glitched_values = map.values().any(|cfg| {
-                    cfg.current_value.contains("65535") 
-                    || cfg.current_value.contains("Unknown value 0000")
+                    cfg.current_value.contains("65535")
+                        || cfg.current_value.contains("Unknown value 0000")
                 });
 
                 if !has_glitched_values && !map.is_empty() {
@@ -215,7 +232,7 @@ pub async fn tether_set_setting(
 
             let state = app_handle.state::<AppState>();
             let session = state.camera_session.lock().unwrap();
-            let camera = session.camera.as_ref().ok_or("No camera connected")?; 
+            let camera = session.camera.as_ref().ok_or("No camera connected")?;
             let context = session.context.as_ref().ok_or("No context initialized")?;
 
             let aliases: &[&str] = match setting_name.as_str() {
@@ -231,12 +248,18 @@ pub async fn tether_set_setting(
                 if let Ok(widget) = camera.get_single_config(context, camera_key) {
                     if let Ok(widget_type) = widget.widget_type() {
                         let set_ok = match widget_type {
-                            WidgetType::Radio | WidgetType::Menu => widget.set_choice(&value).is_ok(),
+                            WidgetType::Radio | WidgetType::Menu => {
+                                widget.set_choice(&value).is_ok()
+                            }
                             WidgetType::Text => widget.set_text(&value).is_ok(),
                             _ => false,
                         };
 
-                        if set_ok && camera.set_single_config(context, camera_key, &widget).is_ok() {
+                        if set_ok
+                            && camera
+                                .set_single_config(context, camera_key, &widget)
+                                .is_ok()
+                        {
                             applied = true;
                             break;
                         }
@@ -267,11 +290,12 @@ pub async fn tether_get_preview(app_handle: tauri::AppHandle) -> Result<Response
             let camera = session.camera.as_ref().ok_or("No camera connected")?;
             let context = session.context.as_ref().ok_or("No context initialized")?;
 
-            let file = camera.capture_preview(context)
+            let file = camera
+                .capture_preview(context)
                 .map_err(|e| format!("Failed to capture preview: {}", e))?;
 
             let data = file.data().map_err(|e| e.to_string())?;
-            
+
             Ok(Response::new(data.to_vec()))
         })
         .await
@@ -293,25 +317,30 @@ pub async fn tether_capture(
             let session = state.camera_session.lock().unwrap();
             let camera = session.camera.as_ref().ok_or("No camera connected")?;
             let context = session.context.as_ref().ok_or("No context initialized")?;
-            
-            while let Ok(event) = camera.wait_for_event(context, std::time::Duration::from_millis(10)) {
+
+            while let Ok(event) =
+                camera.wait_for_event(context, std::time::Duration::from_millis(10))
+            {
                 if let gphoto2::CameraEvent::Timeout = event {
                     break;
                 }
             }
 
-            let camera_file_path = camera.capture_image(context)
+            let camera_file_path = camera
+                .capture_image(context)
                 .map_err(|e| format!("Capture failed: {}", e))?;
-            
-            let file = camera.download(context, &camera_file_path)
+
+            let file = camera
+                .download(context, &camera_file_path)
                 .map_err(|e| format!("Download failed: {}", e))?;
-            
-            let save_dir = destination_folder.unwrap_or_else(|| std::env::temp_dir().to_string_lossy().to_string());
+
+            let save_dir = destination_folder
+                .unwrap_or_else(|| std::env::temp_dir().to_string_lossy().to_string());
             let output_path = std::path::Path::new(&save_dir).join(&camera_file_path.name);
-            
+
             std::fs::write(&output_path, file.data().map_err(|e| e.to_string())?)
                 .map_err(|e| format!("Failed to save captured file: {}", e))?;
-                
+
             let _ = camera.delete_file(context, &camera_file_path.folder, &camera_file_path.name);
 
             Ok(output_path.to_string_lossy().to_string())
