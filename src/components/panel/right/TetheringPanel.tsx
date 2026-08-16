@@ -9,6 +9,17 @@ import {
   Layers,
   Loader,
   Power,
+  Battery,
+  BatteryCharging,
+  BatteryLow,
+  BatteryMedium,
+  BatteryFull,
+  BatteryWarning,
+  Focus,
+  Gauge,
+  Sliders,
+  Folder as FolderIcon,
+  X,
 } from 'lucide-react';
 import { invoke } from '@tauri-apps/api/core';
 import { toast } from 'react-toastify';
@@ -21,13 +32,41 @@ import Button from '../../ui/Button';
 import Switch from '../../ui/Switch';
 import Dropdown from '../../ui/Dropdown';
 import { TextVariants, TextColors, TextWeights } from '../../../types/typography';
-import { Invokes } from '../../ui/AppProperties';
+import { Invokes, Preset } from '../../ui/AppProperties';
 import { useLibraryStore } from '../../../store/useLibraryStore';
+import { useEditorStore } from '../../../store/useEditorStore';
+import { usePresets } from '../../../hooks/usePresets';
+import { useContextMenu } from '../../../context/ContextMenuContext';
 
 import CompositionOverlays from '../editor/overlays/CompositionOverlays';
 import type { OverlayMode } from '../right/CropPanel';
 import { IconAperture, IconShutter, IconIso } from '../editor/ExifIcons';
 import { useTetheringStore, CameraSetting } from '../../../store/useTetheringStore';
+
+const iconProps = {
+  width: 14,
+  height: 14,
+  viewBox: '0 0 24 24',
+  fill: 'none',
+  stroke: 'currentColor',
+  strokeWidth: 2,
+  strokeLinecap: 'round' as const,
+  strokeLinejoin: 'round' as const,
+};
+
+const IconColorTemp = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg {...iconProps} {...props}>
+    <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z" />
+  </svg>
+);
+
+const IconExposureComp = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg {...iconProps} {...props}>
+    <circle cx="12" cy="12" r="10" />
+    <path d="M8 12h8" />
+    <path d="M12 8v8" />
+  </svg>
+);
 
 const parseSettingToNumber = (val: string): number => {
   let clean = val.toLowerCase().replace(/^f\/?/, '').trim();
@@ -65,6 +104,13 @@ function SettingInput({
   const commitValue = () => {
     if (!localVal.trim()) {
       setLocalVal(setting.current_value);
+      return;
+    }
+
+    if (setting.choices.length === 0) {
+      if (localVal !== setting.current_value) {
+        onUpdate(localVal);
+      }
       return;
     }
 
@@ -106,6 +152,46 @@ function SettingInput({
   );
 }
 
+function BatteryIndicator({ value }: { value: string }) {
+  const cleanVal = value.replace('%', '').trim().toLowerCase();
+  const num = parseInt(cleanVal, 10);
+
+  let Icon = Battery;
+  let color = 'text-text-secondary';
+  let displayText = value;
+
+  if (!isNaN(num)) {
+    displayText = `${num}%`;
+    if (num > 80) {
+      Icon = BatteryFull;
+      color = 'text-green-500';
+    } else if (num > 40) {
+      Icon = BatteryMedium;
+      color = 'text-yellow-500';
+    } else if (num > 15) {
+      Icon = BatteryLow;
+      color = 'text-orange-500';
+    } else {
+      Icon = BatteryWarning;
+      color = 'text-red-500';
+    }
+  } else if (cleanVal.includes('charge')) {
+    Icon = BatteryCharging;
+    color = 'text-green-400';
+  } else if (cleanVal.includes('good') || cleanVal.includes('ok') || cleanVal.includes('full')) {
+    Icon = BatteryFull;
+    color = 'text-green-500';
+    displayText = '100%';
+  }
+
+  return (
+    <div className="flex items-center gap-1.5 text-xs font-medium" data-tooltip={`Battery: ${displayText}`}>
+      <Icon size={14} className={color} />
+      <span className={color}>{displayText}</span>
+    </div>
+  );
+}
+
 interface TetheringPanelProps {
   onLibraryRefresh: () => Promise<void>;
   onImageSelect: (path: string, openInEditor?: boolean) => void;
@@ -114,11 +200,18 @@ interface TetheringPanelProps {
 export default function TetheringPanel({ onLibraryRefresh, onImageSelect }: TetheringPanelProps) {
   const { t } = useTranslation();
   const currentFolderPath = useLibraryStore((s) => s.currentFolderPath);
+  const adjustments = useEditorStore((s) => s.adjustments);
+  const { presets } = usePresets(adjustments);
+  const { showContextMenu } = useContextMenu();
 
   const [liveViewEnabled, setLiveViewEnabled] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
   const [ghostBlobUrl, setGhostBlobUrl] = useState<string | null>(null);
   const [selectedCamera, setSelectedCamera] = useState<string | null>(null);
+  const [isFocusing, setIsFocusing] = useState(false);
+  const [autoApplyPreset, setAutoApplyPreset] = useState<Preset | null>(null);
+
+  const presetSelectBtnRef = useRef<HTMLButtonElement>(null);
 
   const OVERLAYS: OverlayMode[] = [
     'none',
@@ -285,6 +378,18 @@ export default function TetheringPanel({ onLibraryRefresh, onImageSelect }: Teth
     }
   };
 
+  const triggerAutoFocus = async () => {
+    if (isFocusing || !isConnected) return;
+    setIsFocusing(true);
+    try {
+      await invoke('tether_autofocus');
+    } catch (e) {
+      toast.error(t('tethering.toasts.afFailed'));
+    } finally {
+      setIsFocusing(false);
+    }
+  };
+
   const captureImage = async () => {
     if (!currentFolderPath || currentFolderPath.startsWith('Album: ')) {
       toast.warn(t('tethering.toasts.selectFolderFirst'));
@@ -296,6 +401,17 @@ export default function TetheringPanel({ onLibraryRefresh, onImageSelect }: Teth
       const filePath: string = await invoke(Invokes.TetherCapture, { destinationFolder: currentFolderPath });
 
       setTethering({ lastCapturedPath: filePath });
+
+      if (autoApplyPreset) {
+        try {
+          await invoke(Invokes.ApplyAdjustmentsToPaths, {
+            paths: [filePath],
+            adjustments: autoApplyPreset.adjustments,
+          });
+        } catch (presetErr) {
+          toast.error(t('tethering.toasts.presetApplyFailed'));
+        }
+      }
 
       await onLibraryRefresh();
 
@@ -406,7 +522,41 @@ export default function TetheringPanel({ onLibraryRefresh, onImageSelect }: Teth
     };
   }, [liveViewEnabled, isConnected, handleDisconnect, t]);
 
-  const renderInputSetting = (key: string, label: string, IconComponent: React.FC, placeholder: string) => {
+  const generatePresetSubmenu = (presetList: any[]): any[] => {
+    return presetList
+      .map((item: any) => {
+        if (item.folder) {
+          return {
+            label: item.folder.name,
+            icon: FolderIcon,
+            submenu: generatePresetSubmenu(item.folder.children),
+          };
+        }
+        if (item.preset || item.adjustments) {
+          const presetObj = item.preset || item;
+          return {
+            label: presetObj.name,
+            onClick: () => setAutoApplyPreset(presetObj),
+          };
+        }
+        return null;
+      })
+      .filter(Boolean);
+  };
+
+  const handleOpenPresetMenu = () => {
+    if (presetSelectBtnRef.current) {
+      const rect = presetSelectBtnRef.current.getBoundingClientRect();
+      const presetSubmenu = generatePresetSubmenu(presets);
+      const options =
+        presetSubmenu.length > 0
+          ? presetSubmenu
+          : [{ label: t('editor.masks.settings.noPresetsFound'), disabled: true }];
+      showContextMenu(rect.left, rect.bottom + 5, options);
+    }
+  };
+
+  const renderInputSetting = (key: string, label: string, IconComponent: React.FC<any>, placeholder: string) => {
     const setting = settings[key];
     if (!setting) return null;
 
@@ -453,6 +603,7 @@ export default function TetheringPanel({ onLibraryRefresh, onImageSelect }: Teth
   };
 
   const isPortrait = liveViewRotation % 180 !== 0;
+  const batterySetting = settings['batterylevel'];
 
   return (
     <div className="flex flex-col h-full">
@@ -469,9 +620,9 @@ export default function TetheringPanel({ onLibraryRefresh, onImageSelect }: Teth
         </div>
       </div>
 
-      <div className="grow overflow-y-auto p-3 flex flex-col gap-6 custom-scrollbar">
+      <div className="grow overflow-y-auto p-3 flex flex-col gap-5 custom-scrollbar">
         <div>
-          <Text variant={TextVariants.heading} className="mb-3">
+          <Text variant={TextVariants.heading} className="mb-2">
             {t('tethering.status')}
           </Text>
           <div className="bg-surface border border-surface rounded-xl p-3.5 flex flex-col gap-3 cursor-default relative transition-all">
@@ -490,10 +641,11 @@ export default function TetheringPanel({ onLibraryRefresh, onImageSelect }: Teth
             </div>
 
             {isConnected && (
-              <div className="flex flex-col gap-0.5 relative z-10">
+              <div className="flex flex-col gap-1.5 relative z-10">
                 <Text variant={TextVariants.small} color={TextColors.secondary} className="truncate drop-shadow-sm">
                   {selectedCamera || (cameras.length > 0 ? cameras[0] : t('tethering.noCameraDetected'))}
                 </Text>
+                {batterySetting && <BatteryIndicator value={batterySetting.current_value} />}
               </div>
             )}
 
@@ -645,45 +797,117 @@ export default function TetheringPanel({ onLibraryRefresh, onImageSelect }: Teth
         </div>
 
         {isConnected && (
-          <div className="flex flex-col gap-3">
-            <Text variant={TextVariants.heading} className="flex items-center gap-2">
-              {t('tethering.exposureSettings')}
-            </Text>
-            <div className="grid grid-cols-2 gap-2">
-              {renderInputSetting(
-                'shutterspeed',
-                t('tethering.shutter'),
-                IconShutter,
-                t('tethering.shutterPlaceholder'),
-              )}
-              {renderInputSetting(
-                'aperture',
-                t('tethering.aperture'),
-                IconAperture,
-                t('tethering.aperturePlaceholder'),
-              )}
-              {renderInputSetting('iso', t('tethering.iso'), IconIso, t('tethering.isoPlaceholder'))}
-              {renderDropdown(
-                'whitebalance',
-                t('tethering.whiteBalance'),
-                <span className="text-text-secondary opacity-90 flex items-center justify-center shrink-0">
-                  <ImageIcon size={14} />
-                </span>,
-              )}
+          <>
+            <div className="flex flex-col gap-2.5">
+              <Text variant={TextVariants.heading} className="flex items-center gap-2">
+                {t('tethering.exposureSettings')}
+              </Text>
+              <div className="grid grid-cols-2 gap-2">
+                {renderDropdown(
+                  'exposuremode',
+                  t('tethering.expMode'),
+                  <Sliders size={14} className="text-text-secondary" />,
+                )}
+                {renderDropdown(
+                  'meteringmode',
+                  t('tethering.metering'),
+                  <Gauge size={14} className="text-text-secondary" />,
+                )}
+                {renderInputSetting(
+                  'shutterspeed',
+                  t('tethering.shutter'),
+                  IconShutter,
+                  t('tethering.shutterPlaceholder'),
+                )}
+                {renderInputSetting(
+                  'aperture',
+                  t('tethering.aperture'),
+                  IconAperture,
+                  t('tethering.aperturePlaceholder'),
+                )}
+                {renderInputSetting('iso', t('tethering.iso'), IconIso, t('tethering.isoPlaceholder'))}
+                {renderInputSetting(
+                  'colortemperature',
+                  t('tethering.wbTemp'),
+                  IconColorTemp,
+                  t('tethering.wbTempPlaceholder'),
+                )}
+                {renderDropdown(
+                  'whitebalance',
+                  t('tethering.whiteBalance'),
+                  <ImageIcon size={14} className="text-text-secondary" />,
+                )}
+                {renderInputSetting(
+                  'exposurecompensation',
+                  t('tethering.expComp'),
+                  IconExposureComp,
+                  t('tethering.expCompPlaceholder'),
+                )}
+              </div>
             </div>
-          </div>
+
+            <div className="flex flex-col gap-2.5">
+              <Text variant={TextVariants.heading} className="flex items-center gap-2">
+                {t('tethering.generalSettings')}
+              </Text>
+
+              <div className="flex flex-col gap-1 bg-surface p-2.5 rounded-lg border border-surface">
+                <div className="flex justify-between items-center">
+                  <Text variant={TextVariants.label} className="select-none">
+                    {t('tethering.autoApplyPreset')}
+                  </Text>
+                  <button
+                    ref={presetSelectBtnRef}
+                    onClick={handleOpenPresetMenu}
+                    className="text-xs text-text-primary hover:text-accent font-medium transition-colors cursor-pointer"
+                  >
+                    {autoApplyPreset ? t('tethering.changePreset') : t('editor.masks.settings.select')}
+                  </button>
+                </div>
+
+                {autoApplyPreset && (
+                  <div className="flex items-center justify-between bg-bg-primary px-2.5 py-1.5 rounded-md border border-surface mt-1">
+                    <Text variant={TextVariants.small} color={TextColors.primary} className="truncate font-medium">
+                      {autoApplyPreset.name}
+                    </Text>
+                    <button
+                      onClick={() => setAutoApplyPreset(null)}
+                      className="p-1 hover:text-red-500 text-text-secondary transition-colors"
+                      data-tooltip={t('tethering.clearPreset')}
+                    >
+                      <X size={13} />
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              <div className="bg-surface p-2.5 rounded-lg border border-surface">
+                <Switch
+                  label={t('tethering.autoOpenCaptured')}
+                  checked={autoOpenCaptured}
+                  onChange={(checked) => setTethering({ autoOpenCaptured: checked })}
+                  trackClassName="bg-bg-primary"
+                  className="w-full"
+                />
+              </div>
+            </div>
+          </>
         )}
       </div>
 
-      <div className="p-3 border-t border-surface shrink-0 space-y-3">
-        <Switch
-          label={t('tethering.autoOpenCaptured')}
-          checked={autoOpenCaptured}
-          onChange={(checked) => setTethering({ autoOpenCaptured: checked })}
-          trackClassName="bg-surface"
-        />
+      <div className="p-3 border-t border-surface shrink-0 flex items-center gap-2 w-full">
         <Button
-          className="group rounded-md h-11 w-full flex items-center text-md font-bold! justify-center"
+          variant="secondary"
+          className="h-11 px-3.5 flex items-center justify-center shrink-0 rounded-md"
+          disabled={!isConnected || isFocusing || isCapturing}
+          onClick={triggerAutoFocus}
+          data-tooltip={t('tethering.triggerAutofocus')}
+        >
+          {isFocusing ? <Loader size={18} className="animate-spin" /> : <Focus size={18} />}
+        </Button>
+
+        <Button
+          className="group rounded-md h-11 grow flex items-center text-md font-bold! justify-center"
           disabled={isCapturing || !isConnected}
           onClick={captureImage}
           size="lg"

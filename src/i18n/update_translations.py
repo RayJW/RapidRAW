@@ -5,639 +5,249 @@ LOCALES_DIR = Path("./locales")
 
 TRANSLATIONS = {
     "ca": {
-        "editor": {
-            "switcher": {
-                "tooltips": {
-                    "tethering": "Captura connectada"
-                }
-            }
-        },
         "tethering": {
-            "title": "Captura connectada",
-            "scanTooltip": "Cerca càmeres",
-            "status": "Estat",
-            "cameraConnected": "Càmera connectada",
-            "selectCamera": "Selecciona càmera",
-            "startLiveView": "Inicia vista en directe",
-            "stopLiveView": "Atura vista en directe",
-            "noCameraDetected": "Cap càmera detectada",
-            "liveViewAlt": "Vista en directe",
-            "ghostOverlayAlt": "Superposició fantasma",
-            "overlayOff": "Desactivat",
-            "rotate90": "Gira 90°",
-            "flipHorizontal": "Inverteix horitzontalment",
-            "overlayLastShot": "Superposa l'última captura",
-            "selectCameraPlaceholder": "Selecciona una càmera",
-            "noCamerasFound": "No s'han trobat càmeres. Assegura't que està connectada i en mode PC Remote.",
-            "connectCamera": "Connecta la càmera",
-            "exposureSettings": "Ajustaments d'exposició",
-            "shutter": "Obturador",
-            "aperture": "Obertura",
-            "iso": "ISO",
-            "whiteBalance": "Balanç de blancs",
-            "shutterPlaceholder": "p. ex. 1/200",
-            "aperturePlaceholder": "p. ex. 2.8",
-            "isoPlaceholder": "p. ex. 400",
-            "autoOpenCaptured": "Obre automàticament la imatge capturada",
-            "capturing": "Capturant...",
-            "triggerCapture": "Dispara captura",
+            "wbTemp": "Temp. WB (K)",
+            "wbTempPlaceholder": "p. ex. 5600",
+            "expComp": "Comp. Exp.",
+            "expCompPlaceholder": "p. ex. 0.0",
+            "expMode": "Mode Exp.",
+            "metering": "Mode de mesura",
+            "generalSettings": "Ajustaments generals",
+            "autoApplyPreset": "Aplica preajust automàticament",
+            "changePreset": "Canvia",
+            "clearPreset": "Neteja el preajust",
+            "triggerAutofocus": "Dispara l'enfocament automàtic",
             "toasts": {
-                "noCamerasFound": "No s'han trobat càmeres. Assegura't que està en mode PC Remote.",
-                "detectionFailed": "Error en la detecció: {{err}}",
-                "communicationFailed": "Error en comunicar-se amb la càmera",
-                "connectionFailed": "Connexió fallida: {{err}}",
-                "setFailed": "Error en configurar {{key}}: {{err}}",
-                "selectFolderFirst": "Selecciona primer una carpeta estàndard a la biblioteca.",
-                "captureFailed": "Error en la captura: {{err}}",
-                "cameraDisconnected": "Càmera desconnectada"
+                "afFailed": "Error en disparar l'enfocament automàtic",
+                "presetApplyFailed": "Error en aplicar el preajust a la captura"
             }
         }
     },
     "de": {
-        "editor": {
-            "switcher": {
-                "tooltips": {
-                    "tethering": "Tethering"
-                }
-            }
-        },
         "tethering": {
-            "title": "Tethering",
-            "scanTooltip": "Nach Kameras suchen",
-            "status": "Status",
-            "cameraConnected": "Kamera verbunden",
-            "selectCamera": "Kamera auswählen",
-            "startLiveView": "Live-View starten",
-            "stopLiveView": "Live-View beenden",
-            "noCameraDetected": "Keine Kamera erkannt",
-            "liveViewAlt": "Live-View",
-            "ghostOverlayAlt": "Geister-Überlagerung",
-            "overlayOff": "Aus",
-            "rotate90": "90° drehen",
-            "flipHorizontal": "Horizontal spiegeln",
-            "overlayLastShot": "Letzte Aufnahme überlagern",
-            "selectCameraPlaceholder": "Eine Kamera auswählen",
-            "noCamerasFound": "Keine Kameras gefunden. Stellen Sie sicher, dass sie angeschlossen und im PC-Fernsteuerungsmodus ist.",
-            "connectCamera": "Kamera verbinden",
-            "exposureSettings": "Belichtungseinstellungen",
-            "shutter": "Verschluss",
-            "aperture": "Blende",
-            "iso": "ISO",
-            "whiteBalance": "Weißabgleich",
-            "shutterPlaceholder": "z. B. 1/200",
-            "aperturePlaceholder": "z. B. 2.8",
-            "isoPlaceholder": "z. B. 400",
-            "autoOpenCaptured": "Aufgenommenes Bild autom. öffnen",
-            "capturing": "Aufnahme läuft...",
-            "triggerCapture": "Auslösen",
+            "wbTemp": "Farbtemp. (K)",
+            "wbTempPlaceholder": "z. B. 5600",
+            "expComp": "Belichtungskorr.",
+            "expCompPlaceholder": "z. B. 0.0",
+            "expMode": "Belichtungsmodus",
+            "metering": "Messmodus",
+            "generalSettings": "Allgemeine Einstellungen",
+            "autoApplyPreset": "Preset autom. anwenden",
+            "changePreset": "Ändern",
+            "clearPreset": "Preset entfernen",
+            "triggerAutofocus": "Autofokus auslösen",
             "toasts": {
-                "noCamerasFound": "Keine Kameras gefunden. Stellen Sie sicher, dass sie im PC-Fernsteuerungsmodus ist.",
-                "detectionFailed": "Erkennung fehlgeschlagen: {{err}}",
-                "communicationFailed": "Kommunikation mit der Kamera fehlgeschlagen",
-                "connectionFailed": "Verbindung fehlgeschlagen: {{err}}",
-                "setFailed": "Fehler beim Einstellen von {{key}}: {{err}}",
-                "selectFolderFirst": "Bitte wählen Sie zuerst einen Standardordner in Ihrer Bibliothek aus.",
-                "captureFailed": "Aufnahme fehlgeschlagen: {{err}}",
-                "cameraDisconnected": "Kamera getrennt"
+                "afFailed": "Autofokus fehlgeschlagen",
+                "presetApplyFailed": "Fehler beim Anwenden des Presets auf die Aufnahme"
             }
         }
     },
     "en": {
-        "editor": {
-            "switcher": {
-                "tooltips": {
-                    "tethering": "Tethering"
-                }
-            }
-        },
         "tethering": {
-            "title": "Tethering",
-            "scanTooltip": "Scan for Cameras",
-            "status": "Status",
-            "cameraConnected": "Camera Connected",
-            "selectCamera": "Select Camera",
-            "startLiveView": "Start Live View",
-            "stopLiveView": "Stop Live View",
-            "noCameraDetected": "No camera detected",
-            "liveViewAlt": "Live View",
-            "ghostOverlayAlt": "Ghost Overlay",
-            "overlayOff": "Off",
-            "rotate90": "Rotate 90°",
-            "flipHorizontal": "Flip Horizontal",
-            "overlayLastShot": "Overlay Last Shot",
-            "selectCameraPlaceholder": "Select a camera",
-            "noCamerasFound": "No cameras found. Ensure it is connected and in PC Remote mode.",
-            "connectCamera": "Connect Camera",
-            "exposureSettings": "Exposure Settings",
-            "shutter": "Shutter",
-            "aperture": "Aperture",
-            "iso": "ISO",
-            "whiteBalance": "White Balance",
-            "shutterPlaceholder": "e.g. 1/200",
-            "aperturePlaceholder": "e.g. 2.8",
-            "isoPlaceholder": "e.g. 400",
-            "autoOpenCaptured": "Auto-open captured image",
-            "capturing": "Capturing...",
-            "triggerCapture": "Trigger Capture",
+            "wbTemp": "WB Temp (K)",
+            "wbTempPlaceholder": "e.g. 5600",
+            "expComp": "Exp. Comp",
+            "expCompPlaceholder": "e.g. 0.0",
+            "expMode": "Exp. Mode",
+            "metering": "Metering Mode",
+            "generalSettings": "General Settings",
+            "autoApplyPreset": "Auto Apply Preset",
+            "changePreset": "Change",
+            "clearPreset": "Clear Preset",
+            "triggerAutofocus": "Trigger Autofocus",
             "toasts": {
-                "noCamerasFound": "No cameras found. Ensure it is in PC Remote mode.",
-                "detectionFailed": "Detection failed: {{err}}",
-                "communicationFailed": "Failed to communicate with camera",
-                "connectionFailed": "Connection failed: {{err}}",
-                "setFailed": "Failed to set {{key}}: {{err}}",
-                "selectFolderFirst": "Please select a standard folder in your Library first.",
-                "captureFailed": "Capture failed: {{err}}",
-                "cameraDisconnected": "Camera disconnected"
+                "afFailed": "Autofocus trigger failed",
+                "presetApplyFailed": "Failed to apply preset to captured image"
             }
         }
     },
     "es": {
-        "editor": {
-            "switcher": {
-                "tooltips": {
-                    "tethering": "Captura conectada"
-                }
-            }
-        },
         "tethering": {
-            "title": "Captura conectada",
-            "scanTooltip": "Buscar cámaras",
-            "status": "Estado",
-            "cameraConnected": "Cámara conectada",
-            "selectCamera": "Seleccionar cámara",
-            "startLiveView": "Iniciar vista en vivo",
-            "stopLiveView": "Detener vista en vivo",
-            "noCameraDetected": "No se detectó ninguna cámara",
-            "liveViewAlt": "Vista en vivo",
-            "ghostOverlayAlt": "Superposición fantasma",
-            "overlayOff": "Desactivado",
-            "rotate90": "Girar 90°",
-            "flipHorizontal": "Voltear horizontalmente",
-            "overlayLastShot": "Superponer última captura",
-            "selectCameraPlaceholder": "Seleccionar una cámara",
-            "noCamerasFound": "No se encontraron cámaras. Asegúrate de que esté conectada y en modo PC Remote.",
-            "connectCamera": "Conectar cámara",
-            "exposureSettings": "Ajustes de exposición",
-            "shutter": "Obturador",
-            "aperture": "Apertura",
-            "iso": "ISO",
-            "whiteBalance": "Balance de blancos",
-            "shutterPlaceholder": "ej. 1/200",
-            "aperturePlaceholder": "ej. 2.8",
-            "isoPlaceholder": "ej. 400",
-            "autoOpenCaptured": "Abrir imagen capturada automáticamente",
-            "capturing": "Capturando...",
-            "triggerCapture": "Disparar captura",
+            "wbTemp": "Temp. WB (K)",
+            "wbTempPlaceholder": "ej. 5600",
+            "expComp": "Comp. Exp.",
+            "expCompPlaceholder": "ej. 0.0",
+            "expMode": "Modo Exp.",
+            "metering": "Modo de medición",
+            "generalSettings": "Ajustes generales",
+            "autoApplyPreset": "Aplicar preajuste autom.",
+            "changePreset": "Cambiar",
+            "clearPreset": "Borrar preajuste",
+            "triggerAutofocus": "Disparar enfoque automático",
             "toasts": {
-                "noCamerasFound": "No se encontraron cámaras. Asegúrate de que esté en modo PC Remote.",
-                "detectionFailed": "Error en la detección: {{err}}",
-                "communicationFailed": "Error al comunicarse con la cámara",
-                "connectionFailed": "Error de conexión: {{err}}",
-                "setFailed": "Error al configurar {{key}}: {{err}}",
-                "selectFolderFirst": "Por favor, selecciona primero una carpeta estándar en tu biblioteca.",
-                "captureFailed": "Error en la captura: {{err}}",
-                "cameraDisconnected": "Cámara desconectada"
+                "afFailed": "Error al enfocar automáticamente",
+                "presetApplyFailed": "Error al aplicar el preajuste a la captura"
             }
         }
     },
     "fr": {
-        "editor": {
-            "switcher": {
-                "tooltips": {
-                    "tethering": "Prise de vue connectée"
-                }
-            }
-        },
         "tethering": {
-            "title": "Prise de vue connectée",
-            "scanTooltip": "Rechercher des appareils",
-            "status": "État",
-            "cameraConnected": "Appareil connecté",
-            "selectCamera": "Sélectionner un appareil",
-            "startLiveView": "Démarrer la visée directe",
-            "stopLiveView": "Arrêter la visée directe",
-            "noCameraDetected": "Aucun appareil détecté",
-            "liveViewAlt": "Visée directe",
-            "ghostOverlayAlt": "Incrustation fantôme",
-            "overlayOff": "Désactivé",
-            "rotate90": "Faire pivoter de 90°",
-            "flipHorizontal": "Retourner horizontalement",
-            "overlayLastShot": "Superposer la dernière photo",
-            "selectCameraPlaceholder": "Sélectionner un appareil",
-            "noCamerasFound": "Aucun appareil trouvé. Assurez-vous qu'il est connecté et en mode PC Remote.",
-            "connectCamera": "Connecter l'appareil",
-            "exposureSettings": "Paramètres d'exposition",
-            "shutter": "Obturateur",
-            "aperture": "Ouverture",
-            "iso": "ISO",
-            "whiteBalance": "Balance des blancs",
-            "shutterPlaceholder": "ex. 1/200",
-            "aperturePlaceholder": "ex. 2.8",
-            "isoPlaceholder": "ex. 400",
-            "autoOpenCaptured": "Ouvrir automatiquement l'image capturée",
-            "capturing": "Capture en cours...",
-            "triggerCapture": "Déclencher la capture",
+            "wbTemp": "Témperature WB (K)",
+            "wbTempPlaceholder": "ex. 5600",
+            "expComp": "Comp. Exp.",
+            "expCompPlaceholder": "ex. 0.0",
+            "expMode": "Mode Exp.",
+            "metering": "Mode de mesure",
+            "generalSettings": "Paramètres généraux",
+            "autoApplyPreset": "Appliquer preset auto.",
+            "changePreset": "Changer",
+            "clearPreset": "Effacer le preset",
+            "triggerAutofocus": "Déclencher l'autofocus",
             "toasts": {
-                "noCamerasFound": "Aucun appareil trouvé. Assurez-vous qu'il est en mode PC Remote.",
-                "detectionFailed": "Échec de la détection : {{err}}",
-                "communicationFailed": "Échec de la communication avec l'appareil",
-                "connectionFailed": "Échec de la connexion : {{err}}",
-                "setFailed": "Échec de la définition de {{key}} : {{err}}",
-                "selectFolderFirst": "Veuillez d'abord sélectionner un dossier standard dans votre bibliothèque.",
-                "captureFailed": "Échec de la capture : {{err}}",
-                "cameraDisconnected": "Appareil déconnecté"
+                "afFailed": "Échec du déclenchement de l'autofocus",
+                "presetApplyFailed": "Échec de l'application du preset à la photo"
             }
         }
     },
     "it": {
-        "editor": {
-            "switcher": {
-                "tooltips": {
-                    "tethering": "Acquisizione diretta"
-                }
-            }
-        },
         "tethering": {
-            "title": "Acquisizione diretta",
-            "scanTooltip": "Cerca fotocamere",
-            "status": "Stato",
-            "cameraConnected": "Fotocamera connessa",
-            "selectCamera": "Seleziona fotocamera",
-            "startLiveView": "Avvia Live View",
-            "stopLiveView": "Interrompi Live View",
-            "noCameraDetected": "Nessuna fotocamera rilevata",
-            "liveViewAlt": "Live View",
-            "ghostOverlayAlt": "Sovrapposizione fantasma",
-            "overlayOff": "Spento",
-            "rotate90": "Ruota di 90°",
-            "flipHorizontal": "Capovolgi orizzontalmente",
-            "overlayLastShot": "Sovrapponi ultimo scatto",
-            "selectCameraPlaceholder": "Seleziona una fotocamera",
-            "noCamerasFound": "Nessuna fotocamera trovata. Assicurati che sia collegata e in modalità PC Remote.",
-            "connectCamera": "Connetti fotocamera",
-            "exposureSettings": "Impostazioni di esposizione",
-            "shutter": "Otturatore",
-            "aperture": "Apertura",
-            "iso": "ISO",
-            "whiteBalance": "Bilanciamento del bianco",
-            "shutterPlaceholder": "es. 1/200",
-            "aperturePlaceholder": "es. 2.8",
-            "isoPlaceholder": "es. 400",
-            "autoOpenCaptured": "Apri automaticamente l'immagine acquisita",
-            "capturing": "Acquisizione in corso...",
-            "triggerCapture": "Scatta foto",
+            "wbTemp": "Temp. WB (K)",
+            "wbTempPlaceholder": "es. 5600",
+            "expComp": "Comp. Esp.",
+            "expCompPlaceholder": "es. 0.0",
+            "expMode": "Modo Esp.",
+            "metering": "Misurazione",
+            "generalSettings": "Impostazioni generali",
+            "autoApplyPreset": "Applica preset autom.",
+            "changePreset": "Cambia",
+            "clearPreset": "Rimuovi preset",
+            "triggerAutofocus": "Attiva autofocus",
             "toasts": {
-                "noCamerasFound": "Nessuna fotocamera trovata. Assicurati che sia in modalità PC Remote.",
-                "detectionFailed": "Rilevamento non riuscito: {{err}}",
-                "communicationFailed": "Comunicazione con la fotocamera non riuscita",
-                "connectionFailed": "Connessione non riuscita: {{err}}",
-                "setFailed": "Impossibile impostare {{key}}: {{err}}",
-                "selectFolderFirst": "Seleziona prima una cartella standard nella tua libreria.",
-                "captureFailed": "Acquisizione non riuscita: {{err}}",
-                "cameraDisconnected": "Fotocamera disconnessa"
+                "afFailed": "Attivazione autofocus fallita",
+                "presetApplyFailed": "Impossibile applicare il preset allo scatto"
             }
         }
     },
     "ja": {
-        "editor": {
-            "switcher": {
-                "tooltips": {
-                    "tethering": "テザー撮影"
-                }
-            }
-        },
         "tethering": {
-            "title": "テザー撮影",
-            "scanTooltip": "カメラをスキャン",
-            "status": "ステータス",
-            "cameraConnected": "カメラ接続中",
-            "selectCamera": "カメラを選択",
-            "startLiveView": "ライブビュー開始",
-            "stopLiveView": "ライブビュー停止",
-            "noCameraDetected": "カメラが検出されません",
-            "liveViewAlt": "ライブビュー",
-            "ghostOverlayAlt": "ゴーストオーバーレイ",
-            "overlayOff": "オフ",
-            "rotate90": "90°回転",
-            "flipHorizontal": "左右反転",
-            "overlayLastShot": "直前のショットをオーバーレイ",
-            "selectCameraPlaceholder": "カメラを選択してください",
-            "noCamerasFound": "カメラが見つかりません。接続とPCリモートモードを確認してください。",
-            "connectCamera": "カメラを接続",
-            "exposureSettings": "露出設定",
-            "shutter": "シャッター",
-            "aperture": "絞り",
-            "iso": "ISO",
-            "whiteBalance": "ホワイトバランス",
-            "shutterPlaceholder": "例: 1/200",
-            "aperturePlaceholder": "例: 2.8",
-            "isoPlaceholder": "例: 400",
-            "autoOpenCaptured": "撮影した画像を自動で開く",
-            "capturing": "撮影中...",
-            "triggerCapture": "撮影を実行",
+            "wbTemp": "色温度 (K)",
+            "wbTempPlaceholder": "例: 5600",
+            "expComp": "露出補正",
+            "expCompPlaceholder": "例: 0.0",
+            "expMode": "露出モード",
+            "metering": "測光モード",
+            "generalSettings": "一般設定",
+            "autoApplyPreset": "プリセット自動適用",
+            "changePreset": "変更",
+            "clearPreset": "プリセットを解除",
+            "triggerAutofocus": "AFを実行",
             "toasts": {
-                "noCamerasFound": "カメラが見つかりません。PCリモートモードになっていることを確認してください。",
-                "detectionFailed": "検出に失敗しました: {{err}}",
-                "communicationFailed": "カメラとの通信に失敗しました",
-                "connectionFailed": "接続に失敗しました: {{err}}",
-                "setFailed": "{{key}} の設定に失敗しました: {{err}}",
-                "selectFolderFirst": "最初にライブラリで通常のフォルダを選択してください。",
-                "captureFailed": "撮影に失敗しました: {{err}}",
-                "cameraDisconnected": "カメラが切断されました"
+                "afFailed": "オートフォーカスの実行に失敗しました",
+                "presetApplyFailed": "撮影画像へのプリセット適用に失敗しました"
             }
         }
     },
     "ko": {
-        "editor": {
-            "switcher": {
-                "tooltips": {
-                    "tethering": "테더링"
-                }
-            }
-        },
         "tethering": {
-            "title": "테더링",
-            "scanTooltip": "카메라 검색",
-            "status": "상태",
-            "cameraConnected": "카메라 연결됨",
-            "selectCamera": "카메라 선택",
-            "startLiveView": "라이브 뷰 시작",
-            "stopLiveView": "라이브 뷰 중지",
-            "noCameraDetected": "감지된 카메라 없음",
-            "liveViewAlt": "라이브 뷰",
-            "ghostOverlayAlt": "고스트 오버레이",
-            "overlayOff": "끄기",
-            "rotate90": "90° 회전",
-            "flipHorizontal": "좌우 대칭",
-            "overlayLastShot": "이전 촬영 오버레이",
-            "selectCameraPlaceholder": "카메라를 선택하세요",
-            "noCamerasFound": "카메라를 찾을 수 없습니다. 연결 상태와 PC 원격 모드를 확인하세요.",
-            "connectCamera": "카메라 연결",
-            "exposureSettings": "노출 설정",
-            "shutter": "셔터",
-            "aperture": "조리개",
-            "iso": "ISO",
-            "whiteBalance": "화이트 밸런스",
-            "shutterPlaceholder": "예: 1/200",
-            "aperturePlaceholder": "예: 2.8",
-            "isoPlaceholder": "예: 400",
-            "autoOpenCaptured": "촬영된 이미지 자동으로 열기",
-            "capturing": "촬영 중...",
-            "triggerCapture": "촬영 실행",
+            "wbTemp": "색온도 (K)",
+            "wbTempPlaceholder": "예: 5600",
+            "expComp": "노출 보정",
+            "expCompPlaceholder": "예: 0.0",
+            "expMode": "노출 모드",
+            "metering": "측광 모드",
+            "generalSettings": "일반 설정",
+            "autoApplyPreset": "프리셋 자동 적용",
+            "changePreset": "변경",
+            "clearPreset": "프리셋 제거",
+            "triggerAutofocus": "자동 초점 실행",
             "toasts": {
-                "noCamerasFound": "카메라를 찾을 수 없습니다. PC 원격 모드인지 확인하세요.",
-                "detectionFailed": "감지 실패: {{err}}",
-                "communicationFailed": "카메라와 통신하지 못했습니다",
-                "connectionFailed": "연결 실패: {{err}}",
-                "setFailed": "{{key}} 설정 실패: {{err}}",
-                "selectFolderFirst": "라이브러리에서 먼저 일반 폴더를 선택하세요.",
-                "captureFailed": "촬영 실패: {{err}}",
-                "cameraDisconnected": "카메라 연결이 끊어졌습니다"
+                "afFailed": "자동 초점 실행에 실패했습니다",
+                "presetApplyFailed": "촬영된 이미지에 프리셋 적용 실패"
             }
         }
     },
     "pl": {
-        "editor": {
-            "switcher": {
-                "tooltips": {
-                    "tethering": "Tethering (Połączenie przewodowe)"
-                }
-            }
-        },
         "tethering": {
-            "title": "Tethering",
-            "scanTooltip": "Szukaj aparatów",
-            "status": "Status",
-            "cameraConnected": "Aparat połączony",
-            "selectCamera": "Wybierz aparat",
-            "startLiveView": "Uruchom Live View",
-            "stopLiveView": "Zatrzymaj Live View",
-            "noCameraDetected": "Nie wykryto aparatu",
-            "liveViewAlt": "Live View",
-            "ghostOverlayAlt": "Nakładka poprzedniego zdjęcia",
-            "overlayOff": "Wył.",
-            "rotate90": "Obróć o 90°",
-            "flipHorizontal": "Obróć w poziomie",
-            "overlayLastShot": "Nałóż ostatnie zdjęcie",
-            "selectCameraPlaceholder": "Wybierz aparat",
-            "noCamerasFound": "Nie znaleziono aparatów. Upewnij się, że aparat jest podłączony i działa w trybie PC Remote.",
-            "connectCamera": "Połącz aparat",
-            "exposureSettings": "Ustawienia ekspozycji",
-            "shutter": "Migawka",
-            "aperture": "Przysłona",
-            "iso": "ISO",
-            "whiteBalance": "Balans bieli",
-            "shutterPlaceholder": "np. 1/200",
-            "aperturePlaceholder": "np. 2.8",
-            "isoPlaceholder": "np. 400",
-            "autoOpenCaptured": "Automatycznie otwieraj zrobione zdjęcie",
-            "capturing": "Robienie zdjęcia...",
-            "triggerCapture": "Wyzwól migawkę",
+            "wbTemp": "Temp. barwowa (K)",
+            "wbTempPlaceholder": "np. 5600",
+            "expComp": "Komp. eksp.",
+            "expCompPlaceholder": "np. 0.0",
+            "expMode": "Tryb ekspozycji",
+            "metering": "Tryb pomiaru",
+            "generalSettings": "Ustawienia ogólne",
+            "autoApplyPreset": "Automatycznie stosuj preset",
+            "changePreset": "Zmień",
+            "clearPreset": "Wyczyść preset",
+            "triggerAutofocus": "Wyzwól autofocus",
             "toasts": {
-                "noCamerasFound": "Nie znaleziono aparatów. Upewnij się, że włączono tryb PC Remote.",
-                "detectionFailed": "Wykrywanie nie powiodło się: {{err}}",
-                "communicationFailed": "Błąd komunikacji z aparatem",
-                "connectionFailed": "Połączenie nie powiodło się: {{err}}",
-                "setFailed": "Nie udało się ustawić {{key}}: {{err}}",
-                "selectFolderFirst": "Najpierw wybierz standardowy folder w bibliotece.",
-                "captureFailed": "Przechwytywanie nie powiodło się: {{err}}",
-                "cameraDisconnected": "Aparat został odłączony"
+                "afFailed": "Błąd wyzwalania autofocusu",
+                "presetApplyFailed": "Nie udało się zastosować presetu do zdjęcia"
             }
         }
     },
     "pt": {
-        "editor": {
-            "switcher": {
-                "tooltips": {
-                    "tethering": "Captura Conectada (Tethering)"
-                }
-            }
-        },
         "tethering": {
-            "title": "Tethering",
-            "scanTooltip": "Buscar Câmeras",
-            "status": "Status",
-            "cameraConnected": "Câmera Conectada",
-            "selectCamera": "Selecionar Câmera",
-            "startLiveView": "Iniciar Live View",
-            "stopLiveView": "Parar Live View",
-            "noCameraDetected": "Nenhuma câmera detectada",
-            "liveViewAlt": "Live View",
-            "ghostOverlayAlt": "Sobreposição Fantasma",
-            "overlayOff": "Desligado",
-            "rotate90": "Girar 90°",
-            "flipHorizontal": "Espelhar Horizontalmente",
-            "overlayLastShot": "Sobrepor Última Foto",
-            "selectCameraPlaceholder": "Selecione uma câmera",
-            "noCamerasFound": "Nenhuma câmera encontrada. Certifique-se de que esteja conectada e no modo PC Remote.",
-            "connectCamera": "Conectar Câmera",
-            "exposureSettings": "Configurações de Exposição",
-            "shutter": "Obturador",
-            "aperture": "Abertura",
-            "iso": "ISO",
-            "whiteBalance": "Balanço de Branco",
-            "shutterPlaceholder": "ex. 1/200",
-            "aperturePlaceholder": "ex. 2.8",
-            "isoPlaceholder": "ex. 400",
-            "autoOpenCaptured": "Abrir automaticamente imagem capturada",
-            "capturing": "Capturando...",
-            "triggerCapture": "Disparar Captura",
+            "wbTemp": "Temp. WB (K)",
+            "wbTempPlaceholder": "ex. 5600",
+            "expComp": "Comp. Exp.",
+            "expCompPlaceholder": "ex. 0.0",
+            "expMode": "Modo Exp.",
+            "metering": "Modo de Medição",
+            "generalSettings": "Configurações Gerais",
+            "autoApplyPreset": "Aplicar Predefinição Auto.",
+            "changePreset": "Alterar",
+            "clearPreset": "Limpar Predefinição",
+            "triggerAutofocus": "Disparar Foco Automático",
             "toasts": {
-                "noCamerasFound": "Nenhuma câmera encontrada. Verifique se está no modo PC Remote.",
-                "detectionFailed": "Falha na detecção: {{err}}",
-                "communicationFailed": "Falha na comunicação com a câmera",
-                "connectionFailed": "Falha na conexão: {{err}}",
-                "setFailed": "Falha ao definir {{key}}: {{err}}",
-                "selectFolderFirst": "Selecione uma pasta padrão na sua Biblioteca primeiro.",
-                "captureFailed": "Falha na captura: {{err}}",
-                "cameraDisconnected": "Câmera desconectada"
+                "afFailed": "Falha ao acionar foco automático",
+                "presetApplyFailed": "Falha ao aplicar predefinição à captura"
             }
         }
     },
     "ru": {
-        "editor": {
-            "switcher": {
-                "tooltips": {
-                    "tethering": "Съемка на ПК (Тетеринг)"
-                }
-            }
-        },
         "tethering": {
-            "title": "Тетеринг",
-            "scanTooltip": "Поиск камер",
-            "status": "Статус",
-            "cameraConnected": "Камера подключена",
-            "selectCamera": "Выбрать камеру",
-            "startLiveView": "Запустить Live View",
-            "stopLiveView": "Остановить Live View",
-            "noCameraDetected": "Камера не обнаружена",
-            "liveViewAlt": "Live View",
-            "ghostOverlayAlt": "Полупрозрачное наложение",
-            "overlayOff": "Выкл.",
-            "rotate90": "Повернуть на 90°",
-            "flipHorizontal": "Отразить по горизонтали",
-            "overlayLastShot": "Наложить прошлый снимок",
-            "selectCameraPlaceholder": "Выберите камеру",
-            "noCamerasFound": "Камеры не найдены. Убедитесь, что камера подключена и включен режим ПК.",
-            "connectCamera": "Подключить камеру",
-            "exposureSettings": "Настройки экспозиции",
-            "shutter": "Выдержка",
-            "aperture": "Диафрагма",
-            "iso": "ISO",
-            "whiteBalance": "Баланс белого",
-            "shutterPlaceholder": "напр. 1/200",
-            "aperturePlaceholder": "напр. 2.8",
-            "isoPlaceholder": "напр. 400",
-            "autoOpenCaptured": "Автоматически открывать снимок",
-            "capturing": "Съемка...",
-            "triggerCapture": "Сделать снимок",
+            "wbTemp": "Цвет. темп. (K)",
+            "wbTempPlaceholder": "напр. 5600",
+            "expComp": "Экспокоррекция",
+            "expCompPlaceholder": "напр. 0.0",
+            "expMode": "Режим эксп.",
+            "metering": "Режим замера",
+            "generalSettings": "Общие настройки",
+            "autoApplyPreset": "Авто-применение пресета",
+            "changePreset": "Изменить",
+            "clearPreset": "Очистить пресет",
+            "triggerAutofocus": "Сфокусироваться",
             "toasts": {
-                "noCamerasFound": "Камеры не найдены. Убедитесь, что включен режим дистанционного управления ПК.",
-                "detectionFailed": "Ошибка обнаружения: {{err}}",
-                "communicationFailed": "Не удалось связаться с камерой",
-                "connectionFailed": "Ошибка подключения: {{err}}",
-                "setFailed": "Не удалось установить {{key}}: {{err}}",
-                "selectFolderFirst": "Сначала выберите стандартную папку в Библиотеке.",
-                "captureFailed": "Ошибка съемки: {{err}}",
-                "cameraDisconnected": "Камера отключена"
+                "afFailed": "Ошибка автофокусировки",
+                "presetApplyFailed": "Не удалось применить пресет к снимку"
             }
         }
     },
     "zh-CN": {
-        "editor": {
-            "switcher": {
-                "tooltips": {
-                    "tethering": "联机拍摄"
-                }
-            }
-        },
         "tethering": {
-            "title": "联机拍摄",
-            "scanTooltip": "扫描相机",
-            "status": "状态",
-            "cameraConnected": "相机已连接",
-            "selectCamera": "选择相机",
-            "startLiveView": "开启实时取景",
-            "stopLiveView": "停止实时取景",
-            "noCameraDetected": "未检测到相机",
-            "liveViewAlt": "实时取景",
-            "ghostOverlayAlt": "叠图预览",
-            "overlayOff": "关闭",
-            "rotate90": "旋转 90°",
-            "flipHorizontal": "水平翻转",
-            "overlayLastShot": "叠加上一张拍摄照片",
-            "selectCameraPlaceholder": "选择一台相机",
-            "noCamerasFound": "未找到相机。请确保已连接并处于 PC 遥控模式。",
-            "connectCamera": "连接相机",
-            "exposureSettings": "曝光设置",
-            "shutter": "快门",
-            "aperture": "光圈",
-            "iso": "ISO",
-            "whiteBalance": "白平衡",
-            "shutterPlaceholder": "例如 1/200",
-            "aperturePlaceholder": "例如 2.8",
-            "isoPlaceholder": "例如 400",
-            "autoOpenCaptured": "自动打开拍摄的照片",
-            "capturing": "正在拍摄...",
-            "triggerCapture": "触发拍摄",
+            "wbTemp": "色温 (K)",
+            "wbTempPlaceholder": "例如 5600",
+            "expComp": "曝光补偿",
+            "expCompPlaceholder": "例如 0.0",
+            "expMode": "曝光模式",
+            "metering": "测光模式",
+            "generalSettings": "常规设置",
+            "autoApplyPreset": "自动应用预设",
+            "changePreset": "更改",
+            "clearPreset": "清除预设",
+            "triggerAutofocus": "触发自动对焦",
             "toasts": {
-                "noCamerasFound": "未找到相机。请确保处于 PC 遥控模式。",
-                "detectionFailed": "检测失败: {{err}}",
-                "communicationFailed": "与相机通信失败",
-                "connectionFailed": "连接失败: {{err}}",
-                "setFailed": "设置 {{key}} 失败: {{err}}",
-                "selectFolderFirst": "请先在图库中选择一个普通文件夹。",
-                "captureFailed": "拍摄失败: {{err}}",
-                "cameraDisconnected": "相机已断开连接"
+                "afFailed": "触发自动对焦失败",
+                "presetApplyFailed": "对捕获的图像应用预设失败"
             }
         }
     },
     "zh-TW": {
-        "editor": {
-            "switcher": {
-                "tooltips": {
-                    "tethering": "連線拍攝"
-                }
-            }
-        },
         "tethering": {
-            "title": "連線拍攝",
-            "scanTooltip": "掃描相機",
-            "status": "狀態",
-            "cameraConnected": "相機已連線",
-            "selectCamera": "選擇相機",
-            "startLiveView": "開啟即時取景",
-            "stopLiveView": "停止即時取景",
-            "noCameraDetected": "未偵測到相機",
-            "liveViewAlt": "即時取景",
-            "ghostOverlayAlt": "疊圖預覽",
-            "overlayOff": "關閉",
-            "rotate90": "旋轉 90°",
-            "flipHorizontal": "水平翻轉",
-            "overlayLastShot": "疊加上一張拍攝相片",
-            "selectCameraPlaceholder": "選擇一台相機",
-            "noCamerasFound": "未找到相機。請確保已連線並處於 PC 遙控模式。",
-            "connectCamera": "連線相機",
-            "exposureSettings": "曝光設定",
-            "shutter": "快門",
-            "aperture": "光圈",
-            "iso": "ISO",
-            "whiteBalance": "白平衡",
-            "shutterPlaceholder": "例如 1/200",
-            "aperturePlaceholder": "例如 2.8",
-            "isoPlaceholder": "例如 400",
-            "autoOpenCaptured": "自動開啟拍攝的影像",
-            "capturing": "正在拍攝...",
-            "triggerCapture": "觸發拍攝",
+            "wbTemp": "色溫 (K)",
+            "wbTempPlaceholder": "例如 5600",
+            "expComp": "曝光補償",
+            "expCompPlaceholder": "例如 0.0",
+            "expMode": "曝光模式",
+            "metering": "測光模式",
+            "generalSettings": "一般設定",
+            "autoApplyPreset": "自動套用預設集",
+            "changePreset": "變更",
+            "clearPreset": "清除預設集",
+            "triggerAutofocus": "觸發自動對焦",
             "toasts": {
-                "noCamerasFound": "未找到相機。請確保處於 PC 遙控模式。",
-                "detectionFailed": "偵測失敗: {{err}}",
-                "communicationFailed": "與相機通訊失敗",
-                "connectionFailed": "連線失敗: {{err}}",
-                "setFailed": "設定 {{key}} 失敗: {{err}}",
-                "selectFolderFirst": "請先在媒體庫中選擇一個一般資料夾。",
-                "captureFailed": "拍攝失敗: {{err}}",
-                "cameraDisconnected": "相機已中斷連線"
+                "afFailed": "觸發自動對焦失敗",
+                "presetApplyFailed": "對拍攝的影像套用預設集失敗"
             }
         }
     }
@@ -686,7 +296,7 @@ def main():
         print(f"Error: Locales directory '{LOCALES_DIR}' does not exist.")
         return
 
-    print("Starting translation updates...")
+    print("Starting translation updates for tethering...")
     for lang, trans in TRANSLATIONS.items():
         file_path = LOCALES_DIR / f"{lang}.json"
         update_json_file(file_path, trans)
