@@ -60,9 +60,20 @@ RapidRAW is still in active development and isn't yet as polished as mature tool
 <details>
 <summary><strong>Recent Changes</strong></summary>
 
+- **2026-08-16:** Added native Camera Tethering with real-time Live View, exposure controls, ghost overlay, and direct library ingestion (macOS & Linux)
+- **2026-08-16:** Added Focus Stacking to merge multi-focus brackets into a single sharp image
+- **2026-08-14:** Export now preserves and writes full EXIF metadata
+- **2026-08-13:** Replaced local contrast sharpening with a high-quality multi-scale filter
+- **2026-08-11:** Added automatic canvas cropping for generative AI inpainting workflows
+- **2026-08-07:** Updated Lensfun database for latest camera bodies and lenses
+- **2026-08-06:** Added customizable keyboard shortcuts and visibility toggles for left, right, and bottom panels
 - **2026-08-05:** Added Catalan language support and folder tree shortcut
 - **2026-08-03:** Added support for image-based LUTs (.png, .jpg, .jpeg, .tiff) and batch importing multiple presets
 - **2026-08-01:** Implemented customizable workspace layout system with animated side panels
+
+<details>
+<summary><strong>Expand further</strong></summary>
+
 - **2026-07-31:** Enabled White Balance color picker tool for the WGPU renderer
 - **2026-07-29:** Added Cmd/Ctrl+L keyboard shortcut to quickly copy image file paths to the clipboard
 - **2026-07-26:** Added AI Lens Blur (Bokeh) for realistic depth-of-field background blurring
@@ -70,10 +81,6 @@ RapidRAW is still in active development and isn't yet as polished as mature tool
 - **2026-07-24:** Added Ctrl/Cmd+F search shortcut and optimized library & scope performance
 - **2026-07-23:** Significantly improved HDD thumbnail loading and resolved Linux NVIDIA crash issues
 - **2026-07-22:** Calibrated JPEG XL (JXL) export quality curves
-
-<details>
-<summary><strong>Expand further</strong></summary>
-
 - **2026-07-20:** Made automatic adjustment synchronization optional for multi-selections
 - **2026-07-19:** Introduced new Culling View (up to 6 images side-by-side) with star ratings and metadata
 - **2026-07-16:** Enhanced crop tool with area preservation and crop-centered rotation
@@ -512,6 +519,7 @@ Explore example edits processed entirely within RapidRAW. You can download the `
         <li><strong>Filmstrip View:</strong> Quickly navigate between images in your current folder while editing.</li>
         <li><strong>Batch Operations:</strong> Apply adjustments or export entire batches of images simultaneously.</li>
         <li><strong>EXIF Data & CLI:</strong> Full metadata viewer and headless CLI batch exporter for scripting/terminal use.</li>
+        <li><strong>Camera Tethering:</strong> Shoot directly into RapidRAW with real-time Live View, remote camera controls and more.</li>
       </ul>
     </td>
   </tr>
@@ -627,7 +635,6 @@ RapidRAW is fully translated into the following 13 languages:
 Here is an outlook on what is actively being developed and planned for the coming months:
 
 - **Bug Fixes & Stability:** Continuous memory optimization, resolving OS-specific crashes (such as Linux Wayland/WebKit edge cases), and refining GPU processing backend auto-selection for seamless performance across all platforms.
-- **Tethered Shooting:** Adding native camera tethering support to allow studio and portrait photographers to capture photos directly into RapidRAW with instant live previews and automatic sidecar application.
 - **Cloud AI Inpainting:** Launching the optional cloud generative AI integration to deliver high-quality object removal and generative replace without requiring local ComfyUI setups or heavy GPU hardware.
 - **Performance & Algorithm Refinements:** Further optimizing processing speed on older GPU architectures, refining Fujifilm X-Trans sensor demosaicing algorithms, and expanding UI responsiveness on mobile/Android devices.
 
@@ -763,6 +770,74 @@ npm run start:tethering
 npm run tauri build -- --features tethering
 ```
 
+## Camera Tethering
+
+RapidRAW includes camera tethering for studio, portrait, and product photography workflows. Connect your camera via USB to control exposure settings, monitor your shot in real time, and automatically ingest files directly into your workspace.
+
+### Key Capabilities
+
+- **Real-Time Live View:** High frame-rate live view stream with composition guides (Rule of Thirds, Golden Spiral, Armature, etc.), 90° rotation, and horizontal flip.
+- **Exposure Control:** Adjust Aperture, Shutter Speed, ISO, and White Balance directly from RapidRAW.
+- **Ghost Overlay:** Overlay your previous capture with adjustable opacity over the live view to maintain consistent framing and perspective across shots.
+- **Instant Ingestion:** Captured images are automatically saved into your active library directory, indexed, and optionally opened immediately in the editor.
+
+### Supported Cameras
+
+Tethering is powered by **[libgphoto2](http://gphoto.org/)** and supports over **2,500+ camera models** across Canon, Nikon, Sony, Fujifilm, Olympus, Panasonic, and other manufacturers.
+
+- **[View the Full List of Supported Cameras](http://gphoto.org/proj/libgphoto2/support.php)**
+
+> **Note:** Ensure your camera's USB connection mode is set to **PC Remote**, **Tether Shooting**, or **PTP** in the camera settings.
+
+### Platform Support & Installation
+
+Tethering is supported on **macOS** and **Linux**. Windows and Android are not supported.
+
+<details>
+<summary><strong>Why is Tethering a Separate Build?</strong></summary>
+
+The tethering build dynamically links directly against `libgphoto2`. If these system libraries are not present on a machine, an executable linked against them will fail to launch entirely. To ensure standard RapidRAW builds remain dependency-free and start on any system without extra installation steps, tethering is distributed as a dedicated `_tethering` release.
+
+</details>
+
+<details>
+<summary><strong>Why is Windows Unsupported?</strong></summary>
+
+`libgphoto2` is designed for POSIX environments and requires direct low-level access via `libusb`. On Windows, connected cameras are claimed by the operating system's native Windows Portable Device (WPD) drivers. Interfacing with `libgphoto2` on Windows requires overriding OEM drivers with WinUSB (using tools like Zadig), which breaks standard file transfer and camera utilities. Because of these driver conflicts and platform limitations, Windows is fully unsupported.
+
+</details>
+
+#### Setting up the Tethering Build
+
+To run the `_tethering` release binaries (or build from source), you **must install `libgphoto2` on your machine first**:
+
+**macOS (via Homebrew):**
+
+```bash
+brew install libgphoto2 pkg-config
+```
+
+**Linux (Ubuntu / Debian):**
+
+```bash
+sudo apt-get update
+sudo apt-get install -y libgphoto2-dev pkg-config
+```
+
+**Linux (Arch Linux):**
+
+```bash
+sudo pacman -S libgphoto2 pkgconf
+```
+
+**Linux (Fedora):**
+
+```bash
+sudo dnf install libgphoto2-devel pkgconf-pkg-config
+```
+
+After installing the system dependencies, download the corresponding `_tethering` build from the [Releases](https://github.com/CyberTimon/RapidRAW/releases) page, or run/build from source using the `tethering` feature flag.
+
 ## Command Line Interface (CLI)
 
 RapidRAW includes a headless export tool for batch processing photos in automated scripts, terminal pipelines, or server environments without opening the GUI:
@@ -862,6 +937,7 @@ A huge thank you to the following projects and tools that were very important in
 - **[NegPy](https://github.com/marcinz606/NegPy):** For the inspiration behind the negative conversion logic, particularly the mathematical approach to film inversion using characteristic curves.
 - **[pixls.us](https://discuss.pixls.us/):** For being an incredible community full of knowledgeable people who offered inspiration, advice, and ideas.
 - **[darktable & co.](https://github.com/darktable-org/darktable):** For some reference implementations that guided parts of this work.
+- **[libgphoto2](http://gphoto.org/):** For the comprehensive camera communication library powering RapidRAW's tethering and remote capture subsystem.
 - **You:** For using and supporting RapidRAW. Your interest keeps this project alive and evolving.
 
 ## Support the Project
