@@ -18,6 +18,7 @@ use crate::image_processing::GpuContext;
 use crate::launch_request::ExternalEditSession;
 use crate::lens_correction::LensDatabase;
 use crate::lut_processing::Lut;
+use crate::camera_tethering::CameraSession;
 
 #[derive(Serialize, Deserialize)]
 pub struct WindowState {
@@ -170,4 +171,5 @@ pub struct AppState {
     pub metadata_manager: Arc<MetadataManager>,
     pub disks_cache: Mutex<Option<Disks>>,
     pub disks_cache_refreshing: AtomicBool,
+    pub camera_session: Mutex<CameraSession>,
 }
