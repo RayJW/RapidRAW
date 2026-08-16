@@ -124,10 +124,9 @@ pub async fn tether_connect(app_handle: tauri::AppHandle) -> Result<String, Stri
             for _ in 0..15 {
                 if let Ok(event) =
                     camera.wait_for_event(&context, std::time::Duration::from_millis(30))
+                    && let gphoto2::CameraEvent::Timeout = event
                 {
-                    if let gphoto2::CameraEvent::Timeout = event {
-                        break;
-                    }
+                    break;
                 }
             }
 
@@ -298,7 +297,9 @@ pub async fn tether_set_setting(
                     "wbcolortemperature",
                     "whitebalancetemperature",
                 ],
-                "exposurecompensation" => &["exposurecompensation", "exposurebias", "exposure-bias"],
+                "exposurecompensation" => {
+                    &["exposurecompensation", "exposurebias", "exposure-bias"]
+                }
                 "exposuremode" => &[
                     "autoexposuremode",
                     "expprogram",
@@ -313,36 +314,43 @@ pub async fn tether_set_setting(
             let mut last_err = None;
 
             for &camera_key in aliases {
-                if let Ok(widget) = camera.get_single_config(context, camera_key) {
-                    if let Ok(widget_type) = widget.widget_type() {
-                        let set_ok = match widget_type {
-                            WidgetType::Radio | WidgetType::Menu => {
-                                widget.set_choice(&value).is_ok()
+                if let Ok(widget) = camera.get_single_config(context, camera_key)
+                    && let Ok(widget_type) = widget.widget_type()
+                {
+                    let set_ok = match widget_type {
+                        WidgetType::Radio | WidgetType::Menu => widget.set_choice(&value).is_ok(),
+                        WidgetType::Text => widget.set_text(&value).is_ok(),
+                        _ => {
+                            let clean_val = value.replace("K", "").trim().to_string();
+                            if let Ok(parsed_f) = clean_val.parse::<f32>() {
+                                widget
+                                    .set_value(&gphoto2::widget::WidgetValue::Range(parsed_f))
+                                    .is_ok()
+                            } else {
+                                false
                             }
-                            WidgetType::Text => widget.set_text(&value).is_ok(),
-                            _ => {
-                                let clean_val = value.replace("K", "").trim().to_string();
-                                if let Ok(parsed_f) = clean_val.parse::<f32>() {
-                                    widget.set_value(&gphoto2::widget::WidgetValue::Range(parsed_f)).is_ok()
-                                } else {
-                                    false
-                                }
-                            }
-                        };
+                        }
+                    };
 
-                        if set_ok {
-                            match camera.set_single_config(context, camera_key, &widget) {
-                                Ok(_) => {
-                                    applied = true;
-                                    break;
-                                }
-                                Err(e) => {
-                                    let msg = e.to_string().to_lowercase();
-                                    if msg.contains("read-only") || msg.contains("readonly") || msg.contains("locked") {
-                                        last_err = Some(format!("{} is physically locked (e.g. physical dial).", setting_name));
-                                    } else {
-                                        last_err = Some(format!("Failed to set {}: {}", setting_name, e));
-                                    }
+                    if set_ok {
+                        match camera.set_single_config(context, camera_key, &widget) {
+                            Ok(_) => {
+                                applied = true;
+                                break;
+                            }
+                            Err(e) => {
+                                let msg = e.to_string().to_lowercase();
+                                if msg.contains("read-only")
+                                    || msg.contains("readonly")
+                                    || msg.contains("locked")
+                                {
+                                    last_err = Some(format!(
+                                        "{} is physically locked (e.g. physical dial).",
+                                        setting_name
+                                    ));
+                                } else {
+                                    last_err =
+                                        Some(format!("Failed to set {}: {}", setting_name, e));
                                 }
                             }
                         }
@@ -381,15 +389,17 @@ pub async fn tether_autofocus(app_handle: tauri::AppHandle) -> Result<(), String
             for &af_key in &["autofocusdrive", "autofocus", "eosviewfinder"] {
                 if let Ok(widget) = camera.get_single_config(context, af_key) {
                     let mut success = false;
-                    
+
                     if widget.set_choice("1").is_ok() || widget.set_choice("On").is_ok() {
                         if camera.set_single_config(context, af_key, &widget).is_ok() {
                             success = true;
                         }
-                    } else if widget.set_value(&gphoto2::widget::WidgetValue::Toggle(true)).is_ok() {
-                        if camera.set_single_config(context, af_key, &widget).is_ok() {
-                            success = true;
-                        }
+                    } else if widget
+                        .set_value(&gphoto2::widget::WidgetValue::Toggle(true))
+                        .is_ok()
+                        && camera.set_single_config(context, af_key, &widget).is_ok()
+                    {
+                        success = true;
                     }
 
                     if success {
@@ -401,13 +411,13 @@ pub async fn tether_autofocus(app_handle: tauri::AppHandle) -> Result<(), String
 
             let _ = camera.wait_for_event(context, std::time::Duration::from_millis(1000));
 
-            if let Some(key) = triggered_key {
-                if let Ok(widget) = camera.get_single_config(context, key) {
-                    let _ = widget.set_choice("0");
-                    let _ = widget.set_choice("Off");
-                    let _ = widget.set_value(&gphoto2::widget::WidgetValue::Toggle(false));
-                    let _ = camera.set_single_config(context, key, &widget);
-                }
+            if let Some(key) = triggered_key
+                && let Ok(widget) = camera.get_single_config(context, key)
+            {
+                let _ = widget.set_choice("0");
+                let _ = widget.set_choice("Off");
+                let _ = widget.set_value(&gphoto2::widget::WidgetValue::Toggle(false));
+                let _ = camera.set_single_config(context, key, &widget);
             }
 
             Ok(())

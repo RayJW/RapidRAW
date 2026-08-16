@@ -780,10 +780,13 @@ RapidRAW includes camera tethering for studio, portrait, and product photography
 
 ### Key Capabilities
 
-- **Real-Time Live View:** High frame-rate live view stream with composition guides (Rule of Thirds, Golden Spiral, Armature, etc.), 90° rotation, and horizontal flip.
-- **Exposure Control:** Adjust Aperture, Shutter Speed, ISO, and White Balance directly from RapidRAW.
-- **Ghost Overlay:** Overlay your previous capture with adjustable opacity over the live view to maintain consistent framing and perspective across shots.
-- **Instant Ingestion:** Captured images are automatically saved into your active library directory, indexed, and optionally opened immediately in the editor.
+- **Real-Time Live View:** High-frame-rate live view with composition guides, 90° rotation, and horizontal flip.
+- **Full Camera Control:** Adjust Aperture, Shutter Speed, ISO, White Balance, Exposure Compensation, Exposure Mode, and Metering Mode directly from RapidRAW.
+- **Autofocus Control:** Trigger autofocus directly from RapidRAW.
+- **Ghost Overlay:** Overlay previous captures with adjustable opacity to maintain consistent framing and perspective.
+- **Battery Monitoring:** View the connected camera's battery level directly in RapidRAW.
+- **Automatic Presets:** Automatically apply a selected preset to newly captured images.
+- **Instant Ingestion:** Captured images are automatically saved to your active library, indexed, and optionally opened in the editor.
 
 ### Supported Cameras
 
