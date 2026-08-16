@@ -415,9 +415,10 @@ pub async fn start_background_indexing(
 
 fn modify_tags_for_path(
     path_str: &str,
+    app_handle: &AppHandle,
     modify_fn: impl Fn(&mut Vec<String>),
 ) -> Result<(), String> {
-    let (_, sidecar_path) = parse_virtual_path(path_str);
+    let (source_path, sidecar_path) = parse_virtual_path(path_str);
 
     let mut metadata = crate::exif_processing::load_sidecar(&sidecar_path);
 
@@ -434,14 +435,25 @@ fn modify_tags_for_path(
     }
 
     let json_string = serde_json::to_string_pretty(&metadata).map_err(|e| e.to_string())?;
-    fs::write(sidecar_path, json_string).map_err(|e| e.to_string())
+    fs::write(&sidecar_path, json_string).map_err(|e| e.to_string())?;
+
+    // Keep the XMP sidecar in sync with the `.rrdata` tags, mirroring how
+    // `save_metadata_and_update_thumbnail` and friends write XMP.
+    if let Ok(settings) = crate::load_settings(app_handle.clone())
+        && settings.enable_xmp_sync.unwrap_or(false)
+    {
+        let create_if_missing = settings.create_xmp_if_missing.unwrap_or(false);
+        file_management::sync_metadata_to_xmp(&source_path, &metadata, create_if_missing);
+    }
+
+    Ok(())
 }
 
 #[tauri::command]
-pub fn add_tag_for_paths(paths: Vec<String>, tag: String) -> Result<(), String> {
+pub fn add_tag_for_paths(paths: Vec<String>, tag: String, app_handle: AppHandle) -> Result<(), String> {
     paths.par_iter().for_each(|path| {
         let tag_clone = tag.clone();
-        if let Err(e) = modify_tags_for_path(path, |tags| {
+        if let Err(e) = modify_tags_for_path(path, &app_handle, |tags| {
             if !tags.contains(&tag_clone) {
                 tags.push(tag_clone.clone());
             }
@@ -453,10 +465,10 @@ pub fn add_tag_for_paths(paths: Vec<String>, tag: String) -> Result<(), String> 
 }
 
 #[tauri::command]
-pub fn remove_tag_for_paths(paths: Vec<String>, tag: String) -> Result<(), String> {
+pub fn remove_tag_for_paths(paths: Vec<String>, tag: String, app_handle: AppHandle) -> Result<(), String> {
     paths.par_iter().for_each(|path| {
         let tag_clone = tag.clone();
-        if let Err(e) = modify_tags_for_path(path, |tags| {
+        if let Err(e) = modify_tags_for_path(path, &app_handle, |tags| {
             tags.retain(|t| t != &tag_clone);
         }) {
             eprintln!("Failed to remove tag from {}: {}", path, e);
