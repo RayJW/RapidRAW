@@ -328,6 +328,7 @@ RapidRAW is still in active development and isn't yet as polished as mature tool
 - [AI Roadmap](#ai-roadmap)
 - [Initial Development Log](#initial-development-log)
 - [Getting Started](#getting-started)
+- [Camera Tethering](#camera-tethering)
 - [Command Line Interface (CLI)](#command-line-interface-cli)
 - [System Requirements](#system-requirements)
 - [Contributing](#contributing)
