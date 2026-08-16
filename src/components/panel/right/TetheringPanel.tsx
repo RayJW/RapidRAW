@@ -804,11 +804,6 @@ export default function TetheringPanel({ onLibraryRefresh, onImageSelect }: Teth
               </Text>
               <div className="grid grid-cols-2 gap-2">
                 {renderDropdown(
-                  'exposuremode',
-                  t('tethering.expMode'),
-                  <Sliders size={14} className="text-text-secondary" />,
-                )}
-                {renderDropdown(
                   'meteringmode',
                   t('tethering.metering'),
                   <Gauge size={14} className="text-text-secondary" />,
