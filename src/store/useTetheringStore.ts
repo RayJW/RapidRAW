@@ -13,6 +13,10 @@ interface TetheringState {
   isCapturing: boolean;
   autoOpenCaptured: boolean;
   settings: Record<string, CameraSetting>;
+  lastCapturedPath: string | null;
+  showGhostImage: boolean;
+  liveViewRotation: number;
+  liveViewFlipped: boolean;
 
   setTethering: (updater: Partial<TetheringState> | ((state: TetheringState) => Partial<TetheringState>)) => void;
 }
@@ -24,6 +28,10 @@ export const useTetheringStore = create<TetheringState>((set) => ({
   isCapturing: false,
   autoOpenCaptured: true,
   settings: {},
+  lastCapturedPath: null,
+  showGhostImage: false,
+  liveViewRotation: 0,
+  liveViewFlipped: false,
 
   setTethering: (updater) => set((state) => (typeof updater === 'function' ? updater(state) : updater)),
 }));

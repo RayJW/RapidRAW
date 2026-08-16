@@ -2,6 +2,8 @@
 
 use std::collections::HashMap;
 use serde::Serialize;
+use tauri::ipc::Response;
+
 #[cfg(feature = "tethering")]
 use tauri::Manager;
 #[cfg(feature = "tethering")]
@@ -43,19 +45,12 @@ unsafe impl Send for CameraSession {}
 unsafe impl Sync for CameraSession {}
 
 #[tauri::command]
-pub async fn tether_list_cameras(app_handle: tauri::AppHandle) -> Result<Vec<String>, String> {
+pub async fn tether_list_cameras() -> Result<Vec<String>, String> {
     #[cfg(feature = "tethering")]
     {
         tauri::async_runtime::spawn_blocking(move || {
-            let state = app_handle.state::<AppState>();
-            let mut session = state.camera_session.lock().unwrap();
-            
-            if session.context.is_none() {
-                session.context = gphoto2::Context::new().ok();
-            }
-            
-            let context = session.context.as_ref().ok_or("Failed to initialize gphoto2 context")?;
-            let cameras = gphoto2::Camera::autodetect(context).map_err(|e| e.to_string())?;
+            let context = gphoto2::Context::new().map_err(|e| format!("Failed to create gphoto2 context: {}", e))?;
+            let cameras = gphoto2::Camera::autodetect(&context).map_err(|e| e.to_string())?;
             Ok(cameras.into_iter().map(|c| format!("{} ({})", c.model, c.port)).collect())
         })
         .await
@@ -71,48 +66,48 @@ pub async fn tether_connect(app_handle: tauri::AppHandle) -> Result<String, Stri
     {
         tauri::async_runtime::spawn_blocking(move || {
             let state = app_handle.state::<AppState>();
-            let mut session = state.camera_session.lock().unwrap();
 
-            session.camera = None;
+            {
+                let mut session = state.camera_session.lock().unwrap();
+                session.camera = None;
+            }
+
             std::thread::sleep(std::time::Duration::from_millis(150));
 
-            if session.context.is_none() {
-                session.context = gphoto2::Context::new().ok();
-            }
-            let context = session.context.as_ref().ok_or("Failed to initialize gphoto2 context")?;
+            let context = gphoto2::Context::new().map_err(|e| format!("Failed to initialize gphoto2 context: {}", e))?;
             
-            let cameras = gphoto2::Camera::autodetect(context).map_err(|e| e.to_string())?;
+            let cameras = gphoto2::Camera::autodetect(&context).map_err(|e| e.to_string())?;
             let descriptor = cameras.into_iter().next().ok_or("No camera found")?;
 
-            let camera = match gphoto2::Camera::open(context, &descriptor.model, &descriptor.port) {
+            let camera = match gphoto2::Camera::open(&context, &descriptor.model, &descriptor.port) {
                 Ok(cam) => cam,
                 Err(_) => {
                     std::thread::sleep(std::time::Duration::from_millis(300));
-                    gphoto2::Camera::open(context, &descriptor.model, &descriptor.port)
+                    gphoto2::Camera::open(&context, &descriptor.model, &descriptor.port)
                         .map_err(|e| format!("Failed to connect to camera: {}", e))?
                 }
             };
 
-            if let Ok(widget) = camera.get_single_config(context, "capturetarget") {
+            if let Ok(widget) = camera.get_single_config(&context, "capturetarget") {
                 let choices = widget.choices().unwrap_or_default();
                 if let Some(ram_choice) = choices.iter().find(|c| c.to_lowercase().contains("ram") || c.to_lowercase().contains("sdram")) {
                     let _ = widget.set_choice(ram_choice);
-                    let _ = camera.set_single_config(context, "capturetarget", &widget);
+                    let _ = camera.set_single_config(&context, "capturetarget", &widget);
                 }
             }
 
-            if let Ok(widget) = camera.get_single_config(context, "drivemode") {
+            if let Ok(widget) = camera.get_single_config(&context, "drivemode") {
                 let choices = widget.choices().unwrap_or_default();
                 if let Some(single_choice) = choices.iter().find(|c| c.to_lowercase().contains("single")) {
                     let _ = widget.set_choice(single_choice);
-                    let _ = camera.set_single_config(context, "drivemode", &widget);
+                    let _ = camera.set_single_config(&context, "drivemode", &widget);
                 }
             }
 
-            let _ = camera.capture_preview(context);
+            let _ = camera.capture_preview(&context);
 
             for _ in 0..15 {
-                if let Ok(event) = camera.wait_for_event(context, std::time::Duration::from_millis(30)) {
+                if let Ok(event) = camera.wait_for_event(&context, std::time::Duration::from_millis(30)) {
                     if let gphoto2::CameraEvent::Timeout = event {
                         break;
                     }
@@ -120,8 +115,13 @@ pub async fn tether_connect(app_handle: tauri::AppHandle) -> Result<String, Stri
             }
 
             let model_name = descriptor.model.clone();
-            session.camera = Some(camera);
-            
+
+            {
+                let mut session = state.camera_session.lock().unwrap();
+                session.context = Some(context);
+                session.camera = Some(camera);
+            }
+
             Ok(format!("Connected to {}", model_name))
         })
         .await
@@ -258,7 +258,7 @@ pub async fn tether_set_setting(
 }
 
 #[tauri::command]
-pub async fn tether_get_preview(app_handle: tauri::AppHandle) -> Result<Vec<u8>, String> {
+pub async fn tether_get_preview(app_handle: tauri::AppHandle) -> Result<Response, String> {
     #[cfg(feature = "tethering")]
     {
         tauri::async_runtime::spawn_blocking(move || {
@@ -272,7 +272,7 @@ pub async fn tether_get_preview(app_handle: tauri::AppHandle) -> Result<Vec<u8>,
 
             let data = file.data().map_err(|e| e.to_string())?;
             
-            Ok(data.to_vec())
+            Ok(Response::new(data.to_vec()))
         })
         .await
         .map_err(|e| format!("Task panicked: {}", e))?

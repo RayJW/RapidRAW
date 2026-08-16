@@ -740,6 +740,29 @@ npm run tauri build
 ./src-tauri/target/release/RapidRAW
 ```
 
+#### Camera Tethering Build (macOS & Linux)
+
+To build with camera tethering support, install the system dependencies first:
+
+```bash
+# macOS (Homebrew)
+brew install libgphoto2 pkg-config
+
+# Linux (Ubuntu / Debian)
+sudo apt-get install -y libgphoto2-dev pkg-config
+```
+
+Then run or build using the `tethering` feature flag:
+
+```bash
+# Development mode with Tethering
+npm run start:tethering
+# or: npm start -- -- --features tethering
+
+# Release build with Tethering
+npm run tauri build -- --features tethering
+```
+
 ## Command Line Interface (CLI)
 
 RapidRAW includes a headless export tool for batch processing photos in automated scripts, terminal pipelines, or server environments without opening the GUI:

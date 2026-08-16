@@ -15,7 +15,6 @@ import { toast } from 'react-toastify';
 import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
 import { useShallow } from 'zustand/react/shallow';
-import { create } from 'zustand';
 
 import Text from '../../ui/Text';
 import Button from '../../ui/Button';
@@ -28,44 +27,7 @@ import { useLibraryStore } from '../../../store/useLibraryStore';
 import CompositionOverlays from '../editor/overlays/CompositionOverlays';
 import type { OverlayMode } from '../right/CropPanel';
 import { IconAperture, IconShutter, IconIso } from '../editor/ExifIcons';
-
-export interface CameraSetting {
-  name: string;
-  current_value: string;
-  choices: string[];
-}
-
-interface TetheringState {
-  cameras: string[];
-  isConnected: boolean;
-  isDetecting: boolean;
-  isCapturing: boolean;
-  autoOpenCaptured: boolean;
-  settings: Record<string, CameraSetting>;
-
-  lastCapturedPath: string | null;
-  showGhostImage: boolean;
-  liveViewRotation: number;
-  liveViewFlipped: boolean;
-
-  setTethering: (updater: Partial<TetheringState> | ((state: TetheringState) => Partial<TetheringState>)) => void;
-}
-
-export const useTetheringStore = create<TetheringState>((set) => ({
-  cameras: [],
-  isConnected: false,
-  isDetecting: false,
-  isCapturing: false,
-  autoOpenCaptured: true,
-  settings: {},
-
-  lastCapturedPath: null,
-  showGhostImage: false,
-  liveViewRotation: 0,
-  liveViewFlipped: false,
-
-  setTethering: (updater) => set((state) => (typeof updater === 'function' ? updater(state) : updater)),
-}));
+import { useTetheringStore, CameraSetting } from '../../../store/useTetheringStore';
 
 const parseSettingToNumber = (val: string): number => {
   let clean = val.toLowerCase().replace(/^f\/?/, '').trim();
@@ -332,7 +294,6 @@ export default function TetheringPanel({ onLibraryRefresh, onImageSelect }: Teth
     setTethering({ isCapturing: true });
     try {
       const filePath: string = await invoke(Invokes.TetherCapture, { destinationFolder: currentFolderPath });
-      toast.success('Image Captured!');
 
       setTethering({ lastCapturedPath: filePath });
 
@@ -404,12 +365,11 @@ export default function TetheringPanel({ onLibraryRefresh, onImageSelect }: Teth
           lastFrameTime = timestamp - (elapsed % frameInterval);
 
           try {
-            const bytes = await invoke<number[]>('tether_get_preview');
+            const buffer = await invoke<ArrayBuffer>(Invokes.TetherGetPreview);
 
-            if (active && bytes && bytes.length > 0) {
+            if (active && buffer && buffer.byteLength > 0) {
               consecutiveErrors = 0;
-              const binaryData = new Uint8Array(bytes);
-              const blob = new Blob([binaryData], { type: 'image/jpeg' });
+              const blob = new Blob([buffer], { type: 'image/jpeg' });
               const url = URL.createObjectURL(blob);
 
               if (imgRef.current) {

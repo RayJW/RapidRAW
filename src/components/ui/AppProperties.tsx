@@ -117,6 +117,7 @@ export enum Invokes {
   TetherGetSettings = 'tether_get_settings',
   TetherSetSetting = 'tether_set_setting',
   TetherCapture = 'tether_capture',
+  TetherGetPreview = 'tether_get_preview',
 }
 
 export enum ExifOverlay {
