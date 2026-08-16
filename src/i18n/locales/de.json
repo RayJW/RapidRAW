@@ -225,6 +225,10 @@
       "addCopiedToAlbum_other": "{{count}} kopierte Bilder zum Album hinzufügen",
       "refreshView": "Ansicht aktualisieren"
     },
+    "merge": {
+      "focusStack": "Fokus-Stacking",
+      "title": "Zusammenfügen"
+    },
     "tagging": {
       "addTagTooltip": "Tag hinzufügen",
       "noTags": "Keine Tags hinzugefügt",
@@ -1231,6 +1235,23 @@
       "strengthLabel": "Stärke",
       "titleBatch": "Bilder entrauschen",
       "titleSingle": "Bild entrauschen"
+    },
+    "focusStack": {
+      "cancel": "Abbrechen",
+      "close": "Schließen",
+      "depthMap": "Tiefenkarte",
+      "description": "Kombinieren Sie mehrere Bilder mit unterschiedlichen Fokusdistanzen zu einem einzigen, perfekt scharfen Bild.",
+      "descriptionWithCount_one": "Kombinieren Sie {{count}} Bild mit unterschiedlichen Fokusdistanzen zu einem einzigen, perfekt scharfen Bild.",
+      "descriptionWithCount_other": "Kombinieren Sie {{count}} Bilder mit unterschiedlichen Fokusdistanzen zu einem einzigen, perfekt scharfen Bild.",
+      "failed": "Fokus-Stacking fehlgeschlagen",
+      "initializing": "Wird initialisiert...",
+      "openInEditor": "Im Editor öffnen",
+      "result": "Ergebnis",
+      "save": "Speichern",
+      "savedSuccess": "Fokus-Stack erfolgreich gespeichert!",
+      "stacking": "Fokus wird gestapelt",
+      "start": "Start",
+      "title": "Fokus-Stacking"
     },
     "hdr": {
       "cancel": "Abbrechen",

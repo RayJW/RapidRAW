@@ -225,6 +225,10 @@
       "addCopiedToAlbum_other": "将 {{count}} 张复制的图像添加到相册",
       "refreshView": "刷新视图"
     },
+    "merge": {
+      "focusStack": "焦距合成",
+      "title": "合并"
+    },
     "tagging": {
       "addTagTooltip": "添加标签",
       "noTags": "未添加标签",
@@ -1229,6 +1233,23 @@
       "strengthLabel": "强度",
       "titleBatch": "降噪图像",
       "titleSingle": "降噪图像"
+    },
+    "focusStack": {
+      "cancel": "取消",
+      "close": "关闭",
+      "depthMap": "深度图",
+      "description": "将多张不同对焦距离的图像合并为一张完美清晰的图像。",
+      "descriptionWithCount_one": "将 {{count}} 张不同对焦距离的图像合并为一张完美清晰的图像。",
+      "descriptionWithCount_other": "将 {{count}} 张不同对焦距离的图像合并为一张完美清晰的图像。",
+      "failed": "焦距合成失败",
+      "initializing": "正在初始化...",
+      "openInEditor": "在编辑器中打开",
+      "result": "结果",
+      "save": "保存",
+      "savedSuccess": "焦距合成已成功保存！",
+      "stacking": "正在合成焦距",
+      "start": "开始",
+      "title": "焦距合成"
     },
     "hdr": {
       "cancel": "取消",

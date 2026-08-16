@@ -225,6 +225,10 @@
       "addCopiedToAlbum_other": "Afegir {{count}} imatges copiades a l'àlbum",
       "refreshView": "Actualitzar vista"
     },
+    "merge": {
+      "focusStack": "Apilament d'enfocament",
+      "title": "Fusionar"
+    },
     "tagging": {
       "addTagTooltip": "Afegir etiqueta",
       "noTags": "No s'han afegit etiquetes",
@@ -1231,6 +1235,23 @@
       "strengthLabel": "Força",
       "titleBatch": "Reduir soroll de les imatges",
       "titleSingle": "Reduir soroll de la imatge"
+    },
+    "focusStack": {
+      "cancel": "Cancel·la",
+      "close": "Tanca",
+      "depthMap": "Mapa de profunditat",
+      "description": "Combina diverses imatges amb diferents distàncies d'enfocament en una sola imatge perfectament nítida.",
+      "descriptionWithCount_one": "Combina {{count}} imatge amb diferents distàncies d'enfocament en una sola imatge perfectament nítida.",
+      "descriptionWithCount_other": "Combina {{count}} imatges amb diferents distàncies d'enfocament en una sola imatge perfectament nítida.",
+      "failed": "S'ha produït un error en l'apilament d'enfocament",
+      "initializing": "Inicialitzant...",
+      "openInEditor": "Obre a l'editor",
+      "result": "Resultat",
+      "save": "Desa",
+      "savedSuccess": "L'apilament d'enfocament s'ha desat correctament!",
+      "stacking": "Apilant enfocament",
+      "start": "Inicia",
+      "title": "Apilament d'enfocament"
     },
     "hdr": {
       "cancel": "Cancel·lar",

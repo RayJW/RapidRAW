@@ -229,6 +229,10 @@
       "addCopiedToAlbum_other": "Agregar {{count}} imágenes copiadas al álbum",
       "refreshView": "Actualizar vista"
     },
+    "merge": {
+      "focusStack": "Apilamiento de enfoque",
+      "title": "Combinar"
+    },
     "tagging": {
       "addTagTooltip": "Añadir etiqueta",
       "noTags": "No se añadieron etiquetas",
@@ -1257,6 +1261,23 @@
       "strengthLabel": "Fuerza",
       "titleBatch": "Reducir ruido de imágenes",
       "titleSingle": "Reducir ruido de imagen"
+    },
+    "focusStack": {
+      "cancel": "Cancelar",
+      "close": "Cerrar",
+      "depthMap": "Mapa de profundidad",
+      "description": "Combina varias imágenes con diferentes distancias de enfoque en una sola imagen perfectamente nítida.",
+      "descriptionWithCount_one": "Combina {{count}} imagen con diferentes distancias de enfoque en una sola imagen perfectamente nítida.",
+      "descriptionWithCount_other": "Combina {{count}} imágenes con diferentes distancias de enfoque en una sola imagen perfectamente nítida.",
+      "failed": "Error en el apilamiento de enfoque",
+      "initializing": "Inicializando...",
+      "openInEditor": "Abrir en el editor",
+      "result": "Resultado",
+      "save": "Guardar",
+      "savedSuccess": "¡Apilamiento de enfoque guardado con éxito!",
+      "stacking": "Apilando enfoque",
+      "start": "Iniciar",
+      "title": "Apilamiento de enfoque"
     },
     "hdr": {
       "cancel": "Cancelar",

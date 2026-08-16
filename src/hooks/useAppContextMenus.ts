@@ -241,12 +241,12 @@ export function useAppContextMenus(props: UseAppContextMenusProps) {
           ],
         },
         {
-          label: t('contextMenus.merge.title', 'Merge'),
+          label: t('contextMenus.merge.title'),
           icon: Layers,
           submenu: [
             { disabled: true, icon: SquaresUnite, label: t('contextMenus.editor.stitchPanorama') },
             { disabled: true, icon: Images, label: t('contextMenus.editor.mergeHdr') },
-            { disabled: true, icon: Layers, label: t('contextMenus.merge.focusStack', 'Focus Stacking') },
+            { disabled: true, icon: Layers, label: t('contextMenus.merge.focusStack') },
           ],
         },
         { type: OPTION_SEPARATOR },
@@ -615,7 +615,7 @@ export function useAppContextMenus(props: UseAppContextMenusProps) {
           ],
         },
         {
-          label: t('contextMenus.merge.title', 'Merge'),
+          label: t('contextMenus.merge.title'),
           icon: Layers,
           submenu: [
             {
@@ -655,7 +655,7 @@ export function useAppContextMenus(props: UseAppContextMenusProps) {
             {
               disabled: selectionCount < 2,
               icon: Layers,
-              label: t('contextMenus.merge.focusStack', 'Focus Stacking'),
+              label: t('contextMenus.merge.focusStack'),
               onClick: () => {
                 setUI({
                   focusStackModalState: {

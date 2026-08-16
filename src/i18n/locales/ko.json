@@ -225,6 +225,10 @@
       "addCopiedToAlbum_other": "복사한 이미지 {{count}}개를 앨범에 추가",
       "refreshView": "보기 새로고침"
     },
+    "merge": {
+      "focusStack": "포커스 스태킹",
+      "title": "병합"
+    },
     "tagging": {
       "addTagTooltip": "태그 추가",
       "noTags": "추가된 태그 없음",
@@ -1229,6 +1233,23 @@
       "strengthLabel": "강도",
       "titleBatch": "이미지 노이즈 제거",
       "titleSingle": "이미지 노이즈 제거"
+    },
+    "focusStack": {
+      "cancel": "취소",
+      "close": "닫기",
+      "depthMap": "심도 맵",
+      "description": "초점 거리가 다른 여러 이미지를 결합하여 완벽하게 선명한 단일 이미지를 만듭니다.",
+      "descriptionWithCount_one": "초점 거리가 다른 {{count}}개의 이미지를 결합하여 완벽하게 선명한 단일 이미지를 만듭니다.",
+      "descriptionWithCount_other": "초점 거리가 다른 {{count}}개의 이미지를 결합하여 완벽하게 선명한 단일 이미지를 만듭니다.",
+      "failed": "포커스 스태킹 실패",
+      "initializing": "초기화 중...",
+      "openInEditor": "편집기에서 열기",
+      "result": "결과",
+      "save": "저장",
+      "savedSuccess": "포커스 스택이 성공적으로 저장되었습니다!",
+      "stacking": "포커스 스태킹 중",
+      "start": "시작",
+      "title": "포커스 스태킹"
     },
     "hdr": {
       "cancel": "취소",

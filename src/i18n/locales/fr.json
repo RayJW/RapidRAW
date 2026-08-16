@@ -229,6 +229,10 @@
       "addCopiedToAlbum_other": "Ajouter {{count}} images copiées à l'album",
       "refreshView": "Actualiser l'affichage"
     },
+    "merge": {
+      "focusStack": "Empilement de mise au point",
+      "title": "Fusionner"
+    },
     "tagging": {
       "addTagTooltip": "Ajouter une étiquette",
       "noTags": "Aucune étiquette ajoutée",
@@ -1257,6 +1261,23 @@
       "strengthLabel": "Intensité",
       "titleBatch": "Débruiter les images",
       "titleSingle": "Débruiter l'image"
+    },
+    "focusStack": {
+      "cancel": "Annuler",
+      "close": "Fermer",
+      "depthMap": "Carte de profondeur",
+      "description": "Combinez plusieurs images avec des distances de mise au point variables en une seule image parfaitement nette.",
+      "descriptionWithCount_one": "Combinez {{count}} image avec des distances de mise au point variables en une seule image parfaitement nette.",
+      "descriptionWithCount_other": "Combinez {{count}} images avec des distances de mise au point variables en une seule image parfaitement nette.",
+      "failed": "L'empilement de mise au point a échoué",
+      "initializing": "Initialisation...",
+      "openInEditor": "Ouvrir dans l'éditeur",
+      "result": "Résultat",
+      "save": "Enregistrer",
+      "savedSuccess": "Empilement de mise au point enregistré avec succès !",
+      "stacking": "Empilement de la mise au point",
+      "start": "Démarrer",
+      "title": "Empilement de mise au point"
     },
     "hdr": {
       "cancel": "Annuler",

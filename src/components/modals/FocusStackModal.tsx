@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CheckCircle, XCircle, Loader2, Save, RefreshCw, Layers, Map } from 'lucide-react';
+import { CheckCircle, XCircle, Loader2, Save, Layers, Map } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
 import Button from '../ui/Button';
@@ -105,7 +105,7 @@ export default function FocusStackModal({
             <XCircle className="w-12 h-12 text-red-500" />
           </div>
           <Text variant={TextVariants.title} className="mb-2 text-center">
-            {t('modals.focusStack.failed', 'Focus Stack Failed')}
+            {t('modals.focusStack.failed')}
           </Text>
           <Text className="text-center p-4 rounded-lg bg-bg-primary max-w-md mt-2 leading-relaxed">
             {String(error)}
@@ -141,7 +141,7 @@ export default function FocusStackModal({
                   )}
                 >
                   <Layers size={14} />
-                  <span>{t('modals.focusStack.result', 'Result')}</span>
+                  <span>{t('modals.focusStack.result')}</span>
                 </button>
 
                 <button
@@ -153,7 +153,7 @@ export default function FocusStackModal({
                   )}
                 >
                   <Map size={14} />
-                  <span>{t('modals.focusStack.depthMap', 'Depth Map')}</span>
+                  <span>{t('modals.focusStack.depthMap')}</span>
                 </button>
               </div>
             )}
@@ -168,7 +168,7 @@ export default function FocusStackModal({
                 className="flex items-center justify-center gap-2 mt-4"
               >
                 <CheckCircle className="w-5 h-5" />
-                <span>{t('modals.focusStack.savedSuccess', 'Focus Stack Saved Successfully!')}</span>
+                <span>{t('modals.focusStack.savedSuccess')}</span>
               </Text>
             </motion.div>
           )}
@@ -194,10 +194,10 @@ export default function FocusStackModal({
               className="flex flex-col items-center w-full"
             >
               <Text variant={TextVariants.title} className="mb-2 text-center">
-                {t('modals.focusStack.stacking', 'Stacking Focus')}
+                {t('modals.focusStack.stacking')}
               </Text>
               <Text className="text-center font-mono h-6 flex justify-center items-center">
-                {progressMessage || t('modals.focusStack.initializing', 'Initializing...')}
+                {progressMessage || t('modals.focusStack.initializing')}
               </Text>
               <div className="mt-8 w-64 relative">
                 <div className="h-1 bg-surface rounded-full overflow-hidden relative w-full shadow-xs">
@@ -221,18 +221,12 @@ export default function FocusStackModal({
           <Layers className="w-12 h-12 text-accent" />
         </div>
         <Text variant={TextVariants.title} className="mb-3 text-center">
-          {t('modals.focusStack.title', 'Focus Stacking')}
+          {t('modals.focusStack.title')}
         </Text>
         <Text className="text-center max-w-md leading-relaxed text-text-secondary">
           {imageCount
-            ? t('modals.focusStack.descriptionWithCount', {
-                count: imageCount,
-                defaultValue: `Combine ${imageCount} images with varying focus distances into a single perfectly sharp image.`,
-              })
-            : t(
-                'modals.focusStack.description',
-                'Combine multiple images with varying focus distances into a single perfectly sharp image.',
-              )}
+            ? t('modals.focusStack.descriptionWithCount', { count: imageCount })
+            : t('modals.focusStack.description')}
         </Text>
       </div>
     );
@@ -242,7 +236,7 @@ export default function FocusStackModal({
     if (error) {
       return (
         <Button onClick={handleClose} className="w-full">
-          {t('modals.focusStack.close', 'Close')}
+          {t('modals.focusStack.close')}
         </Button>
       );
     }
@@ -254,9 +248,9 @@ export default function FocusStackModal({
             onClick={handleClose}
             className="px-4 py-2 rounded-md text-text-secondary hover:bg-card-active transition-colors"
           >
-            {t('modals.focusStack.close', 'Close')}
+            {t('modals.focusStack.close')}
           </button>
-          <Button onClick={handleOpen}>{t('modals.focusStack.openInEditor', 'Open in Editor')}</Button>
+          <Button onClick={handleOpen}>{t('modals.focusStack.openInEditor')}</Button>
         </>
       );
     }
@@ -269,24 +263,20 @@ export default function FocusStackModal({
           onClick={handleClose}
           className="px-4 py-2 rounded-md text-text-secondary hover:bg-card-active transition-colors text-sm"
         >
-          {finalImageBase64 ? t('modals.focusStack.close', 'Close') : t('modals.focusStack.cancel', 'Cancel')}
+          {finalImageBase64 ? t('modals.focusStack.close') : t('modals.focusStack.cancel')}
         </button>
 
-        <Button onClick={onMerge} disabled={isProcessing} variant={finalImageBase64 ? 'secondary' : 'primary'}>
-          {isProcessing ? (
-            <Loader2 className="animate-spin mr-2" size={16} />
-          ) : finalImageBase64 ? (
-            <RefreshCw className="mr-2" size={16} />
-          ) : (
-            <Layers className="mr-2" size={16} />
-          )}
-          {finalImageBase64 ? t('modals.focusStack.retry', 'Retry') : t('modals.focusStack.start', 'Start')}
-        </Button>
+        {!finalImageBase64 && (
+          <Button onClick={onMerge} disabled={isProcessing} variant="primary">
+            {isProcessing ? <Loader2 className="animate-spin mr-2" size={16} /> : <Layers className="mr-2" size={16} />}
+            {t('modals.focusStack.start')}
+          </Button>
+        )}
 
         {finalImageBase64 && (
           <Button onClick={handleSave} disabled={isSaving || isProcessing}>
             {isSaving ? <Loader2 className="animate-spin mr-2" size={16} /> : <Save className="mr-2" size={16} />}
-            {t('modals.focusStack.save', 'Save')}
+            {t('modals.focusStack.save')}
           </Button>
         )}
       </div>

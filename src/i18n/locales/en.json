@@ -225,6 +225,10 @@
       "addCopiedToAlbum_other": "Add {{count}} copied images to album",
       "refreshView": "Refresh View"
     },
+    "merge": {
+      "focusStack": "Focus Stacking",
+      "title": "Merge"
+    },
     "tagging": {
       "addTagTooltip": "Add tag",
       "noTags": "No tags added",
@@ -1231,6 +1235,23 @@
       "strengthLabel": "Strength",
       "titleBatch": "Denoise Images",
       "titleSingle": "Denoise Image"
+    },
+    "focusStack": {
+      "cancel": "Cancel",
+      "close": "Close",
+      "depthMap": "Depth Map",
+      "description": "Combine multiple images with varying focus distances into a single perfectly sharp image.",
+      "descriptionWithCount_one": "Combine {{count}} image with varying focus distances into a single perfectly sharp image.",
+      "descriptionWithCount_other": "Combine {{count}} images with varying focus distances into a single perfectly sharp image.",
+      "failed": "Focus Stack Failed",
+      "initializing": "Initializing...",
+      "openInEditor": "Open in Editor",
+      "result": "Result",
+      "save": "Save",
+      "savedSuccess": "Focus Stack Saved Successfully!",
+      "stacking": "Stacking Focus",
+      "start": "Start",
+      "title": "Focus Stacking"
     },
     "hdr": {
       "cancel": "Cancel",

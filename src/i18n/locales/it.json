@@ -229,6 +229,10 @@
       "addCopiedToAlbum_other": "Aggiungi {{count}} immagini copiate all'album",
       "refreshView": "Aggiorna Visualizzazione"
     },
+    "merge": {
+      "focusStack": "Focus Stacking",
+      "title": "Unisci"
+    },
     "tagging": {
       "addTagTooltip": "Aggiungi tag",
       "noTags": "Nessun tag aggiunto",
@@ -1257,6 +1261,23 @@
       "strengthLabel": "Intensità",
       "titleBatch": "Riduci Rumore Immagini",
       "titleSingle": "Riduci Rumore Immagine"
+    },
+    "focusStack": {
+      "cancel": "Annulla",
+      "close": "Chiudi",
+      "depthMap": "Mappa di profondità",
+      "description": "Combina più immagini con diverse distanze di messa a fuoco in un'unica immagine perfettamente nitida.",
+      "descriptionWithCount_one": "Combina {{count}} immagine con diverse distanze di messa a fuoco in un'unica immagine perfettamente nitida.",
+      "descriptionWithCount_other": "Combina {{count}} immagini con diverse distanze di messa a fuoco in un'unica immagine perfettamente nitida.",
+      "failed": "Focus Stacking non riuscito",
+      "initializing": "Inizializzazione...",
+      "openInEditor": "Apri nell'editor",
+      "result": "Risultato",
+      "save": "Salva",
+      "savedSuccess": "Focus Stack salvato con successo!",
+      "stacking": "Unione messa a fuoco in corso",
+      "start": "Avvia",
+      "title": "Focus Stacking"
     },
     "hdr": {
       "cancel": "Annulla",

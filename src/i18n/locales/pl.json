@@ -233,6 +233,10 @@
       "addCopiedToAlbum_other": "Dodaj {{count}} skopiowanych obrazów do albumu",
       "refreshView": "Odśwież widok"
     },
+    "merge": {
+      "focusStack": "Stosowanie ostrości (Focus Stacking)",
+      "title": "Połącz"
+    },
     "tagging": {
       "addTagTooltip": "Dodaj tag",
       "noTags": "Brak dodanych tagów",
@@ -1283,6 +1287,25 @@
       "strengthLabel": "Siła",
       "titleBatch": "Odszum obrazy",
       "titleSingle": "Odszum obraz"
+    },
+    "focusStack": {
+      "cancel": "Anuluj",
+      "close": "Zamknij",
+      "depthMap": "Mapa głębi",
+      "description": "Połącz wiele obrazów z różnymi odległościami ostrości w jeden idealnie ostry obraz.",
+      "descriptionWithCount_few": "Połącz {{count}} obrazy z różnymi odległościami ostrości w jeden idealnie ostry obraz.",
+      "descriptionWithCount_many": "Połącz {{count}} obrazów z różnymi odległościami ostrości w jeden idealnie ostry obraz.",
+      "descriptionWithCount_one": "Połącz {{count}} obraz z różnymi odległościami ostrości w jeden idealnie ostry obraz.",
+      "descriptionWithCount_other": "Połącz {{count}} obrazów z różnymi odległościami ostrości w jeden idealnie ostry obraz.",
+      "failed": "Złożenie ostrości nie powiodło się",
+      "initializing": "Inicjowanie...",
+      "openInEditor": "Otwórz w edytorze",
+      "result": "Wynik",
+      "save": "Zapisz",
+      "savedSuccess": "Stos ostrości zapisany pomyślnie!",
+      "stacking": "Składanie ostrości",
+      "start": "Rozpocznij",
+      "title": "Stosowanie ostrości"
     },
     "hdr": {
       "cancel": "Anuluj",

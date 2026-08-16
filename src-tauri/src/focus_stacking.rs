@@ -328,8 +328,6 @@ impl PlanarRgb {
         img
     }
 
-    /// Rec.709 luma. Focus measures run on this, not on individual channels,
-    /// so chroma noise cannot drive the depth decision.
     pub fn luma(&self) -> Plane {
         let mut out = Plane::new(self.w, self.h);
         out.data.par_iter_mut().enumerate().for_each(|(i, v)| {

@@ -225,6 +225,10 @@
       "addCopiedToAlbum_other": "コピーした {{count}} 枚の画像をアルバムに追加",
       "refreshView": "表示を更新"
     },
+    "merge": {
+      "focusStack": "フォーカススタッキング",
+      "title": "結合"
+    },
     "tagging": {
       "addTagTooltip": "タグを追加",
       "noTags": "タグが追加されていません",
@@ -1229,6 +1233,23 @@
       "strengthLabel": "適用量",
       "titleBatch": "画像を一括ノイズ低減",
       "titleSingle": "画像のノイズ低減"
+    },
+    "focusStack": {
+      "cancel": "キャンセル",
+      "close": "閉じる",
+      "depthMap": "深度マップ",
+      "description": "ピント位置の異なる複数の画像を結合し、全体にピントが合った1枚の画像を作成します。",
+      "descriptionWithCount_one": "ピント位置の異なる {{count}} 枚の画像を結合し、全体にピントが合った1枚の画像を作成します。",
+      "descriptionWithCount_other": "ピント位置の異なる {{count}} 枚の画像を結合し、全体にピントが合った1枚の画像を作成します。",
+      "failed": "フォーカススタッキングに失敗しました",
+      "initializing": "初期化中...",
+      "openInEditor": "エディターで開く",
+      "result": "結果",
+      "save": "保存",
+      "savedSuccess": "フォーカススタックを正常に保存しました！",
+      "stacking": "フォーカスをスタック中",
+      "start": "開始",
+      "title": "フォーカススタッキング"
     },
     "hdr": {
       "cancel": "キャンセル",
