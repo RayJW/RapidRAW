@@ -719,7 +719,8 @@
         "info": "信息",
         "inpaint": "修复",
         "masks": "蒙版",
-        "presets": "预设"
+        "presets": "预设",
+        "tethering": "联机拍摄"
       }
     },
     "toolbar": {
@@ -1780,6 +1781,46 @@
     "tooltips": {
       "goHome": "返回首页"
     }
+  },
+  "tethering": {
+    "aperture": "光圈",
+    "aperturePlaceholder": "例如 2.8",
+    "autoOpenCaptured": "自动打开拍摄的照片",
+    "cameraConnected": "相机已连接",
+    "capturing": "正在拍摄...",
+    "connectCamera": "连接相机",
+    "exposureSettings": "曝光设置",
+    "flipHorizontal": "水平翻转",
+    "ghostOverlayAlt": "叠图预览",
+    "iso": "ISO",
+    "isoPlaceholder": "例如 400",
+    "liveViewAlt": "实时取景",
+    "noCameraDetected": "未检测到相机",
+    "noCamerasFound": "未找到相机。请确保已连接并处于 PC 遥控模式。",
+    "overlayLastShot": "叠加上一张拍摄照片",
+    "overlayOff": "关闭",
+    "rotate90": "旋转 90°",
+    "scanTooltip": "扫描相机",
+    "selectCamera": "选择相机",
+    "selectCameraPlaceholder": "选择一台相机",
+    "shutter": "快门",
+    "shutterPlaceholder": "例如 1/200",
+    "startLiveView": "开启实时取景",
+    "status": "状态",
+    "stopLiveView": "停止实时取景",
+    "title": "联机拍摄",
+    "toasts": {
+      "cameraDisconnected": "相机已断开连接",
+      "captureFailed": "拍摄失败: {{err}}",
+      "communicationFailed": "与相机通信失败",
+      "connectionFailed": "连接失败: {{err}}",
+      "detectionFailed": "检测失败: {{err}}",
+      "noCamerasFound": "未找到相机。请确保处于 PC 遥控模式。",
+      "selectFolderFirst": "请先在图库中选择一个普通文件夹。",
+      "setFailed": "设置 {{key}} 失败: {{err}}"
+    },
+    "triggerCapture": "触发拍摄",
+    "whiteBalance": "白平衡"
   },
   "ui": {
     "bottomBar": {

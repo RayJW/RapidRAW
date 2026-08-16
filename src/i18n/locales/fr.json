@@ -742,7 +742,8 @@
         "info": "Info",
         "inpaint": "Inpainting",
         "masks": "Masques",
-        "presets": "Paramètres prédéfinis"
+        "presets": "Paramètres prédéfinis",
+        "tethering": "Prise de vue connectée"
       }
     },
     "toolbar": {
@@ -1815,6 +1816,46 @@
     "tooltips": {
       "goHome": "Aller à l'accueil"
     }
+  },
+  "tethering": {
+    "aperture": "Ouverture",
+    "aperturePlaceholder": "ex. 2.8",
+    "autoOpenCaptured": "Ouvrir automatiquement l'image capturée",
+    "cameraConnected": "Appareil connecté",
+    "capturing": "Capture en cours...",
+    "connectCamera": "Connecter l'appareil",
+    "exposureSettings": "Paramètres d'exposition",
+    "flipHorizontal": "Retourner horizontalement",
+    "ghostOverlayAlt": "Incrustation fantôme",
+    "iso": "ISO",
+    "isoPlaceholder": "ex. 400",
+    "liveViewAlt": "Visée directe",
+    "noCameraDetected": "Aucun appareil détecté",
+    "noCamerasFound": "Aucun appareil trouvé. Assurez-vous qu'il est connecté et en mode PC Remote.",
+    "overlayLastShot": "Superposer la dernière photo",
+    "overlayOff": "Désactivé",
+    "rotate90": "Faire pivoter de 90°",
+    "scanTooltip": "Rechercher des appareils",
+    "selectCamera": "Sélectionner un appareil",
+    "selectCameraPlaceholder": "Sélectionner un appareil",
+    "shutter": "Obturateur",
+    "shutterPlaceholder": "ex. 1/200",
+    "startLiveView": "Démarrer la visée directe",
+    "status": "État",
+    "stopLiveView": "Arrêter la visée directe",
+    "title": "Prise de vue connectée",
+    "toasts": {
+      "cameraDisconnected": "Appareil déconnecté",
+      "captureFailed": "Échec de la capture : {{err}}",
+      "communicationFailed": "Échec de la communication avec l'appareil",
+      "connectionFailed": "Échec de la connexion : {{err}}",
+      "detectionFailed": "Échec de la détection : {{err}}",
+      "noCamerasFound": "Aucun appareil trouvé. Assurez-vous qu'il est en mode PC Remote.",
+      "selectFolderFirst": "Veuillez d'abord sélectionner un dossier standard dans votre bibliothèque.",
+      "setFailed": "Échec de la définition de {{key}} : {{err}}"
+    },
+    "triggerCapture": "Déclencher la capture",
+    "whiteBalance": "Balance des blancs"
   },
   "ui": {
     "bottomBar": {

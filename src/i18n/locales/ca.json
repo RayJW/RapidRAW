@@ -721,7 +721,8 @@
         "info": "Informació",
         "inpaint": "Inpainting",
         "masks": "Màscares",
-        "presets": "Ajustos preestablerts"
+        "presets": "Ajustos preestablerts",
+        "tethering": "Captura connectada"
       }
     },
     "toolbar": {
@@ -1782,6 +1783,46 @@
     "tooltips": {
       "goHome": "Anar a l'inici"
     }
+  },
+  "tethering": {
+    "aperture": "Obertura",
+    "aperturePlaceholder": "p. ex. 2.8",
+    "autoOpenCaptured": "Obre automàticament la imatge capturada",
+    "cameraConnected": "Càmera connectada",
+    "capturing": "Capturant...",
+    "connectCamera": "Connecta la càmera",
+    "exposureSettings": "Ajustaments d'exposició",
+    "flipHorizontal": "Inverteix horitzontalment",
+    "ghostOverlayAlt": "Superposició fantasma",
+    "iso": "ISO",
+    "isoPlaceholder": "p. ex. 400",
+    "liveViewAlt": "Vista en directe",
+    "noCameraDetected": "Cap càmera detectada",
+    "noCamerasFound": "No s'han trobat càmeres. Assegura't que està connectada i en mode PC Remote.",
+    "overlayLastShot": "Superposa l'última captura",
+    "overlayOff": "Desactivat",
+    "rotate90": "Gira 90°",
+    "scanTooltip": "Cerca càmeres",
+    "selectCamera": "Selecciona càmera",
+    "selectCameraPlaceholder": "Selecciona una càmera",
+    "shutter": "Obturador",
+    "shutterPlaceholder": "p. ex. 1/200",
+    "startLiveView": "Inicia vista en directe",
+    "status": "Estat",
+    "stopLiveView": "Atura vista en directe",
+    "title": "Captura connectada",
+    "toasts": {
+      "cameraDisconnected": "Càmera desconnectada",
+      "captureFailed": "Error en la captura: {{err}}",
+      "communicationFailed": "Error en comunicar-se amb la càmera",
+      "connectionFailed": "Connexió fallida: {{err}}",
+      "detectionFailed": "Error en la detecció: {{err}}",
+      "noCamerasFound": "No s'han trobat càmeres. Assegura't que està en mode PC Remote.",
+      "selectFolderFirst": "Selecciona primer una carpeta estàndard a la biblioteca.",
+      "setFailed": "Error en configurar {{key}}: {{err}}"
+    },
+    "triggerCapture": "Dispara captura",
+    "whiteBalance": "Balanç de blancs"
   },
   "ui": {
     "bottomBar": {

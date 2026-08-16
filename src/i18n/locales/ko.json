@@ -719,7 +719,8 @@
         "info": "정보",
         "inpaint": "인페인팅",
         "masks": "마스크",
-        "presets": "프리셋"
+        "presets": "프리셋",
+        "tethering": "테더링"
       }
     },
     "toolbar": {
@@ -1780,6 +1781,46 @@
     "tooltips": {
       "goHome": "홈으로 이동"
     }
+  },
+  "tethering": {
+    "aperture": "조리개",
+    "aperturePlaceholder": "예: 2.8",
+    "autoOpenCaptured": "촬영된 이미지 자동으로 열기",
+    "cameraConnected": "카메라 연결됨",
+    "capturing": "촬영 중...",
+    "connectCamera": "카메라 연결",
+    "exposureSettings": "노출 설정",
+    "flipHorizontal": "좌우 대칭",
+    "ghostOverlayAlt": "고스트 오버레이",
+    "iso": "ISO",
+    "isoPlaceholder": "예: 400",
+    "liveViewAlt": "라이브 뷰",
+    "noCameraDetected": "감지된 카메라 없음",
+    "noCamerasFound": "카메라를 찾을 수 없습니다. 연결 상태와 PC 원격 모드를 확인하세요.",
+    "overlayLastShot": "이전 촬영 오버레이",
+    "overlayOff": "끄기",
+    "rotate90": "90° 회전",
+    "scanTooltip": "카메라 검색",
+    "selectCamera": "카메라 선택",
+    "selectCameraPlaceholder": "카메라를 선택하세요",
+    "shutter": "셔터",
+    "shutterPlaceholder": "예: 1/200",
+    "startLiveView": "라이브 뷰 시작",
+    "status": "상태",
+    "stopLiveView": "라이브 뷰 중지",
+    "title": "테더링",
+    "toasts": {
+      "cameraDisconnected": "카메라 연결이 끊어졌습니다",
+      "captureFailed": "촬영 실패: {{err}}",
+      "communicationFailed": "카메라와 통신하지 못했습니다",
+      "connectionFailed": "연결 실패: {{err}}",
+      "detectionFailed": "감지 실패: {{err}}",
+      "noCamerasFound": "카메라를 찾을 수 없습니다. PC 원격 모드인지 확인하세요.",
+      "selectFolderFirst": "라이브러리에서 먼저 일반 폴더를 선택하세요.",
+      "setFailed": "{{key}} 설정 실패: {{err}}"
+    },
+    "triggerCapture": "촬영 실행",
+    "whiteBalance": "화이트 밸런스"
   },
   "ui": {
     "bottomBar": {

@@ -721,7 +721,8 @@
         "info": "Info",
         "inpaint": "Inpaint",
         "masks": "Masks",
-        "presets": "Presets"
+        "presets": "Presets",
+        "tethering": "Tethering"
       }
     },
     "toolbar": {
@@ -1782,6 +1783,46 @@
     "tooltips": {
       "goHome": "Go to Home"
     }
+  },
+  "tethering": {
+    "aperture": "Aperture",
+    "aperturePlaceholder": "e.g. 2.8",
+    "autoOpenCaptured": "Auto-open captured image",
+    "cameraConnected": "Camera Connected",
+    "capturing": "Capturing...",
+    "connectCamera": "Connect Camera",
+    "exposureSettings": "Exposure Settings",
+    "flipHorizontal": "Flip Horizontal",
+    "ghostOverlayAlt": "Ghost Overlay",
+    "iso": "ISO",
+    "isoPlaceholder": "e.g. 400",
+    "liveViewAlt": "Live View",
+    "noCameraDetected": "No camera detected",
+    "noCamerasFound": "No cameras found. Ensure it is connected and in PC Remote mode.",
+    "overlayLastShot": "Overlay Last Shot",
+    "overlayOff": "Off",
+    "rotate90": "Rotate 90°",
+    "scanTooltip": "Scan for Cameras",
+    "selectCamera": "Select Camera",
+    "selectCameraPlaceholder": "Select a camera",
+    "shutter": "Shutter",
+    "shutterPlaceholder": "e.g. 1/200",
+    "startLiveView": "Start Live View",
+    "status": "Status",
+    "stopLiveView": "Stop Live View",
+    "title": "Tethering",
+    "toasts": {
+      "cameraDisconnected": "Camera disconnected",
+      "captureFailed": "Capture failed: {{err}}",
+      "communicationFailed": "Failed to communicate with camera",
+      "connectionFailed": "Connection failed: {{err}}",
+      "detectionFailed": "Detection failed: {{err}}",
+      "noCamerasFound": "No cameras found. Ensure it is in PC Remote mode.",
+      "selectFolderFirst": "Please select a standard folder in your Library first.",
+      "setFailed": "Failed to set {{key}}: {{err}}"
+    },
+    "triggerCapture": "Trigger Capture",
+    "whiteBalance": "White Balance"
   },
   "ui": {
     "bottomBar": {

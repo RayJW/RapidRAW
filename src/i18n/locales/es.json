@@ -742,7 +742,8 @@
         "info": "Info",
         "inpaint": "Inpainting",
         "masks": "Máscaras",
-        "presets": "Ajustes preestablecidos"
+        "presets": "Ajustes preestablecidos",
+        "tethering": "Captura conectada"
       }
     },
     "toolbar": {
@@ -1815,6 +1816,46 @@
     "tooltips": {
       "goHome": "Ir al Inicio"
     }
+  },
+  "tethering": {
+    "aperture": "Apertura",
+    "aperturePlaceholder": "ej. 2.8",
+    "autoOpenCaptured": "Abrir imagen capturada automáticamente",
+    "cameraConnected": "Cámara conectada",
+    "capturing": "Capturando...",
+    "connectCamera": "Conectar cámara",
+    "exposureSettings": "Ajustes de exposición",
+    "flipHorizontal": "Voltear horizontalmente",
+    "ghostOverlayAlt": "Superposición fantasma",
+    "iso": "ISO",
+    "isoPlaceholder": "ej. 400",
+    "liveViewAlt": "Vista en vivo",
+    "noCameraDetected": "No se detectó ninguna cámara",
+    "noCamerasFound": "No se encontraron cámaras. Asegúrate de que esté conectada y en modo PC Remote.",
+    "overlayLastShot": "Superponer última captura",
+    "overlayOff": "Desactivado",
+    "rotate90": "Girar 90°",
+    "scanTooltip": "Buscar cámaras",
+    "selectCamera": "Seleccionar cámara",
+    "selectCameraPlaceholder": "Seleccionar una cámara",
+    "shutter": "Obturador",
+    "shutterPlaceholder": "ej. 1/200",
+    "startLiveView": "Iniciar vista en vivo",
+    "status": "Estado",
+    "stopLiveView": "Detener vista en vivo",
+    "title": "Captura conectada",
+    "toasts": {
+      "cameraDisconnected": "Cámara desconectada",
+      "captureFailed": "Error en la captura: {{err}}",
+      "communicationFailed": "Error al comunicarse con la cámara",
+      "connectionFailed": "Error de conexión: {{err}}",
+      "detectionFailed": "Error en la detección: {{err}}",
+      "noCamerasFound": "No se encontraron cámaras. Asegúrate de que esté en modo PC Remote.",
+      "selectFolderFirst": "Por favor, selecciona primero una carpeta estándar en tu biblioteca.",
+      "setFailed": "Error al configurar {{key}}: {{err}}"
+    },
+    "triggerCapture": "Disparar captura",
+    "whiteBalance": "Balance de blancos"
   },
   "ui": {
     "bottomBar": {

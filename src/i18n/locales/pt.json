@@ -742,7 +742,8 @@
         "info": "Informações",
         "inpaint": "Preencher",
         "masks": "Máscaras",
-        "presets": "Predefinições"
+        "presets": "Predefinições",
+        "tethering": "Captura Conectada (Tethering)"
       }
     },
     "toolbar": {
@@ -1816,6 +1817,46 @@
     "tooltips": {
       "goHome": "Ir para Início"
     }
+  },
+  "tethering": {
+    "aperture": "Abertura",
+    "aperturePlaceholder": "ex. 2.8",
+    "autoOpenCaptured": "Abrir automaticamente imagem capturada",
+    "cameraConnected": "Câmera Conectada",
+    "capturing": "Capturando...",
+    "connectCamera": "Conectar Câmera",
+    "exposureSettings": "Configurações de Exposição",
+    "flipHorizontal": "Espelhar Horizontalmente",
+    "ghostOverlayAlt": "Sobreposição Fantasma",
+    "iso": "ISO",
+    "isoPlaceholder": "ex. 400",
+    "liveViewAlt": "Live View",
+    "noCameraDetected": "Nenhuma câmera detectada",
+    "noCamerasFound": "Nenhuma câmera encontrada. Certifique-se de que esteja conectada e no modo PC Remote.",
+    "overlayLastShot": "Sobrepor Última Foto",
+    "overlayOff": "Desligado",
+    "rotate90": "Girar 90°",
+    "scanTooltip": "Buscar Câmeras",
+    "selectCamera": "Selecionar Câmera",
+    "selectCameraPlaceholder": "Selecione uma câmera",
+    "shutter": "Obturador",
+    "shutterPlaceholder": "ex. 1/200",
+    "startLiveView": "Iniciar Live View",
+    "status": "Status",
+    "stopLiveView": "Parar Live View",
+    "title": "Tethering",
+    "toasts": {
+      "cameraDisconnected": "Câmera desconectada",
+      "captureFailed": "Falha na captura: {{err}}",
+      "communicationFailed": "Falha na comunicação com a câmera",
+      "connectionFailed": "Falha na conexão: {{err}}",
+      "detectionFailed": "Falha na detecção: {{err}}",
+      "noCamerasFound": "Nenhuma câmera encontrada. Verifique se está no modo PC Remote.",
+      "selectFolderFirst": "Selecione uma pasta padrão na sua Biblioteca primeiro.",
+      "setFailed": "Falha ao definir {{key}}: {{err}}"
+    },
+    "triggerCapture": "Disparar Captura",
+    "whiteBalance": "Balanço de Branco"
   },
   "ui": {
     "bottomBar": {

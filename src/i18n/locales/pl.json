@@ -763,7 +763,8 @@
         "info": "Informacje",
         "inpaint": "Inpaint",
         "masks": "Maski",
-        "presets": "Presety"
+        "presets": "Presety",
+        "tethering": "Tethering (Połączenie przewodowe)"
       }
     },
     "toolbar": {
@@ -1850,6 +1851,46 @@
     "tooltips": {
       "goHome": "Przejdź do strony głównej"
     }
+  },
+  "tethering": {
+    "aperture": "Przysłona",
+    "aperturePlaceholder": "np. 2.8",
+    "autoOpenCaptured": "Automatycznie otwieraj zrobione zdjęcie",
+    "cameraConnected": "Aparat połączony",
+    "capturing": "Robienie zdjęcia...",
+    "connectCamera": "Połącz aparat",
+    "exposureSettings": "Ustawienia ekspozycji",
+    "flipHorizontal": "Obróć w poziomie",
+    "ghostOverlayAlt": "Nakładka poprzedniego zdjęcia",
+    "iso": "ISO",
+    "isoPlaceholder": "np. 400",
+    "liveViewAlt": "Live View",
+    "noCameraDetected": "Nie wykryto aparatu",
+    "noCamerasFound": "Nie znaleziono aparatów. Upewnij się, że aparat jest podłączony i działa w trybie PC Remote.",
+    "overlayLastShot": "Nałóż ostatnie zdjęcie",
+    "overlayOff": "Wył.",
+    "rotate90": "Obróć o 90°",
+    "scanTooltip": "Szukaj aparatów",
+    "selectCamera": "Wybierz aparat",
+    "selectCameraPlaceholder": "Wybierz aparat",
+    "shutter": "Migawka",
+    "shutterPlaceholder": "np. 1/200",
+    "startLiveView": "Uruchom Live View",
+    "status": "Status",
+    "stopLiveView": "Zatrzymaj Live View",
+    "title": "Tethering",
+    "toasts": {
+      "cameraDisconnected": "Aparat został odłączony",
+      "captureFailed": "Przechwytywanie nie powiodło się: {{err}}",
+      "communicationFailed": "Błąd komunikacji z aparatem",
+      "connectionFailed": "Połączenie nie powiodło się: {{err}}",
+      "detectionFailed": "Wykrywanie nie powiodło się: {{err}}",
+      "noCamerasFound": "Nie znaleziono aparatów. Upewnij się, że włączono tryb PC Remote.",
+      "selectFolderFirst": "Najpierw wybierz standardowy folder w bibliotece.",
+      "setFailed": "Nie udało się ustawić {{key}}: {{err}}"
+    },
+    "triggerCapture": "Wyzwól migawkę",
+    "whiteBalance": "Balans bieli"
   },
   "ui": {
     "bottomBar": {

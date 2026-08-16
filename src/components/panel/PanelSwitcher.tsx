@@ -39,7 +39,7 @@ const PANEL_TITLES: Record<Panel, string> = {
   [Panel.Presets]: 'editor.switcher.tooltips.presets',
   [Panel.Export]: 'editor.switcher.tooltips.export',
   [Panel.FolderTree]: 'library.folders.sourcesTitle',
-  [Panel.Tethering]: 'Tethering',
+  [Panel.Tethering]: 'editor.switcher.tooltips.tethering',
 };
 
 function PanelTab({ panel, region, side }: { panel: Panel; region: PanelRegion; side: 'left' | 'right' }) {

@@ -721,7 +721,8 @@
         "info": "Info",
         "inpaint": "Reparieren",
         "masks": "Masken",
-        "presets": "Vorgaben"
+        "presets": "Vorgaben",
+        "tethering": "Tethering"
       }
     },
     "toolbar": {
@@ -1782,6 +1783,46 @@
     "tooltips": {
       "goHome": "Zur Startseite"
     }
+  },
+  "tethering": {
+    "aperture": "Blende",
+    "aperturePlaceholder": "z. B. 2.8",
+    "autoOpenCaptured": "Aufgenommenes Bild autom. öffnen",
+    "cameraConnected": "Kamera verbunden",
+    "capturing": "Aufnahme läuft...",
+    "connectCamera": "Kamera verbinden",
+    "exposureSettings": "Belichtungseinstellungen",
+    "flipHorizontal": "Horizontal spiegeln",
+    "ghostOverlayAlt": "Geister-Überlagerung",
+    "iso": "ISO",
+    "isoPlaceholder": "z. B. 400",
+    "liveViewAlt": "Live-View",
+    "noCameraDetected": "Keine Kamera erkannt",
+    "noCamerasFound": "Keine Kameras gefunden. Stellen Sie sicher, dass sie angeschlossen und im PC-Fernsteuerungsmodus ist.",
+    "overlayLastShot": "Letzte Aufnahme überlagern",
+    "overlayOff": "Aus",
+    "rotate90": "90° drehen",
+    "scanTooltip": "Nach Kameras suchen",
+    "selectCamera": "Kamera auswählen",
+    "selectCameraPlaceholder": "Eine Kamera auswählen",
+    "shutter": "Verschluss",
+    "shutterPlaceholder": "z. B. 1/200",
+    "startLiveView": "Live-View starten",
+    "status": "Status",
+    "stopLiveView": "Live-View beenden",
+    "title": "Tethering",
+    "toasts": {
+      "cameraDisconnected": "Kamera getrennt",
+      "captureFailed": "Aufnahme fehlgeschlagen: {{err}}",
+      "communicationFailed": "Kommunikation mit der Kamera fehlgeschlagen",
+      "connectionFailed": "Verbindung fehlgeschlagen: {{err}}",
+      "detectionFailed": "Erkennung fehlgeschlagen: {{err}}",
+      "noCamerasFound": "Keine Kameras gefunden. Stellen Sie sicher, dass sie im PC-Fernsteuerungsmodus ist.",
+      "selectFolderFirst": "Bitte wählen Sie zuerst einen Standardordner in Ihrer Bibliothek aus.",
+      "setFailed": "Fehler beim Einstellen von {{key}}: {{err}}"
+    },
+    "triggerCapture": "Auslösen",
+    "whiteBalance": "Weißabgleich"
   },
   "ui": {
     "bottomBar": {

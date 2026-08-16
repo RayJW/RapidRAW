@@ -5,358 +5,639 @@ LOCALES_DIR = Path("./locales")
 
 TRANSLATIONS = {
     "ca": {
-        "contextMenus": {
-            "merge": {
-                "title": "Fusionar",
-                "focusStack": "Apilament d'enfocament"
+        "editor": {
+            "switcher": {
+                "tooltips": {
+                    "tethering": "Captura connectada"
+                }
             }
         },
-        "modals": {
-            "focusStack": {
-                "title": "Apilament d'enfocament",
-                "description": "Combina diverses imatges amb diferents distàncies d'enfocament en una sola imatge perfectament nítida.",
-                "descriptionWithCount_one": "Combina {{count}} imatge amb diferents distàncies d'enfocament en una sola imatge perfectament nítida.",
-                "descriptionWithCount_other": "Combina {{count}} imatges amb diferents distàncies d'enfocament en una sola imatge perfectament nítida.",
-                "failed": "S'ha produït un error en l'apilament d'enfocament",
-                "result": "Resultat",
-                "depthMap": "Mapa de profunditat",
-                "savedSuccess": "L'apilament d'enfocament s'ha desat correctament!",
-                "stacking": "Apilant enfocament",
-                "initializing": "Inicialitzant...",
-                "close": "Tanca",
-                "openInEditor": "Obre a l'editor",
-                "cancel": "Cancel·la",
-                "start": "Inicia",
-                "save": "Desa"
+        "tethering": {
+            "title": "Captura connectada",
+            "scanTooltip": "Cerca càmeres",
+            "status": "Estat",
+            "cameraConnected": "Càmera connectada",
+            "selectCamera": "Selecciona càmera",
+            "startLiveView": "Inicia vista en directe",
+            "stopLiveView": "Atura vista en directe",
+            "noCameraDetected": "Cap càmera detectada",
+            "liveViewAlt": "Vista en directe",
+            "ghostOverlayAlt": "Superposició fantasma",
+            "overlayOff": "Desactivat",
+            "rotate90": "Gira 90°",
+            "flipHorizontal": "Inverteix horitzontalment",
+            "overlayLastShot": "Superposa l'última captura",
+            "selectCameraPlaceholder": "Selecciona una càmera",
+            "noCamerasFound": "No s'han trobat càmeres. Assegura't que està connectada i en mode PC Remote.",
+            "connectCamera": "Connecta la càmera",
+            "exposureSettings": "Ajustaments d'exposició",
+            "shutter": "Obturador",
+            "aperture": "Obertura",
+            "iso": "ISO",
+            "whiteBalance": "Balanç de blancs",
+            "shutterPlaceholder": "p. ex. 1/200",
+            "aperturePlaceholder": "p. ex. 2.8",
+            "isoPlaceholder": "p. ex. 400",
+            "autoOpenCaptured": "Obre automàticament la imatge capturada",
+            "capturing": "Capturant...",
+            "triggerCapture": "Dispara captura",
+            "toasts": {
+                "noCamerasFound": "No s'han trobat càmeres. Assegura't que està en mode PC Remote.",
+                "detectionFailed": "Error en la detecció: {{err}}",
+                "communicationFailed": "Error en comunicar-se amb la càmera",
+                "connectionFailed": "Connexió fallida: {{err}}",
+                "setFailed": "Error en configurar {{key}}: {{err}}",
+                "selectFolderFirst": "Selecciona primer una carpeta estàndard a la biblioteca.",
+                "captureFailed": "Error en la captura: {{err}}",
+                "cameraDisconnected": "Càmera desconnectada"
             }
         }
     },
     "de": {
-        "contextMenus": {
-            "merge": {
-                "title": "Zusammenfügen",
-                "focusStack": "Fokus-Stacking"
+        "editor": {
+            "switcher": {
+                "tooltips": {
+                    "tethering": "Tethering"
+                }
             }
         },
-        "modals": {
-            "focusStack": {
-                "title": "Fokus-Stacking",
-                "description": "Kombinieren Sie mehrere Bilder mit unterschiedlichen Fokusdistanzen zu einem einzigen, perfekt scharfen Bild.",
-                "descriptionWithCount_one": "Kombinieren Sie {{count}} Bild mit unterschiedlichen Fokusdistanzen zu einem einzigen, perfekt scharfen Bild.",
-                "descriptionWithCount_other": "Kombinieren Sie {{count}} Bilder mit unterschiedlichen Fokusdistanzen zu einem einzigen, perfekt scharfen Bild.",
-                "failed": "Fokus-Stacking fehlgeschlagen",
-                "result": "Ergebnis",
-                "depthMap": "Tiefenkarte",
-                "savedSuccess": "Fokus-Stack erfolgreich gespeichert!",
-                "stacking": "Fokus wird gestapelt",
-                "initializing": "Wird initialisiert...",
-                "close": "Schließen",
-                "openInEditor": "Im Editor öffnen",
-                "cancel": "Abbrechen",
-                "start": "Start",
-                "save": "Speichern"
+        "tethering": {
+            "title": "Tethering",
+            "scanTooltip": "Nach Kameras suchen",
+            "status": "Status",
+            "cameraConnected": "Kamera verbunden",
+            "selectCamera": "Kamera auswählen",
+            "startLiveView": "Live-View starten",
+            "stopLiveView": "Live-View beenden",
+            "noCameraDetected": "Keine Kamera erkannt",
+            "liveViewAlt": "Live-View",
+            "ghostOverlayAlt": "Geister-Überlagerung",
+            "overlayOff": "Aus",
+            "rotate90": "90° drehen",
+            "flipHorizontal": "Horizontal spiegeln",
+            "overlayLastShot": "Letzte Aufnahme überlagern",
+            "selectCameraPlaceholder": "Eine Kamera auswählen",
+            "noCamerasFound": "Keine Kameras gefunden. Stellen Sie sicher, dass sie angeschlossen und im PC-Fernsteuerungsmodus ist.",
+            "connectCamera": "Kamera verbinden",
+            "exposureSettings": "Belichtungseinstellungen",
+            "shutter": "Verschluss",
+            "aperture": "Blende",
+            "iso": "ISO",
+            "whiteBalance": "Weißabgleich",
+            "shutterPlaceholder": "z. B. 1/200",
+            "aperturePlaceholder": "z. B. 2.8",
+            "isoPlaceholder": "z. B. 400",
+            "autoOpenCaptured": "Aufgenommenes Bild autom. öffnen",
+            "capturing": "Aufnahme läuft...",
+            "triggerCapture": "Auslösen",
+            "toasts": {
+                "noCamerasFound": "Keine Kameras gefunden. Stellen Sie sicher, dass sie im PC-Fernsteuerungsmodus ist.",
+                "detectionFailed": "Erkennung fehlgeschlagen: {{err}}",
+                "communicationFailed": "Kommunikation mit der Kamera fehlgeschlagen",
+                "connectionFailed": "Verbindung fehlgeschlagen: {{err}}",
+                "setFailed": "Fehler beim Einstellen von {{key}}: {{err}}",
+                "selectFolderFirst": "Bitte wählen Sie zuerst einen Standardordner in Ihrer Bibliothek aus.",
+                "captureFailed": "Aufnahme fehlgeschlagen: {{err}}",
+                "cameraDisconnected": "Kamera getrennt"
             }
         }
     },
     "en": {
-        "contextMenus": {
-            "merge": {
-                "title": "Merge",
-                "focusStack": "Focus Stacking"
+        "editor": {
+            "switcher": {
+                "tooltips": {
+                    "tethering": "Tethering"
+                }
             }
         },
-        "modals": {
-            "focusStack": {
-                "title": "Focus Stacking",
-                "description": "Combine multiple images with varying focus distances into a single perfectly sharp image.",
-                "descriptionWithCount_one": "Combine {{count}} image with varying focus distances into a single perfectly sharp image.",
-                "descriptionWithCount_other": "Combine {{count}} images with varying focus distances into a single perfectly sharp image.",
-                "failed": "Focus Stack Failed",
-                "result": "Result",
-                "depthMap": "Depth Map",
-                "savedSuccess": "Focus Stack Saved Successfully!",
-                "stacking": "Stacking Focus",
-                "initializing": "Initializing...",
-                "close": "Close",
-                "openInEditor": "Open in Editor",
-                "cancel": "Cancel",
-                "start": "Start",
-                "save": "Save"
+        "tethering": {
+            "title": "Tethering",
+            "scanTooltip": "Scan for Cameras",
+            "status": "Status",
+            "cameraConnected": "Camera Connected",
+            "selectCamera": "Select Camera",
+            "startLiveView": "Start Live View",
+            "stopLiveView": "Stop Live View",
+            "noCameraDetected": "No camera detected",
+            "liveViewAlt": "Live View",
+            "ghostOverlayAlt": "Ghost Overlay",
+            "overlayOff": "Off",
+            "rotate90": "Rotate 90°",
+            "flipHorizontal": "Flip Horizontal",
+            "overlayLastShot": "Overlay Last Shot",
+            "selectCameraPlaceholder": "Select a camera",
+            "noCamerasFound": "No cameras found. Ensure it is connected and in PC Remote mode.",
+            "connectCamera": "Connect Camera",
+            "exposureSettings": "Exposure Settings",
+            "shutter": "Shutter",
+            "aperture": "Aperture",
+            "iso": "ISO",
+            "whiteBalance": "White Balance",
+            "shutterPlaceholder": "e.g. 1/200",
+            "aperturePlaceholder": "e.g. 2.8",
+            "isoPlaceholder": "e.g. 400",
+            "autoOpenCaptured": "Auto-open captured image",
+            "capturing": "Capturing...",
+            "triggerCapture": "Trigger Capture",
+            "toasts": {
+                "noCamerasFound": "No cameras found. Ensure it is in PC Remote mode.",
+                "detectionFailed": "Detection failed: {{err}}",
+                "communicationFailed": "Failed to communicate with camera",
+                "connectionFailed": "Connection failed: {{err}}",
+                "setFailed": "Failed to set {{key}}: {{err}}",
+                "selectFolderFirst": "Please select a standard folder in your Library first.",
+                "captureFailed": "Capture failed: {{err}}",
+                "cameraDisconnected": "Camera disconnected"
             }
         }
     },
     "es": {
-        "contextMenus": {
-            "merge": {
-                "title": "Combinar",
-                "focusStack": "Apilamiento de enfoque"
+        "editor": {
+            "switcher": {
+                "tooltips": {
+                    "tethering": "Captura conectada"
+                }
             }
         },
-        "modals": {
-            "focusStack": {
-                "title": "Apilamiento de enfoque",
-                "description": "Combina varias imágenes con diferentes distancias de enfoque en una sola imagen perfectamente nítida.",
-                "descriptionWithCount_one": "Combina {{count}} imagen con diferentes distancias de enfoque en una sola imagen perfectamente nítida.",
-                "descriptionWithCount_other": "Combina {{count}} imágenes con diferentes distancias de enfoque en una sola imagen perfectamente nítida.",
-                "failed": "Error en el apilamiento de enfoque",
-                "result": "Resultado",
-                "depthMap": "Mapa de profundidad",
-                "savedSuccess": "¡Apilamiento de enfoque guardado con éxito!",
-                "stacking": "Apilando enfoque",
-                "initializing": "Inicializando...",
-                "close": "Cerrar",
-                "openInEditor": "Abrir en el editor",
-                "cancel": "Cancelar",
-                "start": "Iniciar",
-                "save": "Guardar"
+        "tethering": {
+            "title": "Captura conectada",
+            "scanTooltip": "Buscar cámaras",
+            "status": "Estado",
+            "cameraConnected": "Cámara conectada",
+            "selectCamera": "Seleccionar cámara",
+            "startLiveView": "Iniciar vista en vivo",
+            "stopLiveView": "Detener vista en vivo",
+            "noCameraDetected": "No se detectó ninguna cámara",
+            "liveViewAlt": "Vista en vivo",
+            "ghostOverlayAlt": "Superposición fantasma",
+            "overlayOff": "Desactivado",
+            "rotate90": "Girar 90°",
+            "flipHorizontal": "Voltear horizontalmente",
+            "overlayLastShot": "Superponer última captura",
+            "selectCameraPlaceholder": "Seleccionar una cámara",
+            "noCamerasFound": "No se encontraron cámaras. Asegúrate de que esté conectada y en modo PC Remote.",
+            "connectCamera": "Conectar cámara",
+            "exposureSettings": "Ajustes de exposición",
+            "shutter": "Obturador",
+            "aperture": "Apertura",
+            "iso": "ISO",
+            "whiteBalance": "Balance de blancos",
+            "shutterPlaceholder": "ej. 1/200",
+            "aperturePlaceholder": "ej. 2.8",
+            "isoPlaceholder": "ej. 400",
+            "autoOpenCaptured": "Abrir imagen capturada automáticamente",
+            "capturing": "Capturando...",
+            "triggerCapture": "Disparar captura",
+            "toasts": {
+                "noCamerasFound": "No se encontraron cámaras. Asegúrate de que esté en modo PC Remote.",
+                "detectionFailed": "Error en la detección: {{err}}",
+                "communicationFailed": "Error al comunicarse con la cámara",
+                "connectionFailed": "Error de conexión: {{err}}",
+                "setFailed": "Error al configurar {{key}}: {{err}}",
+                "selectFolderFirst": "Por favor, selecciona primero una carpeta estándar en tu biblioteca.",
+                "captureFailed": "Error en la captura: {{err}}",
+                "cameraDisconnected": "Cámara desconectada"
             }
         }
     },
     "fr": {
-        "contextMenus": {
-            "merge": {
-                "title": "Fusionner",
-                "focusStack": "Empilement de mise au point"
+        "editor": {
+            "switcher": {
+                "tooltips": {
+                    "tethering": "Prise de vue connectée"
+                }
             }
         },
-        "modals": {
-            "focusStack": {
-                "title": "Empilement de mise au point",
-                "description": "Combinez plusieurs images avec des distances de mise au point variables en une seule image parfaitement nette.",
-                "descriptionWithCount_one": "Combinez {{count}} image avec des distances de mise au point variables en une seule image parfaitement nette.",
-                "descriptionWithCount_other": "Combinez {{count}} images avec des distances de mise au point variables en une seule image parfaitement nette.",
-                "failed": "L'empilement de mise au point a échoué",
-                "result": "Résultat",
-                "depthMap": "Carte de profondeur",
-                "savedSuccess": "Empilement de mise au point enregistré avec succès !",
-                "stacking": "Empilement de la mise au point",
-                "initializing": "Initialisation...",
-                "close": "Fermer",
-                "openInEditor": "Ouvrir dans l'éditeur",
-                "cancel": "Annuler",
-                "start": "Démarrer",
-                "save": "Enregistrer"
+        "tethering": {
+            "title": "Prise de vue connectée",
+            "scanTooltip": "Rechercher des appareils",
+            "status": "État",
+            "cameraConnected": "Appareil connecté",
+            "selectCamera": "Sélectionner un appareil",
+            "startLiveView": "Démarrer la visée directe",
+            "stopLiveView": "Arrêter la visée directe",
+            "noCameraDetected": "Aucun appareil détecté",
+            "liveViewAlt": "Visée directe",
+            "ghostOverlayAlt": "Incrustation fantôme",
+            "overlayOff": "Désactivé",
+            "rotate90": "Faire pivoter de 90°",
+            "flipHorizontal": "Retourner horizontalement",
+            "overlayLastShot": "Superposer la dernière photo",
+            "selectCameraPlaceholder": "Sélectionner un appareil",
+            "noCamerasFound": "Aucun appareil trouvé. Assurez-vous qu'il est connecté et en mode PC Remote.",
+            "connectCamera": "Connecter l'appareil",
+            "exposureSettings": "Paramètres d'exposition",
+            "shutter": "Obturateur",
+            "aperture": "Ouverture",
+            "iso": "ISO",
+            "whiteBalance": "Balance des blancs",
+            "shutterPlaceholder": "ex. 1/200",
+            "aperturePlaceholder": "ex. 2.8",
+            "isoPlaceholder": "ex. 400",
+            "autoOpenCaptured": "Ouvrir automatiquement l'image capturée",
+            "capturing": "Capture en cours...",
+            "triggerCapture": "Déclencher la capture",
+            "toasts": {
+                "noCamerasFound": "Aucun appareil trouvé. Assurez-vous qu'il est en mode PC Remote.",
+                "detectionFailed": "Échec de la détection : {{err}}",
+                "communicationFailed": "Échec de la communication avec l'appareil",
+                "connectionFailed": "Échec de la connexion : {{err}}",
+                "setFailed": "Échec de la définition de {{key}} : {{err}}",
+                "selectFolderFirst": "Veuillez d'abord sélectionner un dossier standard dans votre bibliothèque.",
+                "captureFailed": "Échec de la capture : {{err}}",
+                "cameraDisconnected": "Appareil déconnecté"
             }
         }
     },
     "it": {
-        "contextMenus": {
-            "merge": {
-                "title": "Unisci",
-                "focusStack": "Focus Stacking"
+        "editor": {
+            "switcher": {
+                "tooltips": {
+                    "tethering": "Acquisizione diretta"
+                }
             }
         },
-        "modals": {
-            "focusStack": {
-                "title": "Focus Stacking",
-                "description": "Combina più immagini con diverse distanze di messa a fuoco in un'unica immagine perfettamente nitida.",
-                "descriptionWithCount_one": "Combina {{count}} immagine con diverse distanze di messa a fuoco in un'unica immagine perfettamente nitida.",
-                "descriptionWithCount_other": "Combina {{count}} immagini con diverse distanze di messa a fuoco in un'unica immagine perfettamente nitida.",
-                "failed": "Focus Stacking non riuscito",
-                "result": "Risultato",
-                "depthMap": "Mappa di profondità",
-                "savedSuccess": "Focus Stack salvato con successo!",
-                "stacking": "Unione messa a fuoco in corso",
-                "initializing": "Inizializzazione...",
-                "close": "Chiudi",
-                "openInEditor": "Apri nell'editor",
-                "cancel": "Annulla",
-                "start": "Avvia",
-                "save": "Salva"
+        "tethering": {
+            "title": "Acquisizione diretta",
+            "scanTooltip": "Cerca fotocamere",
+            "status": "Stato",
+            "cameraConnected": "Fotocamera connessa",
+            "selectCamera": "Seleziona fotocamera",
+            "startLiveView": "Avvia Live View",
+            "stopLiveView": "Interrompi Live View",
+            "noCameraDetected": "Nessuna fotocamera rilevata",
+            "liveViewAlt": "Live View",
+            "ghostOverlayAlt": "Sovrapposizione fantasma",
+            "overlayOff": "Spento",
+            "rotate90": "Ruota di 90°",
+            "flipHorizontal": "Capovolgi orizzontalmente",
+            "overlayLastShot": "Sovrapponi ultimo scatto",
+            "selectCameraPlaceholder": "Seleziona una fotocamera",
+            "noCamerasFound": "Nessuna fotocamera trovata. Assicurati che sia collegata e in modalità PC Remote.",
+            "connectCamera": "Connetti fotocamera",
+            "exposureSettings": "Impostazioni di esposizione",
+            "shutter": "Otturatore",
+            "aperture": "Apertura",
+            "iso": "ISO",
+            "whiteBalance": "Bilanciamento del bianco",
+            "shutterPlaceholder": "es. 1/200",
+            "aperturePlaceholder": "es. 2.8",
+            "isoPlaceholder": "es. 400",
+            "autoOpenCaptured": "Apri automaticamente l'immagine acquisita",
+            "capturing": "Acquisizione in corso...",
+            "triggerCapture": "Scatta foto",
+            "toasts": {
+                "noCamerasFound": "Nessuna fotocamera trovata. Assicurati che sia in modalità PC Remote.",
+                "detectionFailed": "Rilevamento non riuscito: {{err}}",
+                "communicationFailed": "Comunicazione con la fotocamera non riuscita",
+                "connectionFailed": "Connessione non riuscita: {{err}}",
+                "setFailed": "Impossibile impostare {{key}}: {{err}}",
+                "selectFolderFirst": "Seleziona prima una cartella standard nella tua libreria.",
+                "captureFailed": "Acquisizione non riuscita: {{err}}",
+                "cameraDisconnected": "Fotocamera disconnessa"
             }
         }
     },
     "ja": {
-        "contextMenus": {
-            "merge": {
-                "title": "結合",
-                "focusStack": "フォーカススタッキング"
+        "editor": {
+            "switcher": {
+                "tooltips": {
+                    "tethering": "テザー撮影"
+                }
             }
         },
-        "modals": {
-            "focusStack": {
-                "title": "フォーカススタッキング",
-                "description": "ピント位置の異なる複数の画像を結合し、全体にピントが合った1枚の画像を作成します。",
-                "descriptionWithCount_one": "ピント位置の異なる {{count}} 枚の画像を結合し、全体にピントが合った1枚の画像を作成します。",
-                "descriptionWithCount_other": "ピント位置の異なる {{count}} 枚の画像を結合し、全体にピントが合った1枚の画像を作成します。",
-                "failed": "フォーカススタッキングに失敗しました",
-                "result": "結果",
-                "depthMap": "深度マップ",
-                "savedSuccess": "フォーカススタックを正常に保存しました！",
-                "stacking": "フォーカスをスタック中",
-                "initializing": "初期化中...",
-                "close": "閉じる",
-                "openInEditor": "エディターで開く",
-                "cancel": "キャンセル",
-                "start": "開始",
-                "save": "保存"
+        "tethering": {
+            "title": "テザー撮影",
+            "scanTooltip": "カメラをスキャン",
+            "status": "ステータス",
+            "cameraConnected": "カメラ接続中",
+            "selectCamera": "カメラを選択",
+            "startLiveView": "ライブビュー開始",
+            "stopLiveView": "ライブビュー停止",
+            "noCameraDetected": "カメラが検出されません",
+            "liveViewAlt": "ライブビュー",
+            "ghostOverlayAlt": "ゴーストオーバーレイ",
+            "overlayOff": "オフ",
+            "rotate90": "90°回転",
+            "flipHorizontal": "左右反転",
+            "overlayLastShot": "直前のショットをオーバーレイ",
+            "selectCameraPlaceholder": "カメラを選択してください",
+            "noCamerasFound": "カメラが見つかりません。接続とPCリモートモードを確認してください。",
+            "connectCamera": "カメラを接続",
+            "exposureSettings": "露出設定",
+            "shutter": "シャッター",
+            "aperture": "絞り",
+            "iso": "ISO",
+            "whiteBalance": "ホワイトバランス",
+            "shutterPlaceholder": "例: 1/200",
+            "aperturePlaceholder": "例: 2.8",
+            "isoPlaceholder": "例: 400",
+            "autoOpenCaptured": "撮影した画像を自動で開く",
+            "capturing": "撮影中...",
+            "triggerCapture": "撮影を実行",
+            "toasts": {
+                "noCamerasFound": "カメラが見つかりません。PCリモートモードになっていることを確認してください。",
+                "detectionFailed": "検出に失敗しました: {{err}}",
+                "communicationFailed": "カメラとの通信に失敗しました",
+                "connectionFailed": "接続に失敗しました: {{err}}",
+                "setFailed": "{{key}} の設定に失敗しました: {{err}}",
+                "selectFolderFirst": "最初にライブラリで通常のフォルダを選択してください。",
+                "captureFailed": "撮影に失敗しました: {{err}}",
+                "cameraDisconnected": "カメラが切断されました"
             }
         }
     },
     "ko": {
-        "contextMenus": {
-            "merge": {
-                "title": "병합",
-                "focusStack": "포커스 스태킹"
+        "editor": {
+            "switcher": {
+                "tooltips": {
+                    "tethering": "테더링"
+                }
             }
         },
-        "modals": {
-            "focusStack": {
-                "title": "포커스 스태킹",
-                "description": "초점 거리가 다른 여러 이미지를 결합하여 완벽하게 선명한 단일 이미지를 만듭니다.",
-                "descriptionWithCount_one": "초점 거리가 다른 {{count}}개의 이미지를 결합하여 완벽하게 선명한 단일 이미지를 만듭니다.",
-                "descriptionWithCount_other": "초점 거리가 다른 {{count}}개의 이미지를 결합하여 완벽하게 선명한 단일 이미지를 만듭니다.",
-                "failed": "포커스 스태킹 실패",
-                "result": "결과",
-                "depthMap": "심도 맵",
-                "savedSuccess": "포커스 스택이 성공적으로 저장되었습니다!",
-                "stacking": "포커스 스태킹 중",
-                "initializing": "초기화 중...",
-                "close": "닫기",
-                "openInEditor": "편집기에서 열기",
-                "cancel": "취소",
-                "start": "시작",
-                "save": "저장"
+        "tethering": {
+            "title": "테더링",
+            "scanTooltip": "카메라 검색",
+            "status": "상태",
+            "cameraConnected": "카메라 연결됨",
+            "selectCamera": "카메라 선택",
+            "startLiveView": "라이브 뷰 시작",
+            "stopLiveView": "라이브 뷰 중지",
+            "noCameraDetected": "감지된 카메라 없음",
+            "liveViewAlt": "라이브 뷰",
+            "ghostOverlayAlt": "고스트 오버레이",
+            "overlayOff": "끄기",
+            "rotate90": "90° 회전",
+            "flipHorizontal": "좌우 대칭",
+            "overlayLastShot": "이전 촬영 오버레이",
+            "selectCameraPlaceholder": "카메라를 선택하세요",
+            "noCamerasFound": "카메라를 찾을 수 없습니다. 연결 상태와 PC 원격 모드를 확인하세요.",
+            "connectCamera": "카메라 연결",
+            "exposureSettings": "노출 설정",
+            "shutter": "셔터",
+            "aperture": "조리개",
+            "iso": "ISO",
+            "whiteBalance": "화이트 밸런스",
+            "shutterPlaceholder": "예: 1/200",
+            "aperturePlaceholder": "예: 2.8",
+            "isoPlaceholder": "예: 400",
+            "autoOpenCaptured": "촬영된 이미지 자동으로 열기",
+            "capturing": "촬영 중...",
+            "triggerCapture": "촬영 실행",
+            "toasts": {
+                "noCamerasFound": "카메라를 찾을 수 없습니다. PC 원격 모드인지 확인하세요.",
+                "detectionFailed": "감지 실패: {{err}}",
+                "communicationFailed": "카메라와 통신하지 못했습니다",
+                "connectionFailed": "연결 실패: {{err}}",
+                "setFailed": "{{key}} 설정 실패: {{err}}",
+                "selectFolderFirst": "라이브러리에서 먼저 일반 폴더를 선택하세요.",
+                "captureFailed": "촬영 실패: {{err}}",
+                "cameraDisconnected": "카메라 연결이 끊어졌습니다"
             }
         }
     },
     "pl": {
-        "contextMenus": {
-            "merge": {
-                "title": "Połącz",
-                "focusStack": "Stosowanie ostrości (Focus Stacking)"
+        "editor": {
+            "switcher": {
+                "tooltips": {
+                    "tethering": "Tethering (Połączenie przewodowe)"
+                }
             }
         },
-        "modals": {
-            "focusStack": {
-                "title": "Stosowanie ostrości",
-                "description": "Połącz wiele obrazów z różnymi odległościami ostrości w jeden idealnie ostry obraz.",
-                "descriptionWithCount_one": "Połącz {{count}} obraz z różnymi odległościami ostrości w jeden idealnie ostry obraz.",
-                "descriptionWithCount_few": "Połącz {{count}} obrazy z różnymi odległościami ostrości w jeden idealnie ostry obraz.",
-                "descriptionWithCount_many": "Połącz {{count}} obrazów z różnymi odległościami ostrości w jeden idealnie ostry obraz.",
-                "descriptionWithCount_other": "Połącz {{count}} obrazów z różnymi odległościami ostrości w jeden idealnie ostry obraz.",
-                "failed": "Złożenie ostrości nie powiodło się",
-                "result": "Wynik",
-                "depthMap": "Mapa głębi",
-                "savedSuccess": "Stos ostrości zapisany pomyślnie!",
-                "stacking": "Składanie ostrości",
-                "initializing": "Inicjowanie...",
-                "close": "Zamknij",
-                "openInEditor": "Otwórz w edytorze",
-                "cancel": "Anuluj",
-                "start": "Rozpocznij",
-                "save": "Zapisz"
+        "tethering": {
+            "title": "Tethering",
+            "scanTooltip": "Szukaj aparatów",
+            "status": "Status",
+            "cameraConnected": "Aparat połączony",
+            "selectCamera": "Wybierz aparat",
+            "startLiveView": "Uruchom Live View",
+            "stopLiveView": "Zatrzymaj Live View",
+            "noCameraDetected": "Nie wykryto aparatu",
+            "liveViewAlt": "Live View",
+            "ghostOverlayAlt": "Nakładka poprzedniego zdjęcia",
+            "overlayOff": "Wył.",
+            "rotate90": "Obróć o 90°",
+            "flipHorizontal": "Obróć w poziomie",
+            "overlayLastShot": "Nałóż ostatnie zdjęcie",
+            "selectCameraPlaceholder": "Wybierz aparat",
+            "noCamerasFound": "Nie znaleziono aparatów. Upewnij się, że aparat jest podłączony i działa w trybie PC Remote.",
+            "connectCamera": "Połącz aparat",
+            "exposureSettings": "Ustawienia ekspozycji",
+            "shutter": "Migawka",
+            "aperture": "Przysłona",
+            "iso": "ISO",
+            "whiteBalance": "Balans bieli",
+            "shutterPlaceholder": "np. 1/200",
+            "aperturePlaceholder": "np. 2.8",
+            "isoPlaceholder": "np. 400",
+            "autoOpenCaptured": "Automatycznie otwieraj zrobione zdjęcie",
+            "capturing": "Robienie zdjęcia...",
+            "triggerCapture": "Wyzwól migawkę",
+            "toasts": {
+                "noCamerasFound": "Nie znaleziono aparatów. Upewnij się, że włączono tryb PC Remote.",
+                "detectionFailed": "Wykrywanie nie powiodło się: {{err}}",
+                "communicationFailed": "Błąd komunikacji z aparatem",
+                "connectionFailed": "Połączenie nie powiodło się: {{err}}",
+                "setFailed": "Nie udało się ustawić {{key}}: {{err}}",
+                "selectFolderFirst": "Najpierw wybierz standardowy folder w bibliotece.",
+                "captureFailed": "Przechwytywanie nie powiodło się: {{err}}",
+                "cameraDisconnected": "Aparat został odłączony"
             }
         }
     },
     "pt": {
-        "contextMenus": {
-            "merge": {
-                "title": "Mesclar",
-                "focusStack": "Empilhamento de Foco"
+        "editor": {
+            "switcher": {
+                "tooltips": {
+                    "tethering": "Captura Conectada (Tethering)"
+                }
             }
         },
-        "modals": {
-            "focusStack": {
-                "title": "Empilhamento de Foco",
-                "description": "Combine várias imagens com diferentes distâncias de foco em uma única imagem perfeitamente nítida.",
-                "descriptionWithCount_one": "Combine {{count}} imagem com diferentes distâncias de foco em uma única imagem perfeitamente nítida.",
-                "descriptionWithCount_many": "Combine {{count}} imagens com diferentes distâncias de foco em uma única imagem perfeitamente nítida.",
-                "descriptionWithCount_other": "Combine {{count}} imagens com diferentes distâncias de foco em uma única imagem perfeitamente nítida.",
-                "failed": "Falha no Empilhamento de Foco",
-                "result": "Resultado",
-                "depthMap": "Mapa de Profundidade",
-                "savedSuccess": "Empilhamento de foco salvo com sucesso!",
-                "stacking": "Empilhando Foco",
-                "initializing": "Inicializando...",
-                "close": "Fechar",
-                "openInEditor": "Abrir no Editor",
-                "cancel": "Cancelar",
-                "start": "Iniciar",
-                "save": "Salvar"
+        "tethering": {
+            "title": "Tethering",
+            "scanTooltip": "Buscar Câmeras",
+            "status": "Status",
+            "cameraConnected": "Câmera Conectada",
+            "selectCamera": "Selecionar Câmera",
+            "startLiveView": "Iniciar Live View",
+            "stopLiveView": "Parar Live View",
+            "noCameraDetected": "Nenhuma câmera detectada",
+            "liveViewAlt": "Live View",
+            "ghostOverlayAlt": "Sobreposição Fantasma",
+            "overlayOff": "Desligado",
+            "rotate90": "Girar 90°",
+            "flipHorizontal": "Espelhar Horizontalmente",
+            "overlayLastShot": "Sobrepor Última Foto",
+            "selectCameraPlaceholder": "Selecione uma câmera",
+            "noCamerasFound": "Nenhuma câmera encontrada. Certifique-se de que esteja conectada e no modo PC Remote.",
+            "connectCamera": "Conectar Câmera",
+            "exposureSettings": "Configurações de Exposição",
+            "shutter": "Obturador",
+            "aperture": "Abertura",
+            "iso": "ISO",
+            "whiteBalance": "Balanço de Branco",
+            "shutterPlaceholder": "ex. 1/200",
+            "aperturePlaceholder": "ex. 2.8",
+            "isoPlaceholder": "ex. 400",
+            "autoOpenCaptured": "Abrir automaticamente imagem capturada",
+            "capturing": "Capturando...",
+            "triggerCapture": "Disparar Captura",
+            "toasts": {
+                "noCamerasFound": "Nenhuma câmera encontrada. Verifique se está no modo PC Remote.",
+                "detectionFailed": "Falha na detecção: {{err}}",
+                "communicationFailed": "Falha na comunicação com a câmera",
+                "connectionFailed": "Falha na conexão: {{err}}",
+                "setFailed": "Falha ao definir {{key}}: {{err}}",
+                "selectFolderFirst": "Selecione uma pasta padrão na sua Biblioteca primeiro.",
+                "captureFailed": "Falha na captura: {{err}}",
+                "cameraDisconnected": "Câmera desconectada"
             }
         }
     },
     "ru": {
-        "contextMenus": {
-            "merge": {
-                "title": "Объединить",
-                "focusStack": "Стекинг по фокусу"
+        "editor": {
+            "switcher": {
+                "tooltips": {
+                    "tethering": "Съемка на ПК (Тетеринг)"
+                }
             }
         },
-        "modals": {
-            "focusStack": {
-                "title": "Стекинг по фокусу",
-                "description": "Объедините несколько изображений с разным фокусным расстоянием в одно идеально резкое изображение.",
-                "descriptionWithCount_one": "Объедините {{count}} изображение с разным фокусным расстоянием в одно идеально резкое изображение.",
-                "descriptionWithCount_few": "Объедините {{count}} изображения с разным фокусным расстоянием в одно идеально резкое изображение.",
-                "descriptionWithCount_many": "Объедините {{count}} изображений с разным фокусным расстоянием в одно идеально резкое изображение.",
-                "descriptionWithCount_other": "Объедините {{count}} изображений с разным фокусным расстоянием в одно идеально резкое изображение.",
-                "failed": "Стекинг по фокусу не удался",
-                "result": "Результат",
-                "depthMap": "Карта глубины",
-                "savedSuccess": "Стек фокуса успешно сохранен!",
-                "stacking": "Выполнение стекинга",
-                "initializing": "Инициализация...",
-                "close": "Закрыть",
-                "openInEditor": "Открыть в редакторе",
-                "cancel": "Отмена",
-                "start": "Начать",
-                "save": "Сохранить"
+        "tethering": {
+            "title": "Тетеринг",
+            "scanTooltip": "Поиск камер",
+            "status": "Статус",
+            "cameraConnected": "Камера подключена",
+            "selectCamera": "Выбрать камеру",
+            "startLiveView": "Запустить Live View",
+            "stopLiveView": "Остановить Live View",
+            "noCameraDetected": "Камера не обнаружена",
+            "liveViewAlt": "Live View",
+            "ghostOverlayAlt": "Полупрозрачное наложение",
+            "overlayOff": "Выкл.",
+            "rotate90": "Повернуть на 90°",
+            "flipHorizontal": "Отразить по горизонтали",
+            "overlayLastShot": "Наложить прошлый снимок",
+            "selectCameraPlaceholder": "Выберите камеру",
+            "noCamerasFound": "Камеры не найдены. Убедитесь, что камера подключена и включен режим ПК.",
+            "connectCamera": "Подключить камеру",
+            "exposureSettings": "Настройки экспозиции",
+            "shutter": "Выдержка",
+            "aperture": "Диафрагма",
+            "iso": "ISO",
+            "whiteBalance": "Баланс белого",
+            "shutterPlaceholder": "напр. 1/200",
+            "aperturePlaceholder": "напр. 2.8",
+            "isoPlaceholder": "напр. 400",
+            "autoOpenCaptured": "Автоматически открывать снимок",
+            "capturing": "Съемка...",
+            "triggerCapture": "Сделать снимок",
+            "toasts": {
+                "noCamerasFound": "Камеры не найдены. Убедитесь, что включен режим дистанционного управления ПК.",
+                "detectionFailed": "Ошибка обнаружения: {{err}}",
+                "communicationFailed": "Не удалось связаться с камерой",
+                "connectionFailed": "Ошибка подключения: {{err}}",
+                "setFailed": "Не удалось установить {{key}}: {{err}}",
+                "selectFolderFirst": "Сначала выберите стандартную папку в Библиотеке.",
+                "captureFailed": "Ошибка съемки: {{err}}",
+                "cameraDisconnected": "Камера отключена"
             }
         }
     },
     "zh-CN": {
-        "contextMenus": {
-            "merge": {
-                "title": "合并",
-                "focusStack": "焦距合成"
+        "editor": {
+            "switcher": {
+                "tooltips": {
+                    "tethering": "联机拍摄"
+                }
             }
         },
-        "modals": {
-            "focusStack": {
-                "title": "焦距合成",
-                "description": "将多张不同对焦距离的图像合并为一张完美清晰的图像。",
-                "descriptionWithCount_one": "将 {{count}} 张不同对焦距离的图像合并为一张完美清晰的图像。",
-                "descriptionWithCount_other": "将 {{count}} 张不同对焦距离的图像合并为一张完美清晰的图像。",
-                "failed": "焦距合成失败",
-                "result": "结果",
-                "depthMap": "深度图",
-                "savedSuccess": "焦距合成已成功保存！",
-                "stacking": "正在合成焦距",
-                "initializing": "正在初始化...",
-                "close": "关闭",
-                "openInEditor": "在编辑器中打开",
-                "cancel": "取消",
-                "start": "开始",
-                "save": "保存"
+        "tethering": {
+            "title": "联机拍摄",
+            "scanTooltip": "扫描相机",
+            "status": "状态",
+            "cameraConnected": "相机已连接",
+            "selectCamera": "选择相机",
+            "startLiveView": "开启实时取景",
+            "stopLiveView": "停止实时取景",
+            "noCameraDetected": "未检测到相机",
+            "liveViewAlt": "实时取景",
+            "ghostOverlayAlt": "叠图预览",
+            "overlayOff": "关闭",
+            "rotate90": "旋转 90°",
+            "flipHorizontal": "水平翻转",
+            "overlayLastShot": "叠加上一张拍摄照片",
+            "selectCameraPlaceholder": "选择一台相机",
+            "noCamerasFound": "未找到相机。请确保已连接并处于 PC 遥控模式。",
+            "connectCamera": "连接相机",
+            "exposureSettings": "曝光设置",
+            "shutter": "快门",
+            "aperture": "光圈",
+            "iso": "ISO",
+            "whiteBalance": "白平衡",
+            "shutterPlaceholder": "例如 1/200",
+            "aperturePlaceholder": "例如 2.8",
+            "isoPlaceholder": "例如 400",
+            "autoOpenCaptured": "自动打开拍摄的照片",
+            "capturing": "正在拍摄...",
+            "triggerCapture": "触发拍摄",
+            "toasts": {
+                "noCamerasFound": "未找到相机。请确保处于 PC 遥控模式。",
+                "detectionFailed": "检测失败: {{err}}",
+                "communicationFailed": "与相机通信失败",
+                "connectionFailed": "连接失败: {{err}}",
+                "setFailed": "设置 {{key}} 失败: {{err}}",
+                "selectFolderFirst": "请先在图库中选择一个普通文件夹。",
+                "captureFailed": "拍摄失败: {{err}}",
+                "cameraDisconnected": "相机已断开连接"
             }
         }
     },
     "zh-TW": {
-        "contextMenus": {
-            "merge": {
-                "title": "合併",
-                "focusStack": "焦距合成"
+        "editor": {
+            "switcher": {
+                "tooltips": {
+                    "tethering": "連線拍攝"
+                }
             }
         },
-        "modals": {
-            "focusStack": {
-                "title": "焦距合成",
-                "description": "將多張不同對焦距離的影像合併為一張完美清晰的影像。",
-                "descriptionWithCount_one": "將 {{count}} 張不同對焦距離的影像合併為一張完美清晰的影像。",
-                "descriptionWithCount_other": "將 {{count}} 張不同對焦距離的影像合併為一張完美清晰的影像。",
-                "failed": "焦距合成失敗",
-                "result": "結果",
-                "depthMap": "深度圖",
-                "savedSuccess": "焦距合成已成功儲存！",
-                "stacking": "正在合成焦距",
-                "initializing": "正在初始化...",
-                "close": "關閉",
-                "openInEditor": "在編輯器中打開",
-                "cancel": "取消",
-                "start": "開始",
-                "save": "儲存"
+        "tethering": {
+            "title": "連線拍攝",
+            "scanTooltip": "掃描相機",
+            "status": "狀態",
+            "cameraConnected": "相機已連線",
+            "selectCamera": "選擇相機",
+            "startLiveView": "開啟即時取景",
+            "stopLiveView": "停止即時取景",
+            "noCameraDetected": "未偵測到相機",
+            "liveViewAlt": "即時取景",
+            "ghostOverlayAlt": "疊圖預覽",
+            "overlayOff": "關閉",
+            "rotate90": "旋轉 90°",
+            "flipHorizontal": "水平翻轉",
+            "overlayLastShot": "疊加上一張拍攝相片",
+            "selectCameraPlaceholder": "選擇一台相機",
+            "noCamerasFound": "未找到相機。請確保已連線並處於 PC 遙控模式。",
+            "connectCamera": "連線相機",
+            "exposureSettings": "曝光設定",
+            "shutter": "快門",
+            "aperture": "光圈",
+            "iso": "ISO",
+            "whiteBalance": "白平衡",
+            "shutterPlaceholder": "例如 1/200",
+            "aperturePlaceholder": "例如 2.8",
+            "isoPlaceholder": "例如 400",
+            "autoOpenCaptured": "自動開啟拍攝的影像",
+            "capturing": "正在拍攝...",
+            "triggerCapture": "觸發拍攝",
+            "toasts": {
+                "noCamerasFound": "未找到相機。請確保處於 PC 遙控模式。",
+                "detectionFailed": "偵測失敗: {{err}}",
+                "communicationFailed": "與相機通訊失敗",
+                "connectionFailed": "連線失敗: {{err}}",
+                "setFailed": "設定 {{key}} 失敗: {{err}}",
+                "selectFolderFirst": "請先在媒體庫中選擇一個一般資料夾。",
+                "captureFailed": "拍攝失敗: {{err}}",
+                "cameraDisconnected": "相機已中斷連線"
             }
         }
     }

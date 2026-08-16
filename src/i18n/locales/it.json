@@ -742,7 +742,8 @@
         "info": "Info",
         "inpaint": "Inpainting",
         "masks": "Maschere",
-        "presets": "Predefiniti"
+        "presets": "Predefiniti",
+        "tethering": "Acquisizione diretta"
       }
     },
     "toolbar": {
@@ -1815,6 +1816,46 @@
     "tooltips": {
       "goHome": "Torna alla Home page"
     }
+  },
+  "tethering": {
+    "aperture": "Apertura",
+    "aperturePlaceholder": "es. 2.8",
+    "autoOpenCaptured": "Apri automaticamente l'immagine acquisita",
+    "cameraConnected": "Fotocamera connessa",
+    "capturing": "Acquisizione in corso...",
+    "connectCamera": "Connetti fotocamera",
+    "exposureSettings": "Impostazioni di esposizione",
+    "flipHorizontal": "Capovolgi orizzontalmente",
+    "ghostOverlayAlt": "Sovrapposizione fantasma",
+    "iso": "ISO",
+    "isoPlaceholder": "es. 400",
+    "liveViewAlt": "Live View",
+    "noCameraDetected": "Nessuna fotocamera rilevata",
+    "noCamerasFound": "Nessuna fotocamera trovata. Assicurati che sia collegata e in modalità PC Remote.",
+    "overlayLastShot": "Sovrapponi ultimo scatto",
+    "overlayOff": "Spento",
+    "rotate90": "Ruota di 90°",
+    "scanTooltip": "Cerca fotocamere",
+    "selectCamera": "Seleziona fotocamera",
+    "selectCameraPlaceholder": "Seleziona una fotocamera",
+    "shutter": "Otturatore",
+    "shutterPlaceholder": "es. 1/200",
+    "startLiveView": "Avvia Live View",
+    "status": "Stato",
+    "stopLiveView": "Interrompi Live View",
+    "title": "Acquisizione diretta",
+    "toasts": {
+      "cameraDisconnected": "Fotocamera disconnessa",
+      "captureFailed": "Acquisizione non riuscita: {{err}}",
+      "communicationFailed": "Comunicazione con la fotocamera non riuscita",
+      "connectionFailed": "Connessione non riuscita: {{err}}",
+      "detectionFailed": "Rilevamento non riuscito: {{err}}",
+      "noCamerasFound": "Nessuna fotocamera trovata. Assicurati che sia in modalità PC Remote.",
+      "selectFolderFirst": "Seleziona prima una cartella standard nella tua libreria.",
+      "setFailed": "Impossibile impostare {{key}}: {{err}}"
+    },
+    "triggerCapture": "Scatta foto",
+    "whiteBalance": "Bilanciamento del bianco"
   },
   "ui": {
     "bottomBar": {

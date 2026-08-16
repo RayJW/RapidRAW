@@ -719,7 +719,8 @@
         "info": "資訊",
         "inpaint": "修復",
         "masks": "遮色片",
-        "presets": "預設"
+        "presets": "預設",
+        "tethering": "連線拍攝"
       }
     },
     "toolbar": {
@@ -1780,6 +1781,46 @@
     "tooltips": {
       "goHome": "返回首頁"
     }
+  },
+  "tethering": {
+    "aperture": "光圈",
+    "aperturePlaceholder": "例如 2.8",
+    "autoOpenCaptured": "自動開啟拍攝的影像",
+    "cameraConnected": "相機已連線",
+    "capturing": "正在拍攝...",
+    "connectCamera": "連線相機",
+    "exposureSettings": "曝光設定",
+    "flipHorizontal": "水平翻轉",
+    "ghostOverlayAlt": "疊圖預覽",
+    "iso": "ISO",
+    "isoPlaceholder": "例如 400",
+    "liveViewAlt": "即時取景",
+    "noCameraDetected": "未偵測到相機",
+    "noCamerasFound": "未找到相機。請確保已連線並處於 PC 遙控模式。",
+    "overlayLastShot": "疊加上一張拍攝相片",
+    "overlayOff": "關閉",
+    "rotate90": "旋轉 90°",
+    "scanTooltip": "掃描相機",
+    "selectCamera": "選擇相機",
+    "selectCameraPlaceholder": "選擇一台相機",
+    "shutter": "快門",
+    "shutterPlaceholder": "例如 1/200",
+    "startLiveView": "開啟即時取景",
+    "status": "狀態",
+    "stopLiveView": "停止即時取景",
+    "title": "連線拍攝",
+    "toasts": {
+      "cameraDisconnected": "相機已中斷連線",
+      "captureFailed": "拍攝失敗: {{err}}",
+      "communicationFailed": "與相機通訊失敗",
+      "connectionFailed": "連線失敗: {{err}}",
+      "detectionFailed": "偵測失敗: {{err}}",
+      "noCamerasFound": "未找到相機。請確保處於 PC 遙控模式。",
+      "selectFolderFirst": "請先在媒體庫中選擇一個一般資料夾。",
+      "setFailed": "設定 {{key}} 失敗: {{err}}"
+    },
+    "triggerCapture": "觸發拍攝",
+    "whiteBalance": "白平衡"
   },
   "ui": {
     "bottomBar": {

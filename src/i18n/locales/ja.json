@@ -719,7 +719,8 @@
         "info": "情報",
         "inpaint": "インペイント",
         "masks": "マスク",
-        "presets": "プリセット"
+        "presets": "プリセット",
+        "tethering": "テザー撮影"
       }
     },
     "toolbar": {
@@ -1780,6 +1781,46 @@
     "tooltips": {
       "goHome": "ホームへ移動"
     }
+  },
+  "tethering": {
+    "aperture": "絞り",
+    "aperturePlaceholder": "例: 2.8",
+    "autoOpenCaptured": "撮影した画像を自動で開く",
+    "cameraConnected": "カメラ接続中",
+    "capturing": "撮影中...",
+    "connectCamera": "カメラを接続",
+    "exposureSettings": "露出設定",
+    "flipHorizontal": "左右反転",
+    "ghostOverlayAlt": "ゴーストオーバーレイ",
+    "iso": "ISO",
+    "isoPlaceholder": "例: 400",
+    "liveViewAlt": "ライブビュー",
+    "noCameraDetected": "カメラが検出されません",
+    "noCamerasFound": "カメラが見つかりません。接続とPCリモートモードを確認してください。",
+    "overlayLastShot": "直前のショットをオーバーレイ",
+    "overlayOff": "オフ",
+    "rotate90": "90°回転",
+    "scanTooltip": "カメラをスキャン",
+    "selectCamera": "カメラを選択",
+    "selectCameraPlaceholder": "カメラを選択してください",
+    "shutter": "シャッター",
+    "shutterPlaceholder": "例: 1/200",
+    "startLiveView": "ライブビュー開始",
+    "status": "ステータス",
+    "stopLiveView": "ライブビュー停止",
+    "title": "テザー撮影",
+    "toasts": {
+      "cameraDisconnected": "カメラが切断されました",
+      "captureFailed": "撮影に失敗しました: {{err}}",
+      "communicationFailed": "カメラとの通信に失敗しました",
+      "connectionFailed": "接続に失敗しました: {{err}}",
+      "detectionFailed": "検出に失敗しました: {{err}}",
+      "noCamerasFound": "カメラが見つかりません。PCリモートモードになっていることを確認してください。",
+      "selectFolderFirst": "最初にライブラリで通常のフォルダを選択してください。",
+      "setFailed": "{{key}} の設定に失敗しました: {{err}}"
+    },
+    "triggerCapture": "撮影を実行",
+    "whiteBalance": "ホワイトバランス"
   },
   "ui": {
     "bottomBar": {

@@ -237,7 +237,7 @@ export default function TetheringPanel({ onLibraryRefresh, onImageSelect }: Teth
         setTethering({ cameras: cams });
         if (cams.length === 0) {
           if (!silent) {
-            toast.info('No cameras found. Ensure it is in PC Remote mode.');
+            toast.info(t('tethering.toasts.noCamerasFound'));
           }
           if (isConnected) {
             handleDisconnect();
@@ -245,13 +245,13 @@ export default function TetheringPanel({ onLibraryRefresh, onImageSelect }: Teth
         }
       } catch (e) {
         if (!silent) {
-          toast.error(`Detection failed: ${e}`);
+          toast.error(t('tethering.toasts.detectionFailed', { err: String(e) }));
         }
       } finally {
         setTethering({ isDetecting: false });
       }
     },
-    [setTethering, isConnected, handleDisconnect],
+    [setTethering, isConnected, handleDisconnect, t],
   );
 
   const fetchSettings = useCallback(async () => {
@@ -259,9 +259,9 @@ export default function TetheringPanel({ onLibraryRefresh, onImageSelect }: Teth
       const config = await invoke<Record<string, any>>(Invokes.TetherGetSettings);
       setTethering({ settings: config });
     } catch (e) {
-      handleDisconnect('Failed to communicate with camera');
+      handleDisconnect(t('tethering.toasts.communicationFailed'));
     }
-  }, [setTethering, handleDisconnect]);
+  }, [setTethering, handleDisconnect, t]);
 
   const connectCamera = async () => {
     try {
@@ -269,7 +269,7 @@ export default function TetheringPanel({ onLibraryRefresh, onImageSelect }: Teth
       setTethering({ isConnected: true });
       fetchSettings();
     } catch (e) {
-      handleDisconnect(`Connection failed: ${e}`);
+      handleDisconnect(t('tethering.toasts.connectionFailed', { err: String(e) }));
     }
   };
 
@@ -280,14 +280,14 @@ export default function TetheringPanel({ onLibraryRefresh, onImageSelect }: Teth
     try {
       await invoke(Invokes.TetherSetSetting, { settingName: key, value });
     } catch (e) {
-      toast.error(`Failed to set ${key}: ${e}`);
+      toast.error(t('tethering.toasts.setFailed', { key, err: String(e) }));
       fetchSettings();
     }
   };
 
   const captureImage = async () => {
     if (!currentFolderPath || currentFolderPath.startsWith('Album: ')) {
-      toast.warn('Please select a standard folder in your Library first.');
+      toast.warn(t('tethering.toasts.selectFolderFirst'));
       return;
     }
 
@@ -303,7 +303,7 @@ export default function TetheringPanel({ onLibraryRefresh, onImageSelect }: Teth
         onImageSelect(filePath, true);
       }
     } catch (e) {
-      toast.error(`Capture failed: ${e}`);
+      toast.error(t('tethering.toasts.captureFailed', { err: String(e) }));
       fetchSettings();
     } finally {
       setTethering({ isCapturing: false });
@@ -334,15 +334,15 @@ export default function TetheringPanel({ onLibraryRefresh, onImageSelect }: Teth
         const cams: string[] = await invoke(Invokes.TetherListCameras);
         setTethering({ cameras: cams });
         if (cams.length === 0 || (selectedCamera && !cams.includes(selectedCamera))) {
-          handleDisconnect('Camera disconnected');
+          handleDisconnect(t('tethering.toasts.cameraDisconnected'));
         }
       } catch {
-        handleDisconnect('Camera disconnected');
+        handleDisconnect(t('tethering.toasts.cameraDisconnected'));
       }
     }, 3000);
 
     return () => clearInterval(interval);
-  }, [isConnected, liveViewEnabled, selectedCamera, handleDisconnect, setTethering]);
+  }, [isConnected, liveViewEnabled, selectedCamera, handleDisconnect, setTethering, t]);
 
   useEffect(() => {
     let active = true;
@@ -382,7 +382,7 @@ export default function TetheringPanel({ onLibraryRefresh, onImageSelect }: Teth
           } catch {
             consecutiveErrors++;
             if (consecutiveErrors > 5) {
-              handleDisconnect('Camera disconnected');
+              handleDisconnect(t('tethering.toasts.cameraDisconnected'));
               return;
             }
           } finally {
@@ -404,7 +404,7 @@ export default function TetheringPanel({ onLibraryRefresh, onImageSelect }: Teth
       active = false;
       if (currentUrl) URL.revokeObjectURL(currentUrl);
     };
-  }, [liveViewEnabled, isConnected, handleDisconnect]);
+  }, [liveViewEnabled, isConnected, handleDisconnect, t]);
 
   const renderInputSetting = (key: string, label: string, IconComponent: React.FC, placeholder: string) => {
     const setting = settings[key];
@@ -457,12 +457,12 @@ export default function TetheringPanel({ onLibraryRefresh, onImageSelect }: Teth
   return (
     <div className="flex flex-col h-full">
       <div className="p-3 flex justify-between items-center shrink-0 border-b border-surface">
-        <Text variant={TextVariants.title}>Tethering</Text>
+        <Text variant={TextVariants.title}>{t('tethering.title')}</Text>
         <div className="flex items-center gap-1">
           <button
             className={clsx('p-2 rounded-full hover:bg-surface transition-colors', isDetecting && 'animate-spin')}
             onClick={() => detectCameras(false)}
-            data-tooltip="Scan for Cameras"
+            data-tooltip={t('tethering.scanTooltip')}
           >
             <RefreshCw size={18} />
           </button>
@@ -472,19 +472,19 @@ export default function TetheringPanel({ onLibraryRefresh, onImageSelect }: Teth
       <div className="grow overflow-y-auto p-3 flex flex-col gap-6 custom-scrollbar">
         <div>
           <Text variant={TextVariants.heading} className="mb-3">
-            Status
+            {t('tethering.status')}
           </Text>
           <div className="bg-surface border border-surface rounded-xl p-3.5 flex flex-col gap-3 cursor-default relative transition-all">
             <div className="flex justify-between items-center gap-4 relative z-10">
               <Text weight={TextWeights.semibold} color={TextColors.primary} className="truncate drop-shadow-sm">
-                {isConnected ? 'Camera Connected' : 'Select Camera'}
+                {isConnected ? t('tethering.cameraConnected') : t('tethering.selectCamera')}
               </Text>
               {isConnected && !liveViewEnabled && (
                 <button
                   onClick={() => setLiveViewEnabled(true)}
                   className="bg-bg-primary hover:bg-card-active text-text-primary text-xs font-medium px-2.5 py-1 rounded-md border border-surface/50 transition-colors shrink-0 shadow-xs"
                 >
-                  Start Live View
+                  {t('tethering.startLiveView')}
                 </button>
               )}
             </div>
@@ -492,7 +492,7 @@ export default function TetheringPanel({ onLibraryRefresh, onImageSelect }: Teth
             {isConnected && (
               <div className="flex flex-col gap-0.5 relative z-10">
                 <Text variant={TextVariants.small} color={TextColors.secondary} className="truncate drop-shadow-sm">
-                  {selectedCamera || (cameras.length > 0 ? cameras[0] : 'No camera detected')}
+                  {selectedCamera || (cameras.length > 0 ? cameras[0] : t('tethering.noCameraDetected'))}
                 </Text>
               </div>
             )}
@@ -514,12 +514,12 @@ export default function TetheringPanel({ onLibraryRefresh, onImageSelect }: Teth
                     transformOrigin: 'center center',
                   }}
                 >
-                  <img ref={imgRef} alt="Live View" className="w-full h-full object-contain" />
+                  <img ref={imgRef} alt={t('tethering.liveViewAlt')} className="w-full h-full object-contain" />
 
                   {showGhostImage && ghostBlobUrl && (
                     <img
                       src={ghostBlobUrl}
-                      alt="Ghost Overlay"
+                      alt={t('tethering.ghostOverlayAlt')}
                       className="absolute inset-0 w-full h-full object-contain opacity-50 mix-blend-screen"
                     />
                   )}
@@ -544,7 +544,7 @@ export default function TetheringPanel({ onLibraryRefresh, onImageSelect }: Teth
                     type="button"
                     onClick={() => setLiveViewEnabled(false)}
                     className="p-1.5 text-white/60 hover:text-white hover:bg-white/10 rounded-full transition-colors shrink-0"
-                    data-tooltip="Stop Live View"
+                    data-tooltip={t('tethering.stopLiveView')}
                   >
                     <Power size={14} />
                   </button>
@@ -561,7 +561,7 @@ export default function TetheringPanel({ onLibraryRefresh, onImageSelect }: Teth
                         : 'text-white/60 hover:text-white hover:bg-white/10',
                     )}
                   >
-                    Off
+                    {t('tethering.overlayOff')}
                   </button>
 
                   <button
@@ -582,7 +582,7 @@ export default function TetheringPanel({ onLibraryRefresh, onImageSelect }: Teth
                   <button
                     onClick={() => setTethering((s) => ({ liveViewRotation: (s.liveViewRotation + 90) % 360 }))}
                     className="p-1.5 text-white/60 hover:bg-white/10 hover:text-white rounded-full transition-colors shrink-0"
-                    data-tooltip="Rotate 90°"
+                    data-tooltip={t('tethering.rotate90')}
                   >
                     <RotateCw size={14} />
                   </button>
@@ -595,7 +595,7 @@ export default function TetheringPanel({ onLibraryRefresh, onImageSelect }: Teth
                         ? 'bg-accent text-button-text'
                         : 'text-white/60 hover:bg-white/10 hover:text-white',
                     )}
-                    data-tooltip="Flip Horizontal"
+                    data-tooltip={t('tethering.flipHorizontal')}
                   >
                     <FlipHorizontal size={14} />
                   </button>
@@ -609,7 +609,7 @@ export default function TetheringPanel({ onLibraryRefresh, onImageSelect }: Teth
                         ? 'bg-accent text-button-text'
                         : 'text-white/60 hover:bg-white/10 hover:text-white',
                     )}
-                    data-tooltip="Overlay Last Shot"
+                    data-tooltip={t('tethering.overlayLastShot')}
                   >
                     <Layers size={14} />
                   </button>
@@ -624,12 +624,12 @@ export default function TetheringPanel({ onLibraryRefresh, onImageSelect }: Teth
                     options={cameras.map((cam) => ({ label: cam, value: cam }))}
                     value={selectedCamera}
                     onChange={(val) => setSelectedCamera(val as string)}
-                    placeholder="Select a camera"
+                    placeholder={t('tethering.selectCameraPlaceholder')}
                     triggerClassName="w-full bg-bg-primary py-2 text-xs border border-surface focus:border-accent"
                   />
                 ) : (
                   <Text variant={TextVariants.small} color={TextColors.secondary}>
-                    No cameras found. Ensure it is connected and in PC Remote mode.
+                    {t('tethering.noCamerasFound')}
                   </Text>
                 )}
                 <button
@@ -637,7 +637,7 @@ export default function TetheringPanel({ onLibraryRefresh, onImageSelect }: Teth
                   onClick={connectCamera}
                   className="w-full bg-accent text-button-text text-sm font-medium py-1.5 rounded-md hover:bg-accent-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Connect Camera
+                  {t('tethering.connectCamera')}
                 </button>
               </div>
             )}
@@ -647,15 +647,25 @@ export default function TetheringPanel({ onLibraryRefresh, onImageSelect }: Teth
         {isConnected && (
           <div className="flex flex-col gap-3">
             <Text variant={TextVariants.heading} className="flex items-center gap-2">
-              Exposure Settings
+              {t('tethering.exposureSettings')}
             </Text>
             <div className="grid grid-cols-2 gap-2">
-              {renderInputSetting('shutterspeed', 'Shutter', IconShutter, 'e.g. 1/200')}
-              {renderInputSetting('aperture', 'Aperture', IconAperture, 'e.g. 2.8')}
-              {renderInputSetting('iso', 'ISO', IconIso, 'e.g. 400')}
+              {renderInputSetting(
+                'shutterspeed',
+                t('tethering.shutter'),
+                IconShutter,
+                t('tethering.shutterPlaceholder'),
+              )}
+              {renderInputSetting(
+                'aperture',
+                t('tethering.aperture'),
+                IconAperture,
+                t('tethering.aperturePlaceholder'),
+              )}
+              {renderInputSetting('iso', t('tethering.iso'), IconIso, t('tethering.isoPlaceholder'))}
               {renderDropdown(
                 'whitebalance',
-                'White Balance',
+                t('tethering.whiteBalance'),
                 <span className="text-text-secondary opacity-90 flex items-center justify-center shrink-0">
                   <ImageIcon size={14} />
                 </span>,
@@ -667,7 +677,7 @@ export default function TetheringPanel({ onLibraryRefresh, onImageSelect }: Teth
 
       <div className="p-3 border-t border-surface shrink-0 space-y-3">
         <Switch
-          label="Auto-open captured image"
+          label={t('tethering.autoOpenCaptured')}
           checked={autoOpenCaptured}
           onChange={(checked) => setTethering({ autoOpenCaptured: checked })}
           trackClassName="bg-surface"
@@ -681,12 +691,12 @@ export default function TetheringPanel({ onLibraryRefresh, onImageSelect }: Teth
           {isCapturing ? (
             <>
               <Loader size={18} className="animate-spin mr-2" />
-              Capturing...
+              {t('tethering.capturing')}
             </>
           ) : (
             <>
               <Camera size={18} className="mr-2" />
-              Trigger Capture
+              {t('tethering.triggerCapture')}
             </>
           )}
         </Button>
