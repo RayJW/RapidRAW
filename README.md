@@ -748,7 +748,8 @@ npm run tauri build
 ./src-tauri/target/release/RapidRAW
 ```
 
-#### Camera Tethering Build (macOS & Linux)
+<details>
+<summary><strong>Camera Tethering Build (macOS & Linux)</strong></summary>
 
 To build with camera tethering support, install the system dependencies first:
 
@@ -770,6 +771,8 @@ npm run start:tethering
 # Release build with Tethering
 npm run tauri build -- --features tethering
 ```
+
+</details>
 
 ## Camera Tethering
 
@@ -810,7 +813,10 @@ The tethering build dynamically links directly against `libgphoto2`. If these sy
 
 #### Setting up the Tethering Build
 
-To run the `_tethering` release binaries (or build from source), you **must install `libgphoto2` on your machine first**:
+To run the `_tethering` release binaries (or build from source), you **must install `libgphoto2` on your machine first**.
+
+<details>
+<summary><strong>How to install libgphoto2 dependencies</strong></summary>
 
 **macOS (via Homebrew):**
 
@@ -836,6 +842,8 @@ sudo pacman -S libgphoto2 pkgconf
 ```bash
 sudo dnf install libgphoto2-devel pkgconf-pkg-config
 ```
+
+</details>
 
 After installing the system dependencies, download the corresponding `_tethering` build from the [Releases](https://github.com/CyberTimon/RapidRAW/releases) page, or run/build from source using the `tethering` feature flag.
 
