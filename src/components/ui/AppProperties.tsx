@@ -97,6 +97,8 @@ export enum Invokes {
   ShowInFinder = 'show_in_finder',
   StartBackgroundIndexing = 'start_background_indexing',
   StitchPanorama = 'stitch_panorama',
+  StitchFocusStack = 'stitch_focus_stack',
+  SaveFocusStack = 'save_focus_stack',
   MergeHdr = 'merge_hdr',
   TestAIConnectorConnection = 'test_ai_connector_connection',
   UpdateWgpuTransform = 'update_wgpu_transform',

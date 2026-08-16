@@ -365,6 +365,8 @@ function App() {
     handleBatchDenoise,
     handleSaveDenoisedImage,
     handleSaveCollage,
+    handleStartFocusStack,
+    handleSaveFocusStack,
   } = useProductivityActions(handleLibraryRefresh);
 
   const {
@@ -876,6 +878,8 @@ function App() {
           handleImageSelect={handleImageSelect}
           handleSavePanorama={handleSavePanorama}
           handleStartPanorama={handleStartPanorama}
+          handleStartFocusStack={handleStartFocusStack}
+          handleSaveFocusStack={handleSaveFocusStack}
           handleSaveHdr={handleSaveHdr}
           handleStartHdr={handleStartHdr}
           refreshImageList={handleLibraryRefresh}

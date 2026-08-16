@@ -18,6 +18,7 @@ mod denoising;
 mod exif_processing;
 mod export_processing;
 mod file_management;
+mod focus_stacking;
 mod formats;
 mod gpu_processing;
 mod hdr_deghosting;
@@ -691,7 +692,7 @@ async fn apply_adjustments(
 
     {
         let tx_guard = state.preview_worker_tx.lock().unwrap();
-        if let Some(worker_tx) = &*tx_guard {
+        if let Some(worker_tx) = tx_guard.as_ref() {
             let job = PreviewJob {
                 adjustments: js_adjustments,
                 is_interactive,
@@ -2257,6 +2258,7 @@ pub fn run() {
             export_task_token: Arc::new(Mutex::new(None)),
             hdr_result: Arc::new(Mutex::new(None)),
             panorama_result: Arc::new(Mutex::new(None)),
+            focus_stack_result: Arc::new(Mutex::new(None)),
             denoise_result: Arc::new(Mutex::new(None)),
             indexing_task_handle: Mutex::new(None),
             lut_cache: Mutex::new(HashMap::new()),
@@ -2322,6 +2324,8 @@ pub fn run() {
             denoising::apply_denoising,
             denoising::batch_denoise_images,
             denoising::save_denoised_image,
+            focus_stacking::stitch_focus_stack,
+            focus_stacking::save_focus_stack,
             image_loader::load_image,
             image_loader::is_image_cached,
             panorama_stitching::stitch_panorama,

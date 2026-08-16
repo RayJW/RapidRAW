@@ -34,6 +34,16 @@ export interface PanoramaModalState {
   stitchingSourcePaths: Array<string>;
 }
 
+export interface FocusStackModalState {
+  error: string | null;
+  finalImageBase64: string | null;
+  depthMapBase64: string | null;
+  isOpen: boolean;
+  isProcessing: boolean;
+  progressMessage: string | null;
+  sourcePaths: Array<string>;
+}
+
 export interface HdrModalState {
   error: string | null;
   finalImageBase64: string | null;
@@ -117,6 +127,7 @@ interface UIState {
 
   confirmModalState: ConfirmModalState;
   panoramaModalState: PanoramaModalState;
+  focusStackModalState: FocusStackModalState;
   hdrModalState: HdrModalState;
   negativeModalState: NegativeConversionModalState;
   denoiseModalState: DenoiseModalState;
@@ -200,6 +211,15 @@ export const useUIStore = create<UIState>((set, get) => ({
     isProcessing: false,
     progressMessage: '',
     stitchingSourcePaths: [],
+  },
+  focusStackModalState: {
+    error: null,
+    finalImageBase64: null,
+    depthMapBase64: null,
+    isOpen: false,
+    isProcessing: false,
+    progressMessage: '',
+    sourcePaths: [],
   },
   hdrModalState: {
     error: null,

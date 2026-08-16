@@ -657,7 +657,17 @@ export function useAppContextMenus(props: UseAppContextMenusProps) {
               icon: Layers,
               label: t('contextMenus.merge.focusStack', 'Focus Stacking'),
               onClick: () => {
-                // Focus Stacking trigger
+                setUI({
+                  focusStackModalState: {
+                    error: null,
+                    finalImageBase64: null,
+                    depthMapBase64: null,
+                    isOpen: true,
+                    isProcessing: false,
+                    progressMessage: null,
+                    sourcePaths: finalSelection,
+                  },
+                });
               },
             },
           ],
