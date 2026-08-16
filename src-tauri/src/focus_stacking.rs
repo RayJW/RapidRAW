@@ -1733,6 +1733,7 @@ pub fn run_focus_stack<S: FrameSource + ?Sized>(
         let mut acfg = cfg.align;
         acfg.finest_dim = acfg.finest_dim.max(aw.max(ah));
 
+        let mut completed = 0;
         for pass in 0..2 {
             let order: Vec<usize> = if pass == 0 {
                 (0..reference).rev().collect()
@@ -1741,7 +1742,8 @@ pub fn run_focus_stack<S: FrameSource + ?Sized>(
             };
             let mut prev = LensWarp::identity(aw, ah);
             for &i in order.iter() {
-                progress(&format!("Aligning frame {} of {}...", i + 1, n));
+                completed += 1;
+                progress(&format!("Aligning frame {} of {}...", completed, n - 1));
                 let pyr = build_align_pyramids(&align_luma[reference], &align_luma[i], &acfg);
                 let pose = solve_alignment(&pyr, prev, &acfg);
                 let pose = if pose.quality < acfg.min_quality || !pose.warp.is_plausible() {
