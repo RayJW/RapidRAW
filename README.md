@@ -636,6 +636,7 @@ RapidRAW is fully translated into the following 13 languages:
 
 Here is an outlook on what is actively being developed and planned for the coming months:
 
+- **Astrophotography Stacking:** Implementing GPU-accelerated star alignment and stacking (mean, median, sigma-clipping) to merge multi-exposure night sky sequences into 32-bit linear composites.
 - **Bug Fixes & Stability:** Continuous memory optimization, resolving OS-specific crashes (such as Linux Wayland/WebKit edge cases), and refining GPU processing backend auto-selection for seamless performance across all platforms.
 - **Cloud AI Inpainting:** Launching the optional cloud generative AI integration to deliver high-quality object removal and generative replace without requiring local ComfyUI setups or heavy GPU hardware.
 - **Performance & Algorithm Refinements:** Further optimizing processing speed on older GPU architectures, refining Fujifilm X-Trans sensor demosaicing algorithms, and expanding UI responsiveness on mobile/Android devices.
