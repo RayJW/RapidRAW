@@ -950,6 +950,7 @@ A huge thank you to the following projects and tools that were very important in
 - **[pixls.us](https://discuss.pixls.us/):** For being an incredible community full of knowledgeable people who offered inspiration, advice, and ideas.
 - **[darktable & co.](https://github.com/darktable-org/darktable):** For some reference implementations that guided parts of this work.
 - **[libgphoto2](http://gphoto.org/):** For the comprehensive camera communication library powering RapidRAW's tethering and remote capture subsystem.
+- **[spektrafilm](https://github.com/andreavolpato/spektrafilm):** For the spectrally-based film emulation LUTs by Andrea Volpato, used to power RapidRAW's built-in film emulations.
 - **You:** For using and supporting RapidRAW. Your interest keeps this project alive and evolving.
 
 ## Support the Project

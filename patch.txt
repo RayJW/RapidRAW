@@ -1,0 +1,846 @@
+diff --git a/README.md b/README.md
+index 3b3e684f..9a7a10c3 100644
+--- a/README.md
++++ b/README.md
+@@ -950,6 +950,7 @@ A huge thank you to the following projects and tools that were very important in
+ - **[pixls.us](https://discuss.pixls.us/):** For being an incredible community full of knowledgeable people who offered inspiration, advice, and ideas.
+ - **[darktable & co.](https://github.com/darktable-org/darktable):** For some reference implementations that guided parts of this work.
+ - **[libgphoto2](http://gphoto.org/):** For the comprehensive camera communication library powering RapidRAW's tethering and remote capture subsystem.
++- **[spektrafilm](https://github.com/andreavolpato/spektrafilm):** For the spectrally-based film emulation LUTs by Andrea Volpato, used to power RapidRAW's built-in film emulations.
+ - **You:** For using and supporting RapidRAW. Your interest keeps this project alive and evolving.
+ 
+ ## Support the Project
+diff --git a/src-tauri/src/app_settings.rs b/src-tauri/src/app_settings.rs
+index 41f7d88e..c3b224d2 100644
+--- a/src-tauri/src/app_settings.rs
++++ b/src-tauri/src/app_settings.rs
+@@ -123,6 +123,7 @@ pub fn all_available_adjustments() -> HashSet<String> {
+         "lutPath",
+         "lutSize",
+         "lutData",
++        "lutIsSceneReferred",
+         "glowAmount",
+         "halationAmount",
+         "flareAmount",
+diff --git a/src-tauri/src/image_processing.rs b/src-tauri/src/image_processing.rs
+index 59c9f040..9285b0fa 100644
+--- a/src-tauri/src/image_processing.rs
++++ b/src-tauri/src/image_processing.rs
+@@ -1461,7 +1461,7 @@ pub struct GlobalAdjustments {
+     pub has_lut: u32,
+     pub lut_intensity: f32,
+     pub tonemapper_mode: u32,
+-    _pad_lut2: f32,
++    pub lut_is_scene_referred: u32,
+     _pad_lut3: f32,
+     _pad_lut4: f32,
+     _pad_lut5: f32,
+@@ -2141,7 +2141,7 @@ fn get_global_adjustments_from_json(
+     let tone_mapper = js_adjustments["toneMapper"].as_str().unwrap_or("basic");
+     let (pipe_to_rendering, rendering_to_pipe) = calculate_agx_matrices();
+ 
+-    let (has_lut, lut_intensity) = if is_visible("effects") {
++    let (has_lut, lut_intensity, lut_is_scene_referred) = if is_visible("effects") {
+         (
+             if js_adjustments["lutPath"].is_string() {
+                 1
+@@ -2149,9 +2149,17 @@ fn get_global_adjustments_from_json(
+                 0
+             },
+             js_adjustments["lutIntensity"].as_f64().unwrap_or(100.0) as f32 / 100.0,
++            if js_adjustments["lutIsSceneReferred"]
++                .as_bool()
++                .unwrap_or(false)
++            {
++                1
++            } else {
++                0
++            },
+         )
+     } else {
+-        (0, 1.0)
++        (0, 1.0, 0)
+     };
+ 
+     GlobalAdjustments {
+@@ -2243,7 +2251,7 @@ fn get_global_adjustments_from_json(
+ 
+         tonemapper_mode: tonemapper_override
+             .unwrap_or_else(|| if tone_mapper == "agx" { 1 } else { 0 }),
+-        _pad_lut2: 0.0,
++        lut_is_scene_referred,
+         _pad_lut3: 0.0,
+         _pad_lut4: 0.0,
+         _pad_lut5: 0.0,
+diff --git a/src-tauri/src/lut_processing.rs b/src-tauri/src/lut_processing.rs
+index a3b91c2b..8055488a 100644
+--- a/src-tauri/src/lut_processing.rs
++++ b/src-tauri/src/lut_processing.rs
+@@ -5,7 +5,7 @@ use crate::android_integration::{
+ };
+ use anyhow::anyhow;
+ use image::{DynamicImage, GenericImageView, Rgb, Rgb32FImage};
+-use serde::Serialize;
++use serde::{Deserialize, Serialize};
+ use std::fs::{File, copy, create_dir_all, read_dir};
+ use std::io::{BufRead, BufReader, Cursor};
+ use std::path::{Path, PathBuf};
+@@ -29,9 +29,18 @@ pub struct Lut {
+ }
+ 
+ #[derive(Debug, Clone, Serialize)]
++#[serde(rename_all = "camelCase")]
+ pub struct LutEntry {
+     pub name: String,
+     pub path: String,
++    pub is_built_in: bool,
++}
++
++#[derive(Debug, Clone, Deserialize)]
++#[serde(rename_all = "camelCase")]
++pub struct LutPreviewRequest {
++    pub path: String,
++    pub is_built_in: bool,
+ }
+ 
+ #[derive(Serialize)]
+@@ -45,6 +54,19 @@ pub struct LutPreview {
+     pub thumb: Option<String>,
+ }
+ 
++fn strip_verbatim(path: &Path) -> PathBuf {
++    let s = path.to_string_lossy();
++    PathBuf::from(s.strip_prefix(r"\\?\").unwrap_or(&s).to_string())
++}
++
++fn film_luts_dir(app_handle: &AppHandle) -> Option<PathBuf> {
++    app_handle
++        .path()
++        .resolve("resources/film_luts", tauri::path::BaseDirectory::Resource)
++        .ok()
++        .map(|p| strip_verbatim(&p))
++}
++
+ pub fn get_luts_dir(app_data_dir: &Path) -> anyhow::Result<PathBuf> {
+     let luts_dir = app_data_dir.join("luts");
+     if !luts_dir.exists() {
+@@ -53,7 +75,7 @@ pub fn get_luts_dir(app_data_dir: &Path) -> anyhow::Result<PathBuf> {
+     Ok(luts_dir)
+ }
+ 
+-pub fn list_luts_in_dir(dir: &Path) -> anyhow::Result<Vec<LutEntry>> {
++pub fn list_luts_in_dir(dir: &Path, is_built_in: bool) -> anyhow::Result<Vec<LutEntry>> {
+     let mut entries: Vec<LutEntry> = Vec::new();
+     if !dir.exists() {
+         return Ok(entries);
+@@ -77,9 +99,11 @@ pub fn list_luts_in_dir(dir: &Path) -> anyhow::Result<Vec<LutEntry>> {
+                 .and_then(|s| s.to_str())
+                 .unwrap_or("LUT")
+                 .to_string();
++
+             entries.push(LutEntry {
+                 name,
+-                path: path.to_string_lossy().into_owned(),
++                path: strip_verbatim(&path).to_string_lossy().into_owned(),
++                is_built_in,
+             });
+         }
+     }
+@@ -127,7 +151,7 @@ pub fn import_luts_to_dir(dir: &Path, source_paths: &[String]) -> anyhow::Result
+             log::error!("Failed to copy LUT '{}': {}", source, error);
+         }
+     }
+-    list_luts_in_dir(dir)
++    list_luts_in_dir(dir, false)
+ }
+ 
+ #[cfg(target_os = "android")]
+@@ -325,7 +349,9 @@ fn parse_hald(image: DynamicImage) -> anyhow::Result<Lut> {
+ }
+ 
+ pub fn parse_lut_file(path_str: &str) -> anyhow::Result<Lut> {
+-    if path_str.starts_with(r"\\") || path_str.starts_with("//") {
++    let normalized_path_str = path_str.strip_prefix(r"\\?\").unwrap_or(path_str);
++
++    if normalized_path_str.starts_with(r"\\") || normalized_path_str.starts_with("//") {
+         return Err(anyhow!("Network paths (UNC) are not allowed for LUTs"));
+     }
+ 
+@@ -460,6 +486,14 @@ pub fn get_or_load_lut(state: &State<AppState>, path: &str) -> Result<Arc<Lut>,
+ 
+ #[tauri::command]
+ pub fn list_luts(app_handle: AppHandle) -> Result<Vec<LutEntry>, String> {
++    let mut all_luts = Vec::new();
++
++    if let Some(resource_path) = film_luts_dir(&app_handle) {
++        if let Ok(built_in) = list_luts_in_dir(&resource_path, true) {
++            all_luts.extend(built_in);
++        }
++    }
++
+     let data_dir = app_handle
+         .path()
+         .app_data_dir()
+@@ -468,12 +502,21 @@ pub fn list_luts(app_handle: AppHandle) -> Result<Vec<LutEntry>, String> {
+ 
+     #[cfg(target_os = "android")]
+     {
+-        combined_lut_list(&luts_dir).map_err(|e| e.to_string())
++        if let Ok(user_luts) = list_luts_in_dir(&luts_dir, false) {
++            all_luts.extend(user_luts);
++        }
++        if let Ok(cached) = list_luts_in_cache() {
++            all_luts.extend(cached);
++        }
+     }
+     #[cfg(not(target_os = "android"))]
+     {
+-        list_luts_in_dir(&luts_dir).map_err(|e| e.to_string())
++        if let Ok(user_luts) = list_luts_in_dir(&luts_dir, false) {
++            all_luts.extend(user_luts);
++        }
+     }
++
++    Ok(all_luts)
+ }
+ 
+ #[cfg(target_os = "android")]
+@@ -515,7 +558,8 @@ fn list_luts_in_cache() -> anyhow::Result<Vec<LutEntry>> {
+                 .to_string();
+             entries.push(LutEntry {
+                 name,
+-                path: path.to_string_lossy().into_owned(),
++                path: strip_verbatim(&path).to_string_lossy().into_owned(),
++                is_built_in: false,
+             });
+         }
+     }
+@@ -523,15 +567,6 @@ fn list_luts_in_cache() -> anyhow::Result<Vec<LutEntry>> {
+     Ok(entries)
+ }
+ 
+-#[cfg(target_os = "android")]
+-fn combined_lut_list(luts_dir: &Path) -> anyhow::Result<Vec<LutEntry>> {
+-    let mut entries = list_luts_in_dir(luts_dir)?;
+-    if let Ok(cached) = list_luts_in_cache() {
+-        entries.extend(cached);
+-    }
+-    Ok(entries)
+-}
+-
+ #[tauri::command]
+ pub fn import_luts(
+     app_handle: AppHandle,
+@@ -544,14 +579,7 @@ pub fn import_luts(
+     let luts_dir = get_luts_dir(&data_dir).map_err(|e| e.to_string())?;
+     import_luts_to_dir(&luts_dir, &source_paths).map_err(|e| e.to_string())?;
+ 
+-    #[cfg(target_os = "android")]
+-    {
+-        combined_lut_list(&luts_dir).map_err(|e| e.to_string())
+-    }
+-    #[cfg(not(target_os = "android"))]
+-    {
+-        list_luts_in_dir(&luts_dir).map_err(|e| e.to_string())
+-    }
++    list_luts(app_handle)
+ }
+ 
+ #[tauri::command]
+@@ -560,12 +588,18 @@ pub fn remove_lut(app_handle: AppHandle, path: String) -> Result<Vec<LutEntry>,
+         .path()
+         .app_data_dir()
+         .map_err(|e| e.to_string())?;
+-    let luts_dir = get_luts_dir(&data_dir).map_err(|e| e.to_string())?;
+-    let target_path = PathBuf::from(&path);
++    let luts_dir = strip_verbatim(&get_luts_dir(&data_dir).map_err(|e| e.to_string())?);
++    let target_path = strip_verbatim(Path::new(&path));
++
++    if let Some(resource_path) = film_luts_dir(&app_handle) {
++        if target_path.starts_with(&resource_path) {
++            return Err("Cannot delete built-in film emulations".to_string());
++        }
++    }
+ 
+     #[cfg(target_os = "android")]
+     {
+-        let cache_dir = get_lut_cache_dir().map_err(|e| e.to_string())?;
++        let cache_dir = strip_verbatim(&get_lut_cache_dir().map_err(|e| e.to_string())?);
+         if !target_path.starts_with(&luts_dir) && !target_path.starts_with(&cache_dir) {
+             return Err(
+                 "Access denied: Cannot remove files outside the user LUT directory".to_string(),
+@@ -585,14 +619,7 @@ pub fn remove_lut(app_handle: AppHandle, path: String) -> Result<Vec<LutEntry>,
+         return Err("LUT file not found".to_string());
+     }
+ 
+-    #[cfg(target_os = "android")]
+-    {
+-        combined_lut_list(&luts_dir).map_err(|e| e.to_string())
+-    }
+-    #[cfg(not(target_os = "android"))]
+-    {
+-        list_luts_in_dir(&luts_dir).map_err(|e| e.to_string())
+-    }
++    list_luts(app_handle)
+ }
+ 
+ fn render_lut_swatch(
+@@ -633,7 +660,7 @@ fn render_lut_swatch(
+ 
+ #[tauri::command]
+ pub fn generate_lut_previews(
+-    lut_paths: Vec<String>,
++    luts: Vec<LutPreviewRequest>,
+     size: u32,
+     state: State<AppState>,
+     app_handle: AppHandle,
+@@ -652,26 +679,32 @@ pub fn generate_lut_previews(
+         crate::generate_transformed_preview(&state, &loaded_image, &base_json, size)?;
+ 
+     let tm_override = resolve_tonemapper_override_from_handle(&app_handle, is_raw);
+-    let lut_json = serde_json::json!({
+-        "lutPath": "preview",
+-        "lutIntensity": 100,
+-        "sectionVisibility": { "effects": true }
+-    });
+-    let adjustments = get_all_adjustments_from_json(&lut_json, is_raw, tm_override);
+     let transform_hash = calculate_transform_hash(&base_json);
+ 
+-    let previews = lut_paths
++    let previews = luts
+         .into_iter()
+-        .map(|path| {
++        .map(|request| {
++            let swatch_lut_json = serde_json::json!({
++                "lutPath": "preview",
++                "lutIntensity": 100,
++                "lutIsSceneReferred": request.is_built_in,
++                "sectionVisibility": { "effects": true }
++            });
++            let swatch_adjustments =
++                get_all_adjustments_from_json(&swatch_lut_json, is_raw, tm_override);
++
+             let thumb = render_lut_swatch(
+                 &context,
+                 &state,
+                 &base_image,
+                 transform_hash,
+-                adjustments,
+-                &path,
++                swatch_adjustments,
++                &request.path,
+             );
+-            LutPreview { path, thumb }
++            LutPreview {
++                path: request.path,
++                thumb,
++            }
+         })
+         .collect();
+ 
+diff --git a/src-tauri/src/shaders/shader.wgsl b/src-tauri/src/shaders/shader.wgsl
+index 0ed16c15..ce75399c 100644
+--- a/src-tauri/src/shaders/shader.wgsl
++++ b/src-tauri/src/shaders/shader.wgsl
+@@ -71,7 +71,7 @@ struct GlobalAdjustments {
+     has_lut: u32,
+     lut_intensity: f32,
+     tonemapper_mode: u32,
+-    _pad_lut2: f32,
++    lut_is_scene_referred: u32,
+     _pad_lut3: f32,
+     _pad_lut4: f32,
+     _pad_lut5: f32,
+@@ -243,6 +243,14 @@ fn linear_to_srgb_extended(c: vec3<f32>) -> vec3<f32> {
+     return select(higher, lower, safe_c <= cutoff);
+ }
+ 
++fn linear_to_vlog(c: vec3<f32>) -> vec3<f32> {
++    let safe_c = max(c, vec3<f32>(0.0));
++    let low = 5.6 * safe_c + 0.125;
++    let log10_val = log2(safe_c + 0.00873) * 0.30102999566398;
++    let high = 0.241514 * log10_val + 0.598206;
++    return select(high, low, safe_c <= vec3<f32>(0.01));
++}
++
+ fn rgb_to_hsv(c: vec3<f32>) -> vec3<f32> {
+     let c_max = max(c.r, max(c.g, c.b));
+     let c_min = min(c.r, min(c.g, c.b));
+@@ -1812,18 +1820,28 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
+         }
+     }
+ 
+-    var base_srgb: vec3<f32>;
++    var default_tonemapped: vec3<f32>;
+     if (adjustments.global.tonemapper_mode == 1u) {
+-        base_srgb = agx_full_transform(composite_rgb_linear);
++        default_tonemapped = agx_full_transform(composite_rgb_linear);
+     } else if (is_raw == 1u) {
+         var srgb_emulated = linear_to_srgb(composite_rgb_linear);
+         const BRIGHTNESS_GAMMA: f32 = 1.1;
+         srgb_emulated = pow(srgb_emulated, vec3<f32>(1.0 / BRIGHTNESS_GAMMA));
+         const CONTRAST_MIX: f32 = 0.75;
+         let contrast_curve = srgb_emulated * srgb_emulated * (3.0 - 2.0 * srgb_emulated);
+-        base_srgb = mix(srgb_emulated, contrast_curve, CONTRAST_MIX);
++        default_tonemapped = mix(srgb_emulated, contrast_curve, CONTRAST_MIX);
++    } else {
++        default_tonemapped = linear_to_srgb(composite_rgb_linear);
++    }
++    var base_srgb: vec3<f32>;
++    let is_scene_lut = (adjustments.global.has_lut == 1u && adjustments.global.lut_is_scene_referred == 1u);
++
++    if (is_scene_lut) {
++        let vlog_encoded = linear_to_vlog(composite_rgb_linear);
++        let lut_color = sample_lut_tetrahedral(vlog_encoded);
++        base_srgb = mix(default_tonemapped, lut_color, adjustments.global.lut_intensity);
+     } else {
+-        base_srgb = linear_to_srgb(composite_rgb_linear);
++        base_srgb = default_tonemapped;
+     }
+ 
+     var final_rgb = apply_all_curves(base_srgb,
+@@ -1847,7 +1865,7 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
+         }
+     }
+ 
+-    if (adjustments.global.has_lut == 1u) {
++    if (adjustments.global.has_lut == 1u && adjustments.global.lut_is_scene_referred == 0u) {
+         let lut_color = sample_lut_tetrahedral(final_rgb);
+         final_rgb = mix(final_rgb, lut_color, adjustments.global.lut_intensity);
+     }
+diff --git a/src/components/adjustments/Effects.tsx b/src/components/adjustments/Effects.tsx
+index bb6cd69b..8eeb3b48 100644
+--- a/src/components/adjustments/Effects.tsx
++++ b/src/components/adjustments/Effects.tsx
+@@ -19,7 +19,7 @@ interface EffectsPanelProps {
+   adjustments: Adjustments;
+   isForMask?: boolean;
+   setAdjustments(adjustments: Partial<Adjustments> | ((prev: Adjustments) => Adjustments)): any;
+-  handleLutSelect(path: string): void;
++  handleLutSelect(path: string, isSceneReferred: boolean): void;
+   onLutHover?: (path: string | null) => void;
+   appSettings: AppSettings | null;
+   onDragStateChange?: (isDragging: boolean) => void;
+@@ -182,6 +182,7 @@ export default function EffectsPanel({
+       lutData: null,
+       lutSize: 0,
+       lutIntensity: 100,
++      lutIsSceneReferred: false,
+     }));
+   };
+ 
+diff --git a/src/components/panel/SettingsPanel.tsx b/src/components/panel/SettingsPanel.tsx
+index 62b2784e..f1444b6e 100644
+--- a/src/components/panel/SettingsPanel.tsx
++++ b/src/components/panel/SettingsPanel.tsx
+@@ -1586,6 +1586,17 @@ export default function SettingsPanel({
+                         </a>
+                         : {t('settings.thanks.list.lensfun')}
+                       </li>
++                      <li>
++                        <a
++                          href="https://github.com/andreavolpato/spektrafilm"
++                          target="_blank"
++                          rel="noopener noreferrer"
++                          className="font-semibold text-accent hover:underline"
++                        >
++                          spektrafilm
++                        </a>
++                        : {t('settings.thanks.list.spektrafilm')}
++                      </li>
+                       <li>
+                         <a
+                           href="https://github.com/marcinz606/NegPy"
+@@ -1652,6 +1663,17 @@ export default function SettingsPanel({
+                         </a>
+                         : {t('settings.thanks.list.nind')}
+                       </li>
++                      <li>
++                        <a
++                          href="http://gphoto.org/"
++                          target="_blank"
++                          rel="noopener noreferrer"
++                          className="font-semibold text-accent hover:underline"
++                        >
++                          libgphoto2
++                        </a>
++                        : {t('settings.thanks.list.libgphoto2')}
++                      </li>
+                       <li>
+                         <a
+                           href="https://github.com/darktable-org/darktable"
+diff --git a/src/components/ui/LUTControl.tsx b/src/components/ui/LUTControl.tsx
+index df1b8bf6..783607ab 100644
+--- a/src/components/ui/LUTControl.tsx
++++ b/src/components/ui/LUTControl.tsx
+@@ -13,6 +13,7 @@ import { useSettingsStore } from '../../store/useSettingsStore';
+ interface LutEntry {
+   name: string;
+   path: string;
++  isBuiltIn: boolean;
+ }
+ 
+ interface LutPreview {
+@@ -24,8 +25,8 @@ interface LUTControlProps {
+   lutPath: string | null;
+   lutName: string | null;
+   lutIntensity: number;
+-  onLutSelect: (path: string) => void;
+-  onLutHover?: (path: string | null) => void;
++  onLutSelect: (path: string, isBuiltIn: boolean) => void;
++  onLutHover?: (path: string | null, isBuiltIn?: boolean) => void;
+   onIntensityChange: (intensity: number) => void;
+   onClear: () => void;
+   onDragStateChange?: (isDragging: boolean) => void;
+@@ -56,6 +57,8 @@ export default function LUTControl({
+   const previewCache = useRef<Map<string, Record<string, string | null>>>(new Map());
+ 
+   const handleContextMenu = (event: React.MouseEvent, entry: LutEntry) => {
++    if (entry.isBuiltIn) return;
++
+     event.preventDefault();
+     event.stopPropagation();
+ 
+@@ -79,6 +82,7 @@ export default function LUTControl({
+             }
+           } catch (err) {
+             console.error('Failed to remove LUT:', err);
++            toast.error(String(err));
+           }
+         },
+       },
+@@ -102,7 +106,9 @@ export default function LUTControl({
+     if (!isExpanded || !selectedImagePath || !isImageReady || entries.length === 0) {
+       return;
+     }
+-    const cacheKey = `${selectedImagePath}|${entries.map((entry) => entry.path).join(',')}`;
++    const cacheKey = `${selectedImagePath}|${entries
++      .map((entry) => `${entry.path}:${entry.isBuiltIn ? 1 : 0}`)
++      .join(',')}`;
+     const cached = previewCache.current.get(cacheKey);
+     if (cached) {
+       setPreviews(cached);
+@@ -112,7 +118,7 @@ export default function LUTControl({
+     let isActive = true;
+     setIsLoadingPreviews(true);
+     invoke<LutPreview[]>('generate_lut_previews', {
+-      lutPaths: entries.map((entry) => entry.path),
++      luts: entries.map((entry) => ({ path: entry.path, isBuiltIn: entry.isBuiltIn })),
+       size: PREVIEW_SIZE,
+     })
+       .then((results) => {
+@@ -190,15 +196,49 @@ export default function LUTControl({
+     }
+   };
+ 
+-  const handleSwatchClick = (path: string) => {
++  const handleSwatchClick = (entry: LutEntry) => {
+     onLutHover?.(null);
+-    if (path === lutPath) {
++    if (entry.path === lutPath) {
+       onClear();
+     } else {
+-      onLutSelect(path);
++      onLutSelect(entry.path, entry.isBuiltIn);
+     }
+   };
+ 
++  const builtInLuts = entries.filter((e) => e.isBuiltIn);
++  const customLuts = entries.filter((e) => !e.isBuiltIn);
++
++  const renderSwatch = (entry: LutEntry) => {
++    const thumb = previews[entry.path];
++    const isSelected = entry.path === lutPath;
++    return (
++      <button
++        key={entry.path}
++        onMouseEnter={() => onLutHover?.(entry.path, entry.isBuiltIn)}
++        onMouseLeave={() => onLutHover?.(null)}
++        onClick={() => handleSwatchClick(entry)}
++        onContextMenu={entry.isBuiltIn ? undefined : (e) => handleContextMenu(e, entry)}
++        className={`relative aspect-square rounded-md overflow-hidden bg-bg-tertiary border-2 transition-colors ${
++          isSelected ? 'border-accent' : 'border-transparent hover:border-surface'
++        }`}
++        data-tooltip={entry.name}
++      >
++        {isLoadingPreviews && thumb === undefined ? (
++          <div className="w-full h-full animate-pulse bg-surface" />
++        ) : thumb ? (
++          <img src={thumb} alt={entry.name} className="w-full h-full object-cover" draggable={false} />
++        ) : (
++          <div className="w-full h-full flex items-center justify-center text-text-secondary">
++            <ImageOff size={18} />
++          </div>
++        )}
++        <span className="absolute inset-x-0 bottom-0 px-1 py-0.5 text-[10px] text-white bg-black/60 truncate text-left backdrop-blur-xs">
++          {entry.name}
++        </span>
++      </button>
++    );
++  };
++
+   return (
+     <div className="mb-2">
+       <div className="flex justify-between items-center">
+@@ -224,70 +264,6 @@ export default function LUTControl({
+         </div>
+       </div>
+ 
+-      <AnimatePresence initial={false}>
+-        {isExpanded && (
+-          <motion.div
+-            initial={{ height: 0, opacity: 0 }}
+-            animate={{ height: 'auto', opacity: 1 }}
+-            exit={{ height: 0, opacity: 0 }}
+-            transition={{ duration: 0.25, ease: 'easeInOut' }}
+-            className="overflow-hidden"
+-          >
+-            <div className="mt-2 pb-1">
+-              {entries.length === 0 ? (
+-                <button
+-                  onClick={handleImport}
+-                  className="w-full flex items-center justify-center gap-1.5 py-4 rounded-md bg-bg-tertiary hover:bg-surface border-2 border-dashed border-text-secondary/20 hover:border-text-secondary/40 text-sm text-text-primary transition-colors"
+-                >
+-                  <Upload size={16} />
+-                  {t('ui.lut.import')}
+-                </button>
+-              ) : (
+-                <div className="grid grid-cols-3 gap-2">
+-                  {entries.map((entry) => {
+-                    const thumb = previews[entry.path];
+-                    const isSelected = entry.path === lutPath;
+-                    return (
+-                      <button
+-                        key={entry.path}
+-                        onMouseEnter={() => onLutHover?.(entry.path)}
+-                        onMouseLeave={() => onLutHover?.(null)}
+-                        onClick={() => handleSwatchClick(entry.path)}
+-                        onContextMenu={(e) => handleContextMenu(e, entry)}
+-                        className={`relative aspect-square rounded-md overflow-hidden bg-bg-tertiary border-2 transition-colors ${
+-                          isSelected ? 'border-accent' : 'border-transparent hover:border-surface'
+-                        }`}
+-                        data-tooltip={entry.name}
+-                      >
+-                        {isLoadingPreviews && thumb === undefined ? (
+-                          <div className="w-full h-full animate-pulse bg-surface" />
+-                        ) : thumb ? (
+-                          <img src={thumb} alt={entry.name} className="w-full h-full object-cover" draggable={false} />
+-                        ) : (
+-                          <div className="w-full h-full flex items-center justify-center text-text-secondary">
+-                            <ImageOff size={18} />
+-                          </div>
+-                        )}
+-                        <span className="absolute inset-x-0 bottom-0 px-1 py-0.5 text-[10px] text-white bg-black/50 truncate text-left">
+-                          {entry.name}
+-                        </span>
+-                      </button>
+-                    );
+-                  })}
+-                  <button
+-                    onClick={handleImport}
+-                    className="aspect-square rounded-md bg-bg-tertiary border-2 border-text-secondary/25 hover:border-accent flex items-center justify-center text-text-secondary hover:text-text-primary transition-all duration-150"
+-                    data-tooltip={t('ui.lut.import')}
+-                  >
+-                    <Upload size={20} />
+-                  </button>
+-                </div>
+-              )}
+-            </div>
+-          </motion.div>
+-        )}
+-      </AnimatePresence>
+-
+       <AnimatePresence initial={false}>
+         {lutName && (
+           <motion.div
+@@ -297,7 +273,7 @@ export default function LUTControl({
+             transition={{ duration: 0.2, ease: 'easeInOut' }}
+             className="overflow-hidden"
+           >
+-            <div className="mt-2">
++            <div className="mt-3">
+               <Slider
+                 label={t('ui.lut.intensity')}
+                 min={0}
+@@ -313,6 +289,69 @@ export default function LUTControl({
+           </motion.div>
+         )}
+       </AnimatePresence>
++
++      <AnimatePresence initial={false}>
++        {isExpanded && (
++          <motion.div
++            initial={{ height: 0, opacity: 0 }}
++            animate={{ height: 'auto', opacity: 1 }}
++            exit={{ height: 0, opacity: 0 }}
++            transition={{ duration: 0.25, ease: 'easeInOut' }}
++            className="overflow-hidden"
++          >
++            <div className={`${lutName ? '' : 'mt-3'} pb-1 space-y-4`}>
++              {builtInLuts.length > 0 && (
++                <div>
++                  <span className="text-sm font-medium text-text-secondary select-none block mb-2">
++                    {t('ui.lut.filmEmulations', 'Film Emulations')}
++                  </span>
++                  <div className="grid grid-cols-3 gap-2">{builtInLuts.map(renderSwatch)}</div>
++                </div>
++              )}
++
++              <div>
++                <div className="flex items-center justify-between mb-2">
++                  <span className="text-sm font-medium text-text-secondary select-none">
++                    {t('ui.lut.customLuts', 'Custom LUTs')}
++                  </span>
++                  {customLuts.length > 0 && (
++                    <button
++                      onClick={handleImport}
++                      className="text-xs text-text-secondary hover:text-accent flex items-center gap-1 transition-colors"
++                      data-tooltip={t('ui.lut.import')}
++                    >
++                      <Upload size={12} />
++                      {t('ui.lut.import')}
++                    </button>
++                  )}
++                </div>
++
++                {customLuts.length === 0 ? (
++                  <button
++                    onClick={handleImport}
++                    className="w-full flex items-center justify-center gap-1.5 py-4 rounded-md bg-bg-tertiary hover:bg-surface border-2 border-dashed border-text-secondary/20 hover:border-text-secondary/40 text-sm text-text-primary transition-colors cursor-pointer"
++                  >
++                    <Upload size={16} />
++                    {t('ui.lut.import')}
++                  </button>
++                ) : (
++                  <div className="grid grid-cols-3 gap-2">
++                    {customLuts.map(renderSwatch)}
++
++                    <button
++                      onClick={handleImport}
++                      className="aspect-square rounded-md bg-bg-tertiary border-2 border-dashed border-text-secondary/25 hover:border-accent flex items-center justify-center text-text-secondary hover:text-text-primary transition-all duration-150 cursor-pointer"
++                      data-tooltip={t('ui.lut.import')}
++                    >
++                      <Upload size={18} />
++                    </button>
++                  </div>
++                )}
++              </div>
++            </div>
++          </motion.div>
++        )}
++      </AnimatePresence>
+     </div>
+   );
+ }
+diff --git a/src/hooks/useEditorActions.ts b/src/hooks/useEditorActions.ts
+index 3e6b21b3..f71afb11 100644
+--- a/src/hooks/useEditorActions.ts
++++ b/src/hooks/useEditorActions.ts
+@@ -83,20 +83,25 @@ export function useEditorActions() {
+   }, [setAdjustments]);
+ 
+   const handleLutSelect = useCallback(
+-    async (path: string) => {
++    async (path: string, isBuiltIn: boolean = false) => {
+       const isAndroid = useSettingsStore.getState().osPlatform === 'android';
+       try {
+         const result: { size: number } = await invoke('load_and_parse_lut', { path });
+-        let name = isAndroid && path.startsWith('content://')
+-          ? await invoke<string>('resolve_android_content_uri_name', { uriStr: path })
+-          : path.split(/[\\/]/).pop() || 'LUT';
++        let name =
++          isAndroid && path.startsWith('content://')
++            ? await invoke<string>('resolve_android_content_uri_name', { uriStr: path })
++            : path.split(/[\\/]/).pop() || 'LUT';
+         setAdjustments((prev: Adjustments) => ({
+           ...prev,
+           lutPath: path,
+           lutName: name,
+           lutSize: result.size,
+           lutIntensity: 100,
+-          sectionVisibility: { ...(prev.sectionVisibility || INITIAL_ADJUSTMENTS.sectionVisibility), effects: true },
++          lutIsSceneReferred: isBuiltIn,
++          sectionVisibility: {
++            ...(prev.sectionVisibility || INITIAL_ADJUSTMENTS.sectionVisibility),
++            effects: true,
++          },
+         }));
+       } catch (err) {
+         toast.error(`Failed to load LUT: ${err}`);
+@@ -106,7 +111,7 @@ export function useEditorActions() {
+   );
+ 
+   const setLutPreviewOverride = useCallback(
+-    (path: string | null) => {
++    (path: string | null, isBuiltIn: boolean = false) => {
+       setEditor((state) => {
+         if (!path) return { previewOverride: null };
+         const name = path.split(/[\\/]/).pop() || 'LUT';
+@@ -116,6 +121,7 @@ export function useEditorActions() {
+             lutPath: path,
+             lutName: name,
+             lutIntensity: state.adjustments.lutIntensity,
++            lutIsSceneReferred: isBuiltIn,
+           },
+         };
+       });
+diff --git a/src/utils/adjustments.ts b/src/utils/adjustments.ts
+index 2c29e3ed..4dda8384 100644
+--- a/src/utils/adjustments.ts
++++ b/src/utils/adjustments.ts
+@@ -81,6 +81,7 @@ export enum Effect {
+   LutName = 'lutName',
+   LutPath = 'lutPath',
+   LutSize = 'lutSize',
++  LutIsSceneReferred = 'lutIsSceneReferred',
+   VignetteAmount = 'vignetteAmount',
+   VignetteFeather = 'vignetteFeather',
+   VignetteMidpoint = 'vignetteMidpoint',
+@@ -223,6 +224,7 @@ export interface Adjustments {
+   lutName?: string | null;
+   lutPath?: string | null;
+   lutSize?: number;
++  lutIsSceneReferred?: boolean;
+   masks: Array<MaskContainer>;
+   orientationSteps: number;
+   rotation: number;
+@@ -559,6 +561,7 @@ export const INITIAL_ADJUSTMENTS: Adjustments = {
+   lutName: null,
+   lutPath: null,
+   lutSize: 0,
++  lutIsSceneReferred: false,
+   masks: [],
+   orientationSteps: 0,
+   rotation: 0,
+@@ -679,6 +682,7 @@ export const normalizeLoadedAdjustments = (loadedAdjustments: Adjustments): any
+   return {
+     ...INITIAL_ADJUSTMENTS,
+     ...loadedAdjustments,
++    lutIsSceneReferred: loadedAdjustments.lutIsSceneReferred ?? false,
+     flareAmount: loadedAdjustments.flareAmount ?? INITIAL_ADJUSTMENTS.flareAmount,
+     glowAmount: loadedAdjustments.glowAmount ?? INITIAL_ADJUSTMENTS.glowAmount,
+     halationAmount: loadedAdjustments.halationAmount ?? INITIAL_ADJUSTMENTS.halationAmount,
+@@ -801,7 +805,14 @@ export const ADJUSTMENT_GROUPS: Record<string, AdjustmentGroup[]> = {
+     },
+     {
+       label: 'modals.copyPaste.groups.lut',
+-      keys: [Effect.LutIntensity, Effect.LutName, Effect.LutPath, Effect.LutSize, Effect.LutData],
++      keys: [
++        Effect.LutIntensity,
++        Effect.LutName,
++        Effect.LutPath,
++        Effect.LutSize,
++        Effect.LutData,
++        Effect.LutIsSceneReferred,
++      ],
+     },
+   ],
+   geometry: [
+@@ -890,6 +901,7 @@ export const ADJUSTMENT_SECTIONS: Sections = {
+     Effect.LutName,
+     Effect.LutPath,
+     Effect.LutSize,
++    Effect.LutIsSceneReferred,
+     Effect.VignetteAmount,
+     Effect.VignetteFeather,
+     Effect.VignetteMidpoint,
