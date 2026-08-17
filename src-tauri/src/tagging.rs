@@ -437,8 +437,6 @@ fn modify_tags_for_path(
     let json_string = serde_json::to_string_pretty(&metadata).map_err(|e| e.to_string())?;
     fs::write(&sidecar_path, json_string).map_err(|e| e.to_string())?;
 
-    // Keep the XMP sidecar in sync with the `.rrdata` tags, mirroring how
-    // `save_metadata_and_update_thumbnail` and friends write XMP.
     if let Ok(settings) = crate::load_settings(app_handle.clone())
         && settings.enable_xmp_sync.unwrap_or(false)
     {
@@ -450,7 +448,11 @@ fn modify_tags_for_path(
 }
 
 #[tauri::command]
-pub fn add_tag_for_paths(paths: Vec<String>, tag: String, app_handle: AppHandle) -> Result<(), String> {
+pub fn add_tag_for_paths(
+    paths: Vec<String>,
+    tag: String,
+    app_handle: AppHandle,
+) -> Result<(), String> {
     paths.par_iter().for_each(|path| {
         let tag_clone = tag.clone();
         if let Err(e) = modify_tags_for_path(path, &app_handle, |tags| {
@@ -465,7 +467,11 @@ pub fn add_tag_for_paths(paths: Vec<String>, tag: String, app_handle: AppHandle)
 }
 
 #[tauri::command]
-pub fn remove_tag_for_paths(paths: Vec<String>, tag: String, app_handle: AppHandle) -> Result<(), String> {
+pub fn remove_tag_for_paths(
+    paths: Vec<String>,
+    tag: String,
+    app_handle: AppHandle,
+) -> Result<(), String> {
     paths.par_iter().for_each(|path| {
         let tag_clone = tag.clone();
         if let Err(e) = modify_tags_for_path(path, &app_handle, |tags| {
