@@ -488,10 +488,10 @@ pub fn get_or_load_lut(state: &State<AppState>, path: &str) -> Result<Arc<Lut>, 
 pub fn list_luts(app_handle: AppHandle) -> Result<Vec<LutEntry>, String> {
     let mut all_luts = Vec::new();
 
-    if let Some(resource_path) = film_luts_dir(&app_handle) {
-        if let Ok(built_in) = list_luts_in_dir(&resource_path, true) {
-            all_luts.extend(built_in);
-        }
+    if let Some(resource_path) = film_luts_dir(&app_handle)
+        && let Ok(built_in) = list_luts_in_dir(&resource_path, true)
+    {
+        all_luts.extend(built_in);
     }
 
     let data_dir = app_handle
@@ -591,10 +591,10 @@ pub fn remove_lut(app_handle: AppHandle, path: String) -> Result<Vec<LutEntry>, 
     let luts_dir = strip_verbatim(&get_luts_dir(&data_dir).map_err(|e| e.to_string())?);
     let target_path = strip_verbatim(Path::new(&path));
 
-    if let Some(resource_path) = film_luts_dir(&app_handle) {
-        if target_path.starts_with(&resource_path) {
-            return Err("Cannot delete built-in film emulations".to_string());
-        }
+    if let Some(resource_path) = film_luts_dir(&app_handle)
+        && target_path.starts_with(&resource_path)
+    {
+        return Err("Cannot delete built-in film emulations".to_string());
     }
 
     #[cfg(target_os = "android")]

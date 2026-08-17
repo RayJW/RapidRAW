@@ -60,6 +60,7 @@ RapidRAW is still in active development and isn't yet as polished as mature tool
 <details>
 <summary><strong>Recent Changes</strong></summary>
 
+- **2026-08-17:** Integrated built-in analog film emulations powered by Spektrafilm, featuring a scene-referred V-Log color pipeline in the WGSL shader
 - **2026-08-16:** Added native Camera Tethering with real-time Live View, exposure controls, ghost overlay, and direct library ingestion (macOS & Linux)
 - **2026-08-16:** Added Focus Stacking to merge multi-focus brackets into a single sharp image
 - **2026-08-14:** Export now preserves and writes full EXIF metadata
@@ -69,11 +70,11 @@ RapidRAW is still in active development and isn't yet as polished as mature tool
 - **2026-08-06:** Added customizable keyboard shortcuts and visibility toggles for left, right, and bottom panels
 - **2026-08-05:** Added Catalan language support and folder tree shortcut
 - **2026-08-03:** Added support for image-based LUTs (.png, .jpg, .jpeg, .tiff) and batch importing multiple presets
-- **2026-08-01:** Implemented customizable workspace layout system with animated side panels
 
 <details>
 <summary><strong>Expand further</strong></summary>
 
+- **2026-08-01:** Implemented customizable workspace layout system with drag & drop panels
 - **2026-07-31:** Enabled White Balance color picker tool for the WGPU renderer
 - **2026-07-29:** Added Cmd/Ctrl+L keyboard shortcut to quickly copy image file paths to the clipboard
 - **2026-07-26:** Added AI Lens Blur (Bokeh) for realistic depth-of-field background blurring
