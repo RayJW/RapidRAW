@@ -483,11 +483,47 @@ pub fn remove_tag_for_paths(
     Ok(())
 }
 
+fn rrdata_source_path(rrdata: &Path) -> Option<PathBuf> {
+    let name = rrdata.file_name()?.to_str()?;
+    let base = name.strip_suffix(".rrdata")?;
+
+    let source_filename = if base.len() >= 7 && base.as_bytes()[base.len() - 7] == b'.' {
+        let id = &base[base.len() - 6..];
+        if id.chars().all(|c| c.is_ascii_hexdigit()) {
+            &base[..base.len() - 7]
+        } else {
+            base
+        }
+    } else {
+        base
+    };
+
+    Some(rrdata.with_file_name(source_filename))
+}
+
+fn sync_xmp_for_rrdata(
+    rrdata_path: &Path,
+    metadata: &ImageMetadata,
+    enable_xmp_sync: bool,
+    create_xmp_if_missing: bool,
+) {
+    if !enable_xmp_sync {
+        return;
+    }
+    if let Some(source_path) = rrdata_source_path(rrdata_path) {
+        file_management::sync_metadata_to_xmp(&source_path, metadata, create_xmp_if_missing);
+    }
+}
+
 #[tauri::command]
-pub fn clear_ai_tags(root_path: String) -> Result<usize, String> {
+pub fn clear_ai_tags(root_path: String, app_handle: AppHandle) -> Result<usize, String> {
     if !Path::new(&root_path).exists() {
         return Err(format!("Root path does not exist: {}", root_path));
     }
+
+    let settings = crate::load_settings(app_handle.clone()).unwrap_or_default();
+    let enable_xmp_sync = settings.enable_xmp_sync.unwrap_or(false);
+    let create_xmp_if_missing = settings.create_xmp_if_missing.unwrap_or(false);
 
     let mut updated_count = 0;
     let walker = WalkDir::new(root_path).into_iter();
@@ -514,6 +550,7 @@ pub fn clear_ai_tags(root_path: String) -> Result<usize, String> {
                     && fs::write(path, json_string).is_ok()
                 {
                     updated_count += 1;
+                    sync_xmp_for_rrdata(path, &metadata, enable_xmp_sync, create_xmp_if_missing);
                 }
             }
         }
@@ -522,10 +559,14 @@ pub fn clear_ai_tags(root_path: String) -> Result<usize, String> {
 }
 
 #[tauri::command]
-pub fn clear_all_tags(root_path: String) -> Result<usize, String> {
+pub fn clear_all_tags(root_path: String, app_handle: AppHandle) -> Result<usize, String> {
     if !Path::new(&root_path).exists() {
         return Err(format!("Root path does not exist: {}", root_path));
     }
+
+    let settings = crate::load_settings(app_handle.clone()).unwrap_or_default();
+    let enable_xmp_sync = settings.enable_xmp_sync.unwrap_or(false);
+    let create_xmp_if_missing = settings.create_xmp_if_missing.unwrap_or(false);
 
     let mut updated_count = 0;
     let walker = WalkDir::new(root_path).into_iter();
@@ -550,6 +591,7 @@ pub fn clear_all_tags(root_path: String) -> Result<usize, String> {
                     && fs::write(path, json_string).is_ok()
                 {
                     updated_count += 1;
+                    sync_xmp_for_rrdata(path, &metadata, enable_xmp_sync, create_xmp_if_missing);
                 }
             }
         }
