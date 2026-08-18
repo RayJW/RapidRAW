@@ -229,8 +229,12 @@ function App() {
 
   const isAndroid = osPlatform === 'android';
   const isPortraitViewport = viewportSize.width > 0 && viewportSize.height > viewportSize.width;
-  const isCompactPortrait =
-    viewportSize.width > 0 && viewportSize.width <= COMPACT_EDITOR_MAX_WIDTH && isPortraitViewport;
+  // Phones use the compact bottom panel; tablets need the normal side panels
+  // in both orientations. Android tablets commonly expose ~800 CSS pixels in
+  // portrait, while phones are usually below 600 CSS pixels.
+  const compactEditorMaxWidth = isAndroid ? 600 : COMPACT_EDITOR_MAX_WIDTH;
+  const isCompactPortrait = viewportSize.width > 0 && viewportSize.width <= compactEditorMaxWidth && isPortraitViewport;
+  const useCompactAndroidPanels = isAndroid && isCompactPortrait;
 
   const compactEditorPanelMinHeight = 220;
   const compactEditorPanelMaxHeight =
@@ -695,7 +699,7 @@ function App() {
   const hasRoots = rootPaths && rootPaths.length > 0;
   const hasMainContent = hasRoots || (activeView === 'editor' && !!selectedImage);
 
-  const shouldHideFolderTree = isAndroid;
+  const shouldHideFolderTree = useCompactAndroidPanels;
   const isWgpuActive =
     activeView === 'editor' &&
     appSettings?.useWgpuRenderer !== false &&
@@ -856,7 +860,7 @@ function App() {
                   </div>
                 )}
               </div>
-              {!isAndroid && hasMainContent && (
+              {!useCompactAndroidPanels && hasMainContent && (
                 <SidePanelArea
                   side="right"
                   width={effectiveRightWidth}
