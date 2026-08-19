@@ -97,6 +97,7 @@ const insertChildrenIntoTree = (node: any, targetPath: string, newChildren: any[
 
 function App() {
   const COMPACT_EDITOR_MAX_WIDTH = 900;
+  const ANDROID_PHONE_MAX_WIDTH = 600;
 
   const { appSettings, theme, osPlatform, handleSettingsChange } = useSettingsStore(
     useShallow((state) => ({
@@ -229,10 +230,7 @@ function App() {
 
   const isAndroid = osPlatform === 'android';
   const isPortraitViewport = viewportSize.width > 0 && viewportSize.height > viewportSize.width;
-  // Phones use the compact bottom panel; tablets need the normal side panels
-  // in both orientations. Android tablets commonly expose ~800 CSS pixels in
-  // portrait, while phones are usually below 600 CSS pixels.
-  const compactEditorMaxWidth = isAndroid ? 600 : COMPACT_EDITOR_MAX_WIDTH;
+  const compactEditorMaxWidth = isAndroid ? ANDROID_PHONE_MAX_WIDTH : COMPACT_EDITOR_MAX_WIDTH;
   const isCompactPortrait = viewportSize.width > 0 && viewportSize.width <= compactEditorMaxWidth && isPortraitViewport;
   const useCompactAndroidPanels = isAndroid && isCompactPortrait;
 
