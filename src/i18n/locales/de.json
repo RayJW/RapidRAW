@@ -1461,10 +1461,16 @@
         "confirmClearAll": "Alle Tags löschen",
         "confirmClearCache": "Cache löschen",
         "confirmDeleteAllEdits": "Alle Bearbeitungen löschen",
+        "confirmResetLayout": "Layout zurücksetzen",
+        "confirmResetLayoutTitle": "Arbeitsbereich-Layout zurücksetzen",
         "confirmTitle": "Löschen bestätigen",
+        "resetLayoutMessage": "Möchten Sie das Layout des Arbeitsbereichs wirklich zurücksetzen? Alle angedockten Panels, Breiten und Umschalter-Positionen werden auf ihre Standardwerte zurückgesetzt.",
         "sidecarMessage": "Sind Sie sicher, dass Sie alle Filialdateien löschen möchten?\n\nDies entfernt dauerhaft alle Ihre Bearbeitungen für alle Bilder in allen aktiven Stammordnern."
       },
       "noFolders": "Keine Ordner ausgewählt",
+      "resetLayoutButton": "Layout zurücksetzen",
+      "resetLayoutDesc": "Setzt Panel-Docks, seitliche Teiler, Höhen und Panel-Umschalter auf das Standard-Layout zurück.",
+      "resetLayoutTitle": "Arbeitsbereich-Layout zurücksetzen",
       "statuses": {
         "aiSuccess": "{{count}} Dateien aktualisiert. KI-Tags entfernt.",
         "aiSuccess_one": "{{count}} Datei aktualisiert. KI-Tags entfernt.",
@@ -1478,7 +1484,9 @@
         "clearingCache": "Miniaturbild-Cache löschen...",
         "deleting": "Filialdateien werden gelöscht, bitte warten...",
         "failedToGetPath": "Protokolldateipfad konnte nicht abgerufen werden.",
+        "layoutResetSuccess": "Layout des Arbeitsbereichs auf Standard zurückgesetzt.",
         "processing": "Wird verarbeitet...",
+        "resettingLayout": "Arbeitsbereich wird zurückgesetzt...",
         "sidecarSuccess": "{{count}} Filialdateien erfolgreich gelöscht.",
         "sidecarSuccess_one": "{{count}} Filialdatei erfolgreich gelöscht.",
         "sidecarSuccess_other": "{{count}} Filialdateien erfolgreich gelöscht."

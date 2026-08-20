@@ -1459,10 +1459,16 @@
         "confirmClearAll": "清除所有标签",
         "confirmClearCache": "清除缓存",
         "confirmDeleteAllEdits": "删除所有编辑",
+        "confirmResetLayout": "重置布局",
+        "confirmResetLayoutTitle": "重置工作区布局",
         "confirmTitle": "确认删除",
+        "resetLayoutMessage": "是否确定要重置工作区布局？所有停靠的面板、宽度和切换器位置都将恢复为默认值。",
         "sidecarMessage": "您确定要删除所有附属文件吗？\n\n这将永久删除所有活动根文件夹及其子文件夹中所有图像的所有编辑数据。"
       },
       "noFolders": "未选择文件夹",
+      "resetLayoutButton": "重置布局",
+      "resetLayoutDesc": "将面板停靠区、侧边分割条、高度和面板切换器恢复为默认布局。",
+      "resetLayoutTitle": "重置工作区布局",
       "statuses": {
         "aiSuccess": "{{count}} 个文件已更新。AI 标签已移除。",
         "aiSuccess_one": "{{count}} 个文件已更新。AI 标签已移除。",
@@ -1476,7 +1482,9 @@
         "clearingCache": "正在清除缩略图缓存...",
         "deleting": "正在删除附属文件，请稍候...",
         "failedToGetPath": "无法获取日志文件路径。",
+        "layoutResetSuccess": "工作区布局已重置为默认值。",
         "processing": "处理中...",
+        "resettingLayout": "正在重置工作区...",
         "sidecarSuccess": "{{count}} 个附属文件已成功删除。",
         "sidecarSuccess_one": "{{count}} 个附属文件已成功删除。",
         "sidecarSuccess_other": "{{count}} 个附属文件已成功删除。"

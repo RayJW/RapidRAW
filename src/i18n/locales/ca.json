@@ -1461,10 +1461,16 @@
         "confirmClearAll": "Esborrar totes les etiquetes",
         "confirmClearCache": "Esborrar memòria cau",
         "confirmDeleteAllEdits": "Eliminar totes les edicions",
+        "confirmResetLayout": "Restablir disseny",
+        "confirmResetLayoutTitle": "Restablir el disseny de l'espai de treball",
         "confirmTitle": "Confirmar eliminació",
+        "resetLayoutMessage": "Esteu segur que voleu restablir el disseny de l'espai de treball? Tots els panells acoblats, les amplades i les posicions dels commutadors es restauraran als seus valors predeterminats.",
         "sidecarMessage": "Esteu segur que voleu suprimir tots els fitxers sidecar?\n\nAixò eliminarà permanentment totes les vostres edicions per a totes les imatges dins de totes les carpetes arrel actives i les seves subcarpetes."
       },
       "noFolders": "No s'ha seleccionat cap carpeta",
+      "resetLayoutButton": "Restablir disseny",
+      "resetLayoutDesc": "Restaura els acoblaments de panells, els separadors laterals, les alçades i els commutadors de panells a la seva disposició predeterminada.",
+      "resetLayoutTitle": "Restablir el disseny de l'espai de treball",
       "statuses": {
         "aiSuccess": "{{count}} fitxers actualitzats. S'han eliminat les etiquetes d'IA.",
         "aiSuccess_one": "{{count}} fitxer actualitzat. S'han eliminat les etiquetes d'IA.",
@@ -1478,7 +1484,9 @@
         "clearingCache": "S'està esborrant la memòria cau de miniatures...",
         "deleting": "S'estan suprimint els fitxers sidecar, espereu si us plau...",
         "failedToGetPath": "No s'ha pogut recuperar el camí del fitxer de registre.",
+        "layoutResetSuccess": "El disseny de l'espai de treball s'ha restablert.",
         "processing": "S'està processant...",
+        "resettingLayout": "Restablint l'espai de treball...",
         "sidecarSuccess": "{{count}} fitxers sidecar eliminats correctament.",
         "sidecarSuccess_one": "{{count}} fitxer sidecar eliminat correctament.",
         "sidecarSuccess_other": "{{count}} fitxers sidecar eliminats correctament."

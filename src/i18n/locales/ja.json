@@ -1459,10 +1459,16 @@
         "confirmClearAll": "すべてのタグを削除",
         "confirmClearCache": "キャッシュを削除",
         "confirmDeleteAllEdits": "すべての編集を削除",
+        "confirmResetLayout": "レイアウトをリセット",
+        "confirmResetLayoutTitle": "ワークスペースレイアウトのリセット",
         "confirmTitle": "削除の確認",
+        "resetLayoutMessage": "ワークスペースのレイアウトをリセットしてもよろしいですか？ドッキングされたすべてのパネル、幅、および切り替えボタンの位置がデフォルトに復元されます。",
         "sidecarMessage": "本当にすべてのサイドカーファイルを削除しますか？\n\nアクティブなルートフォルダとそのサブフォルダ内にある、すべての画像の編集内容が完全に削除されます。"
       },
       "noFolders": "フォルダが選択されていません",
+      "resetLayoutButton": "レイアウトをリセット",
+      "resetLayoutDesc": "パネルのドック、サイドスプリッター、高さ、パネル切り替えボタンをデフォルトの配置に復元します。",
+      "resetLayoutTitle": "ワークスペースレイアウトのリセット",
       "statuses": {
         "aiSuccess": "{{count}} 件のファイルを更新しました。AIタグを削除しました。",
         "aiSuccess_one": "{{count}} 件のファイルを更新しました。AIタグを削除しました。",
@@ -1476,7 +1482,9 @@
         "clearingCache": "サムネイルキャッシュを削除中...",
         "deleting": "サイドカーファイルを削除しています。しばらくお待ちください...",
         "failedToGetPath": "ログファイルのパスを取得できませんでした。",
+        "layoutResetSuccess": "ワークスペースレイアウトがデフォルトにリセットされました。",
         "processing": "処理中...",
+        "resettingLayout": "ワークスペースをリセット中...",
         "sidecarSuccess": "{{count}} 件のサイドカーファイルを正常に削除しました。",
         "sidecarSuccess_one": "{{count}} 件のサイドカーファイルを正常に削除しました。",
         "sidecarSuccess_other": "{{count}} 件のサイドカーファイルを正常に削除しました。"

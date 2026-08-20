@@ -34,6 +34,7 @@ import { TEXT_COLOR_KEYS, TextColors, TextVariants, TextWeights } from '../../..
 import { useShallow } from 'zustand/react/shallow';
 import { useLibraryStore } from '../../../store/useLibraryStore';
 import { useSettingsStore } from '../../../store/useSettingsStore';
+import { useUIStore } from '../../../store/useUIStore';
 import { AlbumItem, AlbumGroup, Album, Invokes, FolderTreeSort, SortDirection } from '../../ui/AppProperties';
 
 export interface FolderTree {
@@ -72,6 +73,7 @@ interface TreeNodeProps {
   showImageCounts: boolean;
   isInstantTransition: boolean;
   folderIcons: Record<string, string>;
+  isLayoutDragging: boolean;
 }
 
 interface VisibleProps {
@@ -322,6 +324,7 @@ function AlbumTreeNode({
   onContextMenu,
   selectedAlbumId,
   showImageCounts,
+  isLayoutDragging,
 }: {
   sectionId: string;
   item: AlbumItem;
@@ -331,6 +334,7 @@ function AlbumTreeNode({
   onContextMenu: (e: any, item: AlbumItem) => void;
   selectedAlbumId: string | null;
   showImageCounts: boolean;
+  isLayoutDragging: boolean;
 }) {
   const isGroup = item.type === 'group';
   const isExpanded = expandedGroups.has(item.id);
@@ -340,7 +344,7 @@ function AlbumTreeNode({
   const { setNodeRef, isOver, active } = useDroppable({
     id: `album-${sectionId}-${item.id}`,
     data: { type: 'album', id: item.id },
-    disabled: isGroup,
+    disabled: isGroup || isLayoutDragging,
   });
 
   const isImageDrag = active?.data?.current?.type === 'library-image';
@@ -444,6 +448,7 @@ function AlbumTreeNode({
                       onContextMenu={onContextMenu}
                       selectedAlbumId={selectedAlbumId}
                       showImageCounts={showImageCounts}
+                      isLayoutDragging={isLayoutDragging}
                     />
                   </motion.div>
                 ))}
@@ -469,6 +474,7 @@ function TreeNode({
   showImageCounts,
   isInstantTransition,
   folderIcons,
+  isLayoutDragging,
 }: TreeNodeProps) {
   const hasChildren = node.hasSubdirs || (node.children && node.children.length > 0);
   const isSelected = node.path === selectedPath;
@@ -477,6 +483,7 @@ function TreeNode({
   const { setNodeRef, isOver, active } = useDroppable({
     id: `folder-${sectionId}-${node.path}`,
     data: { type: 'folder', path: node.path },
+    disabled: isLayoutDragging,
   });
 
   const isImageDrag = active?.data?.current?.type === 'library-image';
@@ -631,6 +638,7 @@ function TreeNode({
                       showImageCounts={showImageCounts}
                       isInstantTransition={isInstantTransition}
                       folderIcons={folderIcons}
+                      isLayoutDragging={isLayoutDragging}
                     />
                   </motion.div>
                 ))}
@@ -661,6 +669,9 @@ export default function FolderTree({
       handleSettingsChange: state.handleSettingsChange,
     })),
   );
+
+  const isLayoutDragging = useUIStore((state) => !!state.activeLayoutDragItem);
+
   const {
     folderTrees,
     pinnedFolderTrees,
@@ -931,6 +942,7 @@ export default function FolderTree({
                                 showImageCounts={showImageCounts && isHovering}
                                 isInstantTransition={isInstantTransition}
                                 folderIcons={folderIcons}
+                                isLayoutDragging={isLayoutDragging}
                               />
                             </motion.div>
                           ))}
@@ -984,6 +996,7 @@ export default function FolderTree({
                                 onContextMenu={onAlbumContextMenu}
                                 selectedAlbumId={activeAlbumId}
                                 showImageCounts={showImageCounts && isHovering}
+                                isLayoutDragging={isLayoutDragging}
                               />
                             </motion.div>
                           ))}
@@ -1053,6 +1066,7 @@ export default function FolderTree({
                                 showImageCounts={showImageCounts && isHovering}
                                 isInstantTransition={isInstantTransition}
                                 folderIcons={folderIcons}
+                                isLayoutDragging={isLayoutDragging}
                               />
                             </motion.div>
                           ))}

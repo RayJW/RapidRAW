@@ -262,6 +262,7 @@ interface UIState {
   setCustomEscapeHandler: (handler: (() => void) | null) => void;
   searchFocusRequest: number;
   requestSearchFocus: () => void;
+  resetWorkspaceLayout: (isTetheringSupported?: boolean) => WorkspaceState;
 }
 
 export const useUIStore = create<UIState>((set, get) => ({
@@ -473,6 +474,23 @@ export const useUIStore = create<UIState>((set, get) => ({
       }
     }
     if (targetRegion) state.setActivePanel(targetRegion, panelId);
+  },
+
+  resetWorkspaceLayout: (isTetheringSupported = false) => {
+    const defaultWorkspace = reconcileWorkspace(undefined, isTetheringSupported);
+    set({
+      leftPanelWidth: defaultWorkspace.leftPanelWidth,
+      rightPanelWidth: defaultWorkspace.rightPanelWidth,
+      leftTopHeight: defaultWorkspace.leftTopHeight,
+      rightTopHeight: defaultWorkspace.rightTopHeight,
+      panelLayout: defaultWorkspace.panelLayout,
+      activePanels: defaultWorkspace.activePanels,
+      panelSwitcherPlacement: defaultWorkspace.panelSwitcherPlacement,
+      uiVisibility: { filmstrip: true, leftPanel: true, rightPanel: true },
+      activePanel: defaultWorkspace.activePanels.rightTop || null,
+      renderedPanel: defaultWorkspace.activePanels.rightTop || null,
+    });
+    return defaultWorkspace;
   },
 
   customEscapeHandler: null,
