@@ -108,6 +108,10 @@ export const DEFAULT_PANEL_DEFAULT_REGIONS: Record<Panel, PanelRegion> = {
   [Panel.Presets]: 'rightTop',
 };
 
+export const DEFAULT_PANEL_WIDTH = 350;
+export const DEFAULT_PANEL_SECTION_HEIGHT = 450;
+export const DEFAULT_BOTTOM_PANEL_HEIGHT = 144;
+
 export function reconcileWorkspace(
   savedWorkspace: WorkspaceState | undefined,
   isTetheringSupported: boolean,
@@ -115,10 +119,10 @@ export function reconcileWorkspace(
   const allowedPanels = new Set(ALL_PANELS.filter((p) => p !== Panel.Tethering || isTetheringSupported));
 
   const defaultWorkspace: WorkspaceState = {
-    leftPanelWidth: 350,
-    rightPanelWidth: 350,
-    leftTopHeight: 450,
-    rightTopHeight: 450,
+    leftPanelWidth: DEFAULT_PANEL_WIDTH,
+    rightPanelWidth: DEFAULT_PANEL_WIDTH,
+    leftTopHeight: DEFAULT_PANEL_SECTION_HEIGHT,
+    rightTopHeight: DEFAULT_PANEL_SECTION_HEIGHT,
     panelLayout: {
       leftTop: [Panel.Metadata, Panel.FolderTree, Panel.Export, ...(isTetheringSupported ? [Panel.Tethering] : [])],
       leftBottom: [],
@@ -275,11 +279,11 @@ export const useUIStore = create<UIState>((set, get) => ({
   isLibraryExportPanelVisible: false,
   isSettingsOpen: false,
 
-  leftPanelWidth: 350,
-  rightPanelWidth: 350,
-  bottomPanelHeight: 144,
-  leftTopHeight: 450,
-  rightTopHeight: 450,
+  leftPanelWidth: DEFAULT_PANEL_WIDTH,
+  rightPanelWidth: DEFAULT_PANEL_WIDTH,
+  bottomPanelHeight: DEFAULT_BOTTOM_PANEL_HEIGHT,
+  leftTopHeight: DEFAULT_PANEL_SECTION_HEIGHT,
+  rightTopHeight: DEFAULT_PANEL_SECTION_HEIGHT,
   compactEditorPanelHeightOverride: null,
 
   panelLayout: {
