@@ -24,9 +24,11 @@ import { Thumbnail } from './LibraryItems';
 import Text from '../../ui/Text';
 import { TextColors, TextVariants, TextWeights } from '../../../types/typography';
 import { useProcessStore } from '../../../store/useProcessStore';
+import { useLibraryStore } from '../../../store/useLibraryStore';
 import { useSettingsStore } from '../../../store/useSettingsStore';
 import { useLibraryActions } from '../../../hooks/useLibraryActions';
 import { COLOR_LABELS, Color } from '../../../utils/adjustments';
+import { expandGroupedPaths } from '../../../utils/imageGrouping';
 import { IconAperture, IconFocalLength, IconIso, IconShutter } from '../editor/ExifIcons';
 
 interface SyncViewport {
@@ -92,6 +94,12 @@ function CullingPreview({
   const [fitScale, setFitScale] = useState<number | null>(null);
   const { handleRate, handleSetColorLabel, handleTagsChanged } = useLibraryActions();
   const USER_TAG_PREFIX = 'user:';
+  const imageList = useLibraryStore((s) => s.imageList);
+  const groupingMode = useSettingsStore((s) => s.appSettings?.grouping ?? 'off');
+  const pathsToUpdate = useMemo(
+    () => expandGroupedPaths(imageList, [image.path], groupingMode),
+    [groupingMode, image.path, imageList],
+  );
 
   const currentColor = useMemo(() => {
     return image.tags?.find((t) => t.startsWith('color:'))?.substring(6) || null;
@@ -161,9 +169,9 @@ function CullingPreview({
     if (newTagValue && !currentTags.some((t) => t.tag === newTagValue)) {
       try {
         const prefixedTag = `${USER_TAG_PREFIX}${newTagValue}`;
-        await invoke(Invokes.AddTagForPaths, { paths: [image.path], tag: prefixedTag });
+        await invoke(Invokes.AddTagForPaths, { paths: pathsToUpdate, tag: prefixedTag });
         const newTags = [...currentTags, { tag: newTagValue, isUser: true }];
-        handleTagsChanged([image.path], newTags);
+        handleTagsChanged(pathsToUpdate, newTags);
         setTagInputValue('');
       } catch (err) {
         console.error(`Failed to add tag: ${err}`);
@@ -174,9 +182,9 @@ function CullingPreview({
   const handleRemoveTag = async (tagToRemove: { tag: string; isUser: boolean }) => {
     try {
       const prefixedTag = tagToRemove.isUser ? `${USER_TAG_PREFIX}${tagToRemove.tag}` : tagToRemove.tag;
-      await invoke(Invokes.RemoveTagForPaths, { paths: [image.path], tag: prefixedTag });
+      await invoke(Invokes.RemoveTagForPaths, { paths: pathsToUpdate, tag: prefixedTag });
       const newTags = currentTags.filter((t) => t.tag !== tagToRemove.tag);
-      handleTagsChanged([image.path], newTags);
+      handleTagsChanged(pathsToUpdate, newTags);
     } catch (err) {
       console.error(`Failed to remove tag: ${err}`);
     }

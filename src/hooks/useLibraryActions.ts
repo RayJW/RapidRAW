@@ -8,7 +8,7 @@ import { Invokes, ImageFile, AlbumItem, Album, AlbumGroup } from '../components/
 import { globalImageCache } from '../utils/ImageLRUCache';
 import { useSettingsStore } from '../store/useSettingsStore';
 import { computeSortedLibrary } from './useSortedLibrary';
-import { findGroupVariants } from '../utils/imageGrouping';
+import { expandGroupedPaths } from '../utils/imageGrouping';
 
 export function useLibraryActions(handleImageSelect?: (path: string, openInEditor?: boolean) => void) {
   const handleRate = useCallback((newRating: number, paths?: string[]) => {
@@ -20,18 +20,7 @@ export function useLibraryActions(handleImageSelect?: (path: string, openInEdito
     if (selectedPaths.length === 0) return;
 
     const groupingMode = useSettingsStore.getState().appSettings?.grouping ?? 'off';
-    const pathsToRate = Array.from(
-      new Set(
-        selectedPaths.flatMap((path) => {
-          if (groupingMode === 'off') return [path];
-
-          const image = imageList.find((item) => item.path === path);
-          return image?.group_id
-            ? findGroupVariants(imageList, image.group_id).map((variant) => variant.path)
-            : [path];
-        }),
-      ),
-    );
+    const pathsToRate = expandGroupedPaths(imageList, selectedPaths, groupingMode);
 
     const currentRating = imageRatings[selectedPaths[0]] || 0;
     const finalRating = newRating === currentRating ? 0 : newRating;
@@ -54,9 +43,12 @@ export function useLibraryActions(handleImageSelect?: (path: string, openInEdito
     const { multiSelectedPaths, libraryActivePath, imageList, setLibrary } = useLibraryStore.getState();
     const { selectedImage } = useEditorStore.getState();
 
-    const pathsToUpdate =
+    const selectedPaths =
       paths || (multiSelectedPaths.length > 0 ? multiSelectedPaths : selectedImage ? [selectedImage.path] : []);
-    if (pathsToUpdate.length === 0) return;
+    if (selectedPaths.length === 0) return;
+
+    const groupingMode = useSettingsStore.getState().appSettings?.grouping ?? 'off';
+    const pathsToUpdate = expandGroupedPaths(imageList, selectedPaths, groupingMode);
 
     const primaryPath = selectedImage?.path || libraryActivePath;
     const primaryImage = imageList.find((img: ImageFile) => img.path === primaryPath);
@@ -85,9 +77,13 @@ export function useLibraryActions(handleImageSelect?: (path: string, openInEdito
   }, []);
 
   const handleTagsChanged = useCallback((changedPaths: string[], newTags: { tag: string; isUser: boolean }[]) => {
+    const { imageList } = useLibraryStore.getState();
+    const groupingMode = useSettingsStore.getState().appSettings?.grouping ?? 'off';
+    const pathsToUpdate = expandGroupedPaths(imageList, changedPaths, groupingMode);
+
     useLibraryStore.getState().setLibrary((state) => ({
       imageList: state.imageList.map((image) => {
-        if (changedPaths.includes(image.path)) {
+        if (pathsToUpdate.includes(image.path)) {
           const colorTags = (image.tags || []).filter((t) => t.startsWith('color:'));
           const prefixedNewTags = newTags.map((t) => (t.isUser ? `user:${t.tag}` : t.tag));
           const finalTags = [...colorTags, ...prefixedNewTags].sort();

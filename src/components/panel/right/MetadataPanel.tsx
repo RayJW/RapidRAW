@@ -14,6 +14,7 @@ import { useLibraryStore } from '../../../store/useLibraryStore';
 import { useSettingsStore } from '../../../store/useSettingsStore';
 import { useProcessStore } from '../../../store/useProcessStore';
 import { useLibraryActions } from '../../../hooks/useLibraryActions';
+import { expandGroupedPaths } from '../../../utils/imageGrouping';
 
 interface CameraSetting {
   format?(value: number): string | number;
@@ -249,6 +250,10 @@ export default function MetadataPanel() {
   const liveThumbnailUrl = selectedImage ? thumbnails[selectedImage.path] : undefined;
 
   const targetPaths = multiSelectedPaths?.length > 0 ? multiSelectedPaths : selectedImage ? [selectedImage.path] : [];
+  const pathsToUpdate = useMemo(
+    () => expandGroupedPaths(imageList, targetPaths, appSettings?.grouping ?? 'off'),
+    [appSettings?.grouping, imageList, targetPaths],
+  );
 
   const { cameraGridSettings, lensSetting, gpsData, otherExifEntries } = useMemo(() => {
     const exif = selectedImage?.exif || {};
@@ -347,10 +352,10 @@ export default function MetadataPanel() {
     if (newTagValue && !currentTags.some((t) => t.tag === newTagValue)) {
       try {
         const prefixedTag = `${USER_TAG_PREFIX}${newTagValue}`;
-        await invoke(Invokes.AddTagForPaths, { paths: targetPaths, tag: prefixedTag });
+        await invoke(Invokes.AddTagForPaths, { paths: pathsToUpdate, tag: prefixedTag });
 
         const newTags = [...currentTags, { tag: newTagValue, isUser: true }];
-        handleTagsChanged(targetPaths, newTags);
+        handleTagsChanged(pathsToUpdate, newTags);
         setTagInputValue('');
       } catch (err) {
         console.error(`Failed to add tag: ${err}`);
@@ -361,10 +366,10 @@ export default function MetadataPanel() {
   const handleRemoveTag = async (tagToRemove: { tag: string; isUser: boolean }) => {
     try {
       const prefixedTag = tagToRemove.isUser ? `${USER_TAG_PREFIX}${tagToRemove.tag}` : tagToRemove.tag;
-      await invoke(Invokes.RemoveTagForPaths, { paths: targetPaths, tag: prefixedTag });
+      await invoke(Invokes.RemoveTagForPaths, { paths: pathsToUpdate, tag: prefixedTag });
 
       const newTags = currentTags.filter((t) => t.tag !== tagToRemove.tag);
-      handleTagsChanged(targetPaths, newTags);
+      handleTagsChanged(pathsToUpdate, newTags);
     } catch (err) {
       console.error(`Failed to remove tag: ${err}`);
     }
