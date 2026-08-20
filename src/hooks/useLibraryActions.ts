@@ -8,17 +8,32 @@ import { Invokes, ImageFile, AlbumItem, Album, AlbumGroup } from '../components/
 import { globalImageCache } from '../utils/ImageLRUCache';
 import { useSettingsStore } from '../store/useSettingsStore';
 import { computeSortedLibrary } from './useSortedLibrary';
+import { findGroupVariants } from '../utils/imageGrouping';
 
 export function useLibraryActions(handleImageSelect?: (path: string, openInEditor?: boolean) => void) {
   const handleRate = useCallback((newRating: number, paths?: string[]) => {
-    const { multiSelectedPaths, imageRatings, setLibrary } = useLibraryStore.getState();
+    const { multiSelectedPaths, imageList, imageRatings, setLibrary } = useLibraryStore.getState();
     const { selectedImage } = useEditorStore.getState();
 
-    const pathsToRate =
+    const selectedPaths =
       paths || (multiSelectedPaths.length > 0 ? multiSelectedPaths : selectedImage ? [selectedImage.path] : []);
-    if (pathsToRate.length === 0) return;
+    if (selectedPaths.length === 0) return;
 
-    const currentRating = imageRatings[pathsToRate[0]] || 0;
+    const groupingMode = useSettingsStore.getState().appSettings?.grouping ?? 'off';
+    const pathsToRate = Array.from(
+      new Set(
+        selectedPaths.flatMap((path) => {
+          if (groupingMode === 'off') return [path];
+
+          const image = imageList.find((item) => item.path === path);
+          return image?.group_id
+            ? findGroupVariants(imageList, image.group_id).map((variant) => variant.path)
+            : [path];
+        }),
+      ),
+    );
+
+    const currentRating = imageRatings[selectedPaths[0]] || 0;
     const finalRating = newRating === currentRating ? 0 : newRating;
 
     setLibrary((state) => {
