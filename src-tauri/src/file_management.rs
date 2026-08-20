@@ -2464,7 +2464,7 @@ pub fn move_files(
     }
 
     for (source, dest) in operations_to_perform {
-        if let Err(_) = fs::rename(&source, &dest) {
+        if fs::rename(&source, &dest).is_err() {
             fs::copy(&source, &dest)
                 .map_err(|e| format!("Move failed during copy for {}: {}", source.display(), e))?;
 
@@ -3365,10 +3365,10 @@ pub fn delete_files_from_disk(paths: Vec<String>, app_handle: AppHandle) -> Resu
                 if let Err(e) = fs::remove_file(&path) {
                     log::warn!("Failed to delete file {}: {}", path.display(), e);
                 }
-            } else if path.is_dir() {
-                if let Err(e) = fs::remove_dir_all(&path) {
-                    log::warn!("Failed to delete directory {}: {}", path.display(), e);
-                }
+            } else if path.is_dir()
+                && let Err(e) = fs::remove_dir_all(&path)
+            {
+                log::warn!("Failed to delete directory {}: {}", path.display(), e);
             }
         }
     }
@@ -3479,10 +3479,10 @@ pub fn delete_files_with_associated(
             trash_error
         );
         for path in final_paths_to_delete {
-            if path.is_file() {
-                if let Err(e) = fs::remove_file(&path) {
-                    log::warn!("Failed to delete file {}: {}", path.display(), e);
-                }
+            if path.is_file()
+                && let Err(e) = fs::remove_file(&path)
+            {
+                log::warn!("Failed to delete file {}: {}", path.display(), e);
             }
         }
     }
