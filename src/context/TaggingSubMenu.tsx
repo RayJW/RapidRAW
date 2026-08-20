@@ -56,7 +56,7 @@ export default function TaggingSubMenu({
         await invoke(Invokes.AddTagForPaths, { paths: pathsToUpdate, tag: prefixedTag });
         const newTags = [...tags, { tag: newTagValue, isUser: true }].sort((a, b) => a.tag.localeCompare(b.tag));
         setTags(newTags);
-        onTagsChanged(pathsToUpdate, newTags);
+        onTagsChanged(paths, newTags);
         setInputValue('');
       } catch (err) {
         console.error(`Failed to add tag: ${err}`);
@@ -71,7 +71,7 @@ export default function TaggingSubMenu({
       await invoke(Invokes.RemoveTagForPaths, { paths: pathsToUpdate, tag: prefixedTag });
       const newTags = tags.filter((t) => t.tag !== tagToRemove.tag);
       setTags(newTags);
-      onTagsChanged(pathsToUpdate, newTags);
+      onTagsChanged(paths, newTags);
     } catch (err) {
       console.error(`Failed to remove tag: ${err}`);
     }

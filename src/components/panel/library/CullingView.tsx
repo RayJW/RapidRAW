@@ -94,12 +94,12 @@ function CullingPreview({
   const [fitScale, setFitScale] = useState<number | null>(null);
   const { handleRate, handleSetColorLabel, handleTagsChanged } = useLibraryActions();
   const USER_TAG_PREFIX = 'user:';
-  const imageList = useLibraryStore((s) => s.imageList);
-  const groupingMode = useSettingsStore((s) => s.appSettings?.grouping ?? 'off');
-  const pathsToUpdate = useMemo(
-    () => expandGroupedPaths(imageList, [image.path], groupingMode),
-    [groupingMode, image.path, imageList],
-  );
+  const getPathsToUpdate = () =>
+    expandGroupedPaths(
+      useLibraryStore.getState().imageList,
+      [image.path],
+      useSettingsStore.getState().appSettings?.grouping ?? 'off',
+    );
 
   const currentColor = useMemo(() => {
     return image.tags?.find((t) => t.startsWith('color:'))?.substring(6) || null;
@@ -169,9 +169,10 @@ function CullingPreview({
     if (newTagValue && !currentTags.some((t) => t.tag === newTagValue)) {
       try {
         const prefixedTag = `${USER_TAG_PREFIX}${newTagValue}`;
+        const pathsToUpdate = getPathsToUpdate();
         await invoke(Invokes.AddTagForPaths, { paths: pathsToUpdate, tag: prefixedTag });
         const newTags = [...currentTags, { tag: newTagValue, isUser: true }];
-        handleTagsChanged(pathsToUpdate, newTags);
+        handleTagsChanged([image.path], newTags);
         setTagInputValue('');
       } catch (err) {
         console.error(`Failed to add tag: ${err}`);
@@ -182,9 +183,10 @@ function CullingPreview({
   const handleRemoveTag = async (tagToRemove: { tag: string; isUser: boolean }) => {
     try {
       const prefixedTag = tagToRemove.isUser ? `${USER_TAG_PREFIX}${tagToRemove.tag}` : tagToRemove.tag;
+      const pathsToUpdate = getPathsToUpdate();
       await invoke(Invokes.RemoveTagForPaths, { paths: pathsToUpdate, tag: prefixedTag });
       const newTags = currentTags.filter((t) => t.tag !== tagToRemove.tag);
-      handleTagsChanged(pathsToUpdate, newTags);
+      handleTagsChanged([image.path], newTags);
     } catch (err) {
       console.error(`Failed to remove tag: ${err}`);
     }
