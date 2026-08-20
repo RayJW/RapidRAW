@@ -467,6 +467,7 @@ function App() {
     sortedImageList,
     handleBackToLibrary,
     handleDeleteSelected,
+    handleGoHome,
     handleImageSelect,
     handlePasteFiles,
     handleToggleFullScreen,
