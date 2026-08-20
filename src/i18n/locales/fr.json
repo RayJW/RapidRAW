@@ -1875,7 +1875,7 @@
       "setFailed": "Échec de la définition de {{key}} : {{err}}"
     },
     "triggerAutofocus": "Déclencher l'autofocus",
-    "triggerCapture": "Déclencher la capture",
+    "triggerCapture": "Capturer",
     "wbTemp": "Témperature WB (K)",
     "wbTempPlaceholder": "ex. 5600",
     "whiteBalance": "Balance des blancs"

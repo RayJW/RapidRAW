@@ -1842,7 +1842,7 @@
       "setFailed": "Fehler beim Einstellen von {{key}}: {{err}}"
     },
     "triggerAutofocus": "Autofokus auslösen",
-    "triggerCapture": "Auslösen",
+    "triggerCapture": "Aufnehmen",
     "wbTemp": "Farbtemp. (K)",
     "wbTempPlaceholder": "z. B. 5600",
     "whiteBalance": "Weißabgleich"

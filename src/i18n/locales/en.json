@@ -1842,7 +1842,7 @@
       "setFailed": "Failed to set {{key}}: {{err}}"
     },
     "triggerAutofocus": "Trigger Autofocus",
-    "triggerCapture": "Trigger Capture",
+    "triggerCapture": "Capture",
     "wbTemp": "WB Temp (K)",
     "wbTempPlaceholder": "e.g. 5600",
     "whiteBalance": "White Balance"

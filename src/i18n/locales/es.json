@@ -1875,7 +1875,7 @@
       "setFailed": "Error al configurar {{key}}: {{err}}"
     },
     "triggerAutofocus": "Disparar enfoque automático",
-    "triggerCapture": "Disparar captura",
+    "triggerCapture": "Capturar",
     "wbTemp": "Temp. WB (K)",
     "wbTempPlaceholder": "ej. 5600",
     "whiteBalance": "Balance de blancos"

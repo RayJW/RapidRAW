@@ -1910,7 +1910,7 @@
       "setFailed": "Не удалось установить {{key}}: {{err}}"
     },
     "triggerAutofocus": "Сфокусироваться",
-    "triggerCapture": "Сделать снимок",
+    "triggerCapture": "Съемка",
     "wbTemp": "Цвет. темп. (K)",
     "wbTempPlaceholder": "напр. 5600",
     "whiteBalance": "Баланс белого"
