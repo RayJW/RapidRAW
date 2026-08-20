@@ -21,12 +21,14 @@ import {
   Briefcase,
   ArrowUpDown,
   Check,
+  MoveRight,
 } from 'lucide-react';
 import clsx from 'clsx';
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { invoke } from '@tauri-apps/api/core';
+import { useDroppable } from '@dnd-kit/core';
 import Text from '../../ui/Text';
 import { TEXT_COLOR_KEYS, TextColors, TextVariants, TextWeights } from '../../../types/typography';
 import { useShallow } from 'zustand/react/shallow';
@@ -332,18 +334,35 @@ function AlbumTreeNode({
   const isSelected = item.id === selectedAlbumId;
   const imageCount = getAlbumImageCount(item);
 
+  const { setNodeRef, isOver, active } = useDroppable({
+    id: `album-${item.id}`,
+    data: { type: 'album', id: item.id },
+    disabled: isGroup,
+  });
+
+  const isImageDrag = active?.data?.current?.type === 'library-image';
+  const isDropTarget = isOver && isImageDrag && !isGroup;
+
   let ItemIcon = isGroup ? (isExpanded ? FolderOpen : Folder) : AlbumIcon;
   if (item.icon && ALBUM_ICONS[item.icon]) {
     ItemIcon = ALBUM_ICONS[item.icon];
   }
-  const iconKey = item.icon || (isGroup ? (isExpanded ? 'group-open' : 'group-closed') : 'album');
+  if (isDropTarget) {
+    ItemIcon = MoveRight;
+  }
+
+  const iconKey = isDropTarget
+    ? 'drop-target'
+    : item.icon || (isGroup ? (isExpanded ? 'group-open' : 'group-closed') : 'album');
 
   return (
     <Text as="div" color={TextColors.primary} weight={TextWeights.medium}>
       <div
+        ref={setNodeRef}
         className={clsx('flex items-center gap-2 p-1.5 rounded-md transition-colors cursor-pointer', {
-          'bg-surface': isSelected,
-          'hover:bg-card-active': !isSelected,
+          'bg-surface': isSelected && !isDropTarget,
+          'hover:bg-card-active': !isSelected && !isDropTarget,
+          'bg-accent/20': isDropTarget,
         })}
         onClick={() => (isGroup ? onToggle(item.id) : onSelectAlbum(item.id, item.name, (item as Album).images))}
         onContextMenu={(e) => onContextMenu(e, item)}
@@ -356,7 +375,7 @@ function AlbumTreeNode({
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.5 }}
               transition={{ duration: 0.15 }}
-              className="absolute"
+              className="absolute flex items-center justify-center"
             >
               <ItemIcon size={16} />
             </motion.div>
@@ -450,6 +469,14 @@ function TreeNode({
   const isSelected = node.path === selectedPath;
   const isPinned = pinnedFolders.includes(node.path);
 
+  const { setNodeRef, isOver, active } = useDroppable({
+    id: `folder-${node.path}`,
+    data: { type: 'folder', path: node.path },
+  });
+
+  const isImageDrag = active?.data?.current?.type === 'library-image';
+  const isDropTarget = isOver && isImageDrag;
+
   const handleFolderIconClick = (e: any) => {
     e.stopPropagation();
     if (hasChildren) {
@@ -487,27 +514,34 @@ function TreeNode({
 
   const currentFolderIconKey = folderIcons[node.path];
   let ResolvedIcon = isExpanded ? FolderOpen : Folder;
+
   if (currentFolderIconKey && ALBUM_ICONS[currentFolderIconKey]) {
     ResolvedIcon = ALBUM_ICONS[currentFolderIconKey];
   }
-  const iconKey = currentFolderIconKey || (isExpanded ? 'folder-open' : 'folder-closed');
+
+  if (isDropTarget) {
+    ResolvedIcon = MoveRight;
+  }
+
+  const iconKey = isDropTarget ? 'drop-target' : currentFolderIconKey || (isExpanded ? 'folder-open' : 'folder-closed');
 
   return (
     <Text as="div" color={TextColors.primary} weight={TextWeights.medium}>
       <div
+        ref={setNodeRef}
         className={clsx('flex items-center gap-2 p-1.5 rounded-md transition-colors cursor-pointer', {
-          'bg-surface': isSelected,
-          'hover:bg-card-active': !isSelected,
+          'bg-surface': isSelected && !isDropTarget,
+          'hover:bg-card-active': !isSelected && !isDropTarget,
+          'bg-accent/20': isDropTarget,
         })}
         onClick={handleNameClick}
         onContextMenu={(e: any) => onContextMenu(e, node.path, isPinned)}
       >
         <div
           className={clsx(
-            'relative w-5 h-5 flex items-center justify-center p-0.5 rounded-sm transition-colors shrink-0',
+            'relative w-5 h-5 flex items-center justify-center p-0.5 rounded-sm text-text-secondary transition-colors shrink-0',
             {
-              [TEXT_COLOR_KEYS[TextColors.secondary]]: !isExpanded,
-              'hover:bg-surface-hover': !isSelected && hasChildren,
+              'hover:bg-surface-hover': !isSelected && hasChildren && !isDropTarget,
             },
           )}
           onClick={handleFolderIconClick}
@@ -519,7 +553,7 @@ function TreeNode({
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.5 }}
               transition={{ duration: 0.15 }}
-              className="absolute"
+              className="absolute flex items-center justify-center"
             >
               <ResolvedIcon size={16} />
             </motion.div>

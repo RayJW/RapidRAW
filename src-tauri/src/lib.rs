@@ -681,6 +681,7 @@ fn start_preview_worker(app_handle: tauri::AppHandle) {
     });
 }
 
+#[allow(clippy::too_many_arguments)]
 #[tauri::command]
 async fn apply_adjustments(
     js_adjustments: serde_json::Value,

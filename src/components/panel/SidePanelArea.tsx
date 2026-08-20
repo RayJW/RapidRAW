@@ -48,10 +48,13 @@ function RegionDroppableContainer({
   const panelsInRegion = panelLayout[region];
   const activePanel = activePanels[region] ?? (panelsInRegion.length > 0 ? panelsInRegion[0] : null);
 
-  const { setNodeRef, isOver } = useDroppable({
+  const { setNodeRef, isOver, active } = useDroppable({
     id: `layout-region-${region}`,
     data: { type: 'layout-region', region },
   });
+
+  const isLayoutDrag = active?.data?.current?.type === 'layout-tab';
+  const isActualOver = isOver && isLayoutDrag;
 
   const setRefs = useCallback(
     (node: HTMLDivElement | null) => {
@@ -119,11 +122,11 @@ function RegionDroppableContainer({
       className={clsx(
         'flex h-full w-full bg-bg-secondary rounded-lg overflow-hidden border transition-colors shadow-xs relative',
         isFlexRow ? 'flex-row' : 'flex-col',
-        isOver && !hoverPlacement ? 'border-accent' : 'border-surface',
+        isActualOver && !hoverPlacement ? 'border-accent' : 'border-surface',
       )}
     >
       <AnimatePresence>
-        {isOver && !hoverPlacement && (
+        {isActualOver && !hoverPlacement && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -133,7 +136,7 @@ function RegionDroppableContainer({
           />
         )}
 
-        {isOver && hoverPlacement && (
+        {isActualOver && hoverPlacement && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -202,10 +205,13 @@ function SplitOverlayDropzone({
   const hoverPlacementRef = useRef<SwitcherPlacement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
-  const { setNodeRef, isOver } = useDroppable({
+  const { setNodeRef, isOver, active } = useDroppable({
     id: `layout-region-${region}`,
     data: { type: 'layout-region', region },
   });
+
+  const isLayoutDrag = active?.data?.current?.type === 'layout-tab';
+  const isActualOver = isOver && isLayoutDrag;
 
   const setRefs = useCallback(
     (node: HTMLDivElement | null) => {
@@ -267,13 +273,13 @@ function SplitOverlayDropzone({
       className={clsx(
         'absolute inset-x-0 h-1/2 z-30 border-2 flex items-center justify-center transition-all duration-200 backdrop-blur-sm overflow-hidden',
         isTop ? 'top-0 rounded-t-lg' : 'bottom-0 rounded-b-lg',
-        isOver
+        isActualOver
           ? 'scale-[0.98] text-accent font-semibold border-transparent'
           : 'border-dashed border-accent/40 bg-bg-secondary/60 text-text-secondary',
       )}
     >
       <AnimatePresence>
-        {isOver && (
+        {isActualOver && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
