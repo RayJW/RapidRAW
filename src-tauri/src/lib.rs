@@ -328,6 +328,7 @@ fn process_preview_job(
     is_interactive: bool,
     target_resolution: Option<u32>,
     roi: Option<(f32, f32, f32, f32)>,
+    request_analytics: bool,
     compute_waveform: bool,
     active_waveform_channel: Option<&str>,
 ) -> Result<Vec<u8>, String> {
@@ -481,7 +482,7 @@ fn process_preview_job(
     let lut_path = adjustments_clone["lutPath"].as_str();
     let lut = lut_path.and_then(|p| lut_processing::get_or_load_lut(&state, p).ok());
 
-    let wants_analytics = !(is_interactive && pixel_roi.is_some());
+    let wants_analytics = !(is_interactive && pixel_roi.is_some()) && request_analytics;
     let channel_filter = if is_interactive {
         active_waveform_channel.map(|s| s.to_string())
     } else {
@@ -665,6 +666,7 @@ fn start_preview_worker(app_handle: tauri::AppHandle) {
                 job.is_interactive,
                 job.target_resolution,
                 job.roi,
+                job.request_analytics,
                 job.compute_waveform,
                 job.active_waveform_channel.as_deref(),
             ) {
@@ -685,6 +687,7 @@ async fn apply_adjustments(
     is_interactive: bool,
     target_resolution: Option<u32>,
     roi: Option<(f32, f32, f32, f32)>,
+    request_analytics: bool,
     compute_waveform: bool,
     active_waveform_channel: Option<String>,
     state: tauri::State<'_, AppState>,
@@ -699,6 +702,7 @@ async fn apply_adjustments(
                 is_interactive,
                 target_resolution,
                 roi,
+                request_analytics,
                 compute_waveform,
                 active_waveform_channel,
                 responder: tx,
