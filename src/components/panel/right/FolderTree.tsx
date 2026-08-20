@@ -60,6 +60,7 @@ interface FolderTreeProps {
 }
 
 interface TreeNodeProps {
+  sectionId: string;
   expandedFolders: Set<string>;
   isExpanded: boolean;
   node: FolderTree;
@@ -313,6 +314,7 @@ const getAlbumImageCount = (item: any): number => {
 };
 
 function AlbumTreeNode({
+  sectionId,
   item,
   expandedGroups,
   onToggle,
@@ -321,6 +323,7 @@ function AlbumTreeNode({
   selectedAlbumId,
   showImageCounts,
 }: {
+  sectionId: string;
   item: AlbumItem;
   expandedGroups: Set<string>;
   onToggle: (id: string) => void;
@@ -335,7 +338,7 @@ function AlbumTreeNode({
   const imageCount = getAlbumImageCount(item);
 
   const { setNodeRef, isOver, active } = useDroppable({
-    id: `album-${item.id}`,
+    id: `album-${sectionId}-${item.id}`,
     data: { type: 'album', id: item.id },
     disabled: isGroup,
   });
@@ -426,13 +429,14 @@ function AlbumTreeNode({
               <AnimatePresence>
                 {(item as AlbumGroup).children.map((child) => (
                   <motion.div
-                    key={child.id}
+                    key={`${sectionId}-${child.id}`}
                     initial={{ opacity: 0, height: 0, x: -10 }}
                     animate={{ opacity: 1, height: 'auto', x: 0 }}
                     exit={{ opacity: 0, height: 0, x: -10, overflow: 'hidden' }}
                     transition={{ duration: 0.2 }}
                   >
                     <AlbumTreeNode
+                      sectionId={sectionId}
                       item={child}
                       expandedGroups={expandedGroups}
                       onToggle={onToggle}
@@ -453,6 +457,7 @@ function AlbumTreeNode({
 }
 
 function TreeNode({
+  sectionId,
   expandedFolders,
   isExpanded,
   node,
@@ -470,7 +475,7 @@ function TreeNode({
   const isPinned = pinnedFolders.includes(node.path);
 
   const { setNodeRef, isOver, active } = useDroppable({
-    id: `folder-${node.path}`,
+    id: `folder-${sectionId}-${node.path}`,
     data: { type: 'folder', path: node.path },
   });
 
@@ -609,11 +614,12 @@ function TreeNode({
                     custom={{ index, total: node.children.length }}
                     exit="exit"
                     initial={isInstantTransition ? 'visible' : 'hidden'}
-                    key={childNode.path}
+                    key={`${sectionId}-${childNode.path}`}
                     layout={isInstantTransition ? false : 'position'}
                     variants={itemVariants}
                   >
                     <TreeNode
+                      sectionId={sectionId}
                       expandedFolders={expandedFolders}
                       isExpanded={expandedFolders.has(childNode.path)}
                       node={childNode}
@@ -896,7 +902,7 @@ export default function FolderTree({
                         <AnimatePresence>
                           {filteredPinnedTrees.map((pinnedTree, index) => (
                             <motion.div
-                              key={pinnedTree.path}
+                              key={`pinned-${pinnedTree.path}`}
                               animate="visible"
                               custom={{ index, total: filteredPinnedTrees.length }}
                               exit="exit"
@@ -913,6 +919,7 @@ export default function FolderTree({
                               }}
                             >
                               <TreeNode
+                                sectionId="pinned"
                                 expandedFolders={effectiveExpandedFolders}
                                 isExpanded={effectiveExpandedFolders.has(pinnedTree.path)}
                                 node={pinnedTree}
@@ -961,7 +968,7 @@ export default function FolderTree({
                         <AnimatePresence>
                           {filteredAlbumTree.map((item: any) => (
                             <motion.div
-                              key={item.id}
+                              key={`albums-${item.id}`}
                               initial={{ opacity: 0, height: 0, x: -15 }}
                               animate={{ opacity: 1, height: 'auto', x: 0 }}
                               exit={{ opacity: 0, height: 0, x: -15, overflow: 'hidden' }}
@@ -969,6 +976,7 @@ export default function FolderTree({
                               layout="position"
                             >
                               <AlbumTreeNode
+                                sectionId="albums"
                                 item={item}
                                 expandedGroups={effectiveExpandedAlbumGroups}
                                 onToggle={toggleAlbumGroup}
@@ -1016,7 +1024,7 @@ export default function FolderTree({
                         <AnimatePresence>
                           {filteredTrees.map((tree: any, index: number) => (
                             <motion.div
-                              key={tree.path}
+                              key={`current-${tree.path}`}
                               animate="visible"
                               custom={{ index, total: filteredTrees.length }}
                               exit="exit"
@@ -1033,6 +1041,7 @@ export default function FolderTree({
                               }}
                             >
                               <TreeNode
+                                sectionId="current"
                                 expandedFolders={effectiveExpandedFolders}
                                 isExpanded={effectiveExpandedFolders.has(tree.path)}
                                 node={tree}

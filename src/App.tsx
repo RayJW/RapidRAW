@@ -4,7 +4,16 @@ import { listen } from '@tauri-apps/api/event';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { ClerkProvider } from '@clerk/react';
 import { ToastContainer, toast, Slide } from 'react-toastify';
-import { DndContext, DragOverlay, PointerSensor, useSensor, useSensors, Modifier } from '@dnd-kit/core';
+import {
+  DndContext,
+  DragOverlay,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  Modifier,
+  MeasuringStrategy,
+  pointerWithin,
+} from '@dnd-kit/core';
 import clsx from 'clsx';
 
 import TitleBar from './window/TitleBar';
@@ -834,7 +843,17 @@ function App() {
             [hasMainContent && (isFullScreen ? 'p-0 gap-0' : 'p-2 gap-2')],
           )}
         >
-          <DndContext sensors={layoutSensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+          <DndContext
+            sensors={layoutSensors}
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+            collisionDetection={pointerWithin}
+            measuring={{
+              droppable: {
+                strategy: MeasuringStrategy.Always,
+              },
+            }}
+          >
             <div className="flex flex-row grow h-full min-h-0">
               {!shouldHideFolderTree && hasMainContent && (
                 <SidePanelArea
