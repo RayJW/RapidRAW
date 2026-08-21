@@ -38,7 +38,7 @@ import LibraryView from './components/views/LibraryView';
 
 import { ContextMenuProvider } from './context/ContextMenuContext';
 import { useSettingsStore } from './store/useSettingsStore';
-import { useUIStore } from './store/useUIStore';
+import { DEFAULT_BOTTOM_PANEL_HEIGHT, DEFAULT_PANEL_WIDTH, useUIStore } from './store/useUIStore';
 import { useLibraryStore } from './store/useLibraryStore';
 import { useEditorStore } from './store/useEditorStore';
 import { useProcessStore } from './store/useProcessStore';
@@ -613,12 +613,34 @@ function App() {
       window.removeEventListener('pointercancel', stopDrag);
       setIsResizing(false);
     };
+
     document.documentElement.style.cursor =
       stateKey === 'bottom' || stateKey === 'compact' ? 'row-resize' : 'col-resize';
 
     window.addEventListener('pointermove', doDrag, { passive: false });
     window.addEventListener('pointerup', stopDrag);
     window.addEventListener('pointercancel', stopDrag);
+  };
+
+  const createResizeResetHandler = (stateKey: string) => () => {
+    if (stateKey === 'left') {
+      setUI((state) => ({
+        leftPanelWidth: DEFAULT_PANEL_WIDTH,
+        uiVisibility: { ...state.uiVisibility, leftPanel: true },
+      }));
+    } else if (stateKey === 'right') {
+      setUI((state) => ({
+        rightPanelWidth: DEFAULT_PANEL_WIDTH,
+        uiVisibility: { ...state.uiVisibility, rightPanel: true },
+      }));
+    } else if (stateKey === 'bottom') {
+      setUI((state) => ({
+        bottomPanelHeight: DEFAULT_BOTTOM_PANEL_HEIGHT,
+        uiVisibility: { ...state.uiVisibility, filmstrip: true },
+      }));
+    } else if (stateKey === 'compact') {
+      setUI({ compactEditorPanelHeightOverride: null });
+    }
   };
 
   useEffect(() => {
@@ -864,6 +886,7 @@ function App() {
                   bottomRegion="leftBottom"
                   renderPanel={renderAppPanel}
                   onWidthChange={createResizeHandler('left', effectiveLeftWidth)}
+                  onWidthReset={createResizeResetHandler('left')}
                   isResizing={isResizing}
                 />
               )}
@@ -893,6 +916,7 @@ function App() {
                       thumbnailAspectRatio={thumbnailAspectRatio}
                       sortedImageList={sortedImageList}
                       createResizeHandler={createResizeHandler}
+                      createResizeResetHandler={createResizeResetHandler}
                       handleBackToLibrary={handleBackToLibrary}
                       handleEditorContextMenu={handleEditorContextMenu}
                       handleThumbnailContextMenu={handleThumbnailContextMenu}
@@ -964,6 +988,7 @@ function App() {
                   bottomRegion="rightBottom"
                   renderPanel={renderAppPanel}
                   onWidthChange={createResizeHandler('right', effectiveRightWidth)}
+                  onWidthReset={createResizeResetHandler('right')}
                   isResizing={isResizing}
                 />
               )}
