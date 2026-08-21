@@ -1840,7 +1840,7 @@
       "setFailed": "{{key}} 설정 실패: {{err}}"
     },
     "triggerAutofocus": "자동 초점 실행",
-    "triggerCapture": "촬영 실행",
+    "triggerCapture": "촬영",
     "wbTemp": "색온도 (K)",
     "wbTempPlaceholder": "예: 5600",
     "whiteBalance": "화이트 밸런스"

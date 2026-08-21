@@ -1910,7 +1910,7 @@
       "setFailed": "Nie udało się ustawić {{key}}: {{err}}"
     },
     "triggerAutofocus": "Wyzwól autofocus",
-    "triggerCapture": "Wyzwól migawkę",
+    "triggerCapture": "Zrób zdjęcie",
     "wbTemp": "Temp. barwowa (K)",
     "wbTempPlaceholder": "np. 5600",
     "whiteBalance": "Balans bieli"

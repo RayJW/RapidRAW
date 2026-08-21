@@ -1840,7 +1840,7 @@
       "setFailed": "{{key}} の設定に失敗しました: {{err}}"
     },
     "triggerAutofocus": "AFを実行",
-    "triggerCapture": "撮影を実行",
+    "triggerCapture": "撮影",
     "wbTemp": "色温度 (K)",
     "wbTempPlaceholder": "例: 5600",
     "whiteBalance": "ホワイトバランス"

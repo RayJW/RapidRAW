@@ -1875,7 +1875,7 @@
       "setFailed": "Impossibile impostare {{key}}: {{err}}"
     },
     "triggerAutofocus": "Attiva autofocus",
-    "triggerCapture": "Scatta foto",
+    "triggerCapture": "Acquisisci",
     "wbTemp": "Temp. WB (K)",
     "wbTempPlaceholder": "es. 5600",
     "whiteBalance": "Bilanciamento del bianco"

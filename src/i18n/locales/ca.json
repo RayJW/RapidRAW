@@ -1842,7 +1842,7 @@
       "setFailed": "Error en configurar {{key}}: {{err}}"
     },
     "triggerAutofocus": "Dispara l'enfocament automàtic",
-    "triggerCapture": "Dispara captura",
+    "triggerCapture": "Captura",
     "wbTemp": "Temp. WB (K)",
     "wbTempPlaceholder": "p. ex. 5600",
     "whiteBalance": "Balanç de blancs"

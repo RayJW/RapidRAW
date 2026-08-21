@@ -1876,7 +1876,7 @@
       "setFailed": "Falha ao definir {{key}}: {{err}}"
     },
     "triggerAutofocus": "Disparar Foco Automático",
-    "triggerCapture": "Disparar Captura",
+    "triggerCapture": "Capturar",
     "wbTemp": "Temp. WB (K)",
     "wbTempPlaceholder": "ex. 5600",
     "whiteBalance": "Balanço de Branco"

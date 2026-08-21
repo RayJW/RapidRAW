@@ -1840,7 +1840,7 @@
       "setFailed": "设置 {{key}} 失败: {{err}}"
     },
     "triggerAutofocus": "触发自动对焦",
-    "triggerCapture": "触发拍摄",
+    "triggerCapture": "拍摄",
     "wbTemp": "色温 (K)",
     "wbTempPlaceholder": "例如 5600",
     "whiteBalance": "白平衡"
