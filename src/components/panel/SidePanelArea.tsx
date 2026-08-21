@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
 import { useDroppable, useDndMonitor } from '@dnd-kit/core';
-import { SwitcherPlacement, useUIStore } from '../../store/useUIStore';
+import { DEFAULT_PANEL_SECTION_HEIGHT, SwitcherPlacement, useUIStore } from '../../store/useUIStore';
 import { Panel, PanelRegion } from '../ui/AppProperties';
 import PanelSwitcher from './PanelSwitcher';
 
@@ -16,6 +16,7 @@ interface SidePanelAreaProps {
   bottomRegion: PanelRegion;
   renderPanel: (panel: Panel) => React.ReactNode;
   onWidthChange: (e: React.PointerEvent<HTMLDivElement>) => void;
+  onWidthReset: () => void;
   isResizing: boolean;
 }
 
@@ -316,6 +317,7 @@ export default function SidePanelArea({
   bottomRegion,
   renderPanel,
   onWidthChange,
+  onWidthReset,
   isResizing,
 }: SidePanelAreaProps) {
   const panelLayout = useUIStore((s) => s.panelLayout);
@@ -361,6 +363,14 @@ export default function SidePanelArea({
     [topHeight, side, setUI],
   );
 
+  const handleVerticalResizeReset = useCallback(() => {
+    if (side === 'left') {
+      setUI({ leftTopHeight: DEFAULT_PANEL_SECTION_HEIGHT });
+    } else {
+      setUI({ rightTopHeight: DEFAULT_PANEL_SECTION_HEIGHT });
+    }
+  }, [side, setUI]);
+
   const topPanels = panelLayout[topRegion];
   const bottomPanels = panelLayout[bottomRegion];
 
@@ -390,7 +400,11 @@ export default function SidePanelArea({
       style={{ width: isFullScreen ? 0 : width }}
     >
       {side === 'right' && (
-        <div className="shrink-0 w-2 my-auto h-full cursor-col-resize z-20" onPointerDown={onWidthChange} />
+        <div
+          className="shrink-0 w-2 my-auto h-full cursor-col-resize z-20"
+          onPointerDown={onWidthChange}
+          onDoubleClick={onWidthReset}
+        />
       )}
 
       <div ref={colContainerRef} className="flex flex-col h-full w-full overflow-hidden relative">
@@ -417,7 +431,11 @@ export default function SidePanelArea({
         )}
 
         {hasTop && hasBottom && (
-          <div className="shrink-0 h-2 cursor-row-resize z-20" onPointerDown={handleVerticalResize} />
+          <div
+            className="shrink-0 h-2 cursor-row-resize z-20"
+            onPointerDown={handleVerticalResize}
+            onDoubleClick={handleVerticalResizeReset}
+          />
         )}
 
         {hasBottom && (
@@ -454,7 +472,11 @@ export default function SidePanelArea({
       </div>
 
       {side === 'left' && (
-        <div className="shrink-0 w-2 my-auto h-full cursor-col-resize z-20" onPointerDown={onWidthChange} />
+        <div
+          className="shrink-0 w-2 my-auto h-full cursor-col-resize z-20"
+          onPointerDown={onWidthChange}
+          onDoubleClick={onWidthReset}
+        />
       )}
     </div>
   );
