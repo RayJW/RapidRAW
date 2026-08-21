@@ -128,7 +128,7 @@ export function useImageProcessing(
       let shouldRequestAnalytics = false;
       if (dragging) {
         const now = performance.now();
-        if (now - lastAnalyticsTimeRef.current > 50) {
+        if (now - lastAnalyticsTimeRef.current > 33.33) {
           shouldRequestAnalytics = true;
           lastAnalyticsTimeRef.current = now;
         }
