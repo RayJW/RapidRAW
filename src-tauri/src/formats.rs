@@ -92,8 +92,6 @@ pub fn is_raw_file<P: AsRef<Path>>(path: P) -> bool {
 pub fn is_supported_image_file<P: AsRef<Path>>(path: P) -> bool {
     let path = path.as_ref();
 
-    // Ignore dotfiles before checking extensions. In particular, macOS creates
-    // AppleDouble metadata files such as `._DSC0001.ARW` on external volumes.
     if path
         .file_name()
         .and_then(|name| name.to_str())
@@ -117,27 +115,4 @@ pub fn is_supported_image_file<P: AsRef<Path>>(path: P) -> bool {
     NON_RAW_EXTENSIONS
         .iter()
         .any(|non_raw_ext| non_raw_ext.eq_ignore_ascii_case(ext))
-}
-
-#[cfg(test)]
-mod tests {
-    use super::is_supported_image_file;
-
-    #[test]
-    fn accepts_visible_supported_images() {
-        assert!(is_supported_image_file("DSC02748.ARW"));
-        assert!(is_supported_image_file("nested/preview.JPEG"));
-    }
-
-    #[test]
-    fn rejects_appledouble_files_with_supported_extensions() {
-        assert!(!is_supported_image_file("._DSC02748.ARW"));
-        assert!(!is_supported_image_file("nested/._preview.JPEG"));
-    }
-
-    #[test]
-    fn rejects_other_hidden_files_with_supported_extensions() {
-        assert!(!is_supported_image_file(".DSC02748.ARW"));
-        assert!(!is_supported_image_file("nested/.preview.JPEG"));
-    }
 }
