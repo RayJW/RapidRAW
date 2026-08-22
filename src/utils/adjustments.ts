@@ -121,7 +121,6 @@ export enum LensAdjustment {
   LensDistortionAmount = 'lensDistortionAmount',
   LensVignetteAmount = 'lensVignetteAmount',
   LensTcaAmount = 'lensTcaAmount',
-  LensDistortionParams = 'lensDistortionParams',
   LensDistortionEnabled = 'lensDistortionEnabled',
   LensTcaEnabled = 'lensTcaEnabled',
   LensVignetteEnabled = 'lensVignetteEnabled',
