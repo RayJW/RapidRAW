@@ -29,7 +29,7 @@
     "@uiw/color-convert": "^2.10.3",
     "@uiw/react-color-wheel": "^2.10.3",
     "clsx": "^2.1.1",
-    "framer-motion": "^12.43.0",
+    "framer-motion": "^13.1.1",
     "i18next": "^26.4.0",
     "konva": "^10.3.1",
     "lodash.debounce": "^4.0.8",
@@ -47,7 +47,7 @@
     "zustand": "^5.0.15"
   },
   "devDependencies": {
-    "@eslint/js": "^9.39.5",
+    "@eslint/js": "^10.0.1",
     "@tailwindcss/vite": "^4.3.3",
     "@tauri-apps/cli": "^2.11.4",
     "@types/lodash.debounce": "^4.0.9",
@@ -56,7 +56,7 @@
     "@types/react-dom": "^19.2.4",
     "@vitejs/plugin-react": "^6.1.0",
     "esbuild": "^0.28.2",
-    "eslint": "^9.39.5",
+    "eslint": "^10.9.0",
     "eslint-plugin-i18next": "^6.1.5",
     "i18next-cli": "^1.71.0",
     "prettier": "^3.9.6",
