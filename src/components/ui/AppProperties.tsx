@@ -151,7 +151,7 @@ export enum SortDirection {
   Descending = 'desc',
 }
 
-export type FolderSortKey = 'name' | 'modified' | 'created' | 'imageCount';
+type FolderSortKey = 'name' | 'modified' | 'created' | 'imageCount';
 
 export interface FolderTreeSort {
   key: FolderSortKey;
@@ -397,7 +397,7 @@ export interface CullingSettings {
   filterBlurry: boolean;
 }
 
-export interface ImageAnalysisResult {
+interface ImageAnalysisResult {
   path: string;
   qualityScore: number;
   sharpnessMetric: number;
@@ -407,7 +407,7 @@ export interface ImageAnalysisResult {
   height: number;
 }
 
-export interface CullGroup {
+interface CullGroup {
   representative: ImageAnalysisResult;
   duplicates: ImageAnalysisResult[];
 }
@@ -418,7 +418,7 @@ export interface CullingSuggestions {
   failedPaths: string[];
 }
 
-export interface KeybindHandler {
+interface KeybindHandler {
   shouldFire?: () => boolean;
   execute: (event: KeyboardEvent) => void;
 }

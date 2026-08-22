@@ -9,7 +9,7 @@ import {
   TextVariants,
 } from '../../types/typography';
 
-export interface TextProps extends React.HTMLAttributes<HTMLElement> {
+interface TextProps extends React.HTMLAttributes<HTMLElement> {
   variant?: VariantConfig;
   weight?: TextWeight;
   color?: TextColor;

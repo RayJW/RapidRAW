@@ -6,7 +6,7 @@ import { ImageDimensions } from '../hooks/useImageRenderSize';
 import { ToolType } from '../components/panel/right/Masks';
 import { OverlayMode } from '../components/panel/right/CropPanel';
 
-export interface InteractivePatch {
+interface InteractivePatch {
   url: string;
   normX: number;
   normY: number;
