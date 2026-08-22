@@ -1302,7 +1302,7 @@ export default function Editor({ onBackToLibrary, onContextMenu, onImageSelect, 
         if (lastWgpuTransformRef.current !== hiddenTransform && !isInvoking) {
           lastWgpuTransformRef.current = hiddenTransform;
           isInvoking = true;
-          invoke('update_wgpu_transform', {
+          invoke(Invokes.UpdateWgpuTransform, {
             payload: {
               windowWidth,
               windowHeight,
@@ -1365,7 +1365,7 @@ export default function Editor({ onBackToLibrary, onContextMenu, onImageSelect, 
 
         const isZoomedIn = scale >= maxScaleRef.current - 0.5;
 
-        invoke('update_wgpu_transform', {
+        invoke(Invokes.UpdateWgpuTransform, {
           payload: {
             windowWidth,
             windowHeight,
