@@ -58,7 +58,7 @@ export enum WatermarkAnchor {
   BottomRight = 'bottomRight',
 }
 
-export interface WatermarkSettings {
+interface WatermarkSettings {
   path: string;
   anchor: WatermarkAnchor;
   scale: number;

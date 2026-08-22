@@ -103,7 +103,7 @@ export enum CreativeAdjustment {
   FlareAmount = 'flareAmount',
 }
 
-export enum TransformAdjustment {
+enum TransformAdjustment {
   TransformDistortion = 'transformDistortion',
   TransformVertical = 'transformVertical',
   TransformHorizontal = 'transformHorizontal',
