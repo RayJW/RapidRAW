@@ -58,7 +58,6 @@
     "esbuild": "^0.28.1",
     "eslint": "^9.39.2",
     "eslint-plugin-i18next": "^6.1.5",
-    "eslint-plugin-react": "^7.37.5",
     "i18next-cli": "^1.65.0",
     "prettier": "^3.9.4",
     "tailwindcss": "^4.3.2",
