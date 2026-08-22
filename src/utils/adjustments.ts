@@ -400,7 +400,7 @@ const INITIAL_COLOR_CALIBRATION: ColorCalibration = {
   blueSaturation: 0,
 };
 
-const DEFAULT_PARAMETRIC_CURVE_SETTINGS: ParametricCurveSettings = {
+export const DEFAULT_PARAMETRIC_CURVE_SETTINGS: ParametricCurveSettings = {
   darks: 0,
   shadows: 0,
   highlights: 0,
@@ -419,7 +419,7 @@ const getDefaultParametricCurve = (): ParametricCurve => ({
   blue: { ...DEFAULT_PARAMETRIC_CURVE_SETTINGS },
 });
 
-const getDefaultCurves = (): Curves => ({
+export const getDefaultCurves = (): Curves => ({
   blue: [
     { x: 0, y: 0 },
     { x: 255, y: 255 },
@@ -438,7 +438,7 @@ const getDefaultCurves = (): Curves => ({
   ],
 });
 
-const DEFAULT_PARAMETRIC_CURVE = getDefaultParametricCurve();
+export const DEFAULT_PARAMETRIC_CURVE = getDefaultParametricCurve();
 
 export const INITIAL_MASK_ADJUSTMENTS: MaskAdjustments = {
   blacks: 0,
