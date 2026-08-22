@@ -218,7 +218,7 @@ export const AI_GENERATIVE_CREATION_TYPES: Array<MaskType> = [
   },
 ];
 
-export const SUB_MASK_COMPONENT_TYPES: Array<MaskType> = [
+const SUB_MASK_COMPONENT_TYPES: Array<MaskType> = [
   {
     disabled: false,
     icon: Sparkles,

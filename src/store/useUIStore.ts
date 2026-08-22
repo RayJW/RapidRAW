@@ -84,7 +84,7 @@ export interface CullingModalState {
   pathsToCull: Array<string>;
 }
 
-export const ALL_PANELS: Panel[] = [
+const ALL_PANELS: Panel[] = [
   Panel.Metadata,
   Panel.FolderTree,
   Panel.Export,
@@ -96,7 +96,7 @@ export const ALL_PANELS: Panel[] = [
   Panel.Presets,
 ];
 
-export const DEFAULT_PANEL_DEFAULT_REGIONS: Record<Panel, PanelRegion> = {
+const DEFAULT_PANEL_DEFAULT_REGIONS: Record<Panel, PanelRegion> = {
   [Panel.Metadata]: 'leftTop',
   [Panel.FolderTree]: 'leftTop',
   [Panel.Export]: 'leftTop',

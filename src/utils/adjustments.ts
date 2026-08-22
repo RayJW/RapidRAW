@@ -400,7 +400,7 @@ const INITIAL_COLOR_CALIBRATION: ColorCalibration = {
   blueSaturation: 0,
 };
 
-export const DEFAULT_PARAMETRIC_CURVE_SETTINGS: ParametricCurveSettings = {
+const DEFAULT_PARAMETRIC_CURVE_SETTINGS: ParametricCurveSettings = {
   darks: 0,
   shadows: 0,
   highlights: 0,
@@ -412,14 +412,14 @@ export const DEFAULT_PARAMETRIC_CURVE_SETTINGS: ParametricCurveSettings = {
   split3: 75,
 };
 
-export const getDefaultParametricCurve = (): ParametricCurve => ({
+const getDefaultParametricCurve = (): ParametricCurve => ({
   luma: { ...DEFAULT_PARAMETRIC_CURVE_SETTINGS },
   red: { ...DEFAULT_PARAMETRIC_CURVE_SETTINGS },
   green: { ...DEFAULT_PARAMETRIC_CURVE_SETTINGS },
   blue: { ...DEFAULT_PARAMETRIC_CURVE_SETTINGS },
 });
 
-export const getDefaultCurves = (): Curves => ({
+const getDefaultCurves = (): Curves => ({
   blue: [
     { x: 0, y: 0 },
     { x: 255, y: 255 },
@@ -438,7 +438,7 @@ export const getDefaultCurves = (): Curves => ({
   ],
 });
 
-export const DEFAULT_PARAMETRIC_CURVE = getDefaultParametricCurve();
+const DEFAULT_PARAMETRIC_CURVE = getDefaultParametricCurve();
 
 export const INITIAL_MASK_ADJUSTMENTS: MaskAdjustments = {
   blacks: 0,
