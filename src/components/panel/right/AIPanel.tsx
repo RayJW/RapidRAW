@@ -54,6 +54,7 @@ import {
   AI_SUB_MASK_COMPONENT_TYPES,
   formatMaskTypeName,
   getSubMaskName,
+  NewMaskDropZone,
 } from './Masks';
 import { Adjustments, AiPatch } from '../../../utils/adjustments';
 import { OPTION_SEPARATOR } from '../../ui/AppProperties';
@@ -310,7 +311,7 @@ function AiListRoot({
     >
       {children}
       <AnimatePresence>
-        {activeDragItem?.type === 'Creation' && hasPatches && <NewMaskDropZone isOver={isOver} />}
+        {activeDragItem?.type === 'Creation' && hasPatches && <NewMaskDropZone isOver={isOver} textKey="editor.ai.dropzoneText" />}
       </AnimatePresence>
     </motion.div>
   );
@@ -1309,22 +1310,6 @@ export default function AIPanel() {
         ) : null}
       </DragOverlay>
     </DndContext>
-  );
-}
-
-function NewMaskDropZone({ isOver }: { isOver: boolean }) {
-  const { t } = useTranslation();
-  return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, height: 0, marginTop: 0 }}
-      animate={{ opacity: 1, height: 'auto', marginTop: '4px' }}
-      exit={{ opacity: 0, height: 0, marginTop: 0 }}
-      transition={{ duration: 0.2, ease: 'easeOut' }}
-      className={`p-3 rounded-lg text-center ${isOver ? 'border border-accent/80 bg-bg-tertiary/50' : ''}`}
-    >
-      <Text weight={TextWeights.medium}>{t('editor.ai.dropzoneText')}</Text>
-    </motion.div>
   );
 }
 

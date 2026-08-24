@@ -16,6 +16,10 @@ import {
   Bandage,
   Move,
 } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
+import Text from '../../ui/Text';
+import { TextWeights } from '../../../types/typography';
 import i18n from 'i18next';
 
 export enum Mask {
@@ -301,3 +305,19 @@ export const AI_SUB_MASK_COMPONENT_TYPES: Array<MaskType> = [
   ...AI_MANUAL_CLEANUP_TYPES,
   ...AI_GENERATIVE_CREATION_TYPES,
 ];
+
+export function NewMaskDropZone({ isOver, textKey }: { isOver: boolean; textKey: string }) {
+  const { t } = useTranslation();
+  return (
+    <motion.div
+      layout
+      initial={{ opacity: 0, height: 0, marginTop: 0 }}
+      animate={{ opacity: 1, height: 'auto', marginTop: '4px' }}
+      exit={{ opacity: 0, height: 0, marginTop: 0 }}
+      transition={{ duration: 0.2, ease: 'easeOut' }}
+      className={`p-3 rounded-lg text-center ${isOver ? 'border border-accent/80 bg-bg-tertiary/50' : ''}`}
+    >
+      <Text weight={TextWeights.medium}>{t(textKey)}</Text>
+    </motion.div>
+  );
+}
