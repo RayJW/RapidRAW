@@ -12,6 +12,7 @@ import { useOsPlatform } from '../../../hooks/useOsPlatform';
 import { useTranslation } from 'react-i18next';
 import type { OverlayMode } from '../right/CropPanel';
 import CompositionOverlays from './overlays/CompositionOverlays';
+import { calculateStraightenAngle } from '../../../utils/cropUtils';
 
 interface CursorPreview {
   visible: boolean;
@@ -2426,55 +2427,14 @@ const ImageCanvas = memo(
       isStraightening.current = false;
       if (
         !straightenLine ||
-        (straightenLine.start.x === straightenLine.end.x && straightenLine.start.y === straightenLine.start.y)
+        (straightenLine.start.x === straightenLine.end.x && straightenLine.start.y === straightenLine.end.y)
       ) {
         setStraightenLine(null);
         return;
       }
 
       const { start, end } = straightenLine;
-      const { rotation = 0 } = adjustments;
-      const theta_rad = (rotation * Math.PI) / 180;
-      const cos_t = Math.cos(theta_rad);
-      const sin_t = Math.sin(theta_rad);
-      const width = uncroppedImageRenderSize?.width ?? 0;
-      const height = uncroppedImageRenderSize?.height ?? 0;
-      const cx = width / 2;
-      const cy = height / 2;
-
-      const unrotate = (p: Coord) => {
-        const x = p.x - cx;
-        const y = p.y - cy;
-        return {
-          x: cx + x * cos_t + y * sin_t,
-          y: cy - x * sin_t + y * cos_t,
-        };
-      };
-
-      const start_unrotated = unrotate(start);
-      const end_unrotated = unrotate(end);
-      const dx = end_unrotated.x - start_unrotated.x;
-      const dy = end_unrotated.y - start_unrotated.y;
-      const angle = Math.atan2(dy, dx) * (180 / Math.PI);
-      let targetAngle;
-
-      if (angle > -45 && angle <= 45) {
-        targetAngle = 0;
-      } else if (angle > 45 && angle <= 135) {
-        targetAngle = 90;
-      } else if (angle > 135 || angle <= -135) {
-        targetAngle = 180;
-      } else {
-        targetAngle = -90;
-      }
-
-      let correction = targetAngle - angle;
-      if (correction > 180) {
-        correction -= 360;
-      }
-      if (correction < -180) {
-        correction += 360;
-      }
+      const correction = calculateStraightenAngle(end.x - start.x, end.y - start.y);
 
       onStraighten(correction);
       setStraightenLine(null);
