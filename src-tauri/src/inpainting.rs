@@ -14,19 +14,17 @@ use crate::image_processing::apply_linear_to_srgb;
 use crate::mask_generation::{AiPatchDefinition, MaskDefinition, generate_mask_bitmap};
 use crate::resolve_warped_image_for_masks;
 
-#[tauri::command]
-pub async fn generate_manual_cleanup_patch(
-    patch_definition: AiPatchDefinition,
-    current_adjustments: Value,
-    source_point: (f64, f64),
-    state: tauri::State<'_, AppState>,
-) -> Result<String, String> {
+fn prepare_source_image(
+    patch_id: &str,
+    current_adjustments: &Value,
+    state: &tauri::State<'_, AppState>,
+) -> Result<(DynamicImage, bool), String> {
     let mut source_image_adjustments = current_adjustments.clone();
     if let Some(patches) = source_image_adjustments
         .get_mut("aiPatches")
         .and_then(|v| v.as_array_mut())
     {
-        patches.retain(|p| p.get("id").and_then(|id| id.as_str()) != Some(&patch_definition.id));
+        patches.retain(|p| p.get("id").and_then(|id| id.as_str()) != Some(patch_id));
     }
 
     let is_raw = {
@@ -34,7 +32,7 @@ pub async fn generate_manual_cleanup_patch(
         guard.as_ref().map(|img| img.is_raw).unwrap_or(false)
     };
 
-    let (base_image, _) = crate::get_original_image(&state)?;
+    let (base_image, _) = crate::get_original_image(state)?;
     let composited = composite_patches_on_image(&base_image, &source_image_adjustments)
         .map_err(|e| format!("Failed to prepare source image: {}", e))?;
 
@@ -44,6 +42,124 @@ pub async fn generate_manual_cleanup_patch(
         composited
     };
 
+    Ok((source_image, is_raw))
+}
+
+fn calculate_mask_bounds(
+    mask_bitmap: &image::GrayImage,
+) -> Result<(usize, usize, usize, usize), String> {
+    let (img_w, img_h) = mask_bitmap.dimensions();
+    let mask_raw = mask_bitmap.as_raw();
+    let img_w_usize = img_w as usize;
+    let img_h_usize = img_h as usize;
+
+    let mut min_y = img_h_usize;
+    let mut max_y = 0;
+
+    for y in 0..img_h_usize {
+        let row_start = y * img_w_usize;
+        if mask_raw[row_start..row_start + img_w_usize]
+            .iter()
+            .any(|&p| p > 0)
+        {
+            min_y = y;
+            break;
+        }
+    }
+
+    if min_y == img_h_usize {
+        return Err("Mask is empty.".to_string());
+    }
+
+    for y in (min_y..img_h_usize).rev() {
+        let row_start = y * img_w_usize;
+        if mask_raw[row_start..row_start + img_w_usize]
+            .iter()
+            .any(|&p| p > 0)
+        {
+            max_y = y;
+            break;
+        }
+    }
+
+    let mut min_x = img_w_usize;
+    let mut max_x = 0;
+    for y in min_y..=max_y {
+        let row_start = y * img_w_usize;
+        let row = &mask_raw[row_start..row_start + img_w_usize];
+        if let Some(first) = row.iter().position(|&p| p > 0) {
+            if first < min_x {
+                min_x = first;
+            }
+        }
+        if let Some(last) = row.iter().rposition(|&p| p > 0) {
+            if last > max_x {
+                max_x = last;
+            }
+        }
+    }
+
+    Ok((min_x, max_x, min_y, max_y))
+}
+
+fn encode_patch_result(
+    color_image: &RgbImage,
+    mask_image: &image::GrayImage,
+    offset_x: u32,
+    offset_y: u32,
+    width: u32,
+    height: u32,
+    is_srgb: bool,
+    quality: u8,
+    mask_as_png: bool,
+) -> Result<String, String> {
+    let mut color_buf = Cursor::new(Vec::with_capacity(32768));
+    color_image
+        .write_with_encoder(image::codecs::jpeg::JpegEncoder::new_with_quality(
+            &mut color_buf,
+            quality,
+        ))
+        .map_err(|e| e.to_string())?;
+    let color_base64 = general_purpose::STANDARD.encode(color_buf.get_ref());
+
+    let mut mask_buf = Cursor::new(Vec::with_capacity(32768));
+    if mask_as_png {
+        mask_image
+            .write_to(&mut mask_buf, image::ImageFormat::Png)
+            .map_err(|e| e.to_string())?;
+    } else {
+        mask_image
+            .write_with_encoder(image::codecs::jpeg::JpegEncoder::new_with_quality(
+                &mut mask_buf,
+                quality,
+            ))
+            .map_err(|e| e.to_string())?;
+    }
+    let mask_base64 = general_purpose::STANDARD.encode(mask_buf.get_ref());
+
+    let result_json = serde_json::json!({
+        "color": color_base64,
+        "mask": mask_base64,
+        "offsetX": offset_x,
+        "offsetY": offset_y,
+        "width": width,
+        "height": height,
+        "isSrgbEncoded": is_srgb
+    })
+    .to_string();
+
+    Ok(result_json)
+}
+
+#[tauri::command]
+pub async fn generate_manual_cleanup_patch(
+    patch_definition: AiPatchDefinition,
+    current_adjustments: Value,
+    source_point: (f64, f64),
+    state: tauri::State<'_, AppState>,
+) -> Result<String, String> {
+    let (source_image, is_raw) =
+        prepare_source_image(&patch_definition.id, &current_adjustments, &state)?;
     let (img_w, img_h) = source_image.dimensions();
 
     let orientation_steps = current_adjustments
@@ -85,55 +201,7 @@ pub async fn generate_manual_cleanup_patch(
     let mask_bitmap =
         crate::image_processing::inverse_transform_mask(mask_bitmap, &current_adjustments);
 
-    let mask_raw = mask_bitmap.as_raw();
-    let img_w_usize = img_w as usize;
-    let img_h_usize = img_h as usize;
-
-    let mut min_y = img_h_usize;
-    let mut max_y = 0;
-
-    for y in 0..img_h_usize {
-        let row_start = y * img_w_usize;
-        if mask_raw[row_start..row_start + img_w_usize]
-            .iter()
-            .any(|&p| p > 0)
-        {
-            min_y = y;
-            break;
-        }
-    }
-
-    if min_y == img_h_usize {
-        return Err("Mask is empty.".to_string());
-    }
-
-    for y in (min_y..img_h_usize).rev() {
-        let row_start = y * img_w_usize;
-        if mask_raw[row_start..row_start + img_w_usize]
-            .iter()
-            .any(|&p| p > 0)
-        {
-            max_y = y;
-            break;
-        }
-    }
-
-    let mut min_x = img_w_usize;
-    let mut max_x = 0;
-    for y in min_y..=max_y {
-        let row_start = y * img_w_usize;
-        let row = &mask_raw[row_start..row_start + img_w_usize];
-        if let Some(first) = row.iter().position(|&p| p > 0)
-            && first < min_x
-        {
-            min_x = first;
-        }
-        if let Some(last) = row.iter().rposition(|&p| p > 0)
-            && last > max_x
-        {
-            max_x = last;
-        }
-    }
+    let (min_x, max_x, min_y, max_y) = calculate_mask_bounds(&mask_bitmap)?;
 
     let center_x = (min_x + max_x) as f64 / 2.0;
     let center_y = (min_y + max_y) as f64 / 2.0;
@@ -281,41 +349,20 @@ pub async fn generate_manual_cleanup_patch(
         }
     }
 
-    let quality = 100;
-
     let output_mask =
         image::imageops::crop_imm(&mask_bitmap, min_x_u32, min_y_u32, crop_w, crop_h).to_image();
 
-    let mut color_buf = Cursor::new(Vec::with_capacity(32768));
-    color_image
-        .write_with_encoder(image::codecs::jpeg::JpegEncoder::new_with_quality(
-            &mut color_buf,
-            quality,
-        ))
-        .map_err(|e| e.to_string())?;
-    let color_base64 = general_purpose::STANDARD.encode(color_buf.get_ref());
-
-    let mut mask_buf = Cursor::new(Vec::with_capacity(32768));
-    output_mask
-        .write_with_encoder(image::codecs::jpeg::JpegEncoder::new_with_quality(
-            &mut mask_buf,
-            quality,
-        ))
-        .map_err(|e| e.to_string())?;
-    let mask_base64 = general_purpose::STANDARD.encode(mask_buf.get_ref());
-
-    let result_json = serde_json::json!({
-        "color": color_base64,
-        "mask": mask_base64,
-        "offsetX": min_x_u32,
-        "offsetY": min_y_u32,
-        "width": crop_w,
-        "height": crop_h,
-        "isSrgbEncoded": is_raw
-    })
-    .to_string();
-
-    Ok(result_json)
+    encode_patch_result(
+        &color_image,
+        &output_mask,
+        min_x_u32,
+        min_y_u32,
+        crop_w,
+        crop_h,
+        is_raw,
+        100,
+        false,
+    )
 }
 
 #[tauri::command]
@@ -330,30 +377,11 @@ pub async fn invoke_generative_replace_with_mask_def(
 ) -> Result<String, String> {
     let settings = load_settings(app_handle.clone()).unwrap_or_default();
 
-    let mut source_image_adjustments = current_adjustments.clone();
-    if let Some(patches) = source_image_adjustments
-        .get_mut("aiPatches")
-        .and_then(|v| v.as_array_mut())
-    {
-        patches.retain(|p| p.get("id").and_then(|id| id.as_str()) != Some(&patch_definition.id));
-    }
-
-    let is_raw = {
-        let guard = state.original_image.lock().unwrap();
-        guard.as_ref().map(|img| img.is_raw).unwrap_or(false)
-    };
-
-    let (base_image, _) = crate::get_original_image(&state)?;
-    let composited = composite_patches_on_image(&base_image, &source_image_adjustments)
-        .map_err(|e| format!("Failed to prepare source image: {}", e))?;
-
-    let source_image = if is_raw {
-        apply_linear_to_srgb(composited)
-    } else {
-        composited
-    };
-
+    let (source_image, is_raw) =
+        prepare_source_image(&patch_definition.id, &current_adjustments, &state)?;
     let (img_w, img_h) = source_image.dimensions();
+    let img_w_usize = img_w as usize;
+    let img_h_usize = img_h as usize;
 
     let orientation_steps = current_adjustments
         .get("orientationSteps")
@@ -394,53 +422,7 @@ pub async fn invoke_generative_replace_with_mask_def(
     let mask_bitmap =
         crate::image_processing::inverse_transform_mask(mask_bitmap, &current_adjustments);
 
-    let mask_raw = mask_bitmap.as_raw();
-    let img_w_usize = img_w as usize;
-    let img_h_usize = img_h as usize;
-
-    let mut min_y = img_h_usize;
-    let mut max_y = 0;
-
-    for y in 0..img_h_usize {
-        let row_start = y * img_w_usize;
-        if mask_raw[row_start..row_start + img_w_usize]
-            .iter()
-            .any(|&p| p > 0)
-        {
-            min_y = y;
-            break;
-        }
-    }
-    if min_y == img_h_usize {
-        return Err("Mask is empty.".to_string());
-    }
-
-    for y in (min_y..img_h_usize).rev() {
-        let row_start = y * img_w_usize;
-        if mask_raw[row_start..row_start + img_w_usize]
-            .iter()
-            .any(|&p| p > 0)
-        {
-            max_y = y;
-            break;
-        }
-    }
-    let mut min_x = img_w_usize;
-    let mut max_x = 0;
-    for y in min_y..=max_y {
-        let row_start = y * img_w_usize;
-        let row = &mask_raw[row_start..row_start + img_w_usize];
-        if let Some(first) = row.iter().position(|&p| p > 0)
-            && first < min_x
-        {
-            min_x = first;
-        }
-        if let Some(last) = row.iter().rposition(|&p| p > 0)
-            && last > max_x
-        {
-            max_x = last;
-        }
-    }
+    let (min_x, max_x, min_y, max_y) = calculate_mask_bounds(&mask_bitmap)?;
 
     let patch_rgba = if use_fast_inpaint {
         let lama_model = ai_processing::get_or_init_lama_model(
@@ -638,33 +620,17 @@ pub async fn invoke_generative_replace_with_mask_def(
     let output_mask =
         image::imageops::crop_imm(&mask_bitmap, min_x_u32, min_y_u32, crop_w, crop_h).to_image();
 
-    let mut color_buf = Cursor::new(Vec::with_capacity(32768));
-    color_image
-        .write_with_encoder(image::codecs::jpeg::JpegEncoder::new_with_quality(
-            &mut color_buf,
-            95,
-        ))
-        .map_err(|e| e.to_string())?;
-    let color_base64 = general_purpose::STANDARD.encode(color_buf.get_ref());
-
-    let mut mask_buf = Cursor::new(Vec::with_capacity(32768));
-    output_mask
-        .write_to(&mut mask_buf, image::ImageFormat::Png)
-        .map_err(|e| e.to_string())?;
-    let mask_base64 = general_purpose::STANDARD.encode(mask_buf.get_ref());
-
-    let result_json = serde_json::json!({
-        "color": color_base64,
-        "mask": mask_base64,
-        "offsetX": min_x_u32,
-        "offsetY": min_y_u32,
-        "width": crop_w,
-        "height": crop_h,
-        "isSrgbEncoded": is_raw
-    })
-    .to_string();
-
-    Ok(result_json)
+    encode_patch_result(
+        &color_image,
+        &output_mask,
+        min_x_u32,
+        min_y_u32,
+        crop_w,
+        crop_h,
+        is_raw,
+        95,
+        true, // Generator logic uses PNG for the mask
+    )
 }
 
 fn point_to_segment_dist_sq(px: f32, py: f32, x1: f32, y1: f32, x2: f32, y2: f32) -> (f32, f32) {
@@ -722,28 +688,8 @@ pub async fn generate_liquify_patch(
     _source_point: (f64, f64),
     state: tauri::State<'_, AppState>,
 ) -> Result<String, String> {
-    let mut source_image_adjustments = current_adjustments.clone();
-    if let Some(patches) = source_image_adjustments
-        .get_mut("aiPatches")
-        .and_then(|v| v.as_array_mut())
-    {
-        patches.retain(|p| p.get("id").and_then(|id| id.as_str()) != Some(&patch_definition.id));
-    }
-
-    let is_raw = {
-        let guard = state.original_image.lock().unwrap();
-        guard.as_ref().map(|img| img.is_raw).unwrap_or(false)
-    };
-
-    let (base_image, _) = crate::get_original_image(&state)?;
-    let composited = composite_patches_on_image(&base_image, &source_image_adjustments)
-        .map_err(|e| format!("Failed to prepare source image: {}", e))?;
-
-    let source_dynamic = if is_raw {
-        apply_linear_to_srgb(composited)
-    } else {
-        composited
-    };
+    let (source_dynamic, is_raw) =
+        prepare_source_image(&patch_definition.id, &current_adjustments, &state)?;
     let (img_w, img_h) = source_dynamic.dimensions();
     let source_image = source_dynamic.to_rgb8();
 
@@ -1055,36 +1001,279 @@ pub async fn generate_liquify_patch(
     let color_image = RgbImage::from_raw(crop_w, crop_h, color_pixels).unwrap();
     let mask_image = image::GrayImage::from_raw(crop_w, crop_h, mask_pixels).unwrap();
 
-    let quality = 100;
+    encode_patch_result(
+        &color_image,
+        &mask_image,
+        min_x_u32,
+        min_y_u32,
+        crop_w,
+        crop_h,
+        is_raw,
+        100,
+        false,
+    )
+}
 
-    let mut color_buf = Cursor::new(Vec::with_capacity(32768));
-    color_image
-        .write_with_encoder(image::codecs::jpeg::JpegEncoder::new_with_quality(
-            &mut color_buf,
-            quality,
-        ))
-        .map_err(|e| e.to_string())?;
-    let color_base64 = general_purpose::STANDARD.encode(color_buf.get_ref());
+fn draw_stroke_to_mask(
+    mask: &mut [u8],
+    img_w: u32,
+    img_h: u32,
+    x1: f32,
+    y1: f32,
+    x2: f32,
+    y2: f32,
+    radius: f32,
+    feather: f32,
+    is_eraser: bool,
+) {
+    let radius_sq = radius * radius;
+    let inner_radius = radius * (1.0 - feather.clamp(0.0, 1.0));
 
-    let mut mask_buf = Cursor::new(Vec::with_capacity(32768));
-    mask_image
-        .write_with_encoder(image::codecs::jpeg::JpegEncoder::new_with_quality(
-            &mut mask_buf,
-            quality,
-        ))
-        .map_err(|e| e.to_string())?;
-    let mask_base64 = general_purpose::STANDARD.encode(mask_buf.get_ref());
+    let min_x = (x1.min(x2) - radius).floor() as i32;
+    let min_y = (y1.min(y2) - radius).floor() as i32;
+    let max_x = (x1.max(x2) + radius).ceil() as i32;
+    let max_y = (y1.max(y2) + radius).ceil() as i32;
 
-    let result_json = serde_json::json!({
-        "color": color_base64,
-        "mask": mask_base64,
-        "offsetX": min_x_u32,
-        "offsetY": min_y_u32,
-        "width": crop_w,
-        "height": crop_h,
-        "isSrgbEncoded": is_raw
-    })
-    .to_string();
+    let min_x = min_x.clamp(0, img_w as i32 - 1) as u32;
+    let min_y = min_y.clamp(0, img_h as i32 - 1) as u32;
+    let max_x = max_x.clamp(0, img_w as i32 - 1) as u32;
+    let max_y = max_y.clamp(0, img_h as i32 - 1) as u32;
 
-    Ok(result_json)
+    for y in min_y..=max_y {
+        for x in min_x..=max_x {
+            let px = x as f32;
+            let py = y as f32;
+
+            let (dist_sq, _) = point_to_segment_dist_sq(px, py, x1, y1, x2, y2);
+
+            if dist_sq <= radius_sq {
+                let dist = dist_sq.sqrt();
+
+                let alpha = if dist <= inner_radius {
+                    1.0
+                } else {
+                    let t = (dist - inner_radius) / (radius - inner_radius);
+                    let cos_val = 0.5 * (1.0 + (t * std::f32::consts::PI).cos());
+                    cos_val * cos_val
+                };
+
+                let added_val = (alpha * 255.0) as u8;
+                let idx = (y * img_w + x) as usize;
+
+                if is_eraser {
+                    mask[idx] = mask[idx].saturating_sub(added_val);
+                } else {
+                    mask[idx] = mask[idx].saturating_add(added_val);
+                }
+            }
+        }
+    }
+}
+
+#[tauri::command]
+pub async fn generate_retouch_patch(
+    patch_definition: AiPatchDefinition,
+    current_adjustments: Value,
+    state: tauri::State<'_, AppState>,
+) -> Result<String, String> {
+    let (source_dynamic, is_raw) =
+        prepare_source_image(&patch_definition.id, &current_adjustments, &state)?;
+    let (img_w, img_h) = source_dynamic.dimensions();
+    let source_image = source_dynamic.to_rgb8();
+
+    let mut min_x = img_w as f32;
+    let mut min_y = img_h as f32;
+    let mut max_x = 0.0_f32;
+    let mut max_y = 0.0_f32;
+    let mut max_radius = 0.0_f32;
+    let mut intensity = 50.0_f32;
+
+    let sub_masks_val = serde_json::to_value(&patch_definition.sub_masks).unwrap_or(Value::Null);
+    let mut mask_canvas = vec![0u8; (img_w * img_h) as usize];
+
+    if let Some(arr) = sub_masks_val.as_array() {
+        for sm in arr {
+            if sm.get("type").and_then(|v| v.as_str()) == Some("retouch") {
+                if let Some(params) = sm.get("parameters") {
+                    intensity = params
+                        .get("intensity")
+                        .and_then(|v| v.as_f64())
+                        .unwrap_or(50.0) as f32;
+
+                    if let Some(lines) = params.get("lines").and_then(|v| v.as_array()) {
+                        for line in lines {
+                            let r = line
+                                .get("brushSize")
+                                .and_then(|v| v.as_f64())
+                                .unwrap_or(50.0) as f32
+                                / 2.0;
+                            let feather =
+                                line.get("feather").and_then(|v| v.as_f64()).unwrap_or(0.5) as f32;
+                            let is_eraser =
+                                line.get("tool").and_then(|v| v.as_str()) == Some("eraser");
+
+                            max_radius = max_radius.max(r);
+
+                            if let Some(pts) = line.get("points").and_then(|v| v.as_array()) {
+                                if pts.len() == 1 {
+                                    if let (Some(x), Some(y)) = (
+                                        pts[0].get("x").and_then(|v| v.as_f64()),
+                                        pts[0].get("y").and_then(|v| v.as_f64()),
+                                    ) {
+                                        let (xf, yf) = (x as f32, y as f32);
+                                        min_x = min_x.min(xf - r);
+                                        min_y = min_y.min(yf - r);
+                                        max_x = max_x.max(xf + r);
+                                        max_y = max_y.max(yf + r);
+
+                                        draw_stroke_to_mask(
+                                            &mut mask_canvas,
+                                            img_w,
+                                            img_h,
+                                            xf,
+                                            yf,
+                                            xf,
+                                            yf,
+                                            r,
+                                            feather,
+                                            is_eraser,
+                                        );
+                                    }
+                                } else {
+                                    let mut prev: Option<(f32, f32)> = None;
+                                    for p_val in pts {
+                                        if let (Some(x), Some(y)) = (
+                                            p_val.get("x").and_then(|v| v.as_f64()),
+                                            p_val.get("y").and_then(|v| v.as_f64()),
+                                        ) {
+                                            let (xf, yf) = (x as f32, y as f32);
+                                            min_x = min_x.min(xf - r);
+                                            min_y = min_y.min(yf - r);
+                                            max_x = max_x.max(xf + r);
+                                            max_y = max_y.max(yf + r);
+
+                                            if let Some((px, py)) = prev {
+                                                draw_stroke_to_mask(
+                                                    &mut mask_canvas,
+                                                    img_w,
+                                                    img_h,
+                                                    px,
+                                                    py,
+                                                    xf,
+                                                    yf,
+                                                    r,
+                                                    feather,
+                                                    is_eraser,
+                                                );
+                                            }
+                                            prev = Some((xf, yf));
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if min_x > max_x || min_y > max_y {
+        return Err("No brush strokes found for Retouch.".to_string());
+    }
+
+    let pad = (max_radius * 3.0 + 30.0).ceil();
+    let min_x_u32 = (min_x - pad).clamp(0.0, img_w as f32 - 1.0) as u32;
+    let min_y_u32 = (min_y - pad).clamp(0.0, img_h as f32 - 1.0) as u32;
+    let max_x_u32 = (max_x + pad).clamp(0.0, img_w as f32 - 1.0) as u32;
+    let max_y_u32 = (max_y + pad).clamp(0.0, img_h as f32 - 1.0) as u32;
+    let crop_w = max_x_u32 - min_x_u32 + 1;
+    let crop_h = max_y_u32 - min_y_u32 + 1;
+
+    let mut color_image = RgbImage::new(crop_w, crop_h);
+    let mut mask_image = image::GrayImage::new(crop_w, crop_h);
+    let orig_crop =
+        image::imageops::crop_imm(&source_image, min_x_u32, min_y_u32, crop_w, crop_h).to_image();
+
+    for y in 0..crop_h {
+        for x in 0..crop_w {
+            let m_val = mask_canvas[((y + min_y_u32) * img_w + (x + min_x_u32)) as usize];
+            mask_image.put_pixel(x, y, image::Luma([m_val]));
+            color_image.put_pixel(x, y, *orig_crop.get_pixel(x, y));
+        }
+    }
+
+    let sig_s = (intensity * 0.15).max(1.0);
+    let sig_c = 35.0;
+    let r = (sig_s * 2.0).ceil() as i32;
+
+    let lf = image::imageops::blur(&orig_crop, 1.5);
+
+    for y in 0..crop_h {
+        for x in 0..crop_w {
+            let m = mask_image.get_pixel(x, y)[0] as f32 / 255.0;
+            if m > 0.0 {
+                let ctr = orig_crop.get_pixel(x, y);
+                let mut sum_w = 0.0;
+                let mut sum_c = [0.0; 3];
+
+                let y_min = (y as i32 - r).max(0);
+                let y_max = (y as i32 + r).min(crop_h as i32 - 1);
+                let x_min = (x as i32 - r).max(0);
+                let x_max = (x as i32 + r).min(crop_w as i32 - 1);
+
+                for ny in y_min..=y_max {
+                    for nx in x_min..=x_max {
+                        let px = orig_crop.get_pixel(nx as u32, ny as u32);
+                        let dx = nx as f32 - x as f32;
+                        let dy = ny as f32 - y as f32;
+                        let dist_s = dx * dx + dy * dy;
+
+                        let dr = px[0] as f32 - ctr[0] as f32;
+                        let dg = px[1] as f32 - ctr[1] as f32;
+                        let db = px[2] as f32 - ctr[2] as f32;
+                        let dist_c = dr * dr + dg * dg + db * db;
+
+                        let w = (-dist_s / (2.0 * sig_s * sig_s) - dist_c / (2.0 * sig_c * sig_c))
+                            .exp();
+                        sum_w += w;
+                        sum_c[0] += px[0] as f32 * w;
+                        sum_c[1] += px[1] as f32 * w;
+                        sum_c[2] += px[2] as f32 * w;
+                    }
+                }
+
+                let base_r = sum_c[0] / sum_w;
+                let base_g = sum_c[1] / sum_w;
+                let base_b = sum_c[2] / sum_w;
+
+                let lf_px = lf.get_pixel(x, y);
+                let tex_r = ctr[0] as f32 - lf_px[0] as f32;
+                let tex_g = ctr[1] as f32 - lf_px[1] as f32;
+                let tex_b = ctr[2] as f32 - lf_px[2] as f32;
+
+                let mix_r = (base_r + tex_r).clamp(0.0, 255.0);
+                let mix_g = (base_g + tex_g).clamp(0.0, 255.0);
+                let mix_b = (base_b + tex_b).clamp(0.0, 255.0);
+
+                let out_r = (ctr[0] as f32 * (1.0 - m) + mix_r * m) as u8;
+                let out_g = (ctr[1] as f32 * (1.0 - m) + mix_g * m) as u8;
+                let out_b = (ctr[2] as f32 * (1.0 - m) + mix_b * m) as u8;
+
+                color_image.put_pixel(x, y, Rgb([out_r, out_g, out_b]));
+            }
+        }
+    }
+
+    encode_patch_result(
+        &color_image,
+        &mask_image,
+        min_x_u32,
+        min_y_u32,
+        crop_w,
+        crop_h,
+        is_raw,
+        100,
+        false,
+    )
 }

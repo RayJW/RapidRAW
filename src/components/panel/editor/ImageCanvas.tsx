@@ -3,7 +3,7 @@ import ReactCrop from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 import { Stage, Layer, Ellipse, Line, Transformer, Group, Circle, Rect, Arrow } from 'react-konva';
 import { PercentCrop, Crop } from 'react-image-crop';
-import { Stamp, Bandage, Spline } from 'lucide-react';
+import { Stamp, Bandage, Spline, BrushCleaning } from 'lucide-react';
 import { Adjustments, AiPatch, Coord, MaskContainer } from '../../../utils/adjustments';
 import { Mask, SubMask, SubMaskMode, ToolType } from '../right/Masks';
 import { AppSettings, BrushSettings, SelectedImage } from '../../ui/AppProperties';
@@ -835,7 +835,8 @@ const MaskOverlay = memo(
       subMask.type === Mask.Flow ||
       subMask.type === Mask.Clone ||
       subMask.type === Mask.Heal ||
-      subMask.type === Mask.Liquify
+      subMask.type === Mask.Liquify ||
+      subMask.type === Mask.Retouch
     ) {
       const { lines = [], sourceX, sourceY } = p;
 
@@ -1601,10 +1602,14 @@ const ImageCanvas = memo(
       isAiEditing && (activeSubMask?.type === Mask.Clone || activeSubMask?.type === Mask.Heal);
 
     const isLiquifyActive = isAiEditing && activeSubMask?.type === Mask.Liquify;
+    const isRetouchActive = isAiEditing && activeSubMask?.type === Mask.Retouch;
 
     const isDirectPatchActive =
       (isMasking || isAiEditing) &&
-      (activeSubMask?.type === Mask.Clone || activeSubMask?.type === Mask.Heal || activeSubMask?.type === Mask.Liquify);
+      (activeSubMask?.type === Mask.Clone ||
+        activeSubMask?.type === Mask.Heal ||
+        activeSubMask?.type === Mask.Liquify ||
+        activeSubMask?.type === Mask.Retouch);
 
     const isBrushActive =
       (isMasking || isAiEditing) &&
@@ -1733,7 +1738,8 @@ const ImageCanvas = memo(
       const processContainers = (containers: any[], isAi: boolean) => {
         containers.forEach((container) => {
           container.subMasks.forEach((sm: SubMask) => {
-            if (sm.type !== Mask.Clone && sm.type !== Mask.Heal && sm.type !== Mask.Liquify) return;
+            if (sm.type !== Mask.Clone && sm.type !== Mask.Heal && sm.type !== Mask.Liquify && sm.type !== Mask.Retouch)
+              return;
             const lines = sm.parameters?.lines || [];
             if (lines.length === 0) return;
 
@@ -1760,7 +1766,7 @@ const ImageCanvas = memo(
             let cx = drawingCenterX;
             let cy = drawingCenterY;
 
-            if (sm.type === Mask.Liquify) {
+            if (sm.type === Mask.Liquify || sm.type === Mask.Retouch) {
               cx = drawingCenterX + 16;
               cy = drawingCenterY - 16;
             } else if (sourceX !== undefined && sourceY !== undefined) {
@@ -2254,7 +2260,7 @@ const ImageCanvas = memo(
 
           const activeId = isMasking ? activeMaskId : activeAiSubMaskId;
 
-          if ((isCloneOrHealActive || isLiquifyActive) && activeId) {
+          if ((isCloneOrHealActive || isLiquifyActive || isRetouchActive) && activeId) {
             const { scale } = imageRenderSize;
 
             const imageSpaceLine: DrawnLine = {
@@ -2286,7 +2292,11 @@ const ImageCanvas = memo(
 
             const sourceX = activeSubMask?.parameters.sourceX;
             const sourceY = activeSubMask?.parameters.sourceY;
-            if (isLiquifyActive || (sourceX !== undefined && sourceY !== undefined)) {
+            if (
+              activeSubMask?.type === Mask.Liquify ||
+              activeSubMask?.type === Mask.Retouch ||
+              (sourceX !== undefined && sourceY !== undefined)
+            ) {
               triggerDirectPatch(activeId, sourceX || 0, sourceY || 0);
             }
           } else if (onLiveMaskPreview && activeContainer && activeSubMask && isBrushActive) {
@@ -2337,6 +2347,7 @@ const ImageCanvas = memo(
         isBrushActive,
         isCloneOrHealActive,
         isLiquifyActive,
+        isRetouchActive,
         triggerDirectPatch,
         activeLineFlow,
         isAiSubjectActive,
@@ -2485,10 +2496,13 @@ const ImageCanvas = memo(
           };
         }
 
-        if ((isCloneOrHealActive || isLiquifyActive) && activeId) {
+        if (isDirectPatchActive && activeId) {
           const sourceX = activeSubMask?.parameters.sourceX;
           const sourceY = activeSubMask?.parameters.sourceY;
-          if (isLiquifyActive || (sourceX !== undefined && sourceY !== undefined)) {
+
+          const requiresSource = activeSubMask?.type === Mask.Clone || activeSubMask?.type === Mask.Heal;
+
+          if (!requiresSource || (sourceX !== undefined && sourceY !== undefined)) {
             triggerDirectPatch(activeId, sourceX || 0, sourceY || 0);
           }
         }
@@ -2506,6 +2520,8 @@ const ImageCanvas = memo(
       isBrushActive,
       isCloneOrHealActive,
       isLiquifyActive,
+      isRetouchActive,
+      isDirectPatchActive,
       triggerDirectPatch,
       activeLineFlow,
       isMasking,
@@ -2928,8 +2944,10 @@ const ImageCanvas = memo(
                           <Stamp size={16} />
                         ) : m.type === Mask.Heal ? (
                           <Bandage size={16} />
-                        ) : (
+                        ) : m.type === Mask.Liquify ? (
                           <Spline size={16} />
+                        ) : (
+                          <BrushCleaning size={16} />
                         )}
                       </div>
                     </div>
@@ -3004,7 +3022,9 @@ const ImageCanvas = memo(
                           const isDirectPatch =
                             renderSubMask.type === Mask.Clone ||
                             renderSubMask.type === Mask.Heal ||
-                            renderSubMask.type === Mask.Liquify;
+                            renderSubMask.type === Mask.Liquify ||
+                            renderSubMask.type === Mask.Retouch;
+
                           const isThisSubMaskActive = renderSubMask.id === activeId;
                           const isActivelyDrawingThis = isThisSubMaskActive && isDrawing.current;
                           const isHoveringThisMarker = hoveredMarkerId === renderSubMask.id;
@@ -3015,7 +3035,8 @@ const ImageCanvas = memo(
                               isActivelyDrawingThis ||
                               isHoveringThisMarker ||
                               (isThisSubMaskActive && isMaskControlHovered) ||
-                              (isThisSubMaskActive && renderSubMask.type === Mask.Liquify);
+                              (isThisSubMaskActive &&
+                                (renderSubMask.type === Mask.Liquify || renderSubMask.type === Mask.Retouch));
                           }
 
                           return (

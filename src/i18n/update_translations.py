@@ -5,68 +5,198 @@ LOCALES_DIR = Path("./locales")
 
 TRANSLATIONS = {
     "ca": {
-        "tethering": {
-            "triggerCapture": "Captura"
+        "editor": {
+            "ai": {
+                "patches": {
+                    "retouch": "Retoc {{count}}"
+                },
+                "touchUpTitle": "Retocs"
+            }
+        },
+        "masks": {
+            "types": {
+                "retouch": "Retoc"
+            }
         }
     },
     "de": {
-        "tethering": {
-            "triggerCapture": "Aufnehmen"
+        "editor": {
+            "ai": {
+                "patches": {
+                    "retouch": "Retusche {{count}}"
+                },
+                "touchUpTitle": "Ausbessern"
+            }
+        },
+        "masks": {
+            "types": {
+                "retouch": "Retuschieren"
+            }
         }
     },
     "en": {
-        "tethering": {
-            "triggerCapture": "Capture"
+        "editor": {
+            "ai": {
+                "patches": {
+                    "retouch": "Retouch {{count}}"
+                },
+                "touchUpTitle": "Touch Up"
+            }
+        },
+        "masks": {
+            "types": {
+                "retouch": "Retouch"
+            }
         }
     },
     "es": {
-        "tethering": {
-            "triggerCapture": "Capturar"
+        "editor": {
+            "ai": {
+                "patches": {
+                    "retouch": "Retoque {{count}}"
+                },
+                "touchUpTitle": "Retoques"
+            }
+        },
+        "masks": {
+            "types": {
+                "retouch": "Retocar"
+            }
         }
     },
     "fr": {
-        "tethering": {
-            "triggerCapture": "Capturer"
+        "editor": {
+            "ai": {
+                "patches": {
+                    "retouch": "Retouche {{count}}"
+                },
+                "touchUpTitle": "Retouches"
+            }
+        },
+        "masks": {
+            "types": {
+                "retouch": "Retouche"
+            }
         }
     },
     "it": {
-        "tethering": {
-            "triggerCapture": "Acquisisci"
+        "editor": {
+            "ai": {
+                "patches": {
+                    "retouch": "Ritocco {{count}}"
+                },
+                "touchUpTitle": "Ritocchi"
+            }
+        },
+        "masks": {
+            "types": {
+                "retouch": "Ritocco"
+            }
         }
     },
     "ja": {
-        "tethering": {
-            "triggerCapture": "撮影"
+        "editor": {
+            "ai": {
+                "patches": {
+                    "retouch": "レタッチ {{count}}"
+                },
+                "touchUpTitle": "タッチアップ"
+            }
+        },
+        "masks": {
+            "types": {
+                "retouch": "レタッチ"
+            }
         }
     },
     "ko": {
-        "tethering": {
-            "triggerCapture": "촬영"
+        "editor": {
+            "ai": {
+                "patches": {
+                    "retouch": "리터칭 {{count}}"
+                },
+                "touchUpTitle": "터치업"
+            }
+        },
+        "masks": {
+            "types": {
+                "retouch": "리터칭"
+            }
         }
     },
     "pl": {
-        "tethering": {
-            "triggerCapture": "Zrób zdjęcie"
+        "editor": {
+            "ai": {
+                "patches": {
+                    "retouch": "Retusz {{count}}"
+                },
+                "touchUpTitle": "Poprawki"
+            }
+        },
+        "masks": {
+            "types": {
+                "retouch": "Retusz"
+            }
         }
     },
     "pt": {
-        "tethering": {
-            "triggerCapture": "Capturar"
+        "editor": {
+            "ai": {
+                "patches": {
+                    "retouch": "Retoque {{count}}"
+                },
+                "touchUpTitle": "Retoques"
+            }
+        },
+        "masks": {
+            "types": {
+                "retouch": "Retoque"
+            }
         }
     },
     "ru": {
-        "tethering": {
-            "triggerCapture": "Съемка"
+        "editor": {
+            "ai": {
+                "patches": {
+                    "retouch": "Ретушь {{count}}"
+                },
+                "touchUpTitle": "Ретушь"
+            }
+        },
+        "masks": {
+            "types": {
+                "retouch": "Ретушь"
+            }
         }
     },
     "zh-CN": {
-        "tethering": {
-            "triggerCapture": "拍摄"
+        "editor": {
+            "ai": {
+                "patches": {
+                    "retouch": "修饰 {{count}}"
+                },
+                "touchUpTitle": "润色"
+            }
+        },
+        "masks": {
+            "types": {
+                "retouch": "修饰"
+            }
         }
     },
     "zh-TW": {
-        "tethering": {
-            "triggerCapture": "拍攝"
+        "editor": {
+            "ai": {
+                "patches": {
+                    "retouch": "修飾 {{count}}"
+                },
+                "touchUpTitle": "潤色"
+            }
+        },
+        "masks": {
+            "types": {
+                "retouch": "修飾"
+            }
         }
     }
 }
@@ -114,7 +244,7 @@ def main():
         print(f"Error: Locales directory '{LOCALES_DIR}' does not exist.")
         return
 
-    print("Starting translation updates for tethering capture button...")
+    print("Starting translation updates for Retouch strings...")
     for lang, trans in TRANSLATIONS.items():
         file_path = LOCALES_DIR / f"{lang}.json"
         update_json_file(file_path, trans)

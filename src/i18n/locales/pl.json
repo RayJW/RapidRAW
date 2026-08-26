@@ -438,7 +438,8 @@
         "quickErase_few": "Szybkie wymazania {{count}}",
         "quickErase_many": "Szybkich wymazań {{count}}",
         "quickErase_one": "Szybkie wymazanie {{count}}",
-        "quickErase_other": "Szybkie wymazanie {{count}}"
+        "quickErase_other": "Szybkie wymazanie {{count}}",
+        "retouch": "Retusz {{count}}"
       },
       "resetInpaintingTooltip": "Resetuj Inpainting",
       "settings": {
@@ -459,7 +460,8 @@
         "quickEraseDesc": "Wypełnij zaznaczenie, aby usunąć obiekt.",
         "selectionPropertiesTitle": "Właściwości zaznaczenia",
         "useBasicInpaint": "Użyj podstawowego inpaintingu"
-      }
+      },
+      "touchUpTitle": "Poprawki"
     },
     "crop": {
       "aspectRatioHeading": "Proporcje",
@@ -1138,6 +1140,7 @@
       "quickErase": "Szybkie wymazanie",
       "quickEraser": "Szybka gumka",
       "radial": "Radialny",
+      "retouch": "Retusz",
       "sky": "Niebo",
       "subject": "Temat"
     }

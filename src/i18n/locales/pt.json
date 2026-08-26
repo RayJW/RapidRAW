@@ -418,7 +418,8 @@
         "quickErase": "Apagamento Rápido {{count}}",
         "quickErase_many": "Apagamento Rápido {{count}}",
         "quickErase_one": "Apagamento Rápido {{count}}",
-        "quickErase_other": "Apagamento Rápido {{count}}"
+        "quickErase_other": "Apagamento Rápido {{count}}",
+        "retouch": "Retoque {{count}}"
       },
       "resetInpaintingTooltip": "Redefinir Preenchimento",
       "settings": {
@@ -439,7 +440,8 @@
         "quickEraseDesc": "Preencher seleção para remover o objeto.",
         "selectionPropertiesTitle": "Propriedades da Seleção",
         "useBasicInpaint": "Usar preenchimento básico"
-      }
+      },
+      "touchUpTitle": "Retoques"
     },
     "crop": {
       "aspectRatioHeading": "Proporção de Tela",
@@ -1114,6 +1116,7 @@
       "quickErase": "Apagamento Rápido",
       "quickEraser": "Borracha Rápida",
       "radial": "Radial",
+      "retouch": "Retoque",
       "sky": "Céu",
       "subject": "Motivo"
     }

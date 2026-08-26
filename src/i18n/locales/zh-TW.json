@@ -396,7 +396,8 @@
         "liquify_other": "液化 {{count}}",
         "quickErase": "快速擦除 {{count}}",
         "quickErase_one": "快速擦除 {{count}}",
-        "quickErase_other": "快速擦除 {{count}}"
+        "quickErase_other": "快速擦除 {{count}}",
+        "retouch": "修飾 {{count}}"
       },
       "resetInpaintingTooltip": "重置影像修復",
       "settings": {
@@ -417,7 +418,8 @@
         "quickEraseDesc": "填充選區以移除物件。",
         "selectionPropertiesTitle": "選區屬性",
         "useBasicInpaint": "使用基礎影像修復"
-      }
+      },
+      "touchUpTitle": "潤色"
     },
     "crop": {
       "aspectRatioHeading": "寬高比",
@@ -1088,6 +1090,7 @@
       "quickErase": "快速擦除",
       "quickEraser": "快速橡皮擦",
       "radial": "徑向",
+      "retouch": "修飾",
       "sky": "天空",
       "subject": "主體"
     }

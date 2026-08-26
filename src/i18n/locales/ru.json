@@ -438,7 +438,8 @@
         "quickErase_few": "Быстрое стирание {{count}}",
         "quickErase_many": "Быстрое стирание {{count}}",
         "quickErase_one": "Быстрое стирание {{count}}",
-        "quickErase_other": "Быстрое стирание {{count}}"
+        "quickErase_other": "Быстрое стирание {{count}}",
+        "retouch": "Ретушь {{count}}"
       },
       "resetInpaintingTooltip": "Сбросить восстановление",
       "settings": {
@@ -459,7 +460,8 @@
         "quickEraseDesc": "Заполнить выделение, чтобы удалить объект.",
         "selectionPropertiesTitle": "Свойства выделения",
         "useBasicInpaint": "Использовать простое восстановление"
-      }
+      },
+      "touchUpTitle": "Ретушь"
     },
     "crop": {
       "aspectRatioHeading": "Соотношение сторон",
@@ -1138,6 +1140,7 @@
       "quickErase": "Быстрое стирание",
       "quickEraser": "Быстрый ластик",
       "radial": "Радиальный градиент",
+      "retouch": "Ретушь",
       "sky": "Небо",
       "subject": "Объект"
     }

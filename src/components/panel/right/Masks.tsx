@@ -15,6 +15,7 @@ import {
   Stamp,
   Bandage,
   Spline,
+  BrushCleaning,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
@@ -38,6 +39,7 @@ export enum Mask {
   Clone = 'clone',
   Heal = 'heal',
   Liquify = 'liquify',
+  Retouch = 'retouch',
 }
 
 export enum SubMaskMode {
@@ -89,6 +91,7 @@ export function formatMaskTypeName(type: string) {
   if (type === Mask.Clone) return i18n.t('masks.types.clone');
   if (type === Mask.Heal) return i18n.t('masks.types.heal');
   if (type === Mask.Liquify) return i18n.t('masks.types.liquify');
+  if (type === Mask.Retouch) return i18n.t('masks.types.retouch');
   return type.charAt(0).toUpperCase() + type.slice(1);
 }
 
@@ -120,6 +123,7 @@ export const MASK_ICON_MAP: Record<Mask, any> = {
   [Mask.Clone]: Stamp,
   [Mask.Heal]: Bandage,
   [Mask.Liquify]: Spline,
+  [Mask.Retouch]: BrushCleaning,
 };
 
 export const MASK_PANEL_CREATION_TYPES: Array<MaskType> = [
@@ -175,11 +179,20 @@ export const AI_DIRECT_PATCH_TYPES: Array<MaskType> = [
     name: 'Heal',
     type: Mask.Heal,
   },
+];
+
+export const AI_TOUCH_UP_TYPES: Array<MaskType> = [
   {
     disabled: false,
     icon: Spline,
     name: 'Liquify',
     type: Mask.Liquify,
+  },
+  {
+    disabled: false,
+    icon: BrushCleaning,
+    name: 'Retouch',
+    type: Mask.Retouch,
   },
 ];
 
@@ -261,7 +274,11 @@ export const OTHERS_MASK_TYPES: Array<MaskType> = [
   },
 ];
 
-export const AI_SUB_MASK_COMPONENT_TYPES: Array<MaskType> = [...AI_DIRECT_PATCH_TYPES, ...AI_GENERATIVE_CREATION_TYPES];
+export const AI_SUB_MASK_COMPONENT_TYPES: Array<MaskType> = [
+  ...AI_DIRECT_PATCH_TYPES,
+  ...AI_TOUCH_UP_TYPES,
+  ...AI_GENERATIVE_CREATION_TYPES,
+];
 
 export function NewMaskDropZone({ isOver, textKey }: { isOver: boolean; textKey: string }) {
   const { t } = useTranslation();

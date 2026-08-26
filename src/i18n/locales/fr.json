@@ -418,7 +418,8 @@
         "quickErase": "Gommage rapide {{count}}",
         "quickErase_many": "Gommage rapide {{count}}",
         "quickErase_one": "Gommage rapide {{count}}",
-        "quickErase_other": "Gommages rapides {{count}}"
+        "quickErase_other": "Gommages rapides {{count}}",
+        "retouch": "Retouche {{count}}"
       },
       "resetInpaintingTooltip": "Réinitialiser l'Inpainting",
       "settings": {
@@ -439,7 +440,8 @@
         "quickEraseDesc": "Remplir la sélection pour supprimer l'objet.",
         "selectionPropertiesTitle": "Propriétés de sélection",
         "useBasicInpaint": "Utiliser l'inpainting simple"
-      }
+      },
+      "touchUpTitle": "Retouches"
     },
     "crop": {
       "aspectRatioHeading": "Rapport d'aspect",
@@ -1114,6 +1116,7 @@
       "quickErase": "Gommage rapide",
       "quickEraser": "Gomme rapide",
       "radial": "Radial",
+      "retouch": "Retouche",
       "sky": "Ciel",
       "subject": "Sujet"
     }

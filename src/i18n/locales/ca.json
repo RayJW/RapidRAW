@@ -398,7 +398,8 @@
         "liquify_other": "Liquar {{count}}",
         "quickErase": "Esborrat ràpid {{count}}",
         "quickErase_one": "Esborrat ràpid {{count}}",
-        "quickErase_other": "Esborrat ràpid {{count}}"
+        "quickErase_other": "Esborrat ràpid {{count}}",
+        "retouch": "Retoc {{count}}"
       },
       "resetInpaintingTooltip": "Restablir Inpainting",
       "settings": {
@@ -419,7 +420,8 @@
         "quickEraseDesc": "Omplir la selecció per eliminar l'objecte.",
         "selectionPropertiesTitle": "Propietats de selecció",
         "useBasicInpaint": "Utilitzar inpainting bàsic"
-      }
+      },
+      "touchUpTitle": "Retocs"
     },
     "crop": {
       "aspectRatioHeading": "Relació d'aspecte",
@@ -1090,6 +1092,7 @@
       "quickErase": "Esborrat ràpid",
       "quickEraser": "Goma d'esborrar ràpida",
       "radial": "Radial",
+      "retouch": "Retoc",
       "sky": "Cel",
       "subject": "Subjecte"
     }

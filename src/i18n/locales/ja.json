@@ -396,7 +396,8 @@
         "liquify_other": "ゆがみ {{count}}",
         "quickErase": "クイック消去 {{count}}",
         "quickErase_one": "クイック消去 {{count}}",
-        "quickErase_other": "クイック消去 {{count}}"
+        "quickErase_other": "クイック消去 {{count}}",
+        "retouch": "レタッチ {{count}}"
       },
       "resetInpaintingTooltip": "インペインティングをリセット",
       "settings": {
@@ -417,7 +418,8 @@
         "quickEraseDesc": "選択範囲を塗りつぶしてオブジェクトを削除します。",
         "selectionPropertiesTitle": "選択範囲のプロパティ",
         "useBasicInpaint": "簡易インペインティングを使用"
-      }
+      },
+      "touchUpTitle": "タッチアップ"
     },
     "crop": {
       "aspectRatioHeading": "アスペクト比",
@@ -1088,6 +1090,7 @@
       "quickErase": "クイック消去",
       "quickEraser": "クイック消しゴム",
       "radial": "円形",
+      "retouch": "レタッチ",
       "sky": "空",
       "subject": "被写体"
     }
