@@ -366,11 +366,21 @@
       "generatingDepthMap": "S'està calculant el mapa de profunditat d'IA...",
       "generativeEditTitle": "Edició generativa",
       "inpaintingTitle": "Inpainting",
+      "liquify": {
+        "mode": "Mode Liquar",
+        "modes": {
+          "expand": "Expandir",
+          "pinch": "Pessigar",
+          "push": "Empènyer",
+          "twirl": "Girar"
+        }
+      },
       "manualCleanupTitle": "Neteja manual",
       "noImageSelected": "No s'ha seleccionat cap imatge.",
       "params": {
         "feather": "Esvaïment",
-        "grow": "Expandir"
+        "grow": "Expandir",
+        "pressure": "Pressió"
       },
       "patches": {
         "aiEdit": "Edició IA {{count}}",
@@ -383,6 +393,9 @@
         "heal_one": "Corregir {{count}}",
         "heal_other": "Corregir {{count}}",
         "invertedName": "{{name}} Invertit",
+        "liquify": "Liquar {{count}}",
+        "liquify_one": "Liquar {{count}}",
+        "liquify_other": "Liquar {{count}}",
         "quickErase": "Esborrat ràpid {{count}}",
         "quickErase_one": "Esborrat ràpid {{count}}",
         "quickErase_other": "Esborrat ràpid {{count}}"
@@ -1071,6 +1084,7 @@
       "foreground": "Primer pla",
       "heal": "Corregir",
       "linear": "Lineal",
+      "liquify": "Liquar",
       "luminance": "Luminància",
       "others": "Altres",
       "quickErase": "Esborrat ràpid",

@@ -3,7 +3,7 @@ import ReactCrop from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 import { Stage, Layer, Ellipse, Line, Transformer, Group, Circle, Rect, Arrow } from 'react-konva';
 import { PercentCrop, Crop } from 'react-image-crop';
-import { Stamp, Bandage, Move } from 'lucide-react';
+import { Stamp, Bandage, Spline } from 'lucide-react';
 import { Adjustments, AiPatch, Coord, MaskContainer } from '../../../utils/adjustments';
 import { Mask, SubMask, SubMaskMode, ToolType } from '../right/Masks';
 import { AppSettings, BrushSettings, SelectedImage } from '../../ui/AppProperties';
@@ -300,6 +300,31 @@ const LiquifyPreviewLine = memo(
           />
         ))}
       </Group>
+    );
+  },
+);
+
+const LiquifyEraserPreviewLine = memo(
+  ({ line, scale, cropX, cropY }: { line: DrawnLine; scale: number; cropX: number; cropY: number }) => {
+    const flattenedPoints = useMemo(() => {
+      const pts = new Float32Array(line.points.length * 2);
+      for (let i = 0; i < line.points.length; i++) {
+        pts[i * 2] = (line.points[i].x - cropX) * scale;
+        pts[i * 2 + 1] = (line.points[i].y - cropY) * scale;
+      }
+      return Array.from(pts);
+    }, [line.points, scale, cropX, cropY]);
+
+    return (
+      <Line
+        lineCap="round"
+        lineJoin="round"
+        points={flattenedPoints}
+        stroke="rgba(244, 63, 94, 0.4)"
+        strokeWidth={line.brushSize * scale}
+        strokeScaleEnabled={false}
+        perfectDrawEnabled={false}
+      />
     );
   },
 );
@@ -854,9 +879,13 @@ const MaskOverlay = memo(
         >
           <Group visible={showBrushStrokes !== false}>
             {subMask.type === Mask.Liquify && isSelected
-              ? lines.map((line: DrawnLine, i: number) => (
-                  <LiquifyPreviewLine key={i} line={line} scale={scale} cropX={cropX} cropY={cropY} />
-                ))
+              ? lines.map((line: DrawnLine, i: number) =>
+                  line.tool === ToolType.Eraser ? (
+                    <LiquifyEraserPreviewLine key={i} line={line} scale={scale} cropX={cropX} cropY={cropY} />
+                  ) : (
+                    <LiquifyPreviewLine key={i} line={line} scale={scale} cropX={cropX} cropY={cropY} />
+                  ),
+                )
               : lines.map((line: DrawnLine, i: number) => (
                   <OptimizedBrushLine key={i} line={line} scale={scale} cropX={cropX} cropY={cropY} />
                 ))}
@@ -2900,7 +2929,7 @@ const ImageCanvas = memo(
                         ) : m.type === Mask.Heal ? (
                           <Bandage size={16} />
                         ) : (
-                          <Move size={16} />
+                          <Spline size={16} />
                         )}
                       </div>
                     </div>

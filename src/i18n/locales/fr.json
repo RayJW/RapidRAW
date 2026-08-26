@@ -382,11 +382,21 @@
       "generatingDepthMap": "Calcul de la carte de profondeur IA...",
       "generativeEditTitle": "Édition générative",
       "inpaintingTitle": "Inpainting",
+      "liquify": {
+        "mode": "Mode Fluidité",
+        "modes": {
+          "expand": "Dilatation",
+          "pinch": "Contraction",
+          "push": "Pousser",
+          "twirl": "Tourbillon"
+        }
+      },
       "manualCleanupTitle": "Nettoyage manuel",
       "noImageSelected": "Aucune image sélectionnée.",
       "params": {
         "feather": "Contour progressif",
-        "grow": "Agrandir"
+        "grow": "Agrandir",
+        "pressure": "Pression"
       },
       "patches": {
         "aiEdit": "Retouche IA {{count}}",
@@ -402,6 +412,9 @@
         "heal_one": "Corriger {{count}}",
         "heal_other": "Corriger {{count}}",
         "invertedName": "{{name}} Inversé",
+        "liquify": "Fluidité {{count}}",
+        "liquify_one": "Fluidité {{count}}",
+        "liquify_other": "Fluidité {{count}}",
         "quickErase": "Gommage rapide {{count}}",
         "quickErase_many": "Gommage rapide {{count}}",
         "quickErase_one": "Gommage rapide {{count}}",
@@ -1095,6 +1108,7 @@
       "foreground": "Premier plan",
       "heal": "Corriger",
       "linear": "Linéaire",
+      "liquify": "Fluidité",
       "luminance": "Luminance",
       "others": "Autres",
       "quickErase": "Gommage rapide",

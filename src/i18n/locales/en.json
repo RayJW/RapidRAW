@@ -366,11 +366,21 @@
       "generatingDepthMap": "Calculating AI Depth Map...",
       "generativeEditTitle": "Generative Edit",
       "inpaintingTitle": "Inpainting",
+      "liquify": {
+        "mode": "Liquify Mode",
+        "modes": {
+          "expand": "Expand",
+          "pinch": "Pinch",
+          "push": "Push",
+          "twirl": "Twirl"
+        }
+      },
       "manualCleanupTitle": "Manual Cleanup",
       "noImageSelected": "No image selected.",
       "params": {
         "feather": "Feather",
-        "grow": "Grow"
+        "grow": "Grow",
+        "pressure": "Pressure"
       },
       "patches": {
         "aiEdit": "AI Edit {{count}}",
@@ -383,6 +393,9 @@
         "heal_one": "Heal {{count}}",
         "heal_other": "Heal {{count}}",
         "invertedName": "{{name}} Inverted",
+        "liquify": "Liquify {{count}}",
+        "liquify_one": "Liquify {{count}}",
+        "liquify_other": "Liquify {{count}}",
         "quickErase": "Quick Erase {{count}}",
         "quickErase_one": "Quick Erase {{count}}",
         "quickErase_other": "Quick Erase {{count}}"
@@ -1071,6 +1084,7 @@
       "foreground": "Foreground",
       "heal": "Heal",
       "linear": "Linear",
+      "liquify": "Liquify",
       "luminance": "Luminance",
       "others": "Others",
       "quickErase": "Quick Erase",

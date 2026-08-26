@@ -1,4 +1,4 @@
-// Liquify TODO: optimize performance, allow erasing (with alt key) and add i18n
+// Liquify TODO: add i18n
 
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { v4 as uuidv4 } from 'uuid';
@@ -573,7 +573,7 @@ export default function AIPanel() {
       const count =
         (adjustments.aiPatches || []).filter((p: AiPatch) => p.subMasks.some((sm: SubMask) => sm.type === Mask.Liquify))
           .length + 1;
-      name = t('editor.ai.patches.liquify', { count, defaultValue: `Liquify ${count}` });
+      name = t('editor.ai.patches.liquify', { count });
     } else {
       const count = (adjustments.aiPatches || []).length + 1;
       name = t('editor.ai.patches.aiEdit', { count });
@@ -2125,14 +2125,14 @@ function SettingsPanel({
               {isComponentMode && activeSubMask.type === Mask.Liquify && (
                 <div className="pt-2">
                   <Text variant={TextVariants.label} className="mb-2 block">
-                    {t('editor.ai.liquify.mode', 'Liquify Mode')}
+                    {t('editor.ai.liquify.mode')}
                   </Text>
                   <Dropdown
                     options={[
-                      { label: t('editor.ai.liquify.modes.push', 'Push'), value: 'push' },
-                      { label: t('editor.ai.liquify.modes.pinch', 'Pinch'), value: 'pinch' },
-                      { label: t('editor.ai.liquify.modes.expand', 'Expand'), value: 'expand' },
-                      { label: t('editor.ai.liquify.modes.twirl', 'Twirl'), value: 'twirl' },
+                      { label: t('editor.ai.liquify.modes.push'), value: 'push' },
+                      { label: t('editor.ai.liquify.modes.pinch'), value: 'pinch' },
+                      { label: t('editor.ai.liquify.modes.expand'), value: 'expand' },
+                      { label: t('editor.ai.liquify.modes.twirl'), value: 'twirl' },
                     ]}
                     value={activeSubMask.parameters.liquifyMode || 'push'}
                     onChange={(val) => {

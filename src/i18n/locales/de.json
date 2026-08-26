@@ -366,11 +366,21 @@
       "generatingDepthMap": "KI-Tiefenkarte wird berechnet...",
       "generativeEditTitle": "Generative Bearbeitung",
       "inpaintingTitle": "Reparieren",
+      "liquify": {
+        "mode": "Verflüssigen-Modus",
+        "modes": {
+          "expand": "Aufblasen",
+          "pinch": "Zusammenziehen",
+          "push": "Verschieben",
+          "twirl": "Strudel"
+        }
+      },
       "manualCleanupTitle": "Manuelle Bereinigung",
       "noImageSelected": "Kein Bild ausgewählt.",
       "params": {
         "feather": "Weiche Kante",
-        "grow": "Erweitern"
+        "grow": "Erweitern",
+        "pressure": "Druck"
       },
       "patches": {
         "aiEdit": "KI-Bearbeitung {{count}}",
@@ -383,6 +393,9 @@
         "heal_one": "Reparieren {{count}}",
         "heal_other": "Reparieren {{count}}",
         "invertedName": "{{name}} umgekehrt",
+        "liquify": "Verflüssigen {{count}}",
+        "liquify_one": "Verflüssigen {{count}}",
+        "liquify_other": "Verflüssigen {{count}}",
         "quickErase": "Schnelles Löschen {{count}}",
         "quickErase_one": "Schnelles Löschen {{count}}",
         "quickErase_other": "Schnelles Löschen {{count}}"
@@ -1071,6 +1084,7 @@
       "foreground": "Vordergrund",
       "heal": "Reparieren",
       "linear": "Linear",
+      "liquify": "Verflüssigen",
       "luminance": "Luminanz",
       "others": "Andere",
       "quickErase": "Schnelles Löschen",

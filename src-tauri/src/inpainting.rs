@@ -749,12 +749,13 @@ pub async fn generate_liquify_patch(
 
     let mut all_points = Vec::new();
 
-    #[derive(Clone, Copy)]
+    #[derive(Clone, Copy, PartialEq)]
     enum LiquifyMode {
         Push,
         Pinch,
         Expand,
         Twirl,
+        Eraser,
     }
 
     #[derive(Clone)]
@@ -807,6 +808,13 @@ pub async fn generate_liquify_patch(
                     .and_then(|v| v.as_array())
                 {
                     for line in lines {
+                        let tool_str = line.get("tool").and_then(|v| v.as_str()).unwrap_or("brush");
+                        let line_mode = if tool_str == "eraser" {
+                            LiquifyMode::Eraser
+                        } else {
+                            liquify_mode
+                        };
+
                         let radius = line
                             .get("brushSize")
                             .and_then(|v| v.as_f64())
@@ -837,7 +845,7 @@ pub async fn generate_liquify_patch(
                                         radius_sq: radius * radius,
                                         feather,
                                         pressure: force,
-                                        mode: liquify_mode,
+                                        mode: line_mode,
                                         aabb_min_x: xf - radius,
                                         aabb_max_x: xf + radius,
                                         aabb_min_y: yf - radius,
@@ -864,7 +872,7 @@ pub async fn generate_liquify_patch(
                                                 radius_sq: radius * radius,
                                                 feather,
                                                 pressure: force,
-                                                mode: liquify_mode,
+                                                mode: line_mode,
                                                 aabb_min_x: px.min(xf) - radius,
                                                 aabb_max_x: px.max(xf) + radius,
                                                 aabb_min_y: py.min(yf) - radius,
@@ -924,8 +932,6 @@ pub async fn generate_liquify_patch(
     let mut color_pixels = vec![0u8; (crop_w * crop_h * 3) as usize];
     let mut mask_pixels = vec![0u8; (crop_w * crop_h) as usize];
 
-    strokes.reverse();
-
     color_pixels
         .par_chunks_mut((crop_w * 3) as usize)
         .zip(mask_pixels.par_chunks_mut(crop_w as usize))
@@ -968,8 +974,6 @@ pub async fn generate_liquify_patch(
                         let dy = stroke.y2 - stroke.y1;
                         let step_dist = (dx * dx + dy * dy).sqrt();
 
-                        // 1. Single click (step_dist == 0) gets a solid 0.45 baseline power
-                        // 2. Dragged strokes scale naturally with mouse movement
                         let step_factor = if step_dist < 0.001 {
                             0.45
                         } else {
@@ -1011,6 +1015,14 @@ pub async fn generate_liquify_patch(
                                 let sin_a = angle.sin();
                                 disp_x += (rx * cos_a - ry * sin_a) - rx;
                                 disp_y += (rx * sin_a + ry * cos_a) - ry;
+                            }
+                            LiquifyMode::Eraser => {
+                                let erase_strength =
+                                    (elastic_falloff * stroke.pressure * step_factor * 5.0)
+                                        .clamp(0.0, 1.0);
+                                let retain_factor = 1.0 - erase_strength;
+                                disp_x *= retain_factor;
+                                disp_y *= retain_factor;
                             }
                         }
                     }

@@ -398,11 +398,21 @@
       "generatingDepthMap": "Расчет карты глубины ИИ...",
       "generativeEditTitle": "Генеративное редактирование",
       "inpaintingTitle": "Восстановление",
+      "liquify": {
+        "mode": "Режим пластики",
+        "modes": {
+          "expand": "Вздутие",
+          "pinch": "Сморщивание",
+          "push": "Смещение",
+          "twirl": "Скручивание"
+        }
+      },
       "manualCleanupTitle": "Ручная очистка",
       "noImageSelected": "Изображение не выбрано.",
       "params": {
         "feather": "Растушевка",
-        "grow": "Расширение"
+        "grow": "Расширение",
+        "pressure": "Нажим"
       },
       "patches": {
         "aiEdit": "ИИ-правка {{count}}",
@@ -421,6 +431,9 @@
         "heal_one": "Восстановление {{count}}",
         "heal_other": "Восстановление {{count}}",
         "invertedName": "{{name}} (инвертировано)",
+        "liquify": "Пластика {{count}}",
+        "liquify_one": "Пластика {{count}}",
+        "liquify_other": "Пластика {{count}}",
         "quickErase": "Быстрое стирание {{count}}",
         "quickErase_few": "Быстрое стирание {{count}}",
         "quickErase_many": "Быстрое стирание {{count}}",
@@ -1119,6 +1132,7 @@
       "foreground": "Передний план",
       "heal": "Восстановление",
       "linear": "Линейный градиент",
+      "liquify": "Пластика",
       "luminance": "Яркость",
       "others": "Другие",
       "quickErase": "Быстрое стирание",

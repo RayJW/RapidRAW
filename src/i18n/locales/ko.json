@@ -366,11 +366,21 @@
       "generatingDepthMap": "AI 심도 맵 계산 중...",
       "generativeEditTitle": "생성형 편집",
       "inpaintingTitle": "인페인팅",
+      "liquify": {
+        "mode": "유동화 모드",
+        "modes": {
+          "expand": "볼록 도구",
+          "pinch": "오목 도구",
+          "push": "밀기",
+          "twirl": "소용돌이"
+        }
+      },
       "manualCleanupTitle": "수동 정리",
       "noImageSelected": "선택된 이미지가 없습니다.",
       "params": {
         "feather": "페더",
-        "grow": "확장"
+        "grow": "확장",
+        "pressure": "압력"
       },
       "patches": {
         "aiEdit": "AI 편집 {{count}}",
@@ -381,6 +391,9 @@
         "heal": "복구 {{count}}",
         "heal_other": "복구 {{count}}",
         "invertedName": "{{name}} 반전됨",
+        "liquify": "픽셀 유동화 {{count}}",
+        "liquify_one": "픽셀 유동화 {{count}}",
+        "liquify_other": "픽셀 유동화 {{count}}",
         "quickErase": "빠른 지우기 {{count}}",
         "quickErase_one": "빠른 지우기 {{count}}",
         "quickErase_other": "빠른 지우기 {{count}}"
@@ -1069,6 +1082,7 @@
       "foreground": "전경",
       "heal": "복구",
       "linear": "선형",
+      "liquify": "픽셀 유동화",
       "luminance": "휘도",
       "others": "기타",
       "quickErase": "빠른 지우기",

@@ -14,7 +14,7 @@ import {
   Sun,
   Stamp,
   Bandage,
-  Move,
+  Spline,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
@@ -88,7 +88,7 @@ export function formatMaskTypeName(type: string) {
   if (type === Mask.Radial) return i18n.t('masks.types.radial');
   if (type === Mask.Clone) return i18n.t('masks.types.clone');
   if (type === Mask.Heal) return i18n.t('masks.types.heal');
-  if (type === Mask.Liquify) return i18n.t('masks.types.liquify', 'Liquify');
+  if (type === Mask.Liquify) return i18n.t('masks.types.liquify');
   return type.charAt(0).toUpperCase() + type.slice(1);
 }
 
@@ -119,7 +119,7 @@ export const MASK_ICON_MAP: Record<Mask, any> = {
   [Mask.Radial]: Circle,
   [Mask.Clone]: Stamp,
   [Mask.Heal]: Bandage,
-  [Mask.Liquify]: Move,
+  [Mask.Liquify]: Spline,
 };
 
 export const MASK_PANEL_CREATION_TYPES: Array<MaskType> = [
@@ -177,7 +177,7 @@ export const AI_DIRECT_PATCH_TYPES: Array<MaskType> = [
   },
   {
     disabled: false,
-    icon: Move,
+    icon: Spline,
     name: 'Liquify',
     type: Mask.Liquify,
   },

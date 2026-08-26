@@ -398,11 +398,21 @@
       "generatingDepthMap": "Obliczanie mapy głębi AI...",
       "generativeEditTitle": "Edycja generatywna",
       "inpaintingTitle": "Inpainting",
+      "liquify": {
+        "mode": "Tryb Skraplania",
+        "modes": {
+          "expand": "Wzdęcie",
+          "pinch": "Marszczenie",
+          "push": "Wypychanie",
+          "twirl": "Zawirowanie"
+        }
+      },
       "manualCleanupTitle": "Ręczne czyszczenie",
       "noImageSelected": "Brak zaznaczonego obrazu.",
       "params": {
         "feather": "Wtapianie",
-        "grow": "Rozszerzanie"
+        "grow": "Rozszerzanie",
+        "pressure": "Nacisk"
       },
       "patches": {
         "aiEdit": "Edycja AI {{count}}",
@@ -421,6 +431,9 @@
         "heal_one": "Naprawianie {{count}}",
         "heal_other": "Naprawianie {{count}}",
         "invertedName": "{{name}} odwrócone",
+        "liquify": "Skraplanie {{count}}",
+        "liquify_one": "Skraplanie {{count}}",
+        "liquify_other": "Skraplanie {{count}}",
         "quickErase": "Szybkie wymazanie {{count}}",
         "quickErase_few": "Szybkie wymazania {{count}}",
         "quickErase_many": "Szybkich wymazań {{count}}",
@@ -1119,6 +1132,7 @@
       "foreground": "Pierwszy plan",
       "heal": "Naprawianie",
       "linear": "Liniowy",
+      "liquify": "Skraplanie",
       "luminance": "Luminancja",
       "others": "Inne",
       "quickErase": "Szybkie wymazanie",

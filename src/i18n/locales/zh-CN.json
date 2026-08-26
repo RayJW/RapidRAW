@@ -366,11 +366,21 @@
       "generatingDepthMap": "正在计算 AI 深度图...",
       "generativeEditTitle": "生成式编辑",
       "inpaintingTitle": "图像修复",
+      "liquify": {
+        "mode": "液化模式",
+        "modes": {
+          "expand": "膨胀",
+          "pinch": "捏合",
+          "push": "推动",
+          "twirl": "旋转扭曲"
+        }
+      },
       "manualCleanupTitle": "手动清理",
       "noImageSelected": "未选择图像。",
       "params": {
         "feather": "羽化",
-        "grow": "扩展"
+        "grow": "扩展",
+        "pressure": "压力"
       },
       "patches": {
         "aiEdit": "AI 编辑 {{count}}",
@@ -381,6 +391,9 @@
         "heal": "修复 {{count}}",
         "heal_other": "修复 {{count}}",
         "invertedName": "{{name}} 反转",
+        "liquify": "液化 {{count}}",
+        "liquify_one": "液化 {{count}}",
+        "liquify_other": "液化 {{count}}",
         "quickErase": "快速擦除 {{count}}",
         "quickErase_one": "快速擦除 {{count}}",
         "quickErase_other": "快速擦除 {{count}}"
@@ -1069,6 +1082,7 @@
       "foreground": "前景",
       "heal": "修复",
       "linear": "线性",
+      "liquify": "液化",
       "luminance": "亮度",
       "others": "其他",
       "quickErase": "快速擦除",
