@@ -1,4 +1,4 @@
-// Liquify TODO: Add modes (Push, Pinch, Expand, Twirl), optimize performance, rename "CloneOrHeal" variables, allow erasing (with alt key) and add i18n
+// Liquify TODO: optimize performance, allow erasing (with alt key) and add i18n
 
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { v4 as uuidv4 } from 'uuid';
@@ -40,6 +40,7 @@ import Switch from '../../ui/Switch';
 import Slider from '../../ui/Slider';
 import Input from '../../ui/Input';
 import Button from '../../ui/Button';
+import Dropdown from '../../ui/Dropdown';
 
 import { useContextMenu } from '../../../context/ContextMenuContext';
 import {
@@ -49,7 +50,7 @@ import {
   SubMaskMode,
   ToolType,
   MASK_ICON_MAP,
-  AI_MANUAL_CLEANUP_TYPES,
+  AI_DIRECT_PATCH_TYPES,
   AI_GENERATIVE_CREATION_TYPES,
   AI_SUB_MASK_COMPONENT_TYPES,
   formatMaskTypeName,
@@ -311,7 +312,9 @@ function AiListRoot({
     >
       {children}
       <AnimatePresence>
-        {activeDragItem?.type === 'Creation' && hasPatches && <NewMaskDropZone isOver={isOver} textKey="editor.ai.dropzoneText" />}
+        {activeDragItem?.type === 'Creation' && hasPatches && (
+          <NewMaskDropZone isOver={isOver} textKey="editor.ai.dropzoneText" />
+        )}
       </AnimatePresence>
     </motion.div>
   );
@@ -333,7 +336,8 @@ export default function AIPanel() {
   const setCustomEscapeHandler = useUIStore((s) => s.setCustomEscapeHandler);
 
   const { setAdjustments } = useEditorActions();
-  const { handleGenerativeReplace, handleDeleteAiPatch, handleGenerateAiForegroundMask } = useAiMasking();
+  const { handleGenerativeReplace, handleDeleteAiPatch, handleGenerateAiForegroundMask, handleDirectPatch } =
+    useAiMasking();
   const appSettings = useSettingsStore((s) => s.appSettings);
   const aiProvider = appSettings?.aiProvider || 'cpu';
 
@@ -670,7 +674,7 @@ export default function AIPanel() {
 
     if (!targetContainerId) {
       options = [
-        ...buildMenu(AI_MANUAL_CLEANUP_TYPES, SubMaskMode.Additive),
+        ...buildMenu(AI_DIRECT_PATCH_TYPES, SubMaskMode.Additive),
         { type: OPTION_SEPARATOR },
         ...buildMenu(AI_GENERATIVE_CREATION_TYPES, SubMaskMode.Additive),
       ];
@@ -866,7 +870,7 @@ export default function AIPanel() {
       return;
     }
 
-    const manualSubMenu = AI_MANUAL_CLEANUP_TYPES.filter((maskType) => !maskType.disabled).map((maskType) => ({
+    const manualSubMenu = AI_DIRECT_PATCH_TYPES.filter((maskType) => !maskType.disabled).map((maskType) => ({
       label: formatMaskTypeName(maskType.type),
       icon: maskType.icon,
       onClick: () => handleAddAiPatchContainer(maskType.type),
@@ -1112,7 +1116,7 @@ export default function AIPanel() {
                       {t('editor.ai.manualCleanupTitle')}
                     </Text>
                     <div className="grid grid-cols-3 gap-2 mb-6" onClick={(e) => e.stopPropagation()}>
-                      {AI_MANUAL_CLEANUP_TYPES.map((maskType: MaskType) => (
+                      {AI_DIRECT_PATCH_TYPES.map((maskType: MaskType) => (
                         <DraggableGridItem
                           key={maskType.type}
                           maskType={maskType}
@@ -1241,6 +1245,7 @@ export default function AIPanel() {
                       collapsibleState={collapsibleState}
                       setCollapsibleState={setCollapsibleState}
                       isGenerativeAvailable={isGenerativeAvailable}
+                      onManualCleanup={handleDirectPatch}
                     />
                   </motion.div>
                 )}
@@ -1887,6 +1892,7 @@ function SettingsPanel({
   collapsibleState,
   setCollapsibleState,
   isGenerativeAvailable,
+  onManualCleanup,
 }: any) {
   const { t } = useTranslation();
   const isActive = !!container;
@@ -2105,9 +2111,44 @@ function SettingsPanel({
                       },
                     })
                   }
+                  onPointerUp={() => {
+                    if (activeSubMask.type === Mask.Liquify && activeSubMask.parameters?.lines?.length > 0) {
+                      setTimeout(() => {
+                        onManualCleanup(activeSubMask.id, 0, 0);
+                      }, 0);
+                    }
+                  }}
                   {...(param.key !== 'grow' && { fillOrigin: 'min' })}
                 />
               ))}
+
+              {isComponentMode && activeSubMask.type === Mask.Liquify && (
+                <div className="pt-2">
+                  <Text variant={TextVariants.label} className="mb-2 block">
+                    {t('editor.ai.liquify.mode', 'Liquify Mode')}
+                  </Text>
+                  <Dropdown
+                    options={[
+                      { label: t('editor.ai.liquify.modes.push', 'Push'), value: 'push' },
+                      { label: t('editor.ai.liquify.modes.pinch', 'Pinch'), value: 'pinch' },
+                      { label: t('editor.ai.liquify.modes.expand', 'Expand'), value: 'expand' },
+                      { label: t('editor.ai.liquify.modes.twirl', 'Twirl'), value: 'twirl' },
+                    ]}
+                    value={activeSubMask.parameters.liquifyMode || 'push'}
+                    onChange={(val) => {
+                      updateSubMask(activeSubMask.id, {
+                        parameters: { ...activeSubMask.parameters, liquifyMode: val },
+                      });
+
+                      setTimeout(() => {
+                        if (activeSubMask.parameters?.lines?.length > 0) {
+                          onManualCleanup(activeSubMask.id, 0, 0);
+                        }
+                      }, 0);
+                    }}
+                  />
+                </div>
+              )}
 
               {subMaskConfig.showBrushTools && brushSettings && (
                 <BrushTools settings={brushSettings} onSettingsChange={setBrushSettings} />

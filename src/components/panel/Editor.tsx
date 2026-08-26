@@ -137,7 +137,7 @@ export default function Editor({ onBackToLibrary, onContextMenu, onImageSelect, 
     [debouncedSetHistory, setEditor],
   );
 
-  const { handleGenerateAiMask, handleQuickErase, handleManualCleanup } = useAiMasking();
+  const { handleGenerateAiMask, handleQuickErase, handleDirectPatch } = useAiMasking();
 
   const [crop, setCrop] = useState<Crop | null>(null);
   const prevCropParams = useRef<any>(null);
@@ -2141,7 +2141,7 @@ export default function Editor({ onBackToLibrary, onContextMenu, onImageSelect, 
             onSelectAiPatchContainer={(id) => setEditor({ activeAiPatchContainerId: id })}
             onSelectMaskContainer={(id) => setEditor({ activeMaskContainerId: id })}
             onLiveMaskPreview={handleLiveMaskPreview}
-            onManualCleanup={handleManualCleanup}
+            onDirectPatch={handleDirectPatch}
             onQuickErase={handleQuickErase}
             onSelectAiSubMask={(id) => setEditor({ activeAiSubMaskId: id })}
             onSelectMask={(id) => setEditor({ activeMaskId: id })}

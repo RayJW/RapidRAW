@@ -50,7 +50,7 @@ export function useAiMasking() {
     [setAdjustments],
   );
 
-  const handleManualCleanup = useCallback(
+  const handleDirectPatch = useCallback(
     async (subMaskId: string, sourceX: number, sourceY: number) => {
       const { selectedImage, adjustments, patchesSentToBackend } = useEditorStore.getState();
       if (!selectedImage?.path) return;
@@ -86,14 +86,14 @@ export function useAiMasking() {
           ),
         }));
       } catch (err: any) {
-        toast.error(`Cleanup Failed: ${err.message || String(err)}`);
+        toast.error(`Patch Generation Failed: ${err.message || String(err)}`);
         setAdjustments((prev: Partial<Adjustments>) => ({
           ...prev,
           aiPatches: prev.aiPatches?.map((p: AiPatch) => (p.id === patchId ? { ...p, isLoading: false } : p)),
         }));
       }
     },
-    [setAdjustments, getToken],
+    [setAdjustments],
   );
 
   const handleGenerativeReplace = useCallback(
@@ -150,7 +150,7 @@ export function useAiMasking() {
         setEditor({ isGeneratingAi: false });
       }
     },
-    [setAdjustments, setEditor],
+    [setAdjustments, setEditor, getToken],
   );
 
   const handleQuickErase = useCallback(
@@ -239,7 +239,7 @@ export function useAiMasking() {
         setEditor({ isGeneratingAi: false });
       }
     },
-    [setAdjustments, setEditor],
+    [setAdjustments, setEditor, getToken],
   );
 
   const handleDeleteMaskContainer = useCallback(
@@ -423,7 +423,7 @@ export function useAiMasking() {
   return {
     updateSubMask,
     handleGenerativeReplace,
-    handleManualCleanup,
+    handleDirectPatch,
     handleQuickErase,
     handleDeleteMaskContainer,
     handleDeleteAiPatch,

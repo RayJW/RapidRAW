@@ -667,18 +667,21 @@ pub async fn invoke_generative_replace_with_mask_def(
     Ok(result_json)
 }
 
-fn point_to_segment_dist_sq(px: f32, py: f32, x1: f32, y1: f32, x2: f32, y2: f32) -> f32 {
+fn point_to_segment_dist_sq(px: f32, py: f32, x1: f32, y1: f32, x2: f32, y2: f32) -> (f32, f32) {
     let dx = x2 - x1;
     let dy = y2 - y1;
     let l2 = dx * dx + dy * dy;
     if l2 == 0.0 {
-        return (px - x1) * (px - x1) + (py - y1) * (py - y1);
+        return ((px - x1) * (px - x1) + (py - y1) * (py - y1), 0.0);
     }
     let t = ((px - x1) * dx + (py - y1) * dy) / l2;
     let t = t.clamp(0.0, 1.0);
     let proj_x = x1 + t * dx;
     let proj_y = y1 + t * dy;
-    (px - proj_x) * (px - proj_x) + (py - proj_y) * (py - proj_y)
+    (
+        (px - proj_x) * (px - proj_x) + (py - proj_y) * (py - proj_y),
+        t,
+    )
 }
 
 fn bilinear_sample(img: &RgbImage, x: f32, y: f32) -> Rgb<u8> {
@@ -746,6 +749,14 @@ pub async fn generate_liquify_patch(
 
     let mut all_points = Vec::new();
 
+    #[derive(Clone, Copy)]
+    enum LiquifyMode {
+        Push,
+        Pinch,
+        Expand,
+        Twirl,
+    }
+
     #[derive(Clone)]
     struct Stroke {
         x1: f32,
@@ -756,12 +767,13 @@ pub async fn generate_liquify_patch(
         radius_sq: f32,
         feather: f32,
         pressure: f32,
-        // AABB parameters for fast culling
+        mode: LiquifyMode,
         aabb_min_x: f32,
         aabb_max_x: f32,
         aabb_min_y: f32,
         aabb_max_y: f32,
     }
+
     let mut strokes = Vec::new();
 
     let sub_masks_val = serde_json::to_value(&patch_definition.sub_masks).unwrap_or(Value::Null);
@@ -778,6 +790,17 @@ pub async fn generate_liquify_patch(
                     .and_then(|v| v.as_f64())
                     .unwrap_or(50.0) as f32;
                 let force = (pressure_param / 100.0).clamp(0.01, 1.0);
+
+                let mode_str = params
+                    .and_then(|p| p.get("liquifyMode"))
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("push");
+                let liquify_mode = match mode_str {
+                    "pinch" => LiquifyMode::Pinch,
+                    "expand" => LiquifyMode::Expand,
+                    "twirl" => LiquifyMode::Twirl,
+                    _ => LiquifyMode::Push,
+                };
 
                 if let Some(lines) = params
                     .and_then(|p| p.get("lines"))
@@ -798,32 +821,58 @@ pub async fn generate_liquify_patch(
                             line.get("feather").and_then(|v| v.as_f64()).unwrap_or(0.5) as f32;
 
                         if let Some(pts) = line.get("points").and_then(|v| v.as_array()) {
-                            let mut prev_pt: Option<(f32, f32)> = None;
-                            for p_val in pts {
+                            if pts.len() == 1 {
                                 if let (Some(x), Some(y)) = (
-                                    p_val.get("x").and_then(|v| v.as_f64()),
-                                    p_val.get("y").and_then(|v| v.as_f64()),
+                                    pts[0].get("x").and_then(|v| v.as_f64()),
+                                    pts[0].get("y").and_then(|v| v.as_f64()),
                                 ) {
                                     let (xf, yf) = (x as f32, y as f32);
                                     all_points.push((xf, yf, radius));
+                                    strokes.push(Stroke {
+                                        x1: xf,
+                                        y1: yf,
+                                        x2: xf,
+                                        y2: yf,
+                                        radius,
+                                        radius_sq: radius * radius,
+                                        feather,
+                                        pressure: force,
+                                        mode: liquify_mode,
+                                        aabb_min_x: xf - radius,
+                                        aabb_max_x: xf + radius,
+                                        aabb_min_y: yf - radius,
+                                        aabb_max_y: yf + radius,
+                                    });
+                                }
+                            } else {
+                                let mut prev_pt: Option<(f32, f32)> = None;
+                                for p_val in pts {
+                                    if let (Some(x), Some(y)) = (
+                                        p_val.get("x").and_then(|v| v.as_f64()),
+                                        p_val.get("y").and_then(|v| v.as_f64()),
+                                    ) {
+                                        let (xf, yf) = (x as f32, y as f32);
+                                        all_points.push((xf, yf, radius));
 
-                                    if let Some((px, py)) = prev_pt {
-                                        strokes.push(Stroke {
-                                            x1: px,
-                                            y1: py,
-                                            x2: xf,
-                                            y2: yf,
-                                            radius,
-                                            radius_sq: radius * radius,
-                                            feather,
-                                            pressure: force,
-                                            aabb_min_x: px.min(xf) - radius,
-                                            aabb_max_x: px.max(xf) + radius,
-                                            aabb_min_y: py.min(yf) - radius,
-                                            aabb_max_y: py.max(yf) + radius,
-                                        });
+                                        if let Some((px, py)) = prev_pt {
+                                            strokes.push(Stroke {
+                                                x1: px,
+                                                y1: py,
+                                                x2: xf,
+                                                y2: yf,
+                                                radius,
+                                                radius_sq: radius * radius,
+                                                feather,
+                                                pressure: force,
+                                                mode: liquify_mode,
+                                                aabb_min_x: px.min(xf) - radius,
+                                                aabb_max_x: px.max(xf) + radius,
+                                                aabb_min_y: py.min(yf) - radius,
+                                                aabb_max_y: py.max(yf) + radius,
+                                            });
+                                        }
+                                        prev_pt = Some((xf, yf));
                                     }
-                                    prev_pt = Some((xf, yf));
                                 }
                             }
                         }
@@ -886,20 +935,20 @@ pub async fn generate_liquify_patch(
 
             for x in 0..(crop_w as usize) {
                 let orig_x = x as f32 + min_x_u32 as f32;
-                let mut src_x = orig_x;
-                let mut src_y = orig_y;
+                let mut disp_x = 0.0_f32;
+                let mut disp_y = 0.0_f32;
 
                 for stroke in &strokes {
-                    if src_x < stroke.aabb_min_x
-                        || src_x > stroke.aabb_max_x
-                        || src_y < stroke.aabb_min_y
-                        || src_y > stroke.aabb_max_y
+                    if orig_x < stroke.aabb_min_x
+                        || orig_x > stroke.aabb_max_x
+                        || orig_y < stroke.aabb_min_y
+                        || orig_y > stroke.aabb_max_y
                     {
                         continue;
                     }
 
-                    let dist_sq = point_to_segment_dist_sq(
-                        src_x, src_y, stroke.x1, stroke.y1, stroke.x2, stroke.y2,
+                    let (dist_sq, t) = point_to_segment_dist_sq(
+                        orig_x, orig_y, stroke.x1, stroke.y1, stroke.x2, stroke.y2,
                     );
 
                     if dist_sq < stroke.radius_sq {
@@ -910,25 +959,70 @@ pub async fn generate_liquify_patch(
                         let elastic_falloff = if dist <= inner_radius {
                             1.0
                         } else {
-                            let t = (dist - inner_radius) / (stroke.radius - inner_radius);
-                            let cos_val = 0.5 * (1.0 + (t * std::f32::consts::PI).cos());
+                            let falloff_t = (dist - inner_radius) / (stroke.radius - inner_radius);
+                            let cos_val = 0.5 * (1.0 + (falloff_t * std::f32::consts::PI).cos());
                             cos_val * cos_val
                         };
 
                         let dx = stroke.x2 - stroke.x1;
                         let dy = stroke.y2 - stroke.y1;
+                        let step_dist = (dx * dx + dy * dy).sqrt();
 
-                        src_x -= dx * elastic_falloff * stroke.pressure;
-                        src_y -= dy * elastic_falloff * stroke.pressure;
+                        // 1. Single click (step_dist == 0) gets a solid 0.45 baseline power
+                        // 2. Dragged strokes scale naturally with mouse movement
+                        let step_factor = if step_dist < 0.001 {
+                            0.45
+                        } else {
+                            (step_dist / stroke.radius).clamp(0.05, 0.6)
+                        };
+
+                        match stroke.mode {
+                            LiquifyMode::Push => {
+                                disp_x -= dx * elastic_falloff * stroke.pressure * 0.6;
+                                disp_y -= dy * elastic_falloff * stroke.pressure * 0.6;
+                            }
+                            LiquifyMode::Pinch => {
+                                let proj_x = stroke.x1 + t * dx;
+                                let proj_y = stroke.y1 + t * dy;
+                                let rx = orig_x - proj_x;
+                                let ry = orig_y - proj_y;
+                                let strength =
+                                    elastic_falloff * stroke.pressure * step_factor * 0.45;
+                                disp_x += rx * strength;
+                                disp_y += ry * strength;
+                            }
+                            LiquifyMode::Expand => {
+                                let proj_x = stroke.x1 + t * dx;
+                                let proj_y = stroke.y1 + t * dy;
+                                let rx = orig_x - proj_x;
+                                let ry = orig_y - proj_y;
+                                let strength =
+                                    elastic_falloff * stroke.pressure * step_factor * 0.30;
+                                disp_x -= rx * strength;
+                                disp_y -= ry * strength;
+                            }
+                            LiquifyMode::Twirl => {
+                                let proj_x = stroke.x1 + t * dx;
+                                let proj_y = stroke.y1 + t * dy;
+                                let rx = orig_x - proj_x;
+                                let ry = orig_y - proj_y;
+                                let angle = elastic_falloff * stroke.pressure * step_factor * 1.4;
+                                let cos_a = angle.cos();
+                                let sin_a = angle.sin();
+                                disp_x += (rx * cos_a - ry * sin_a) - rx;
+                                disp_y += (rx * sin_a + ry * cos_a) - ry;
+                            }
+                        }
                     }
                 }
 
-                let disp_sq =
-                    (src_x - orig_x) * (src_x - orig_x) + (src_y - orig_y) * (src_y - orig_y);
+                let src_x = orig_x + disp_x;
+                let src_y = orig_y + disp_y;
+
+                let disp_sq = disp_x * disp_x + disp_y * disp_y;
 
                 if disp_sq > 0.001 {
                     let displacement = disp_sq.sqrt();
-
                     let mask_val = (displacement * 255.0).clamp(0.0, 255.0) as u8;
                     let px = bilinear_sample(&source_image, src_x, src_y);
 

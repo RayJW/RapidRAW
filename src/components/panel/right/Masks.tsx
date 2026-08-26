@@ -162,7 +162,7 @@ export const MASK_PANEL_CREATION_TYPES: Array<MaskType> = [
   },
 ];
 
-export const AI_MANUAL_CLEANUP_TYPES: Array<MaskType> = [
+export const AI_DIRECT_PATCH_TYPES: Array<MaskType> = [
   {
     disabled: false,
     icon: Stamp,
@@ -222,46 +222,6 @@ export const AI_GENERATIVE_CREATION_TYPES: Array<MaskType> = [
   },
 ];
 
-const SUB_MASK_COMPONENT_TYPES: Array<MaskType> = [
-  {
-    disabled: false,
-    icon: Sparkles,
-    name: 'Subject',
-    type: Mask.AiSubject,
-  },
-  {
-    disabled: false,
-    icon: Cloud,
-    name: 'Sky',
-    type: Mask.AiSky,
-  },
-  {
-    disabled: false,
-    icon: User,
-    name: 'Foreground',
-    type: Mask.AiForeground,
-  },
-  {
-    disabled: false,
-    icon: TriangleRight,
-    name: 'Linear',
-    type: Mask.Linear,
-  },
-  {
-    disabled: false,
-    icon: Circle,
-    name: 'Radial',
-    type: Mask.Radial,
-  },
-  {
-    disabled: false,
-    icon: MoreHorizontal,
-    id: 'others',
-    name: 'Others',
-    type: null as any,
-  },
-];
-
 export const OTHERS_MASK_TYPES: Array<MaskType> = [
   {
     disabled: false,
@@ -301,10 +261,7 @@ export const OTHERS_MASK_TYPES: Array<MaskType> = [
   },
 ];
 
-export const AI_SUB_MASK_COMPONENT_TYPES: Array<MaskType> = [
-  ...AI_MANUAL_CLEANUP_TYPES,
-  ...AI_GENERATIVE_CREATION_TYPES,
-];
+export const AI_SUB_MASK_COMPONENT_TYPES: Array<MaskType> = [...AI_DIRECT_PATCH_TYPES, ...AI_GENERATIVE_CREATION_TYPES];
 
 export function NewMaskDropZone({ isOver, textKey }: { isOver: boolean; textKey: string }) {
   const { t } = useTranslation();
