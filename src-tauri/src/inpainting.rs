@@ -87,15 +87,15 @@ fn calculate_mask_bounds(
     for y in min_y..=max_y {
         let row_start = y * img_w_usize;
         let row = &mask_raw[row_start..row_start + img_w_usize];
-        if let Some(first) = row.iter().position(|&p| p > 0) {
-            if first < min_x {
-                min_x = first;
-            }
+        if let Some(first) = row.iter().position(|&p| p > 0)
+            && first < min_x
+        {
+            min_x = first;
         }
-        if let Some(last) = row.iter().rposition(|&p| p > 0) {
-            if last > max_x {
-                max_x = last;
-            }
+        if let Some(last) = row.iter().rposition(|&p| p > 0)
+            && last > max_x
+        {
+            max_x = last;
         }
     }
 
@@ -629,7 +629,7 @@ pub async fn invoke_generative_replace_with_mask_def(
         crop_h,
         is_raw,
         95,
-        true, // Generator logic uses PNG for the mask
+        true,
     )
 }
 
@@ -1014,6 +1014,7 @@ pub async fn generate_liquify_patch(
     )
 }
 
+#[allow(clippy::too_many_arguments)]
 fn draw_stroke_to_mask(
     mask: &mut [u8],
     img_w: u32,
@@ -1093,32 +1094,58 @@ pub async fn generate_retouch_patch(
 
     if let Some(arr) = sub_masks_val.as_array() {
         for sm in arr {
-            if sm.get("type").and_then(|v| v.as_str()) == Some("retouch") {
-                if let Some(params) = sm.get("parameters") {
-                    intensity = params
-                        .get("intensity")
-                        .and_then(|v| v.as_f64())
-                        .unwrap_or(50.0) as f32;
+            if sm.get("type").and_then(|v| v.as_str()) == Some("retouch")
+                && let Some(params) = sm.get("parameters")
+            {
+                intensity = params
+                    .get("intensity")
+                    .and_then(|v| v.as_f64())
+                    .unwrap_or(50.0) as f32;
 
-                    if let Some(lines) = params.get("lines").and_then(|v| v.as_array()) {
-                        for line in lines {
-                            let r = line
-                                .get("brushSize")
-                                .and_then(|v| v.as_f64())
-                                .unwrap_or(50.0) as f32
-                                / 2.0;
-                            let feather =
-                                line.get("feather").and_then(|v| v.as_f64()).unwrap_or(0.5) as f32;
-                            let is_eraser =
-                                line.get("tool").and_then(|v| v.as_str()) == Some("eraser");
+                if let Some(lines) = params.get("lines").and_then(|v| v.as_array()) {
+                    for line in lines {
+                        let r = line
+                            .get("brushSize")
+                            .and_then(|v| v.as_f64())
+                            .unwrap_or(50.0) as f32
+                            / 2.0;
+                        let feather =
+                            line.get("feather").and_then(|v| v.as_f64()).unwrap_or(0.5) as f32;
+                        let is_eraser = line.get("tool").and_then(|v| v.as_str()) == Some("eraser");
 
-                            max_radius = max_radius.max(r);
+                        max_radius = max_radius.max(r);
 
-                            if let Some(pts) = line.get("points").and_then(|v| v.as_array()) {
-                                if pts.len() == 1 {
+                        if let Some(pts) = line.get("points").and_then(|v| v.as_array()) {
+                            if pts.len() == 1 {
+                                if let (Some(x), Some(y)) = (
+                                    pts[0].get("x").and_then(|v| v.as_f64()),
+                                    pts[0].get("y").and_then(|v| v.as_f64()),
+                                ) {
+                                    let (xf, yf) = (x as f32, y as f32);
+                                    min_x = min_x.min(xf - r);
+                                    min_y = min_y.min(yf - r);
+                                    max_x = max_x.max(xf + r);
+                                    max_y = max_y.max(yf + r);
+
+                                    draw_stroke_to_mask(
+                                        &mut mask_canvas,
+                                        img_w,
+                                        img_h,
+                                        xf,
+                                        yf,
+                                        xf,
+                                        yf,
+                                        r,
+                                        feather,
+                                        is_eraser,
+                                    );
+                                }
+                            } else {
+                                let mut prev: Option<(f32, f32)> = None;
+                                for p_val in pts {
                                     if let (Some(x), Some(y)) = (
-                                        pts[0].get("x").and_then(|v| v.as_f64()),
-                                        pts[0].get("y").and_then(|v| v.as_f64()),
+                                        p_val.get("x").and_then(|v| v.as_f64()),
+                                        p_val.get("y").and_then(|v| v.as_f64()),
                                     ) {
                                         let (xf, yf) = (x as f32, y as f32);
                                         min_x = min_x.min(xf - r);
@@ -1126,48 +1153,21 @@ pub async fn generate_retouch_patch(
                                         max_x = max_x.max(xf + r);
                                         max_y = max_y.max(yf + r);
 
-                                        draw_stroke_to_mask(
-                                            &mut mask_canvas,
-                                            img_w,
-                                            img_h,
-                                            xf,
-                                            yf,
-                                            xf,
-                                            yf,
-                                            r,
-                                            feather,
-                                            is_eraser,
-                                        );
-                                    }
-                                } else {
-                                    let mut prev: Option<(f32, f32)> = None;
-                                    for p_val in pts {
-                                        if let (Some(x), Some(y)) = (
-                                            p_val.get("x").and_then(|v| v.as_f64()),
-                                            p_val.get("y").and_then(|v| v.as_f64()),
-                                        ) {
-                                            let (xf, yf) = (x as f32, y as f32);
-                                            min_x = min_x.min(xf - r);
-                                            min_y = min_y.min(yf - r);
-                                            max_x = max_x.max(xf + r);
-                                            max_y = max_y.max(yf + r);
-
-                                            if let Some((px, py)) = prev {
-                                                draw_stroke_to_mask(
-                                                    &mut mask_canvas,
-                                                    img_w,
-                                                    img_h,
-                                                    px,
-                                                    py,
-                                                    xf,
-                                                    yf,
-                                                    r,
-                                                    feather,
-                                                    is_eraser,
-                                                );
-                                            }
-                                            prev = Some((xf, yf));
+                                        if let Some((px, py)) = prev {
+                                            draw_stroke_to_mask(
+                                                &mut mask_canvas,
+                                                img_w,
+                                                img_h,
+                                                px,
+                                                py,
+                                                xf,
+                                                yf,
+                                                r,
+                                                feather,
+                                                is_eraser,
+                                            );
                                         }
+                                        prev = Some((xf, yf));
                                     }
                                 }
                             }
