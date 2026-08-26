@@ -669,37 +669,6 @@ export function useAppContextMenus(props: UseAppContextMenusProps) {
               },
             },
             {
-              icon: LayoutTemplate,
-              label: collageLabel,
-              onClick: () => {
-                const finalSelectionSet = new Set(finalSelection);
-                const imagesForCollage = imageList.filter((img) => finalSelectionSet.has(img.path));
-                setUI({ collageModalState: { isOpen: true, sourceImages: imagesForCollage } });
-              },
-              disabled: selectionCount === 0 || selectionCount > 9,
-            },
-            {
-              label: cullLabel,
-              icon: Users,
-              onClick: () =>
-                setUI({
-                  cullingModalState: {
-                    isOpen: true,
-                    progress: null,
-                    suggestions: null,
-                    error: null,
-                    pathsToCull: finalSelection,
-                  },
-                }),
-              disabled: selectionCount < 2,
-            },
-          ],
-        },
-        {
-          label: t('contextMenus.merge.title'),
-          icon: Layers,
-          submenu: [
-            {
               disabled: selectionCount < 2,
               icon: Layers,
               label: t('contextMenus.merge.focusStack'),

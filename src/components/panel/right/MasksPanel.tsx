@@ -1014,9 +1014,9 @@ export default function MasksPanel() {
         <AnimatePresence initial={false}>
           {isWaveformVisible && !isAdjustmentsPanelVisible && (
             <motion.div
-              initial={{ height: 0, opacity: 0 }}  // react-doctor-disable-line no-layout-property-animation
-              animate={{ height: waveformHeight || 256, opacity: 1 }}  // react-doctor-disable-line no-layout-property-animation
-              exit={{ height: 0, opacity: 0 }}  // react-doctor-disable-line no-layout-property-animation
+              initial={{ height: 0, opacity: 0 }} // react-doctor-disable-line no-layout-property-animation
+              animate={{ height: waveformHeight || 256, opacity: 1 }} // react-doctor-disable-line no-layout-property-animation
+              exit={{ height: 0, opacity: 0 }} // react-doctor-disable-line no-layout-property-animation
               transition={{ duration: isResizingWaveform ? 0 : 0.2, ease: 'easeOut' }}
               className="shrink-0 flex flex-col relative border-b border-surface overflow-hidden"
             >
@@ -1496,8 +1496,8 @@ function ContainerRow({
   return (
     <motion.div
       layout="position"
-      initial={{ opacity: 0, height: 0 }}  // react-doctor-disable-line no-layout-property-animation
-      animate={{ opacity: isDragging ? 0.4 : 1, height: 'auto' }}  // react-doctor-disable-line no-layout-property-animation
+      initial={{ opacity: 0, height: 0 }} // react-doctor-disable-line no-layout-property-animation
+      animate={{ opacity: isDragging ? 0.4 : 1, height: 'auto' }} // react-doctor-disable-line no-layout-property-animation
       exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
       ref={setCombinedRef}
       className="overflow-hidden"
@@ -1576,9 +1576,9 @@ function ContainerRow({
       <AnimatePresence initial={false}>
         {isExpanded && (
           <motion.div
-            initial={{ height: 0, opacity: 0 }}  // react-doctor-disable-line no-layout-property-animation
-            animate={{ height: 'auto', opacity: 1 }}  // react-doctor-disable-line no-layout-property-animation
-            exit={{ height: 0, opacity: 0 }}  // react-doctor-disable-line no-layout-property-animation
+            initial={{ height: 0, opacity: 0 }} // react-doctor-disable-line no-layout-property-animation
+            animate={{ height: 'auto', opacity: 1 }} // react-doctor-disable-line no-layout-property-animation
+            exit={{ height: 0, opacity: 0 }} // react-doctor-disable-line no-layout-property-animation
             className="overflow-hidden pl-2 border-l-[1.5px] border-border-color/50 ml-3.75"
             layout
           >
@@ -1619,9 +1619,9 @@ function ContainerRow({
                 <motion.div
                   key="add-component-btn"
                   layout="position"
-                  initial={{ opacity: 0, height: 0, overflow: 'hidden' }}  // react-doctor-disable-line no-layout-property-animation
-                  animate={{ opacity: 1, height: 'auto', overflow: 'hidden' }}  // react-doctor-disable-line no-layout-property-animation
-                  exit={{ opacity: 0, height: 0, overflow: 'hidden' }}  // react-doctor-disable-line no-layout-property-animation
+                  initial={{ opacity: 0, height: 0, overflow: 'hidden' }} // react-doctor-disable-line no-layout-property-animation
+                  animate={{ opacity: 1, height: 'auto', overflow: 'hidden' }} // react-doctor-disable-line no-layout-property-animation
+                  exit={{ opacity: 0, height: 0, overflow: 'hidden' }} // react-doctor-disable-line no-layout-property-animation
                   transition={{ duration: 0.2 }}
                 >
                   <Text
