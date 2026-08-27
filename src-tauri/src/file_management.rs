@@ -1841,20 +1841,19 @@ fn generate_single_thumbnail_and_cache(
 
     if let Ok(thumb_image) =
         generate_thumbnail_data(path_str, gpu_context, preloaded_image, app_handle)
-    {
-        if let (Ok(small_data), Ok(medium_data)) = (
+        && let (Ok(small_data), Ok(medium_data)) = (
             encode_thumbnail(&thumb_image, target_width_small),
             encode_thumbnail(&thumb_image, target_width_medium),
-        ) {
-            let _ = fs::write(&small_path, &small_data);
-            let _ = fs::write(&medium_path, &medium_data);
-            return Some((
-                small_path.to_string_lossy().into_owned(),
-                medium_path.to_string_lossy().into_owned(),
-                rating,
-                is_edited,
-            ));
-        }
+        )
+    {
+        let _ = fs::write(&small_path, &small_data);
+        let _ = fs::write(&medium_path, &medium_data);
+        return Some((
+            small_path.to_string_lossy().into_owned(),
+            medium_path.to_string_lossy().into_owned(),
+            rating,
+            is_edited,
+        ));
     }
     None
 }
