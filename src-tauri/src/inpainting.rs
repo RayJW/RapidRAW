@@ -1224,10 +1224,9 @@ pub async fn generate_retouch_patch(
     }
 
     let max_color_dist_sq = 3 * 255 * 255;
-    let mut color_weights = vec![0.0_f32; max_color_dist_sq + 1];
-    for i in 0..=max_color_dist_sq {
-        color_weights[i] = (-(i as f32) / (2.0 * sig_c_sq)).exp();
-    }
+    let color_weights: Vec<f32> = (0..=max_color_dist_sq)
+        .map(|i| (-(i as f32) / (2.0 * sig_c_sq)).exp())
+        .collect();
 
     let mut color_pixels = vec![0u8; (crop_w * crop_h * 3) as usize];
     let crop_w_i32 = crop_w as i32;

@@ -23,6 +23,7 @@ import { useSettingsStore } from '../../store/useSettingsStore';
 import { useUIStore } from '../../store/useUIStore';
 import { useLibraryStore } from '../../store/useLibraryStore';
 import { useAiMasking } from '../../hooks/useAiMasking';
+import { useEditorActions } from '../../hooks/useEditorActions';
 
 const parseRgb = (rgbStr: string): [number, number, number, number] => {
   const match = rgbStr.match(/[\d.]+/g);
@@ -140,6 +141,7 @@ export default function Editor({ onBackToLibrary, onContextMenu, onImageSelect, 
   );
 
   const { handleGenerateAiMask, handleQuickErase, handleDirectPatch } = useAiMasking();
+  const { toggleShowOriginal } = useEditorActions();
 
   const [crop, setCrop] = useState<Crop | null>(null);
   const prevCropParams = useRef<any>(null);
@@ -227,49 +229,6 @@ export default function Editor({ onBackToLibrary, onContextMenu, onImageSelect, 
       window.removeEventListener('blur', handleBlur);
     };
   }, []);
-
-  const toggleShowOriginal = useCallback(() => {
-    setEditor((state) => {
-      const isShowing = !state.showOriginal;
-
-      if (isShowing) {
-        const override = { ...INITIAL_ADJUSTMENTS };
-        const geometryKeys: Array<keyof Adjustments> = [
-          'crop',
-          'rotation',
-          'flipHorizontal',
-          'flipVertical',
-          'orientationSteps',
-          'aspectRatio',
-          'transformDistortion',
-          'transformVertical',
-          'transformHorizontal',
-          'transformRotate',
-          'transformAspect',
-          'transformScale',
-          'transformXOffset',
-          'transformYOffset',
-          'lensDistortionAmount',
-          'lensVignetteAmount',
-          'lensTcaAmount',
-          'lensDistortionParams',
-          'lensMaker',
-          'lensModel',
-          'lensDistortionEnabled',
-          'lensTcaEnabled',
-          'lensVignetteEnabled',
-        ];
-
-        geometryKeys.forEach((key) => {
-          (override as any)[key] = state.adjustments[key];
-        });
-
-        return { showOriginal: true, previewOverride: override };
-      } else {
-        return { showOriginal: false, previewOverride: null };
-      }
-    });
-  }, [setEditor]);
 
   const handleToggleFullScreen = useCallback(() => {
     const currentlyZoomed = targetZoom > 1.01;
