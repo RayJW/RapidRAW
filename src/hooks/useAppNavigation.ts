@@ -102,6 +102,9 @@ export function useAppNavigation({ clearThumbnailQueue, refs }: AppNavigationPro
         globalImageCache.set(selectedImage.path, cachedEditStateRef.current);
       }
 
+      const cachedThumb = useProcessStore.getState().thumbnails[path];
+      const cachedMedium = useProcessStore.getState().mediumThumbnails[path] || cachedThumb;
+
       const cached = globalImageCache.get(path);
       const isFrontendCached = Boolean(cached && cached.selectedImage?.isReady);
       const isCachedInBackend = isFrontendCached
@@ -146,7 +149,7 @@ export function useAppNavigation({ clearThumbnailQueue, refs }: AppNavigationPro
         setEditor({
           selectedImage: {
             ...cached.selectedImage,
-            thumbnailUrl: useProcessStore.getState().thumbnails[path] || cached.selectedImage.thumbnailUrl,
+            thumbnailUrl: cachedMedium || cached.selectedImage.thumbnailUrl,
           },
           originalSize: cached.originalSize,
           previewSize: cached.previewSize,
@@ -213,7 +216,7 @@ export function useAppNavigation({ clearThumbnailQueue, refs }: AppNavigationPro
           isReady: false,
           metadata: null,
           path,
-          thumbnailUrl: useProcessStore.getState().thumbnails[path],
+          thumbnailUrl: cachedMedium,
           width: 0,
         },
         originalSize: { width: 0, height: 0 },

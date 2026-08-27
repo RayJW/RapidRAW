@@ -1692,6 +1692,8 @@
       "livePreviewQualityDesc": "Controls the resolution and compression of the image while dragging sliders. Lower quality significantly improves responsiveness.",
       "livePreviews": "Live Interactive Previews",
       "livePreviewsDesc": "Update the preview immediately while dragging sliders. Disable this if the interface feels laggy during adjustments.",
+      "mediumThumbnailRes": "Editor Thumbnail Resolution",
+      "mediumThumbnailResDesc": "Resolution of the preview shown while full images load in the editor.",
       "modes": {
         "dynamic": "Dynamic",
         "static": "Fixed Resolution"
@@ -1740,6 +1742,8 @@
       "renderScaleDesc": "Scales the render resolution relative to your display. Lower values improve performance on high-resolution screens at the cost of some sharpness.",
       "restartRequired": "Changes to the processing engine require an application restart to take effect.",
       "saveRelaunch": "Save & Relaunch",
+      "smallThumbnailRes": "Grid Thumbnail Resolution",
+      "smallThumbnailResDesc": "Resolution of thumbnails shown in the library grid.",
       "staticDesc": "The editor renders the image at a fixed resolution. This mode is the fastest and most consistent, making it ideal for lower-end hardware where smooth performance is prioritized over pixel-perfect zoom.",
       "staticPreviewRes": "Static Preview Resolution",
       "staticPreviewResDesc": "Sets the resolution for static previews like crop mode, lens correction, and perspective tools. Does not affect the main editor preview.",

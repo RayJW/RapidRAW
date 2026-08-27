@@ -1726,6 +1726,8 @@
       "livePreviewQualityDesc": "Controla a resolução e a compressão da imagem ao arrastar controles deslizantes. Qualidade mais baixa melhora significativamente a capacidade de resposta.",
       "livePreviews": "Visualizações Interativas ao Vivo",
       "livePreviewsDesc": "Atualize a visualização imediatamente ao arrastar os controles deslizantes. Desative isso se a interface parecer lenta durante os ajustes.",
+      "mediumThumbnailRes": "Resolução da miniatura do editor",
+      "mediumThumbnailResDesc": "Resolução da visualização exibida enquanto as imagens completas carregam no editor.",
       "modes": {
         "dynamic": "Dinâmico",
         "static": "Resolução Fixa"
@@ -1774,6 +1776,8 @@
       "renderScaleDesc": "Dimensiona a resolução de renderização em relação à sua tela. Valores mais baixos melhoram o desempenho em telas de alta resolução ao custo de alguma nitidez.",
       "restartRequired": "As alterações no mecanismo de processamento exigem uma reinicialização do aplicativo para entrarem em vigor.",
       "saveRelaunch": "Salvar e Reiniciar",
+      "smallThumbnailRes": "Resolução das miniaturas da grade",
+      "smallThumbnailResDesc": "Resolução das miniaturas exibidas na grade da biblioteca.",
       "staticDesc": "O editor renderiza a imagem em uma resolução fixa. Esse modo é o mais rápido e consistente, tornando-o ideal para hardware de baixo desempenho, onde o desempenho suave é priorizado sobre o zoom com pixels perfeitos.",
       "staticPreviewRes": "Resolução de Visualização Estática",
       "staticPreviewResDesc": "Define a resolução para visualizações estáticas como modo de corte, correção de lente e ferramentas de perspectiva. Não afeta a visualização principal do editor.",

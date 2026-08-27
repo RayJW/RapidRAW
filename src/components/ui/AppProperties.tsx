@@ -189,6 +189,8 @@ export interface AppSettings {
   aiProvider?: string;
   decorations?: any;
   editorPreviewResolution?: number;
+  smallThumbnailResolution?: number;
+  mediumThumbnailResolution?: number;
   enableZoomHifi?: boolean;
   useFullDpiRendering?: boolean;
   highResZoomMultiplier?: number;

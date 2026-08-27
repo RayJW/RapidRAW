@@ -1760,6 +1760,8 @@
       "livePreviewQualityDesc": "Zarządza rozdzielczością i kompresją obrazu podczas przesuwania suwaków. Niższa jakość znacząco poprawia czas reakcji.",
       "livePreviews": "Interaktywny podgląd na żywo",
       "livePreviewsDesc": "Podgląd jest aktualizowany natychmiast podczas przesuwania suwaków. Wyłącz to ustawienie, jeśli interfejs zacina się w trakcie edycji.",
+      "mediumThumbnailRes": "Rozdzielczość miniatury edytora",
+      "mediumThumbnailResDesc": "Rozdzielczość podglądu wyświetlanego podczas ładowania pełnych obrazów w edytorze.",
       "modes": {
         "dynamic": "Dynamiczny",
         "static": "Stała rozdzielczość"
@@ -1808,6 +1810,8 @@
       "renderScaleDesc": "Skaluje rozdzielczość względem twojego ekranu. Niższe wartości poprawiają wydajność na ekranach o wysokiej rozdzielczości kosztem ostrości.",
       "restartRequired": "Zmiany w silniku przetwarzania wymagają ponownego uruchomienia aplikacji, aby odniosły skutek.",
       "saveRelaunch": "Zapisz i uruchom ponownie",
+      "smallThumbnailRes": "Rozdzielczość miniatur w siatce",
+      "smallThumbnailResDesc": "Rozdzielczość miniatur wyświetlanych w siatce biblioteki.",
       "staticDesc": "Edytor renderuje obraz w stałej rozdzielczości. Ten tryb jest najszybszy i najbardziej spójny, idealny dla słabszych komputerów, gdzie priorytetem jest płynne działanie a nie perfekcyjna jakość po zbliżeniu.",
       "staticPreviewRes": "Rozdzielczość statycznego podglądu",
       "staticPreviewResDesc": "Określa rozdzielczość dla statycznych podglądów, takich jak tryb kadrowania i narzędzia perspektywy. Nie wpływa to na podgląd głównego edytora.",

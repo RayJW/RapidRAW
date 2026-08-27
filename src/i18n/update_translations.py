@@ -5,197 +5,132 @@ LOCALES_DIR = Path("./locales")
 
 TRANSLATIONS = {
     "ca": {
-        "editor": {
-            "ai": {
-                "patches": {
-                    "retouch": "Retoc {{count}}"
-                },
-                "touchUpTitle": "Retocs"
-            }
-        },
-        "masks": {
-            "types": {
-                "retouch": "Retoc"
+        "settings": {
+            "processing": {
+                "smallThumbnailRes": "Resolució de les miniatures de la quadrícula",
+                "smallThumbnailResDesc": "Resolució de les miniatures que es mostren a la quadrícula de la biblioteca.",
+                "mediumThumbnailRes": "Resolució de la miniatura de l'editor",
+                "mediumThumbnailResDesc": "Resolució de la previsualització que es mostra mentre les imatges completes es carreguen a l'editor."
             }
         }
     },
     "de": {
-        "editor": {
-            "ai": {
-                "patches": {
-                    "retouch": "Retusche {{count}}"
-                },
-                "touchUpTitle": "Ausbessern"
-            }
-        },
-        "masks": {
-            "types": {
-                "retouch": "Retuschieren"
+        "settings": {
+            "processing": {
+                "smallThumbnailRes": "Raster-Miniaturbild-Auflösung",
+                "smallThumbnailResDesc": "Auflösung der Miniaturbilder, die im Bibliotheksraster angezeigt werden.",
+                "mediumThumbnailRes": "Editor-Miniaturbild-Auflösung",
+                "mediumThumbnailResDesc": "Auflösung der Vorschau, die während des Ladens von vollständigen Bildern im Editor angezeigt wird."
             }
         }
     },
     "en": {
-        "editor": {
-            "ai": {
-                "patches": {
-                    "retouch": "Retouch {{count}}"
-                },
-                "touchUpTitle": "Touch Up"
-            }
-        },
-        "masks": {
-            "types": {
-                "retouch": "Retouch"
+        "settings": {
+            "processing": {
+                "smallThumbnailRes": "Grid Thumbnail Resolution",
+                "smallThumbnailResDesc": "Resolution of thumbnails shown in the library grid.",
+                "mediumThumbnailRes": "Editor Thumbnail Resolution",
+                "mediumThumbnailResDesc": "Resolution of the preview shown while full images load in the editor."
             }
         }
     },
     "es": {
-        "editor": {
-            "ai": {
-                "patches": {
-                    "retouch": "Retoque {{count}}"
-                },
-                "touchUpTitle": "Retoques"
-            }
-        },
-        "masks": {
-            "types": {
-                "retouch": "Retocar"
+        "settings": {
+            "processing": {
+                "smallThumbnailRes": "Resolución de miniaturas de la cuadrícula",
+                "smallThumbnailResDesc": "Resolución de las miniaturas mostradas en la cuadrícula de la biblioteca.",
+                "mediumThumbnailRes": "Resolución de miniaturas del editor",
+                "mediumThumbnailResDesc": "Resolución de la vista previa mostrada mientras se cargan imágenes completas en el editor."
             }
         }
     },
     "fr": {
-        "editor": {
-            "ai": {
-                "patches": {
-                    "retouch": "Retouche {{count}}"
-                },
-                "touchUpTitle": "Retouches"
-            }
-        },
-        "masks": {
-            "types": {
-                "retouch": "Retouche"
+        "settings": {
+            "processing": {
+                "smallThumbnailRes": "Résolution des vignettes de la grille",
+                "smallThumbnailResDesc": "Résolution des vignettes affichées dans la grille de la bibliothèque.",
+                "mediumThumbnailRes": "Résolution des vignettes de l'éditeur",
+                "mediumThumbnailResDesc": "Résolution de l'aperçu affiché pendant le chargement complet des images dans l'éditeur."
             }
         }
     },
     "it": {
-        "editor": {
-            "ai": {
-                "patches": {
-                    "retouch": "Ritocco {{count}}"
-                },
-                "touchUpTitle": "Ritocchi"
-            }
-        },
-        "masks": {
-            "types": {
-                "retouch": "Ritocco"
+        "settings": {
+            "processing": {
+                "smallThumbnailRes": "Risoluzione delle miniature della griglia",
+                "smallThumbnailResDesc": "Risoluzione delle miniature mostrate nella griglia della libreria.",
+                "mediumThumbnailRes": "Risoluzione della miniatura dell'editor",
+                "mediumThumbnailResDesc": "Risoluzione dell'anteprima mostrata mentre le immagini complete vengono caricate nell'editor."
             }
         }
     },
     "ja": {
-        "editor": {
-            "ai": {
-                "patches": {
-                    "retouch": "レタッチ {{count}}"
-                },
-                "touchUpTitle": "タッチアップ"
-            }
-        },
-        "masks": {
-            "types": {
-                "retouch": "レタッチ"
+        "settings": {
+            "processing": {
+                "smallThumbnailRes": "グリッドサムネイルの解像度",
+                "smallThumbnailResDesc": "ライブラリのグリッドに表示されるサムネイルの解像度。",
+                "mediumThumbnailRes": "エディターサムネイルの解像度",
+                "mediumThumbnailResDesc": "完全な画像がエディターに読み込まれる間に表示されるプレビューの解像度。"
             }
         }
     },
     "ko": {
-        "editor": {
-            "ai": {
-                "patches": {
-                    "retouch": "리터칭 {{count}}"
-                },
-                "touchUpTitle": "터치업"
-            }
-        },
-        "masks": {
-            "types": {
-                "retouch": "리터칭"
+        "settings": {
+            "processing": {
+                "smallThumbnailRes": "그리드 썸네일 해상도",
+                "smallThumbnailResDesc": "라이브러리 그리드에 표시되는 썸네일의 해상도입니다.",
+                "mediumThumbnailRes": "편집기 썸네일 해상도",
+                "mediumThumbnailResDesc": "전체 이미지가 편집기에 로드되는 동안 표시되는 미리보기의 해상도입니다."
             }
         }
     },
     "pl": {
-        "editor": {
-            "ai": {
-                "patches": {
-                    "retouch": "Retusz {{count}}"
-                },
-                "touchUpTitle": "Poprawki"
-            }
-        },
-        "masks": {
-            "types": {
-                "retouch": "Retusz"
+        "settings": {
+            "processing": {
+                "smallThumbnailRes": "Rozdzielczość miniatur w siatce",
+                "smallThumbnailResDesc": "Rozdzielczość miniatur wyświetlanych w siatce biblioteki.",
+                "mediumThumbnailRes": "Rozdzielczość miniatury edytora",
+                "mediumThumbnailResDesc": "Rozdzielczość podglądu wyświetlanego podczas ładowania pełnych obrazów w edytorze."
             }
         }
     },
     "pt": {
-        "editor": {
-            "ai": {
-                "patches": {
-                    "retouch": "Retoque {{count}}"
-                },
-                "touchUpTitle": "Retoques"
-            }
-        },
-        "masks": {
-            "types": {
-                "retouch": "Retoque"
+        "settings": {
+            "processing": {
+                "smallThumbnailRes": "Resolução das miniaturas da grade",
+                "smallThumbnailResDesc": "Resolução das miniaturas exibidas na grade da biblioteca.",
+                "mediumThumbnailRes": "Resolução da miniatura do editor",
+                "mediumThumbnailResDesc": "Resolução da visualização exibida enquanto as imagens completas carregam no editor."
             }
         }
     },
     "ru": {
-        "editor": {
-            "ai": {
-                "patches": {
-                    "retouch": "Ретушь {{count}}"
-                },
-                "touchUpTitle": "Ретушь"
-            }
-        },
-        "masks": {
-            "types": {
-                "retouch": "Ретушь"
+        "settings": {
+            "processing": {
+                "smallThumbnailRes": "Разрешение миниатюр в сетке",
+                "smallThumbnailResDesc": "Разрешение миниатюр, отображаемых в сетке библиотеки.",
+                "mediumThumbnailRes": "Разрешение миниатюр в редакторе",
+                "mediumThumbnailResDesc": "Разрешение превью, отображаемого при загрузке полных изображений в редакторе."
             }
         }
     },
     "zh-CN": {
-        "editor": {
-            "ai": {
-                "patches": {
-                    "retouch": "修饰 {{count}}"
-                },
-                "touchUpTitle": "润色"
-            }
-        },
-        "masks": {
-            "types": {
-                "retouch": "修饰"
+        "settings": {
+            "processing": {
+                "smallThumbnailRes": "网格缩略图分辨率",
+                "smallThumbnailResDesc": "图库网格中显示的缩略图分辨率。",
+                "mediumThumbnailRes": "编辑器缩略图分辨率",
+                "mediumThumbnailResDesc": "在编辑器中加载完整图像时显示的预览分辨率。"
             }
         }
     },
     "zh-TW": {
-        "editor": {
-            "ai": {
-                "patches": {
-                    "retouch": "修飾 {{count}}"
-                },
-                "touchUpTitle": "潤色"
-            }
-        },
-        "masks": {
-            "types": {
-                "retouch": "修飾"
+        "settings": {
+            "processing": {
+                "smallThumbnailRes": "網格縮圖解析度",
+                "smallThumbnailResDesc": "圖庫網格中顯示的縮圖解析度。",
+                "mediumThumbnailRes": "編輯器縮圖解析度",
+                "mediumThumbnailResDesc": "在編輯器中載入完整影像時顯示的預覽解析度。"
             }
         }
     }
@@ -244,7 +179,7 @@ def main():
         print(f"Error: Locales directory '{LOCALES_DIR}' does not exist.")
         return
 
-    print("Starting translation updates for Retouch strings...")
+    print("Starting translation updates for Thumbnail Resolution settings...")
     for lang, trans in TRANSLATIONS.items():
         file_path = LOCALES_DIR / f"{lang}.json"
         update_json_file(file_path, trans)

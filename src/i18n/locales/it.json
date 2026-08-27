@@ -1725,6 +1725,8 @@
       "livePreviewQualityDesc": "Controlla la risoluzione e la compressione dell'immagine mentre trascini i cursori. Una qualità inferiore migliora significativamente la reattività.",
       "livePreviews": "Anteprime Interattive dal Vivo",
       "livePreviewsDesc": "Aggiorna l'anteprima immediatamente mentre si trascinano i cursori. Disabilita se l'interfaccia risulta lenta durante le regolazioni.",
+      "mediumThumbnailRes": "Risoluzione della miniatura dell'editor",
+      "mediumThumbnailResDesc": "Risoluzione dell'anteprima mostrata mentre le immagini complete vengono caricate nell'editor.",
       "modes": {
         "dynamic": "Dinamica",
         "static": "Risoluzione Fissa"
@@ -1773,6 +1775,8 @@
       "renderScaleDesc": "Scala la risoluzione del render rispetto al tuo display. Valori inferiori migliorano le prestazioni sugli schermi ad alta risoluzione a scapito di una minore nitidezza.",
       "restartRequired": "Le modifiche al motore di elaborazione richiedono il riavvio dell'applicazione per avere effetto.",
       "saveRelaunch": "Salva e Riavvia",
+      "smallThumbnailRes": "Risoluzione delle miniature della griglia",
+      "smallThumbnailResDesc": "Risoluzione delle miniature mostrate nella griglia della libreria.",
       "staticDesc": "L'editor renderizza l'immagine a una risoluzione fissa. Questa modalità è la più veloce e coerente, rendendola ideale per hardware meno potenti dove si privilegia una prestazione fluida rispetto a uno zoom perfetto al pixel.",
       "staticPreviewRes": "Risoluzione Anteprima Statica",
       "staticPreviewResDesc": "Imposta la risoluzione per le anteprime statiche come la modalità ritaglio, la correzione obiettivo e gli strumenti di prospettiva. Non influisce sull'anteprima principale dell'editor.",

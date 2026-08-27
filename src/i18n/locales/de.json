@@ -1692,6 +1692,8 @@
       "livePreviewQualityDesc": "Steuert die Auflösung beim Ziehen von Reglern. Niedrigere Qualität verbessert die Reaktionsfähigkeit erheblich.",
       "livePreviews": "Interaktive Live-Vorschauen",
       "livePreviewsDesc": "Aktualisiert die Vorschau sofort beim Ziehen von Reglern. Deaktivieren, wenn die Oberfläche beim Anpassen träge ist.",
+      "mediumThumbnailRes": "Editor-Miniaturbild-Auflösung",
+      "mediumThumbnailResDesc": "Auflösung der Vorschau, die während des Ladens von vollständigen Bildern im Editor angezeigt wird.",
       "modes": {
         "dynamic": "Dynamisch",
         "static": "Feste Auflösung"
@@ -1740,6 +1742,8 @@
       "renderScaleDesc": "Skaliert die Renderauflösung relativ zu Ihrem Display. Niedrigere Werte verbessern die Leistung auf hochauflösenden Bildschirmen.",
       "restartRequired": "Änderungen an der Verarbeitungs-Engine erfordern einen Neustart der Anwendung.",
       "saveRelaunch": "Speichern & Neu starten",
+      "smallThumbnailRes": "Raster-Miniaturbild-Auflösung",
+      "smallThumbnailResDesc": "Auflösung der Miniaturbilder, die im Bibliotheksraster angezeigt werden.",
       "staticDesc": "Der Editor rendert das Bild in einer festen Auflösung. Dieser Modus ist am schnellsten und am besten für schwächere Hardware geeignet.",
       "staticPreviewRes": "Statische Vorschauauflösung",
       "staticPreviewResDesc": "Legt die Auflösung für statische Vorschauen wie Zuschnitt und Perspektive fest. Beeinflusst nicht die Hauptvorschau.",

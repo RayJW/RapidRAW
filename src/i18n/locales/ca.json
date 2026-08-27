@@ -1692,6 +1692,8 @@
       "livePreviewQualityDesc": "Controla la resolució i compressió de la imatge quan s'arrosseguen els controls lliscants. Una qualitat inferior millora significativament la resposta.",
       "livePreviews": "Vistes prèvies interactives en directe",
       "livePreviewsDesc": "Actualitza la vista prèvia de manera immediata mentre s'arrosseguen els controls lliscants. Desactiveu això si la interfície sembla lenta durant els ajustaments.",
+      "mediumThumbnailRes": "Resolució de la miniatura de l'editor",
+      "mediumThumbnailResDesc": "Resolució de la previsualització que es mostra mentre les imatges completes es carreguen a l'editor.",
       "modes": {
         "dynamic": "Dinàmica",
         "static": "Resolució fixa"
@@ -1740,6 +1742,8 @@
       "renderScaleDesc": "Escala la resolució de renderització respecte a la vostra pantalla. Valors més baixos milloren el rendiment en pantalles d'alta resolució a canvi d'una mica de pèrdua de nitidesa.",
       "restartRequired": "Els canvis al motor de processament requereixen reiniciar l'aplicació per fer efecte.",
       "saveRelaunch": "Desar i Reiniciar",
+      "smallThumbnailRes": "Resolució de les miniatures de la quadrícula",
+      "smallThumbnailResDesc": "Resolució de les miniatures que es mostren a la quadrícula de la biblioteca.",
       "staticDesc": "L'editor renderitza la imatge a una resolució fixa. Aquest mode és el més ràpid i consistent, la qual cosa el fa ideal per a maquinari de gamma baixa on es prioritza el rendiment suau per damunt d'un zoom amb píxels perfectes.",
       "staticPreviewRes": "Resolució de la vista prèvia estàtica",
       "staticPreviewResDesc": "Estableix la resolució per a les vistes prèvies estàtiques com ara el mode de retall, la correcció de l'objectiu i les eines de perspectiva. No afecta la vista prèvia principal de l'editor.",
