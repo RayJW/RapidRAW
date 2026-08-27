@@ -412,6 +412,7 @@
       "params": {
         "feather": "Растушевка",
         "grow": "Расширение",
+        "intensity": "Интенсивность",
         "pressure": "Нажим"
       },
       "patches": {

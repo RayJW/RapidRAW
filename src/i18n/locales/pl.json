@@ -412,6 +412,7 @@
       "params": {
         "feather": "Wtapianie",
         "grow": "Rozszerzanie",
+        "intensity": "Intensywność",
         "pressure": "Nacisk"
       },
       "patches": {

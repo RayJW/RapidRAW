@@ -380,6 +380,7 @@
       "params": {
         "feather": "ぼかし",
         "grow": "拡張",
+        "intensity": "強度",
         "pressure": "圧力"
       },
       "patches": {

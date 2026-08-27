@@ -380,6 +380,7 @@
       "params": {
         "feather": "Esvaïment",
         "grow": "Expandir",
+        "intensity": "Intensitat",
         "pressure": "Pressió"
       },
       "patches": {

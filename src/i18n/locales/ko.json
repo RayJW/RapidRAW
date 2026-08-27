@@ -380,6 +380,7 @@
       "params": {
         "feather": "페더",
         "grow": "확장",
+        "intensity": "강도",
         "pressure": "압력"
       },
       "patches": {

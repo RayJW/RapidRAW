@@ -380,6 +380,7 @@
       "params": {
         "feather": "羽化",
         "grow": "擴張",
+        "intensity": "強度",
         "pressure": "壓力"
       },
       "patches": {

@@ -396,6 +396,7 @@
       "params": {
         "feather": "Sfumatura",
         "grow": "Espandi",
+        "intensity": "Intensità",
         "pressure": "Pressione"
       },
       "patches": {

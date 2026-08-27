@@ -396,6 +396,7 @@
       "params": {
         "feather": "Desvanecimiento",
         "grow": "Expandir",
+        "intensity": "Intensidad",
         "pressure": "Presión"
       },
       "patches": {

@@ -102,6 +102,7 @@ fn calculate_mask_bounds(
     Ok((min_x, max_x, min_y, max_y))
 }
 
+#[allow(clippy::too_many_arguments)]
 fn encode_patch_result(
     color_image: &RgbImage,
     mask_image: &image::GrayImage,
@@ -1190,80 +1191,128 @@ pub async fn generate_retouch_patch(
     let crop_w = max_x_u32 - min_x_u32 + 1;
     let crop_h = max_y_u32 - min_y_u32 + 1;
 
-    let mut color_image = RgbImage::new(crop_w, crop_h);
-    let mut mask_image = image::GrayImage::new(crop_w, crop_h);
     let orig_crop =
         image::imageops::crop_imm(&source_image, min_x_u32, min_y_u32, crop_w, crop_h).to_image();
+    let orig_raw = orig_crop.as_raw();
 
+    let mut mask_pixels = vec![0u8; (crop_w * crop_h) as usize];
     for y in 0..crop_h {
         for x in 0..crop_w {
             let m_val = mask_canvas[((y + min_y_u32) * img_w + (x + min_x_u32)) as usize];
-            mask_image.put_pixel(x, y, image::Luma([m_val]));
-            color_image.put_pixel(x, y, *orig_crop.get_pixel(x, y));
+            mask_pixels[(y * crop_w + x) as usize] = m_val;
         }
     }
 
-    let sig_s = (intensity * 0.15).max(1.0);
-    let sig_c = 35.0;
+    let norm_intensity = (intensity / 100.0).clamp(0.05, 1.0);
+    let sig_s = (1.0 + norm_intensity * 6.0).clamp(1.2, 8.0);
+    let sig_c = (8.0 + norm_intensity * 20.0).clamp(8.0, 28.0);
+
+    let sig_s_sq = sig_s * sig_s;
+    let sig_c_sq = sig_c * sig_c;
+
     let r = (sig_s * 2.0).ceil() as i32;
+    let window_size = (2 * r + 1) as usize;
 
-    let lf = image::imageops::blur(&orig_crop, 1.5);
+    let mut spatial_weights = vec![0.0_f32; window_size * window_size];
+    for dy in -r..=r {
+        for dx in -r..=r {
+            let dist_s = (dx * dx + dy * dy) as f32;
+            let w = (-dist_s / (2.0 * sig_s_sq)).exp();
+            let idx = ((dy + r) as usize) * window_size + ((dx + r) as usize);
+            spatial_weights[idx] = w;
+        }
+    }
 
-    for y in 0..crop_h {
-        for x in 0..crop_w {
-            let m = mask_image.get_pixel(x, y)[0] as f32 / 255.0;
-            if m > 0.0 {
-                let ctr = orig_crop.get_pixel(x, y);
-                let mut sum_w = 0.0;
-                let mut sum_c = [0.0; 3];
+    let max_color_dist_sq = 3 * 255 * 255;
+    let mut color_weights = vec![0.0_f32; max_color_dist_sq + 1];
+    for i in 0..=max_color_dist_sq {
+        color_weights[i] = (-(i as f32) / (2.0 * sig_c_sq)).exp();
+    }
 
-                let y_min = (y as i32 - r).max(0);
-                let y_max = (y as i32 + r).min(crop_h as i32 - 1);
-                let x_min = (x as i32 - r).max(0);
-                let x_max = (x as i32 + r).min(crop_w as i32 - 1);
+    let mut color_pixels = vec![0u8; (crop_w * crop_h * 3) as usize];
+    let crop_w_i32 = crop_w as i32;
+    let crop_h_i32 = crop_h as i32;
+    let crop_w_usize = crop_w as usize;
+
+    color_pixels
+        .par_chunks_mut(crop_w_usize * 3)
+        .enumerate()
+        .for_each(|(y, row_out)| {
+            let y_i32 = y as i32;
+
+            for x in 0..crop_w_usize {
+                let m_val = mask_pixels[y * crop_w_usize + x];
+                let px_idx = (y * crop_w_usize + x) * 3;
+
+                if m_val == 0 {
+                    row_out[x * 3] = orig_raw[px_idx];
+                    row_out[x * 3 + 1] = orig_raw[px_idx + 1];
+                    row_out[x * 3 + 2] = orig_raw[px_idx + 2];
+                    continue;
+                }
+
+                let m = m_val as f32 / 255.0;
+                let smooth_m = m * m * (3.0 - 2.0 * m);
+                let blend_factor = smooth_m * (0.3 + norm_intensity * 0.7);
+
+                let ctr_r = orig_raw[px_idx] as i32;
+                let ctr_g = orig_raw[px_idx + 1] as i32;
+                let ctr_b = orig_raw[px_idx + 2] as i32;
+
+                let mut sum_w = 0.0_f32;
+                let mut sum_r = 0.0_f32;
+                let mut sum_g = 0.0_f32;
+                let mut sum_b = 0.0_f32;
+
+                let x_i32 = x as i32;
+                let y_min = (y_i32 - r).max(0);
+                let y_max = (y_i32 + r).min(crop_h_i32 - 1);
+                let x_min = (x_i32 - r).max(0);
+                let x_max = (x_i32 + r).min(crop_w_i32 - 1);
 
                 for ny in y_min..=y_max {
+                    let dy = ny - y_i32;
+                    let wy_offset = (dy + r) as usize * window_size;
+                    let row_offset = (ny as usize) * crop_w_usize;
+
                     for nx in x_min..=x_max {
-                        let px = orig_crop.get_pixel(nx as u32, ny as u32);
-                        let dx = nx as f32 - x as f32;
-                        let dy = ny as f32 - y as f32;
-                        let dist_s = dx * dx + dy * dy;
+                        let dx = nx - x_i32;
+                        let spatial_w = spatial_weights[wy_offset + (dx + r) as usize];
 
-                        let dr = px[0] as f32 - ctr[0] as f32;
-                        let dg = px[1] as f32 - ctr[1] as f32;
-                        let db = px[2] as f32 - ctr[2] as f32;
-                        let dist_c = dr * dr + dg * dg + db * db;
+                        let n_idx = (row_offset + nx as usize) * 3;
+                        let pr = orig_raw[n_idx] as i32;
+                        let pg = orig_raw[n_idx + 1] as i32;
+                        let pb = orig_raw[n_idx + 2] as i32;
 
-                        let w = (-dist_s / (2.0 * sig_s * sig_s) - dist_c / (2.0 * sig_c * sig_c))
-                            .exp();
+                        let dr = pr - ctr_r;
+                        let dg = pg - ctr_g;
+                        let db = pb - ctr_b;
+
+                        let color_dist_sq = (dr * dr + dg * dg + db * db) as usize;
+                        let w = spatial_w * color_weights[color_dist_sq];
+
                         sum_w += w;
-                        sum_c[0] += px[0] as f32 * w;
-                        sum_c[1] += px[1] as f32 * w;
-                        sum_c[2] += px[2] as f32 * w;
+                        sum_r += (pr as f32) * w;
+                        sum_g += (pg as f32) * w;
+                        sum_b += (pb as f32) * w;
                     }
                 }
 
-                let base_r = sum_c[0] / sum_w;
-                let base_g = sum_c[1] / sum_w;
-                let base_b = sum_c[2] / sum_w;
+                let base_r = sum_r / sum_w;
+                let base_g = sum_g / sum_w;
+                let base_b = sum_b / sum_w;
 
-                let lf_px = lf.get_pixel(x, y);
-                let tex_r = ctr[0] as f32 - lf_px[0] as f32;
-                let tex_g = ctr[1] as f32 - lf_px[1] as f32;
-                let tex_b = ctr[2] as f32 - lf_px[2] as f32;
-
-                let mix_r = (base_r + tex_r).clamp(0.0, 255.0);
-                let mix_g = (base_g + tex_g).clamp(0.0, 255.0);
-                let mix_b = (base_b + tex_b).clamp(0.0, 255.0);
-
-                let out_r = (ctr[0] as f32 * (1.0 - m) + mix_r * m) as u8;
-                let out_g = (ctr[1] as f32 * (1.0 - m) + mix_g * m) as u8;
-                let out_b = (ctr[2] as f32 * (1.0 - m) + mix_b * m) as u8;
-
-                color_image.put_pixel(x, y, Rgb([out_r, out_g, out_b]));
+                row_out[x * 3] = ((ctr_r as f32) * (1.0 - blend_factor) + base_r * blend_factor)
+                    .clamp(0.0, 255.0) as u8;
+                row_out[x * 3 + 1] = ((ctr_g as f32) * (1.0 - blend_factor) + base_g * blend_factor)
+                    .clamp(0.0, 255.0) as u8;
+                row_out[x * 3 + 2] = ((ctr_b as f32) * (1.0 - blend_factor) + base_b * blend_factor)
+                    .clamp(0.0, 255.0) as u8;
             }
-        }
-    }
+        });
+
+    let color_image = RgbImage::from_raw(crop_w, crop_h, color_pixels).unwrap();
+    let mask_image = image::GrayImage::from_raw(crop_w, crop_h, mask_pixels).unwrap();
 
     encode_patch_result(
         &color_image,

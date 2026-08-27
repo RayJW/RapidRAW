@@ -380,6 +380,7 @@
       "params": {
         "feather": "Weiche Kante",
         "grow": "Erweitern",
+        "intensity": "Intensität",
         "pressure": "Druck"
       },
       "patches": {

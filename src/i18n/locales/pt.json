@@ -396,6 +396,7 @@
       "params": {
         "feather": "Difusão",
         "grow": "Expandir",
+        "intensity": "Intensidade",
         "pressure": "Pressão"
       },
       "patches": {

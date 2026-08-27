@@ -380,6 +380,7 @@
       "params": {
         "feather": "Feather",
         "grow": "Grow",
+        "intensity": "Intensity",
         "pressure": "Pressure"
       },
       "patches": {

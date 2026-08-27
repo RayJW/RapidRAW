@@ -396,6 +396,7 @@
       "params": {
         "feather": "Contour progressif",
         "grow": "Agrandir",
+        "intensity": "Intensité",
         "pressure": "Pression"
       },
       "patches": {
