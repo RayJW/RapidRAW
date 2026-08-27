@@ -6,7 +6,7 @@ import { invoke } from '@tauri-apps/api/core';
 import debounce from 'lodash.debounce';
 
 import { ImageDimensions, RenderSize, useImageRenderSize } from '../../hooks/useImageRenderSize';
-import { Adjustments, AiPatch, MaskContainer } from '../../utils/adjustments';
+import { Adjustments, AiPatch, MaskContainer, INITIAL_ADJUSTMENTS } from '../../utils/adjustments';
 import {
   calculateCenteredCrop,
   getOrientedDimensions,
@@ -93,7 +93,6 @@ export default function Editor({ onBackToLibrary, onContextMenu, onImageSelect, 
   const adjustmentsHistoryIndex = useEditorStore((s) => s.historyIndex);
   const finalPreviewUrl = useEditorStore((s) => s.finalPreviewUrl);
   const uncroppedAdjustedPreviewUrl = useEditorStore((s) => s.uncroppedAdjustedPreviewUrl);
-  const transformedOriginalUrl = useEditorStore((s) => s.transformedOriginalUrl);
   const interactivePatch = useEditorStore((s) => s.interactivePatch);
   const showOriginal = useEditorStore((s) => s.showOriginal);
   const isSliderDragging = useEditorStore((s) => s.isSliderDragging);
@@ -131,7 +130,10 @@ export default function Editor({ onBackToLibrary, onContextMenu, onImageSelect, 
         const prevAdjustments = state.adjustments;
         const newAdjustments = typeof value === 'function' ? value(prevAdjustments) : { ...prevAdjustments, ...value };
         debouncedSetHistory(newAdjustments);
-        return { adjustments: newAdjustments };
+        return {
+          adjustments: newAdjustments,
+          ...(state.showOriginal ? { showOriginal: false, previewOverride: null } : {}),
+        };
       });
     },
     [debouncedSetHistory, setEditor],
@@ -226,10 +228,48 @@ export default function Editor({ onBackToLibrary, onContextMenu, onImageSelect, 
     };
   }, []);
 
-  const toggleShowOriginal = useCallback(
-    () => setEditor((state) => ({ showOriginal: !state.showOriginal })),
-    [setEditor],
-  );
+  const toggleShowOriginal = useCallback(() => {
+    setEditor((state) => {
+      const isShowing = !state.showOriginal;
+
+      if (isShowing) {
+        const override = { ...INITIAL_ADJUSTMENTS };
+        const geometryKeys: Array<keyof Adjustments> = [
+          'crop',
+          'rotation',
+          'flipHorizontal',
+          'flipVertical',
+          'orientationSteps',
+          'aspectRatio',
+          'transformDistortion',
+          'transformVertical',
+          'transformHorizontal',
+          'transformRotate',
+          'transformAspect',
+          'transformScale',
+          'transformXOffset',
+          'transformYOffset',
+          'lensDistortionAmount',
+          'lensVignetteAmount',
+          'lensTcaAmount',
+          'lensDistortionParams',
+          'lensMaker',
+          'lensModel',
+          'lensDistortionEnabled',
+          'lensTcaEnabled',
+          'lensVignetteEnabled',
+        ];
+
+        geometryKeys.forEach((key) => {
+          (override as any)[key] = state.adjustments[key];
+        });
+
+        return { showOriginal: true, previewOverride: override };
+      } else {
+        return { showOriginal: false, previewOverride: null };
+      }
+    });
+  }, [setEditor]);
 
   const handleToggleFullScreen = useCallback(() => {
     const currentlyZoomed = targetZoom > 1.01;
@@ -1024,16 +1064,6 @@ export default function Editor({ onBackToLibrary, onContextMenu, onImageSelect, 
     },
     [isCropping, isMasking, isAiEditing, isWbPickerActive, animateTransform, straightenDragLine],
   );
-
-  useEffect(() => {
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      return;
-    }
-    if (showOriginal) {
-      setEditor({ showOriginal: false });
-    }
-  }, [adjustments, setEditor]);
 
   useEffect(() => {
     if (!isMasking && !isAiEditing) {
@@ -2152,7 +2182,6 @@ export default function Editor({ onBackToLibrary, onContextMenu, onImageSelect, 
             setIsMaskHovered={setIsMaskHovered}
             setIsMaskTouchInteracting={setIsMaskTouchInteracting}
             showOriginal={showOriginal}
-            transformedOriginalUrl={transformedOriginalUrl}
             uncroppedAdjustedPreviewUrl={uncroppedAdjustedPreviewUrl}
             updateSubMask={updateSubMaskLocal}
             isWbPickerActive={isWbPickerActive}

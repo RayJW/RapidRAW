@@ -855,62 +855,6 @@ fn generate_uncropped_preview(
 }
 
 #[tauri::command]
-fn generate_original_transformed_preview(
-    js_adjustments: serde_json::Value,
-    target_resolution: Option<u32>,
-    state: tauri::State<AppState>,
-    app_handle: tauri::AppHandle,
-) -> Result<String, String> {
-    let loaded_image = state
-        .original_image
-        .lock()
-        .unwrap()
-        .clone()
-        .ok_or("No original image loaded")?;
-
-    let mut adjustments_clone = js_adjustments.clone();
-
-    if let Some(obj) = adjustments_clone.as_object_mut() {
-        obj.insert(
-            "lensBlurEnabled".to_string(),
-            serde_json::Value::Bool(false),
-        );
-    }
-
-    hydrate_adjustments(&state, &mut adjustments_clone);
-
-    let mut image_for_preview = loaded_image.image.as_ref().clone();
-    if loaded_image.is_raw {
-        apply_cpu_default_raw_processing(&mut image_for_preview);
-    }
-
-    let (transformed_full_res, _unscaled_crop_offset) =
-        apply_all_transformations(Cow::Borrowed(&image_for_preview), &adjustments_clone);
-
-    let settings = load_settings(app_handle).unwrap_or_default();
-    let default_dim = settings.editor_preview_resolution.unwrap_or(1920);
-    let preview_dim = target_resolution.unwrap_or(default_dim);
-
-    let (w, h) = transformed_full_res.dimensions();
-    let transformed_image = if w > preview_dim || h > preview_dim {
-        downscale_f32_image(transformed_full_res.as_ref(), preview_dim, preview_dim)
-    } else {
-        transformed_full_res.into_owned()
-    };
-
-    let (width, height) = transformed_image.dimensions();
-    let rgb_pixels = transformed_image.to_rgb8().into_vec();
-
-    let bytes = Encoder::new(Preset::BaselineFastest)
-        .quality(80)
-        .encode_rgb(&rgb_pixels, width, height)
-        .map_err(|e| format!("Failed to encode with mozjpeg-rs: {}", e))?;
-
-    let base64_str = general_purpose::STANDARD.encode(&bytes);
-    Ok(format!("data:image/jpeg;base64,{}", base64_str))
-}
-
-#[tauri::command]
 async fn preview_geometry_transform(
     params: GeometryParams,
     js_adjustments: serde_json::Value,
@@ -2310,7 +2254,6 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             apply_adjustments,
             generate_preview_for_path,
-            generate_original_transformed_preview,
             generate_preset_preview,
             generate_uncropped_preview,
             preview_geometry_transform,

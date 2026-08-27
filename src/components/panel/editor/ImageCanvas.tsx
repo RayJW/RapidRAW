@@ -62,7 +62,6 @@ interface ImageCanvasProps {
   setIsMaskHovered(isHovered: boolean): void;
   setIsMaskTouchInteracting(isInteracting: boolean): void;
   showOriginal: boolean;
-  transformedOriginalUrl: string | null;
   uncroppedAdjustedPreviewUrl: string | null;
   updateSubMask(id: string | null, subMask: Partial<SubMask>): void;
   interactivePatch?: { url: string; normX: number; normY: number; normW: number; normH: number } | null;
@@ -1319,7 +1318,6 @@ const ImageCanvas = memo(
     setIsMaskHovered,
     setIsMaskTouchInteracting,
     showOriginal,
-    transformedOriginalUrl,
     uncroppedAdjustedPreviewUrl,
     updateSubMask,
     isWbPickerActive = false,
@@ -1336,7 +1334,6 @@ const ImageCanvas = memo(
     const [isCropViewVisible, setIsCropViewVisible] = useState(false);
     const cropImageRef = useRef<HTMLImageElement>(null);
     const [displayedMaskUrl, setDisplayedMaskUrl] = useState<string | null>(null);
-    const [originalLoaded, setOriginalLoaded] = useState<boolean>(false);
     const [localInitialDrawParams, setLocalInitialDrawParams] = useState<any>(null);
     const [isMaskInteractionActive, setIsMaskInteractionActive] = useState(false);
     const [hoveredMarkerId, setHoveredMarkerId] = useState<string | null>(null);
@@ -2618,29 +2615,7 @@ const ImageCanvas = memo(
     };
 
     const cropPreviewUrl = uncroppedAdjustedPreviewUrl || selectedImage.thumbnailUrl;
-    const originalSrc = transformedOriginalUrl;
-    const isShowingOriginal = showOriginal && !!originalSrc;
-
-    useEffect(() => {
-      if (!originalSrc) {
-        setOriginalLoaded(false);
-        return;
-      }
-
-      const img = new Image();
-      img.src = originalSrc;
-
-      if (img.complete) {
-        setOriginalLoaded(true);
-      } else {
-        setOriginalLoaded(false);
-        img.onload = () => setOriginalLoaded(true);
-      }
-
-      return () => {
-        img.onload = null;
-      };
-    }, [originalSrc]);
+    const isShowingOriginal = showOriginal;
 
     const currentTarget = finalPreviewUrl || selectedImage.thumbnailUrl;
     const baseIsReady = displayState.base === currentTarget && !displayState.fade;
@@ -2851,37 +2826,6 @@ const ImageCanvas = memo(
                 )}
               </svg>
 
-              {originalSrc && (
-                <img
-                  alt="Original"
-                  className={
-                    imageRenderSize.width > 0 && imageRenderSize.height > 0
-                      ? 'pointer-events-none'
-                      : 'absolute inset-0 w-full h-full object-contain pointer-events-none'
-                  }
-                  src={originalSrc}
-                  style={
-                    imageRenderSize.width > 0 && imageRenderSize.height > 0
-                      ? {
-                          position: 'absolute',
-                          left: `${imageRenderSize.offsetX}px`,
-                          top: `${imageRenderSize.offsetY}px`,
-                          width: `${imageRenderSize.width}px`,
-                          height: `${imageRenderSize.height}px`,
-                          imageRendering: isMaxZoom ? 'pixelated' : 'auto',
-                          opacity: isShowingOriginal && originalLoaded ? 1 : 0,
-                          transition: originalLoaded ? 'opacity 150ms ease-in-out' : 'none',
-                          zIndex: 2,
-                        }
-                      : {
-                          imageRendering: isMaxZoom ? 'pixelated' : 'auto',
-                          opacity: isShowingOriginal && originalLoaded ? 1 : 0,
-                          transition: originalLoaded ? 'opacity 150ms ease-in-out' : 'none',
-                          zIndex: 2,
-                        }
-                  }
-                />
-              )}
               {displayedMaskUrl && (
                 <img
                   alt="Mask Overlay"

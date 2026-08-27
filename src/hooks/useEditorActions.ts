@@ -38,7 +38,10 @@ export function useEditorActions() {
         const prev = state.adjustments;
         const newAdjustments = typeof value === 'function' ? value(prev) : { ...prev, ...value };
         debouncedSetHistory(newAdjustments);
-        return { adjustments: newAdjustments };
+        return {
+          adjustments: newAdjustments,
+          ...(state.showOriginal ? { showOriginal: false, previewOverride: null } : {}),
+        };
       });
     },
     [setEditor],

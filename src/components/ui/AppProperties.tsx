@@ -334,7 +334,6 @@ export interface SelectedImage {
   isReady: boolean;
   metadata?: any;
   original_base64?: string;
-  originalUrl: string | null;
   path: string;
   thumbnailUrl: string;
   width: number;

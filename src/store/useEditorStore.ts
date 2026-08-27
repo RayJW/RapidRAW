@@ -34,7 +34,6 @@ interface EditorState {
   // Previews & Overlays
   finalPreviewUrl: string | null;
   uncroppedAdjustedPreviewUrl: string | null;
-  transformedOriginalUrl: string | null;
   interactivePatch: InteractivePatch | null;
   showOriginal: boolean;
 
@@ -120,7 +119,6 @@ export const useEditorStore = create<EditorState>((set) => ({
   isRotationActive: false,
   overlayMode: 'thirds',
   overlayRotation: 0,
-  transformedOriginalUrl: null,
   isStraightenActive: false,
   isWbPickerActive: false,
   liveRotation: null,
