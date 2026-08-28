@@ -569,6 +569,8 @@
         "switchToSubtract": "빼기 모드로 전환"
       },
       "addNewMask": "새 마스크 추가",
+      "aiTitle": "AI 선택",
+      "basicTitle": "기본 도구",
       "brush": {
         "brush": "브러시",
         "eraser": "지우개",
@@ -577,7 +579,6 @@
         "size": "브러시 크기"
       },
       "comingSoon": "출시 예정",
-      "createNewTitle": "새 마스크 만들기",
       "depthRange": {
         "far": "멀리",
         "near": "가까이",
@@ -601,6 +602,7 @@
         "maskName_one": "마스크 {{count}}",
         "maskName_other": "마스크 {{count}}"
       },
+      "rangeTitle": "범위 및 글로벌",
       "resetMaskingTooltip": "마스킹 초기화",
       "settings": {
         "aiModelDownloading": "AI 모델 다운로드 중: ",
@@ -623,8 +625,7 @@
       "tooltips": {
         "addToCurrent": "{{name}}을(를) 현재 마스크에 추가하거나 새로 만들기 (우클릭)",
         "createNew": "새 {{name}} 마스크 만들기",
-        "selectNewSourcePoint": "{{modifier}} + 클릭하여 새 소스 포인트 선택",
-        "showMore": "더 많은 마스크 유형 표시"
+        "selectNewSourcePoint": "{{modifier}} + 클릭하여 새 소스 포인트 선택"
       }
     },
     "metadata": {

@@ -571,6 +571,8 @@
         "switchToSubtract": "Switch to Subtract"
       },
       "addNewMask": "Add New Mask",
+      "aiTitle": "AI Selections",
+      "basicTitle": "Basic Tools",
       "brush": {
         "brush": "Brush",
         "eraser": "Eraser",
@@ -579,7 +581,6 @@
         "size": "Brush Size"
       },
       "comingSoon": "Coming Soon",
-      "createNewTitle": "Create New Mask",
       "depthRange": {
         "far": "Far",
         "near": "Near",
@@ -603,6 +604,7 @@
         "maskName_one": "Mask {{count}}",
         "maskName_other": "Mask {{count}}"
       },
+      "rangeTitle": "Ranges & Global",
       "resetMaskingTooltip": "Reset Masking",
       "settings": {
         "aiModelDownloading": "AI Model Downloading: ",
@@ -625,8 +627,7 @@
       "tooltips": {
         "addToCurrent": "Add {{name}} to Current Mask or Create New (Right-click)",
         "createNew": "Create New {{name}} Mask",
-        "selectNewSourcePoint": "{{modifier}} + Click to select a new source point",
-        "showMore": "Show More Mask Types"
+        "selectNewSourcePoint": "{{modifier}} + Click to select a new source point"
       }
     },
     "metadata": {

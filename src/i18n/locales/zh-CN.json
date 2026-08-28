@@ -569,6 +569,8 @@
         "switchToSubtract": "切换到减去"
       },
       "addNewMask": "添加新蒙版",
+      "aiTitle": "AI 选择",
+      "basicTitle": "基本工具",
       "brush": {
         "brush": "画笔",
         "eraser": "橡皮擦",
@@ -577,7 +579,6 @@
         "size": "画笔大小"
       },
       "comingSoon": "即将推出",
-      "createNewTitle": "创建新蒙版",
       "depthRange": {
         "far": "远",
         "near": "近",
@@ -601,6 +602,7 @@
         "maskName_one": "蒙版 {{count}}",
         "maskName_other": "蒙版 {{count}}"
       },
+      "rangeTitle": "范围与全局",
       "resetMaskingTooltip": "重置蒙版",
       "settings": {
         "aiModelDownloading": "AI 模型下载中：",
@@ -623,8 +625,7 @@
       "tooltips": {
         "addToCurrent": "将 {{name}} 添加到当前蒙版或创建新蒙版（右键单击）",
         "createNew": "创建新 {{name}} 蒙版",
-        "selectNewSourcePoint": "{{modifier}} + 点击选择新的源点",
-        "showMore": "显示更多蒙版类型"
+        "selectNewSourcePoint": "{{modifier}} + 点击选择新的源点"
       }
     },
     "metadata": {

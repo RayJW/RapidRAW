@@ -611,6 +611,8 @@
         "switchToSubtract": "Przełącz na Odejmowanie"
       },
       "addNewMask": "Dodaj nową maskę",
+      "aiTitle": "Zaznaczenia AI",
+      "basicTitle": "Podstawowe narzędzia",
       "brush": {
         "brush": "Pędzel",
         "eraser": "Gumka",
@@ -619,7 +621,6 @@
         "size": "Rozmiar pędzla"
       },
       "comingSoon": "Wkrótce",
-      "createNewTitle": "Utwórz nową maskę",
       "depthRange": {
         "far": "Daleko",
         "near": "Blisko",
@@ -645,6 +646,7 @@
         "maskName_one": "Maska {{count}}",
         "maskName_other": "Maska {{count}}"
       },
+      "rangeTitle": "Zakresy i globalne",
       "resetMaskingTooltip": "Resetuj maskowanie",
       "settings": {
         "aiModelDownloading": "Pobieranie modelu AI: ",
@@ -667,8 +669,7 @@
       "tooltips": {
         "addToCurrent": "Dodaj {{name}} do bieżącej maski lub utwórz nową (Prawy przycisk)",
         "createNew": "Utwórz nową maskę {{name}}",
-        "selectNewSourcePoint": "{{modifier}} + Kliknij, aby wybrać nowy punkt źródłowy",
-        "showMore": "Pokaż więcej typów masek"
+        "selectNewSourcePoint": "{{modifier}} + Kliknij, aby wybrać nowy punkt źródłowy"
       }
     },
     "metadata": {

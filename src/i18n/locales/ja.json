@@ -569,6 +569,8 @@
         "switchToSubtract": "減算に切り替え"
       },
       "addNewMask": "新しいマスクを追加",
+      "aiTitle": "AI選択",
+      "basicTitle": "基本ツール",
       "brush": {
         "brush": "ブラシ",
         "eraser": "消しゴム",
@@ -577,7 +579,6 @@
         "size": "ブラシサイズ"
       },
       "comingSoon": "近日公開",
-      "createNewTitle": "新しいマスクを作成",
       "depthRange": {
         "far": "遠景",
         "near": "近景",
@@ -601,6 +602,7 @@
         "maskName_one": "マスク {{count}}",
         "maskName_other": "マスク {{count}}"
       },
+      "rangeTitle": "範囲とグローバル",
       "resetMaskingTooltip": "マスク処理をリセット",
       "settings": {
         "aiModelDownloading": "AIモデルをダウンロード中: ",
@@ -623,8 +625,7 @@
       "tooltips": {
         "addToCurrent": "{{name}}を現在のマスクに追加、または新規作成 (右クリック)",
         "createNew": "新規の {{name}} マスクを作成",
-        "selectNewSourcePoint": "{{modifier}} + クリックで新しいソースポイントを選択",
-        "showMore": "他のマスクタイプを表示"
+        "selectNewSourcePoint": "{{modifier}} + クリックで新しいソースポイントを選択"
       }
     },
     "metadata": {

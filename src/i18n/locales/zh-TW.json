@@ -569,6 +569,8 @@
         "switchToSubtract": "切換到減去"
       },
       "addNewMask": "新增新遮色片",
+      "aiTitle": "AI 選擇",
+      "basicTitle": "基本工具",
       "brush": {
         "brush": "畫筆",
         "eraser": "橡皮擦",
@@ -577,7 +579,6 @@
         "size": "畫筆大小"
       },
       "comingSoon": "即將推出",
-      "createNewTitle": "建立新遮色片",
       "depthRange": {
         "far": "遠",
         "near": "近",
@@ -601,6 +602,7 @@
         "maskName_one": "遮色片 {{count}}",
         "maskName_other": "遮色片 {{count}}"
       },
+      "rangeTitle": "範圍與全域",
       "resetMaskingTooltip": "重置遮色片",
       "settings": {
         "aiModelDownloading": "AI 模型下載中：",
@@ -623,8 +625,7 @@
       "tooltips": {
         "addToCurrent": "將 {{name}} 新增到當前遮色片或建立新遮色片（右鍵單擊）",
         "createNew": "建立新 {{name}} 遮色片",
-        "selectNewSourcePoint": "{{modifier}} + 點擊選擇新的來源點",
-        "showMore": "顯示更多遮色片型別"
+        "selectNewSourcePoint": "{{modifier}} + 點擊選擇新的來源點"
       }
     },
     "metadata": {

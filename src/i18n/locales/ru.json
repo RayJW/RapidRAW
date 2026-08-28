@@ -611,6 +611,8 @@
         "switchToSubtract": "Переключить на вычитание"
       },
       "addNewMask": "Добавить новую маску",
+      "aiTitle": "Выделения ИИ",
+      "basicTitle": "Базовые инструменты",
       "brush": {
         "brush": "Кисть",
         "eraser": "Ластик",
@@ -619,7 +621,6 @@
         "size": "Размер кисти"
       },
       "comingSoon": "Скоро",
-      "createNewTitle": "Создать новую маску",
       "depthRange": {
         "far": "Далеко",
         "near": "Близко",
@@ -645,6 +646,7 @@
         "maskName_one": "Маска {{count}}",
         "maskName_other": "Маска {{count}}"
       },
+      "rangeTitle": "Диапазоны и глобальные",
       "resetMaskingTooltip": "Сбросить маскирование",
       "settings": {
         "aiModelDownloading": "Загрузка ИИ-модели: ",
@@ -667,8 +669,7 @@
       "tooltips": {
         "addToCurrent": "Добавить {{name}} к текущей маске или создать новую (правый клик)",
         "createNew": "Создать новую маску: {{name}}",
-        "selectNewSourcePoint": "{{modifier}} + Кликните, чтобы выбрать новую исходную точку",
-        "showMore": "Показать больше типов масок"
+        "selectNewSourcePoint": "{{modifier}} + Кликните, чтобы выбрать новую исходную точку"
       }
     },
     "metadata": {

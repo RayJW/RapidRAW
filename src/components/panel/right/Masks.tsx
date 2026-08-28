@@ -6,9 +6,8 @@ import {
   Droplet,
   Droplets,
   Eraser,
-  MoreHorizontal,
+  SquareMousePointer,
   RectangleHorizontal,
-  Sparkles,
   TriangleRight,
   User,
   Sun,
@@ -111,13 +110,13 @@ export const MASK_ICON_MAP: Record<Mask, any> = {
   [Mask.AiDepth]: BringToFront,
   [Mask.AiForeground]: User,
   [Mask.AiSky]: Cloud,
-  [Mask.AiSubject]: Sparkles,
+  [Mask.AiSubject]: SquareMousePointer,
   [Mask.All]: RectangleHorizontal,
   [Mask.Brush]: Brush,
   [Mask.Flow]: Droplets,
   [Mask.Color]: Droplet,
   [Mask.Linear]: TriangleRight,
-  [Mask.Luminance]: Sparkles,
+  [Mask.Luminance]: Sun,
   [Mask.QuickEraser]: Eraser,
   [Mask.Radial]: Circle,
   [Mask.Clone]: Stamp,
@@ -126,45 +125,27 @@ export const MASK_ICON_MAP: Record<Mask, any> = {
   [Mask.Retouch]: BrushCleaning,
 };
 
-export const MASK_PANEL_CREATION_TYPES: Array<MaskType> = [
-  {
-    disabled: false,
-    icon: Sparkles,
-    name: 'Subject',
-    type: Mask.AiSubject,
-  },
-  {
-    disabled: false,
-    icon: Cloud,
-    name: 'Sky',
-    type: Mask.AiSky,
-  },
-  {
-    disabled: false,
-    icon: User,
-    name: 'Foreground',
-    type: Mask.AiForeground,
-  },
-  {
-    disabled: false,
-    icon: TriangleRight,
-    name: 'Linear',
-    type: Mask.Linear,
-  },
-  {
-    disabled: false,
-    icon: Circle,
-    name: 'Radial',
-    type: Mask.Radial,
-  },
-  {
-    disabled: false,
-    icon: MoreHorizontal,
-    id: 'others',
-    name: 'Others',
-    type: null as any,
-  },
+export const MASK_AI_TYPES: Array<MaskType> = [
+  { disabled: false, icon: SquareMousePointer, name: 'Subject', type: Mask.AiSubject },
+  { disabled: false, icon: Cloud, name: 'Sky', type: Mask.AiSky },
+  { disabled: false, icon: User, name: 'Foreground', type: Mask.AiForeground },
+  { disabled: false, icon: BringToFront, name: 'Depth', type: Mask.AiDepth },
 ];
+
+export const MASK_BASIC_TYPES: Array<MaskType> = [
+  { disabled: false, icon: Brush, name: 'Brush', type: Mask.Brush },
+  { disabled: false, icon: TriangleRight, name: 'Linear', type: Mask.Linear },
+  { disabled: false, icon: Circle, name: 'Radial', type: Mask.Radial },
+  { disabled: false, icon: Droplets, name: 'Flow', type: Mask.Flow },
+];
+
+export const MASK_RANGE_TYPES: Array<MaskType> = [
+  { disabled: false, icon: Droplet, name: 'Color', type: Mask.Color },
+  { disabled: false, icon: Sun, name: 'Luminance', type: Mask.Luminance },
+  { disabled: false, icon: RectangleHorizontal, name: 'Whole Image', type: Mask.All },
+];
+
+export const ALL_MASK_TYPES = [...MASK_AI_TYPES, ...MASK_BASIC_TYPES, ...MASK_RANGE_TYPES];
 
 export const AI_DIRECT_PATCH_TYPES: Array<MaskType> = [
   {
@@ -205,7 +186,7 @@ export const AI_GENERATIVE_CREATION_TYPES: Array<MaskType> = [
   },
   {
     disabled: false,
-    icon: Sparkles,
+    icon: SquareMousePointer,
     name: 'Subject',
     type: Mask.AiSubject,
   },

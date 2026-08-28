@@ -571,6 +571,8 @@
         "switchToSubtract": "Canviar a Restar"
       },
       "addNewMask": "Afegir nova màscara",
+      "aiTitle": "Seleccions d'IA",
+      "basicTitle": "Eines bàsiques",
       "brush": {
         "brush": "Pinzell",
         "eraser": "Goma d'esborrar",
@@ -579,7 +581,6 @@
         "size": "Mida del pinzell"
       },
       "comingSoon": "Aviat disponible",
-      "createNewTitle": "Crear nova màscara",
       "depthRange": {
         "far": "Lluny",
         "near": "A prop",
@@ -603,6 +604,7 @@
         "maskName_one": "Màscara {{count}}",
         "maskName_other": "Màscara {{count}}"
       },
+      "rangeTitle": "Rangs i global",
       "resetMaskingTooltip": "Restablir emmascarament",
       "settings": {
         "aiModelDownloading": "S'està baixant el model d'IA: ",
@@ -625,8 +627,7 @@
       "tooltips": {
         "addToCurrent": "Afegir {{name}} a la màscara actual o crear-ne una de nova (Clic dret)",
         "createNew": "Crear nova màscara de {{name}}",
-        "selectNewSourcePoint": "{{modifier}} + Clic per seleccionar un nou punt d'origen",
-        "showMore": "Mostrar més tipus de màscares"
+        "selectNewSourcePoint": "{{modifier}} + Clic per seleccionar un nou punt d'origen"
       }
     },
     "metadata": {

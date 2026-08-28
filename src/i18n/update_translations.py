@@ -5,132 +5,119 @@ LOCALES_DIR = Path("./locales")
 
 TRANSLATIONS = {
     "ca": {
-        "settings": {
-            "processing": {
-                "smallThumbnailRes": "Resolució de les miniatures de la quadrícula",
-                "smallThumbnailResDesc": "Resolució de les miniatures que es mostren a la quadrícula de la biblioteca.",
-                "mediumThumbnailRes": "Resolució de la miniatura de l'editor",
-                "mediumThumbnailResDesc": "Resolució de la previsualització que es mostra mentre les imatges completes es carreguen a l'editor."
+        "editor": {
+            "masks": {
+                "aiTitle": "Seleccions d'IA",
+                "basicTitle": "Eines bàsiques",
+                "rangeTitle": "Rangs i global"
             }
         }
     },
     "de": {
-        "settings": {
-            "processing": {
-                "smallThumbnailRes": "Raster-Miniaturbild-Auflösung",
-                "smallThumbnailResDesc": "Auflösung der Miniaturbilder, die im Bibliotheksraster angezeigt werden.",
-                "mediumThumbnailRes": "Editor-Miniaturbild-Auflösung",
-                "mediumThumbnailResDesc": "Auflösung der Vorschau, die während des Ladens von vollständigen Bildern im Editor angezeigt wird."
+        "editor": {
+            "masks": {
+                "aiTitle": "KI-Auswahl",
+                "basicTitle": "Basis-Werkzeuge",
+                "rangeTitle": "Bereiche & Global"
             }
         }
     },
     "en": {
-        "settings": {
-            "processing": {
-                "smallThumbnailRes": "Grid Thumbnail Resolution",
-                "smallThumbnailResDesc": "Resolution of thumbnails shown in the library grid.",
-                "mediumThumbnailRes": "Editor Thumbnail Resolution",
-                "mediumThumbnailResDesc": "Resolution of the preview shown while full images load in the editor."
+        "editor": {
+            "masks": {
+                "aiTitle": "AI Selections",
+                "basicTitle": "Basic Tools",
+                "rangeTitle": "Ranges & Global"
             }
         }
     },
     "es": {
-        "settings": {
-            "processing": {
-                "smallThumbnailRes": "Resolución de miniaturas de la cuadrícula",
-                "smallThumbnailResDesc": "Resolución de las miniaturas mostradas en la cuadrícula de la biblioteca.",
-                "mediumThumbnailRes": "Resolución de miniaturas del editor",
-                "mediumThumbnailResDesc": "Resolución de la vista previa mostrada mientras se cargan imágenes completas en el editor."
+        "editor": {
+            "masks": {
+                "aiTitle": "Selecciones de IA",
+                "basicTitle": "Herramientas básicas",
+                "rangeTitle": "Rangos y global"
             }
         }
     },
     "fr": {
-        "settings": {
-            "processing": {
-                "smallThumbnailRes": "Résolution des vignettes de la grille",
-                "smallThumbnailResDesc": "Résolution des vignettes affichées dans la grille de la bibliothèque.",
-                "mediumThumbnailRes": "Résolution des vignettes de l'éditeur",
-                "mediumThumbnailResDesc": "Résolution de l'aperçu affiché pendant le chargement complet des images dans l'éditeur."
+        "editor": {
+            "masks": {
+                "aiTitle": "Sélections IA",
+                "basicTitle": "Outils de base",
+                "rangeTitle": "Plages & Global"
             }
         }
     },
     "it": {
-        "settings": {
-            "processing": {
-                "smallThumbnailRes": "Risoluzione delle miniature della griglia",
-                "smallThumbnailResDesc": "Risoluzione delle miniature mostrate nella griglia della libreria.",
-                "mediumThumbnailRes": "Risoluzione della miniatura dell'editor",
-                "mediumThumbnailResDesc": "Risoluzione dell'anteprima mostrata mentre le immagini complete vengono caricate nell'editor."
+        "editor": {
+            "masks": {
+                "aiTitle": "Selezioni IA",
+                "basicTitle": "Strumenti di base",
+                "rangeTitle": "Intervalli e Globale"
             }
         }
     },
     "ja": {
-        "settings": {
-            "processing": {
-                "smallThumbnailRes": "グリッドサムネイルの解像度",
-                "smallThumbnailResDesc": "ライブラリのグリッドに表示されるサムネイルの解像度。",
-                "mediumThumbnailRes": "エディターサムネイルの解像度",
-                "mediumThumbnailResDesc": "完全な画像がエディターに読み込まれる間に表示されるプレビューの解像度。"
+        "editor": {
+            "masks": {
+                "aiTitle": "AI選択",
+                "basicTitle": "基本ツール",
+                "rangeTitle": "範囲とグローバル"
             }
         }
     },
     "ko": {
-        "settings": {
-            "processing": {
-                "smallThumbnailRes": "그리드 썸네일 해상도",
-                "smallThumbnailResDesc": "라이브러리 그리드에 표시되는 썸네일의 해상도입니다.",
-                "mediumThumbnailRes": "편집기 썸네일 해상도",
-                "mediumThumbnailResDesc": "전체 이미지가 편집기에 로드되는 동안 표시되는 미리보기의 해상도입니다."
+        "editor": {
+            "masks": {
+                "aiTitle": "AI 선택",
+                "basicTitle": "기본 도구",
+                "rangeTitle": "범위 및 글로벌"
             }
         }
     },
     "pl": {
-        "settings": {
-            "processing": {
-                "smallThumbnailRes": "Rozdzielczość miniatur w siatce",
-                "smallThumbnailResDesc": "Rozdzielczość miniatur wyświetlanych w siatce biblioteki.",
-                "mediumThumbnailRes": "Rozdzielczość miniatury edytora",
-                "mediumThumbnailResDesc": "Rozdzielczość podglądu wyświetlanego podczas ładowania pełnych obrazów w edytorze."
+        "editor": {
+            "masks": {
+                "aiTitle": "Zaznaczenia AI",
+                "basicTitle": "Podstawowe narzędzia",
+                "rangeTitle": "Zakresy i globalne"
             }
         }
     },
     "pt": {
-        "settings": {
-            "processing": {
-                "smallThumbnailRes": "Resolução das miniaturas da grade",
-                "smallThumbnailResDesc": "Resolução das miniaturas exibidas na grade da biblioteca.",
-                "mediumThumbnailRes": "Resolução da miniatura do editor",
-                "mediumThumbnailResDesc": "Resolução da visualização exibida enquanto as imagens completas carregam no editor."
+        "editor": {
+            "masks": {
+                "aiTitle": "Seleções de IA",
+                "basicTitle": "Ferramentas Básicas",
+                "rangeTitle": "Intervalos e Global"
             }
         }
     },
     "ru": {
-        "settings": {
-            "processing": {
-                "smallThumbnailRes": "Разрешение миниатюр в сетке",
-                "smallThumbnailResDesc": "Разрешение миниатюр, отображаемых в сетке библиотеки.",
-                "mediumThumbnailRes": "Разрешение миниатюр в редакторе",
-                "mediumThumbnailResDesc": "Разрешение превью, отображаемого при загрузке полных изображений в редакторе."
+        "editor": {
+            "masks": {
+                "aiTitle": "Выделения ИИ",
+                "basicTitle": "Базовые инструменты",
+                "rangeTitle": "Диапазоны и глобальные"
             }
         }
     },
     "zh-CN": {
-        "settings": {
-            "processing": {
-                "smallThumbnailRes": "网格缩略图分辨率",
-                "smallThumbnailResDesc": "图库网格中显示的缩略图分辨率。",
-                "mediumThumbnailRes": "编辑器缩略图分辨率",
-                "mediumThumbnailResDesc": "在编辑器中加载完整图像时显示的预览分辨率。"
+        "editor": {
+            "masks": {
+                "aiTitle": "AI 选择",
+                "basicTitle": "基本工具",
+                "rangeTitle": "范围与全局"
             }
         }
     },
     "zh-TW": {
-        "settings": {
-            "processing": {
-                "smallThumbnailRes": "網格縮圖解析度",
-                "smallThumbnailResDesc": "圖庫網格中顯示的縮圖解析度。",
-                "mediumThumbnailRes": "編輯器縮圖解析度",
-                "mediumThumbnailResDesc": "在編輯器中載入完整影像時顯示的預覽解析度。"
+        "editor": {
+            "masks": {
+                "aiTitle": "AI 選擇",
+                "basicTitle": "基本工具",
+                "rangeTitle": "範圍與全域"
             }
         }
     }
@@ -165,7 +152,16 @@ def update_json_file(file_path: Path, trans: dict):
         print(f"Error parsing JSON in {file_path.name}. Skipping.")
         return
 
+    # 1. Merge new translations
     deep_merge(data, trans)
+
+    # 2. Clean up removed keys from the diff
+    if "editor" in data and "masks" in data["editor"]:
+        data["editor"]["masks"].pop("createNewTitle", None)
+        if "tooltips" in data["editor"]["masks"]:
+            data["editor"]["masks"]["tooltips"].pop("showMore", None)
+
+    # 3. Sort alphabetically
     sorted_data = sort_dict_recursively(data)
 
     with open(file_path, "w", encoding="utf-8") as f:
@@ -179,7 +175,7 @@ def main():
         print(f"Error: Locales directory '{LOCALES_DIR}' does not exist.")
         return
 
-    print("Starting translation updates for Thumbnail Resolution settings...")
+    print("Starting translation updates for Mask Panel sections...")
     for lang, trans in TRANSLATIONS.items():
         file_path = LOCALES_DIR / f"{lang}.json"
         update_json_file(file_path, trans)

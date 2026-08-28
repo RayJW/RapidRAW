@@ -571,6 +571,8 @@
         "switchToSubtract": "Zu Subtrahieren wechseln"
       },
       "addNewMask": "Neue Maske hinzufügen",
+      "aiTitle": "KI-Auswahl",
+      "basicTitle": "Basis-Werkzeuge",
       "brush": {
         "brush": "Pinsel",
         "eraser": "Radierer",
@@ -579,7 +581,6 @@
         "size": "Pinselgröße"
       },
       "comingSoon": "Demnächst",
-      "createNewTitle": "Neue Maske erstellen",
       "depthRange": {
         "far": "Fern",
         "near": "Nah",
@@ -603,6 +604,7 @@
         "maskName_one": "Maske {{count}}",
         "maskName_other": "Maske {{count}}"
       },
+      "rangeTitle": "Bereiche & Global",
       "resetMaskingTooltip": "Maskierung zurücksetzen",
       "settings": {
         "aiModelDownloading": "KI-Modell wird heruntergeladen: ",
@@ -625,8 +627,7 @@
       "tooltips": {
         "addToCurrent": "{{name}} zur aktuellen Maske hinzufügen oder neu erstellen (Rechtsklick)",
         "createNew": "Neue {{name}}-Maske erstellen",
-        "selectNewSourcePoint": "{{modifier}} + Klicken, um einen neuen Quellpunkt auszuwählen",
-        "showMore": "Mehr Maskenarten anzeigen"
+        "selectNewSourcePoint": "{{modifier}} + Klicken, um einen neuen Quellpunkt auszuwählen"
       }
     },
     "metadata": {
