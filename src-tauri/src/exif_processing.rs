@@ -19,6 +19,17 @@ use rawler::decoders::RawMetadata;
 struct ExifCacheState {
     cache: HashMap<PathBuf, HashMap<String, HashMap<String, String>>>,
     dirty: HashSet<PathBuf>,
+    cache_dir: Option<PathBuf>,
+}
+
+impl ExifCacheState {
+    fn get_cache_file_path(&self, folder: &Path) -> Option<PathBuf> {
+        let base_dir = self.cache_dir.as_ref()?;
+        let hash = blake3::hash(folder.to_string_lossy().as_bytes())
+            .to_hex()
+            .to_string();
+        Some(base_dir.join(format!("{}.json", hash)))
+    }
 }
 
 fn get_exif_cache() -> &'static Mutex<ExifCacheState> {
@@ -34,8 +45,17 @@ fn get_exif_cache() -> &'static Mutex<ExifCacheState> {
         Mutex::new(ExifCacheState {
             cache: HashMap::new(),
             dirty: HashSet::new(),
+            cache_dir: None,
         })
     })
+}
+
+pub fn initialize_cache_dir(cache_dir: PathBuf) {
+    let dir = cache_dir.join("exif");
+    let _ = std::fs::create_dir_all(&dir);
+    if let Ok(mut state) = get_exif_cache().lock() {
+        state.cache_dir = Some(dir);
+    }
 }
 
 pub fn flush_all_dirty_caches() {
@@ -48,10 +68,12 @@ pub fn flush_all_dirty_caches() {
     let mut to_write = Vec::new();
 
     for folder in &dirty_folders {
-        if let Some(folder_map) = state.cache.get(folder)
-            && !folder_map.is_empty()
-        {
-            to_write.push((folder.join(".rrcache"), folder_map.clone()));
+        if let Some(folder_map) = state.cache.get(folder) {
+            if !folder_map.is_empty() {
+                if let Some(cache_path) = state.get_cache_file_path(folder) {
+                    to_write.push((cache_path, folder_map.clone()));
+                }
+            }
         }
     }
 
@@ -68,16 +90,20 @@ pub fn flush_all_dirty_caches() {
 }
 
 fn load_rrcache_for_folder(folder: &Path) {
+    let mut cache_path = None;
+
     if let Ok(state) = get_exif_cache().lock() {
         if state.cache.contains_key(folder) {
             return;
         }
-    } else {
-        return;
+        cache_path = state.get_cache_file_path(folder);
     }
 
-    let cache_path = folder.join(".rrcache");
-    let loaded_map = if let Ok(content) = std::fs::read_to_string(&cache_path) {
+    let Some(path) = cache_path else {
+        return;
+    };
+
+    let loaded_map = if let Ok(content) = std::fs::read_to_string(&path) {
         serde_json::from_str::<HashMap<String, HashMap<String, String>>>(&content)
             .unwrap_or_default()
     } else {
