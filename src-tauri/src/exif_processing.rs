@@ -7,7 +7,7 @@ use std::time::Duration;
 
 use crate::formats::is_raw_file;
 use crate::image_processing::ImageMetadata;
-use chrono::{DateTime, NaiveDateTime, Utc};
+use chrono::{DateTime, Local, LocalResult, NaiveDateTime, TimeZone, Utc};
 use exif::{Exif, In, Value};
 use little_exif::exif_tag::ExifTag;
 use little_exif::filetype::FileExtension;
@@ -234,13 +234,21 @@ fn parse_creation_datetime(s: &str) -> Option<NaiveDateTime> {
     None
 }
 
+fn creation_datetime_to_utc(dt: NaiveDateTime) -> DateTime<Utc> {
+    match Local.from_local_datetime(&dt) {
+        LocalResult::Single(local_dt) | LocalResult::Ambiguous(local_dt, _) => {
+            local_dt.with_timezone(&Utc)
+        }
+        LocalResult::None => DateTime::from_naive_utc_and_offset(dt, Utc),
+    }
+}
+
 fn parse_creation_field(field: &exif::Field) -> Option<DateTime<Utc>> {
-    parse_creation_datetime(&field.display_value().to_string())
-        .map(|dt| DateTime::from_naive_utc_and_offset(dt, Utc))
+    parse_creation_datetime(&field.display_value().to_string()).map(creation_datetime_to_utc)
 }
 
 fn parse_raw_creation_date(date_str: Option<&str>) -> Option<DateTime<Utc>> {
-    parse_creation_datetime(date_str?).map(|dt| DateTime::from_naive_utc_and_offset(dt, Utc))
+    parse_creation_datetime(date_str?).map(creation_datetime_to_utc)
 }
 
 fn clean_ascii_value(value: &exif::Value) -> Option<String> {
@@ -851,7 +859,7 @@ pub fn try_get_exif_creation_date(path: &Path) -> Option<DateTime<Utc>> {
         && let Some(dt_str) = map.get("DateTimeOriginal").or(map.get("CreateDate"))
         && let Some(dt) = parse_creation_datetime(dt_str)
     {
-        return Some(DateTime::from_naive_utc_and_offset(dt, Utc));
+        return Some(creation_datetime_to_utc(dt));
     }
 
     if let Ok(file) = std::fs::File::open(path) {
