@@ -1,7 +1,9 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::fs;
 use std::io::{BufReader, Cursor};
 use std::path::{Path, PathBuf};
+use std::sync::{Mutex, OnceLock};
+use std::time::Duration;
 
 use crate::formats::is_raw_file;
 use crate::image_processing::ImageMetadata;
@@ -13,6 +15,114 @@ use little_exif::ifd::ExifTagGroup;
 use little_exif::metadata::Metadata;
 use little_exif::rational::{iR64, uR64};
 use rawler::decoders::RawMetadata;
+
+struct ExifCacheState {
+    cache: HashMap<PathBuf, HashMap<String, HashMap<String, String>>>,
+    dirty: HashSet<PathBuf>,
+}
+
+fn get_exif_cache() -> &'static Mutex<ExifCacheState> {
+    static EXIF_CACHE: OnceLock<Mutex<ExifCacheState>> = OnceLock::new();
+    EXIF_CACHE.get_or_init(|| {
+        std::thread::spawn(|| {
+            loop {
+                std::thread::sleep(Duration::from_secs(3));
+                flush_all_dirty_caches();
+            }
+        });
+
+        Mutex::new(ExifCacheState {
+            cache: HashMap::new(),
+            dirty: HashSet::new(),
+        })
+    })
+}
+
+pub fn flush_all_dirty_caches() {
+    let mut state = match get_exif_cache().lock() {
+        Ok(s) => s,
+        Err(_) => return,
+    };
+
+    let dirty_folders: Vec<PathBuf> = state.dirty.drain().collect();
+    let mut to_write = Vec::new();
+
+    for folder in &dirty_folders {
+        if let Some(folder_map) = state.cache.get(folder) {
+            if !folder_map.is_empty() {
+                to_write.push((folder.join(".rrcache"), folder_map.clone()));
+            }
+        }
+    }
+
+    drop(state);
+
+    for (path, map) in to_write {
+        if let Ok(json) = serde_json::to_string(&map) {
+            let tmp_path = path.with_extension("tmp");
+            if std::fs::write(&tmp_path, json).is_ok() {
+                let _ = std::fs::rename(tmp_path, path);
+            }
+        }
+    }
+}
+
+fn load_rrcache_for_folder(folder: &Path) {
+    if let Ok(state) = get_exif_cache().lock() {
+        if state.cache.contains_key(folder) {
+            return;
+        }
+    } else {
+        return;
+    }
+
+    let cache_path = folder.join(".rrcache");
+    let loaded_map = if let Ok(content) = std::fs::read_to_string(&cache_path) {
+        serde_json::from_str::<HashMap<String, HashMap<String, String>>>(&content)
+            .unwrap_or_default()
+    } else {
+        HashMap::new()
+    };
+
+    if let Ok(mut state) = get_exif_cache().lock() {
+        state
+            .cache
+            .entry(folder.to_path_buf())
+            .or_insert(loaded_map);
+    }
+}
+
+fn get_exif_from_rrcache(image_path: &Path) -> Option<HashMap<String, String>> {
+    let folder = image_path.parent()?;
+    let filename = image_path.file_name()?.to_string_lossy().to_string();
+
+    load_rrcache_for_folder(folder);
+
+    let state = get_exif_cache().lock().ok()?;
+    state
+        .cache
+        .get(folder)
+        .and_then(|f_map| f_map.get(&filename).cloned())
+}
+
+fn save_exif_to_rrcache(image_path: &Path, exif: HashMap<String, String>) {
+    let Some(folder) = image_path.parent() else {
+        return;
+    };
+    let Some(filename) = image_path.file_name() else {
+        return;
+    };
+
+    load_rrcache_for_folder(folder);
+
+    let mut state = match get_exif_cache().lock() {
+        Ok(s) => s,
+        Err(_) => return,
+    };
+    let folder_map = state.cache.entry(folder.to_path_buf()).or_default();
+    folder_map.insert(filename.to_string_lossy().to_string(), exif);
+    state.dirty.insert(folder.to_path_buf());
+}
 
 pub fn truncate_large_exif(value: &str) -> String {
     if value.len() <= 500 {
@@ -1319,8 +1429,16 @@ fn save_primary_metadata(image_path: &Path, metadata: &ImageMetadata) -> std::io
 }
 
 pub fn read_rrexif_sidecar(image_path: &Path) -> Option<HashMap<String, String>> {
-    let metadata = load_primary_metadata(image_path);
-    if let Some(exif) = metadata.exif {
+    let primary = get_primary_sidecar_path(image_path);
+
+    if primary.exists() {
+        let metadata = load_primary_metadata(image_path);
+        if let Some(exif) = metadata.exif {
+            return Some(exif);
+        }
+    }
+
+    if let Some(exif) = get_exif_from_rrcache(image_path) {
         return Some(exif);
     }
 
@@ -1329,11 +1447,8 @@ pub fn read_rrexif_sidecar(image_path: &Path) -> Option<HashMap<String, String>>
         && let Ok(content) = fs::read_to_string(&legacy)
         && let Ok(map) = serde_json::from_str::<HashMap<String, String>>(&content)
     {
-        let mut migrated = load_primary_metadata(image_path);
-        migrated.exif = Some(map.clone());
-        if save_primary_metadata(image_path, &migrated).is_ok() {
-            let _ = fs::remove_file(&legacy);
-        }
+        save_exif_to_rrcache(image_path, map.clone());
+        let _ = fs::remove_file(&legacy);
         return Some(map);
     }
 
@@ -1371,37 +1486,28 @@ pub fn read_exif_data_from_bytes(path: &str, file_bytes: &[u8]) -> HashMap<Strin
 
 pub fn read_exif_data(path: &str, file_bytes: &[u8]) -> HashMap<String, String> {
     let source_path = Path::new(path);
-    if let Some(sidecar_exif) = read_rrexif_sidecar(source_path) {
-        return sidecar_exif;
+
+    if let Some(cached_exif) = read_rrexif_sidecar(source_path) {
+        return cached_exif;
     }
 
     let exif_map = read_exif_data_from_bytes(path, file_bytes);
     if !exif_map.is_empty() {
-        let mut metadata = load_primary_metadata(source_path);
-        metadata.exif = Some(exif_map.clone());
-        let _ = save_primary_metadata(source_path, &metadata);
+        let primary = get_primary_sidecar_path(source_path);
+        if primary.exists() {
+            let mut metadata = load_primary_metadata(source_path);
+            metadata.exif = Some(exif_map.clone());
+            let _ = save_primary_metadata(source_path, &metadata);
+        } else {
+            save_exif_to_rrcache(source_path, exif_map.clone());
+        }
     }
+
     exif_map
 }
 
 pub fn persist_exif_if_missing(source_path: &Path, source_path_str: &str, file_bytes: &[u8]) {
-    {
-        let metadata = load_primary_metadata(source_path);
-        if metadata.exif.is_some() {
-            return;
-        }
-    }
-
-    let legacy = get_rrexif_path(source_path);
-    if legacy.exists()
-        && let Ok(content) = fs::read_to_string(&legacy)
-        && let Ok(map) = serde_json::from_str::<HashMap<String, String>>(&content)
-    {
-        let mut metadata = load_primary_metadata(source_path);
-        metadata.exif = Some(map);
-        if save_primary_metadata(source_path, &metadata).is_ok() {
-            let _ = fs::remove_file(&legacy);
-        }
+    if read_rrexif_sidecar(source_path).is_some() {
         return;
     }
 
@@ -1410,11 +1516,16 @@ pub fn persist_exif_if_missing(source_path: &Path, source_path_str: &str, file_b
         return;
     }
 
-    let mut metadata = load_primary_metadata(source_path);
+    let primary = get_primary_sidecar_path(source_path);
 
-    if metadata.exif.is_none() {
-        metadata.exif = Some(exif_map);
-        let _ = save_primary_metadata(source_path, &metadata);
+    if primary.exists() {
+        let mut metadata = load_primary_metadata(source_path);
+        if metadata.exif.is_none() {
+            metadata.exif = Some(exif_map);
+            let _ = save_primary_metadata(source_path, &metadata);
+        }
+    } else {
+        save_exif_to_rrcache(source_path, exif_map);
     }
 }
 
