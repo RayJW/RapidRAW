@@ -48,10 +48,10 @@ pub fn flush_all_dirty_caches() {
     let mut to_write = Vec::new();
 
     for folder in &dirty_folders {
-        if let Some(folder_map) = state.cache.get(folder) {
-            if !folder_map.is_empty() {
-                to_write.push((folder.join(".rrcache"), folder_map.clone()));
-            }
+        if let Some(folder_map) = state.cache.get(folder)
+            && !folder_map.is_empty()
+        {
+            to_write.push((folder.join(".rrcache"), folder_map.clone()));
         }
     }
 
@@ -992,6 +992,138 @@ fn apply_sidecar_field_overrides(metadata: &mut Metadata, map: &HashMap<String, 
     }
 }
 
+fn apply_gps_from_kamadak(metadata: &mut Metadata, original_path: &Path) {
+    let Ok(file) = std::fs::File::open(original_path) else {
+        return;
+    };
+    let mut bufreader = std::io::BufReader::new(&file);
+    let exifreader = exif::Reader::new();
+    let Ok(exif_obj) = exifreader.read_from_container(&mut bufreader) else {
+        return;
+    };
+
+    let get_string_val = |field: &exif::Field| -> String {
+        match &field.value {
+            exif::Value::Ascii(vec) => vec
+                .iter()
+                .map(|v| {
+                    String::from_utf8_lossy(v)
+                        .trim_matches(char::from(0))
+                        .to_string()
+                })
+                .collect::<Vec<String>>()
+                .join(" "),
+            _ => field
+                .display_value()
+                .to_string()
+                .replace("\"", "")
+                .trim()
+                .to_string(),
+        }
+    };
+
+    if let Some(f) = exif_obj.get_field(exif::Tag::GPSLatitude, exif::In::PRIMARY)
+        && let exif::Value::Rational(v) = &f.value
+        && v.len() >= 3
+    {
+        metadata.set_tag(ExifTag::GPSLatitude(vec![
+            to_ur64(&v[0]),
+            to_ur64(&v[1]),
+            to_ur64(&v[2]),
+        ]));
+    }
+    if let Some(f) = exif_obj.get_field(exif::Tag::GPSLatitudeRef, exif::In::PRIMARY) {
+        metadata.set_tag(ExifTag::GPSLatitudeRef(get_string_val(f)));
+    }
+    if let Some(f) = exif_obj.get_field(exif::Tag::GPSLongitude, exif::In::PRIMARY)
+        && let exif::Value::Rational(v) = &f.value
+        && v.len() >= 3
+    {
+        metadata.set_tag(ExifTag::GPSLongitude(vec![
+            to_ur64(&v[0]),
+            to_ur64(&v[1]),
+            to_ur64(&v[2]),
+        ]));
+    }
+    if let Some(f) = exif_obj.get_field(exif::Tag::GPSLongitudeRef, exif::In::PRIMARY) {
+        metadata.set_tag(ExifTag::GPSLongitudeRef(get_string_val(f)));
+    }
+    if let Some(f) = exif_obj.get_field(exif::Tag::GPSAltitude, exif::In::PRIMARY)
+        && let exif::Value::Rational(v) = &f.value
+        && !v.is_empty()
+    {
+        metadata.set_tag(ExifTag::GPSAltitude(vec![to_ur64(&v[0])]));
+    }
+    if let Some(f) = exif_obj.get_field(exif::Tag::GPSAltitudeRef, exif::In::PRIMARY)
+        && let Some(val) = f.value.get_uint(0)
+    {
+        metadata.set_tag(ExifTag::GPSAltitudeRef(vec![val as u8]));
+    }
+}
+
+fn apply_gps_from_rawler(metadata: &mut Metadata, original_path_str: &str) {
+    let loader = rawler::RawLoader::new();
+    let Ok(raw_source) = rawler::rawsource::RawSource::new(Path::new(original_path_str)) else {
+        return;
+    };
+    let Ok(decoder) = loader.get_decoder(&raw_source) else {
+        return;
+    };
+    let Ok(meta) = decoder.raw_metadata(&raw_source, &Default::default()) else {
+        return;
+    };
+    let Some(gps) = meta.exif.gps else {
+        return;
+    };
+    if let Some(lat) = gps.gps_latitude {
+        metadata.set_tag(ExifTag::GPSLatitude(vec![
+            uR64 {
+                nominator: lat[0].n,
+                denominator: lat[0].d,
+            },
+            uR64 {
+                nominator: lat[1].n,
+                denominator: lat[1].d,
+            },
+            uR64 {
+                nominator: lat[2].n,
+                denominator: lat[2].d,
+            },
+        ]));
+    }
+    if let Some(lat_ref) = gps.gps_latitude_ref {
+        metadata.set_tag(ExifTag::GPSLatitudeRef(lat_ref));
+    }
+    if let Some(lon) = gps.gps_longitude {
+        metadata.set_tag(ExifTag::GPSLongitude(vec![
+            uR64 {
+                nominator: lon[0].n,
+                denominator: lon[0].d,
+            },
+            uR64 {
+                nominator: lon[1].n,
+                denominator: lon[1].d,
+            },
+            uR64 {
+                nominator: lon[2].n,
+                denominator: lon[2].d,
+            },
+        ]));
+    }
+    if let Some(lon_ref) = gps.gps_longitude_ref {
+        metadata.set_tag(ExifTag::GPSLongitudeRef(lon_ref));
+    }
+    if let Some(alt) = gps.gps_altitude {
+        metadata.set_tag(ExifTag::GPSAltitude(vec![uR64 {
+            nominator: alt.n,
+            denominator: alt.d,
+        }]));
+    }
+    if let Some(alt_ref) = gps.gps_altitude_ref {
+        metadata.set_tag(ExifTag::GPSAltitudeRef(vec![alt_ref]));
+    }
+}
+
 pub fn write_image_with_metadata(
     image_bytes: &mut Vec<u8>,
     original_path_str: &str,
@@ -1225,44 +1357,6 @@ pub fn write_image_with_metadata(
             {
                 metadata.set_tag(ExifTag::FocalLengthIn35mmFormat(vec![val as u16]));
             }
-            if !strip_gps {
-                if let Some(f) = exif_obj.get_field(exif::Tag::GPSLatitude, exif::In::PRIMARY)
-                    && let exif::Value::Rational(v) = &f.value
-                    && v.len() >= 3
-                {
-                    metadata.set_tag(ExifTag::GPSLatitude(vec![
-                        to_ur64(&v[0]),
-                        to_ur64(&v[1]),
-                        to_ur64(&v[2]),
-                    ]));
-                }
-                if let Some(f) = exif_obj.get_field(exif::Tag::GPSLatitudeRef, exif::In::PRIMARY) {
-                    metadata.set_tag(ExifTag::GPSLatitudeRef(get_string_val(f)));
-                }
-                if let Some(f) = exif_obj.get_field(exif::Tag::GPSLongitude, exif::In::PRIMARY)
-                    && let exif::Value::Rational(v) = &f.value
-                    && v.len() >= 3
-                {
-                    metadata.set_tag(ExifTag::GPSLongitude(vec![
-                        to_ur64(&v[0]),
-                        to_ur64(&v[1]),
-                        to_ur64(&v[2]),
-                    ]));
-                }
-                if let Some(f) = exif_obj.get_field(exif::Tag::GPSLongitudeRef, exif::In::PRIMARY) {
-                    metadata.set_tag(ExifTag::GPSLongitudeRef(get_string_val(f)));
-                }
-                if let Some(f) = exif_obj.get_field(exif::Tag::GPSAltitude, exif::In::PRIMARY)
-                    && let exif::Value::Rational(v) = &f.value
-                    && !v.is_empty()
-                {
-                    metadata.set_tag(ExifTag::GPSAltitude(vec![to_ur64(&v[0])]));
-                }
-                if let Some(f) = exif_obj.get_field(exif::Tag::GPSAltitudeRef, exif::In::PRIMARY) {
-                    let alt_ref = f.value.get_uint(0).unwrap_or(0) as u8;
-                    metadata.set_tag(ExifTag::GPSAltitudeRef(vec![alt_ref]));
-                }
-            }
         }
     }
 
@@ -1338,55 +1432,14 @@ pub fn write_image_with_metadata(
             if let Some(prog) = exif.exposure_program {
                 metadata.set_tag(ExifTag::ExposureProgram(vec![prog]));
             }
-            if !strip_gps && let Some(gps) = exif.gps {
-                if let Some(lat) = gps.gps_latitude {
-                    metadata.set_tag(ExifTag::GPSLatitude(vec![
-                        uR64 {
-                            nominator: lat[0].n,
-                            denominator: lat[0].d,
-                        },
-                        uR64 {
-                            nominator: lat[1].n,
-                            denominator: lat[1].d,
-                        },
-                        uR64 {
-                            nominator: lat[2].n,
-                            denominator: lat[2].d,
-                        },
-                    ]));
-                }
-                if let Some(lat_ref) = gps.gps_latitude_ref {
-                    metadata.set_tag(ExifTag::GPSLatitudeRef(lat_ref));
-                }
-                if let Some(lon) = gps.gps_longitude {
-                    metadata.set_tag(ExifTag::GPSLongitude(vec![
-                        uR64 {
-                            nominator: lon[0].n,
-                            denominator: lon[0].d,
-                        },
-                        uR64 {
-                            nominator: lon[1].n,
-                            denominator: lon[1].d,
-                        },
-                        uR64 {
-                            nominator: lon[2].n,
-                            denominator: lon[2].d,
-                        },
-                    ]));
-                }
-                if let Some(lon_ref) = gps.gps_longitude_ref {
-                    metadata.set_tag(ExifTag::GPSLongitudeRef(lon_ref));
-                }
-                if let Some(alt) = gps.gps_altitude {
-                    metadata.set_tag(ExifTag::GPSAltitude(vec![uR64 {
-                        nominator: alt.n,
-                        denominator: alt.d,
-                    }]));
-                }
-                if let Some(alt_ref) = gps.gps_altitude_ref {
-                    metadata.set_tag(ExifTag::GPSAltitudeRef(vec![alt_ref]));
-                }
-            }
+        }
+    }
+
+    if !strip_gps {
+        if is_raw_file(original_path_str) {
+            apply_gps_from_rawler(&mut metadata, original_path_str);
+        } else {
+            apply_gps_from_kamadak(&mut metadata, original_path);
         }
     }
 
