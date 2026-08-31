@@ -11,6 +11,7 @@ use image::{
 use ndarray::{Array, Array4, IxDyn};
 use ort::session::Session;
 use ort::value::Tensor;
+use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use tauri::Emitter;
@@ -163,42 +164,46 @@ fn edt_2d(grid: &[bool], width: usize, height: usize) -> Vec<f32> {
     f.into_iter().map(|v| v.sqrt()).collect()
 }
 
-fn box_filter_1d(src: &[f32], w: usize, h: usize, r: usize, horizontal: bool) -> Vec<f32> {
-    let mut dest = vec![0.0; w * h];
-    if horizontal {
-        let mut prefix = vec![0.0; w + 1];
-        for y in 0..h {
-            let row = y * w;
+fn box_filter_horiz(src: &[f32], dest: &mut [f32], w: usize, r: usize) {
+    dest.par_chunks_exact_mut(w)
+        .zip(src.par_chunks_exact(w))
+        .for_each(|(dest_row, src_row)| {
+            let mut prefix = vec![0.0; w + 1];
             for x in 0..w {
-                prefix[x + 1] = prefix[x] + src[row + x];
+                prefix[x + 1] = prefix[x] + src_row[x];
             }
             for x in 0..w {
                 let x_min = x.saturating_sub(r);
                 let x_max = (x + r).min(w - 1);
                 let count = (x_max - x_min + 1) as f32;
-                dest[row + x] = (prefix[x_max + 1] - prefix[x_min]) / count;
+                dest_row[x] = (prefix[x_max + 1] - prefix[x_min]) / count;
             }
-        }
-    } else {
-        let mut prefix = vec![0.0; h + 1];
-        for x in 0..w {
-            for y in 0..h {
-                prefix[y + 1] = prefix[y] + src[y * w + x];
-            }
-            for y in 0..h {
-                let y_min = y.saturating_sub(r);
-                let y_max = (y + r).min(h - 1);
-                let count = (y_max - y_min + 1) as f32;
-                dest[y * w + x] = (prefix[y_max + 1] - prefix[y_min]) / count;
-            }
-        }
-    }
-    dest
+        });
 }
 
-fn box_filter(src: &[f32], w: usize, h: usize, r: usize) -> Vec<f32> {
-    let temp = box_filter_1d(src, w, h, r, true);
-    box_filter_1d(&temp, w, h, r, false)
+fn transpose(src: &[f32], dest: &mut [f32], w: usize, h: usize) {
+    dest.par_chunks_exact_mut(h)
+        .enumerate()
+        .for_each(|(x, dest_col)| {
+            for y in 0..h {
+                dest_col[y] = src[y * w + x];
+            }
+        });
+}
+
+fn box_filter_opt(
+    src: &[f32],
+    dest: &mut [f32],
+    temp1: &mut [f32],
+    temp2: &mut [f32],
+    w: usize,
+    h: usize,
+    r: usize,
+) {
+    box_filter_horiz(src, temp1, w, r);
+    transpose(temp1, temp2, w, h);
+    box_filter_horiz(temp2, temp1, h, r);
+    transpose(temp1, dest, h, w);
 }
 
 pub fn fast_guided_filter(
@@ -212,44 +217,68 @@ pub fn fast_guided_filter(
 
     let w = lr_w as usize;
     let h = lr_h as usize;
+    let area = w * h;
 
     let guide_lr = imageops::resize(guide_hr, lr_w, lr_h, FilterType::Triangle);
 
-    let mut i_lr = vec![0.0; w * h];
-    let mut p_lr = vec![0.0; w * h];
-    let mut ip_lr = vec![0.0; w * h];
-    let mut ii_lr = vec![0.0; w * h];
+    let mut i_lr = vec![0.0; area];
+    let mut p_lr = vec![0.0; area];
+    let mut ip_lr = vec![0.0; area];
+    let mut ii_lr = vec![0.0; area];
 
     let guide_lr_raw = guide_lr.as_raw();
     let mask_lr_raw = mask_lr.as_raw();
 
-    for i in 0..(w * h) {
-        let i_val = guide_lr_raw[i] as f32 / 255.0;
-        let p_val = mask_lr_raw[i] as f32 / 255.0;
+    i_lr.par_iter_mut()
+        .zip(p_lr.par_iter_mut())
+        .zip(ip_lr.par_iter_mut())
+        .zip(ii_lr.par_iter_mut())
+        .zip(guide_lr_raw.par_iter())
+        .zip(mask_lr_raw.par_iter())
+        .for_each(|(((((i_out, p_out), ip_out), ii_out), &g_val), &m_val)| {
+            let i_val = g_val as f32 / 255.0;
+            let p_val = m_val as f32 / 255.0;
+            *i_out = i_val;
+            *p_out = p_val;
+            *ip_out = i_val * p_val;
+            *ii_out = i_val * i_val;
+        });
 
-        i_lr[i] = i_val;
-        p_lr[i] = p_val;
-        ip_lr[i] = i_val * p_val;
-        ii_lr[i] = i_val * i_val;
-    }
+    let mut temp1 = vec![0.0; area];
+    let mut temp2 = vec![0.0; area];
 
-    let mean_i = box_filter(&i_lr, w, h, r);
-    let mean_p = box_filter(&p_lr, w, h, r);
-    let mean_ip = box_filter(&ip_lr, w, h, r);
-    let mean_ii = box_filter(&ii_lr, w, h, r);
+    let mut mean_i = vec![0.0; area];
+    let mut mean_p = vec![0.0; area];
+    let mut mean_ip = vec![0.0; area];
+    let mut mean_ii = vec![0.0; area];
 
-    let mut a = vec![0.0; w * h];
-    let mut b = vec![0.0; w * h];
+    box_filter_opt(&i_lr, &mut mean_i, &mut temp1, &mut temp2, w, h, r);
+    box_filter_opt(&p_lr, &mut mean_p, &mut temp1, &mut temp2, w, h, r);
+    box_filter_opt(&ip_lr, &mut mean_ip, &mut temp1, &mut temp2, w, h, r);
+    box_filter_opt(&ii_lr, &mut mean_ii, &mut temp1, &mut temp2, w, h, r);
 
-    for i in 0..(w * h) {
-        let cov_ip = mean_ip[i] - mean_i[i] * mean_p[i];
-        let var_i = mean_ii[i] - mean_i[i] * mean_i[i];
-        a[i] = cov_ip / (var_i + eps);
-        b[i] = mean_p[i] - a[i] * mean_i[i];
-    }
+    let mut a = vec![0.0; area];
+    let mut b = vec![0.0; area];
 
-    let mean_a = box_filter(&a, w, h, r);
-    let mean_b = box_filter(&b, w, h, r);
+    a.par_iter_mut()
+        .zip(b.par_iter_mut())
+        .zip(mean_i.par_iter())
+        .zip(mean_p.par_iter())
+        .zip(mean_ip.par_iter())
+        .zip(mean_ii.par_iter())
+        .for_each(|(((((a_out, b_out), &m_i), &m_p), &m_ip), &m_ii)| {
+            let cov_ip = m_ip - m_i * m_p;
+            let var_i = m_ii - m_i * m_i;
+            let a_val = cov_ip / (var_i + eps);
+            *a_out = a_val;
+            *b_out = m_p - a_val * m_i;
+        });
+
+    let mut mean_a = vec![0.0; area];
+    let mut mean_b = vec![0.0; area];
+
+    box_filter_opt(&a, &mut mean_a, &mut temp1, &mut temp2, w, h, r);
+    box_filter_opt(&b, &mut mean_b, &mut temp1, &mut temp2, w, h, r);
 
     let mean_a_img = ImageBuffer::<Luma<f32>, Vec<f32>>::from_raw(lr_w, lr_h, mean_a).unwrap();
     let mean_b_img = ImageBuffer::<Luma<f32>, Vec<f32>>::from_raw(lr_w, lr_h, mean_b).unwrap();
@@ -263,14 +292,16 @@ pub fn fast_guided_filter(
 
     let mut final_mask_raw = vec![0u8; (hr_w * hr_h) as usize];
 
-    for i in 0..(hr_w * hr_h) as usize {
-        let a_val = mean_a_hr_raw[i];
-        let b_val = mean_b_hr_raw[i];
-        let i_val = guide_hr_raw[i] as f32 / 255.0;
-
-        let q = a_val * i_val + b_val;
-        final_mask_raw[i] = (q.clamp(0.0, 1.0) * 255.0).round() as u8;
-    }
+    final_mask_raw
+        .par_iter_mut()
+        .zip(mean_a_hr_raw.par_iter())
+        .zip(mean_b_hr_raw.par_iter())
+        .zip(guide_hr_raw.par_iter())
+        .for_each(|(((out, &a_val), &b_val), &i_val)| {
+            let i_v = i_val as f32 / 255.0;
+            let q = a_val * i_v + b_val;
+            *out = (q.clamp(0.0, 1.0) * 255.0).round() as u8;
+        });
 
     GrayImage::from_raw(hr_w, hr_h, final_mask_raw).unwrap()
 }
@@ -1412,6 +1443,8 @@ pub fn run_sky_seg_model(
     image: &DynamicImage,
     sky_seg_session: &Mutex<Session>,
 ) -> Result<GrayImage> {
+    let (orig_width, orig_height) = image.dimensions();
+
     let resized_image = image.resize(SKYSEG_INPUT_SIZE, SKYSEG_INPUT_SIZE, FilterType::Triangle);
     let (resized_w, resized_h) = resized_image.dimensions();
     let resized_rgb = resized_image.into_rgb8();
@@ -1482,13 +1515,7 @@ pub fn run_sky_seg_model(
     let cropped_mask = GrayImage::from_raw(resized_w, resized_h, cropped_mask_data)
         .ok_or_else(|| anyhow::anyhow!("Failed to create mask from Sky Segmentation output"))?;
 
-    let guide_hr = image.to_luma8();
-    let mut final_mask = fast_guided_filter(&guide_hr, &cropped_mask, 16, 0.01);
-
-    for p in final_mask.pixels_mut() {
-        let v = p[0] as f32 / 255.0;
-        p[0] = (((v - 0.03) / 0.94).clamp(0.0, 1.0) * 255.0).round() as u8;
-    }
+    let final_mask = imageops::resize(&cropped_mask, orig_width, orig_height, FilterType::Triangle);
 
     Ok(final_mask)
 }
@@ -1497,6 +1524,8 @@ pub fn run_u2netp_model(
     image: &DynamicImage,
     u2netp_session: &Mutex<Session>,
 ) -> Result<GrayImage> {
+    let (orig_width, orig_height) = image.dimensions();
+
     let resized_image = image.resize(U2NETP_INPUT_SIZE, U2NETP_INPUT_SIZE, FilterType::Triangle);
     let (resized_w, resized_h) = resized_image.dimensions();
     let resized_rgb = resized_image.into_rgb8();
@@ -1567,13 +1596,7 @@ pub fn run_u2netp_model(
     let cropped_mask = GrayImage::from_raw(resized_w, resized_h, cropped_mask_data)
         .ok_or_else(|| anyhow::anyhow!("Failed to create mask from U-2-Netp output"))?;
 
-    let guide_hr = image.to_luma8();
-    let mut final_mask = fast_guided_filter(&guide_hr, &cropped_mask, 16, 0.01);
-
-    for p in final_mask.pixels_mut() {
-        let v = p[0] as f32 / 255.0;
-        p[0] = (((v - 0.03) / 0.94).clamp(0.0, 1.0) * 255.0).round() as u8;
-    }
+    let final_mask = imageops::resize(&cropped_mask, orig_width, orig_height, FilterType::Triangle);
 
     Ok(final_mask)
 }
