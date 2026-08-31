@@ -164,7 +164,7 @@ export default function BottomBar({
   const isRightOpen = uiVisibility.rightPanel;
   const isBottomOpen = uiVisibility.filmstrip;
   const showLeftPanelToggle = layoutMode === 'full';
-  const showRightPanelToggle = layoutMode === 'full' || (layoutMode === 'wide' && !isLibraryView);
+  const showRightPanelToggle = layoutMode === 'full' || layoutMode === 'wide';
   const showBottomPanelToggle = layoutMode !== 'compact' && !isLibraryView;
 
   const toggleLeft = () =>
