@@ -172,11 +172,11 @@ fn box_filter_horiz(src: &[f32], dest: &mut [f32], w: usize, r: usize) {
             for x in 0..w {
                 prefix[x + 1] = prefix[x] + src_row[x];
             }
-            for x in 0..w {
+            for (x, dest_val) in dest_row.iter_mut().enumerate() {
                 let x_min = x.saturating_sub(r);
                 let x_max = (x + r).min(w - 1);
                 let count = (x_max - x_min + 1) as f32;
-                dest_row[x] = (prefix[x_max + 1] - prefix[x_min]) / count;
+                *dest_val = (prefix[x_max + 1] - prefix[x_min]) / count;
             }
         });
 }
