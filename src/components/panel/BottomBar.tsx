@@ -43,7 +43,6 @@ interface BottomBarProps {
   onZoomChange?(zoomValue: number, fitToWindow?: boolean): void;
   rating: number;
   selectedImage?: SelectedImage;
-  setIsFilmstripVisible?(isVisible: boolean): void;
   showFilmstrip?: boolean;
   layoutMode: 'compact' | 'wide' | 'full';
   showZoomControls?: boolean;
@@ -143,7 +142,6 @@ export default function BottomBar({
   onZoomChange = () => {},
   rating,
   selectedImage,
-  setIsFilmstripVisible,
   showFilmstrip = true,
   layoutMode,
   showZoomControls = true,
@@ -165,7 +163,7 @@ export default function BottomBar({
   const isBottomOpen = uiVisibility.filmstrip;
   const showLeftPanelToggle = layoutMode === 'full';
   const showRightPanelToggle = layoutMode === 'full' || layoutMode === 'wide';
-  const showBottomPanelToggle = layoutMode !== 'compact' && !isLibraryView;
+  const showBottomPanelToggle = layoutMode !== 'compact';
 
   const toggleLeft = () =>
     setUI((s) => {
@@ -619,7 +617,15 @@ export default function BottomBar({
           <div className="flex items-center gap-1">
             {(showLeftPanelToggle || showRightPanelToggle || showBottomPanelToggle) && (
               <>
-                {showLeftPanelToggle && <PanelToggleButton onClick={toggleLeft} Icon={PanelLeft} tooltip={isLeftOpen ? t('ui.bottomBar.tooltips.collapseLeft') : t('ui.bottomBar.tooltips.expandLeft')} />}
+                {showLeftPanelToggle && (
+                  <PanelToggleButton
+                    onClick={toggleLeft}
+                    Icon={PanelLeft}
+                    tooltip={
+                      isLeftOpen ? t('ui.bottomBar.tooltips.collapseLeft') : t('ui.bottomBar.tooltips.expandLeft')
+                    }
+                  />
+                )}
 
                 {showBottomPanelToggle && showFilmstrip && (
                   <PanelToggleButton
@@ -634,7 +640,15 @@ export default function BottomBar({
                   />
                 )}
 
-                {showRightPanelToggle && <PanelToggleButton onClick={toggleRight} Icon={PanelRight} tooltip={isRightOpen ? t('ui.bottomBar.tooltips.collapseRight') : t('ui.bottomBar.tooltips.expandRight')} />}
+                {showRightPanelToggle && (
+                  <PanelToggleButton
+                    onClick={toggleRight}
+                    Icon={PanelRight}
+                    tooltip={
+                      isRightOpen ? t('ui.bottomBar.tooltips.collapseRight') : t('ui.bottomBar.tooltips.expandRight')
+                    }
+                  />
+                )}
               </>
             )}
           </div>

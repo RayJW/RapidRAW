@@ -141,10 +141,6 @@ function ImageDragOverlayNode({ activeItem }: { activeItem: { path: string; path
 }
 
 function App() {
-  const COMPACT_EDITOR_MAX_WIDTH = 900;
-  const ANDROID_COMPACT_MAX_WIDTH = 600;
-  const ANDROID_FULL_MIN_WIDTH = 1000;
-
   const [activeImageDragItem, setActiveImageDragItem] = useState<{ path: string; paths: string[] } | null>(null);
 
   const { appSettings, theme, osPlatform, handleSettingsChange } = useSettingsStore(
@@ -163,7 +159,6 @@ function App() {
     isInstantTransition,
     isLayoutReady,
     uiVisibility,
-    isLibraryExportPanelVisible,
     leftPanelWidth,
     rightPanelWidth,
     compactEditorPanelHeightOverride,
@@ -182,7 +177,6 @@ function App() {
       isInstantTransition: state.isInstantTransition,
       isLayoutReady: state.isLayoutReady,
       uiVisibility: state.uiVisibility,
-      isLibraryExportPanelVisible: state.isLibraryExportPanelVisible,
       leftPanelWidth: state.leftPanelWidth,
       rightPanelWidth: state.rightPanelWidth,
       compactEditorPanelHeightOverride: state.compactEditorPanelHeightOverride,
@@ -277,22 +271,18 @@ function App() {
   });
 
   const isAndroid = osPlatform === 'android';
+  const COMPACT_EDITOR_MAX_WIDTH = 900;
+  const ANDROID_FULL_MIN_WIDTH = 1000;
   const isPortraitViewport = viewportSize.width > 0 && viewportSize.height > viewportSize.width;
-  // compact: stacked editor plus one tabbed panel workspace; wide: editor and panel workspace side-by-side;
-  // full: the standard three-column desktop layout.
   type LayoutMode = 'compact' | 'wide' | 'full';
-  const layoutMode: LayoutMode = isAndroid
-    ? viewportSize.width >= ANDROID_FULL_MIN_WIDTH
-      ? 'full'
-      : isPortraitViewport && viewportSize.width < ANDROID_COMPACT_MAX_WIDTH
-        ? 'compact'
-        : 'wide'
-    : isPortraitViewport && viewportSize.width > 0 && viewportSize.width <= COMPACT_EDITOR_MAX_WIDTH
+  const layoutMode: LayoutMode =
+    isPortraitViewport && viewportSize.width > 0 && viewportSize.width <= COMPACT_EDITOR_MAX_WIDTH
       ? 'compact'
-      : 'full';
+      : isAndroid && viewportSize.width < ANDROID_FULL_MIN_WIDTH
+        ? 'wide'
+        : 'full';
   const useCompactPanels = layoutMode === 'compact';
   const useWidePanels = layoutMode === 'wide';
-
   const compactEditorPanelMinHeight = 220;
   const compactEditorPanelMaxHeight =
     viewportSize.height > 0
@@ -841,7 +831,7 @@ function App() {
 
   const ActiveOverlayIcon = activeLayoutDragItem ? PANEL_ICONS[activeLayoutDragItem] : null;
   const effectiveLeftWidth = uiVisibility.leftPanel ? leftPanelWidth : 48;
-  const effectiveRightWidth = uiVisibility.rightPanel ? rightPanelWidth : 48;
+  const effectiveRightWidth = uiVisibility.rightPanel ? rightPanelWidth : useWidePanels ? 58 : 48;
 
   return (
     <>

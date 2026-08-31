@@ -133,9 +133,6 @@ export default function EditorView({
       onZoomChange={handleZoomChange}
       rating={imageRatings[selectedImage?.path || ''] || 0}
       selectedImage={selectedImage ?? undefined}
-      setIsFilmstripVisible={(value: boolean) =>
-        setUI((state) => ({ uiVisibility: { ...state.uiVisibility, filmstrip: value } }))
-      }
       showFilmstrip={layoutMode !== 'compact'}
       layoutMode={layoutMode}
       showZoomControls={!isAndroid}
@@ -166,44 +163,45 @@ export default function EditorView({
     </div>
   );
 
-  const editorMobilePanelNode = layoutMode === 'compact' ? (
-    <div
-      className={clsx(
-        'flex overflow-hidden shrink-0 flex-col bg-bg-secondary rounded-lg',
-        !isResizing && !isInstantTransition && 'transition-all duration-300 ease-in-out',
-      )}
-      style={{
-        height: isFullScreen ? 0 : activePanel ? compactEditorPanelHeight : compactEditorPanelCollapsedHeight,
-        opacity: isFullScreen ? 0 : 1,
-      }}
-    >
-      {activePanel && !isFullScreen && (
-        <Resizer
-          direction={Orientation.Horizontal}
-          onMouseDown={createResizeHandler('compact', compactEditorPanelHeight)}
-          onDoubleClick={createResizeResetHandler('compact')}
-        />
-      )}
-      <div className="min-h-0 flex-1 overflow-hidden relative">
-        <AnimatePresence mode="wait">
-          {activePanel && (
-            <motion.div
-              key={activePanel}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.15 }}
-              className="absolute inset-0 overflow-y-auto custom-scrollbar"
-            >
-              {renderAppPanel(activePanel)}
-            </motion.div>
-          )}
-        </AnimatePresence>
+  const editorMobilePanelNode =
+    layoutMode === 'compact' ? (
+      <div
+        className={clsx(
+          'flex overflow-hidden shrink-0 flex-col bg-bg-secondary rounded-lg',
+          !isResizing && !isInstantTransition && 'transition-all duration-300 ease-in-out',
+        )}
+        style={{
+          height: isFullScreen ? 0 : activePanel ? compactEditorPanelHeight : compactEditorPanelCollapsedHeight,
+          opacity: isFullScreen ? 0 : 1,
+        }}
+      >
+        {activePanel && !isFullScreen && (
+          <Resizer
+            direction={Orientation.Horizontal}
+            onMouseDown={createResizeHandler('compact', compactEditorPanelHeight)}
+            onDoubleClick={createResizeResetHandler('compact')}
+          />
+        )}
+        <div className="min-h-0 flex-1 overflow-hidden relative">
+          <AnimatePresence mode="wait">
+            {activePanel && (
+              <motion.div
+                key={activePanel}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.15 }}
+                className="absolute inset-0 overflow-y-auto custom-scrollbar"
+              >
+                {renderAppPanel(activePanel)}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+        <MobilePanelSwitcher activePanel={activePanel} onPanelSelect={handlePanelSelect} />
+        <div className="shrink-0 border-t border-surface">{editorBottomBarComponent}</div>
       </div>
-      <MobilePanelSwitcher activePanel={activePanel} onPanelSelect={handlePanelSelect} />
-      <div className="shrink-0 border-t border-surface">{editorBottomBarComponent}</div>
-    </div>
-  ) : null;
+    ) : null;
 
   return (
     <div className={clsx('flex grow h-full min-h-0', layoutMode === 'compact' ? 'flex-col gap-2' : 'flex-col')}>
