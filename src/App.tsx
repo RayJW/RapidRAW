@@ -993,9 +993,7 @@ function App() {
                   </div>
                 )}
               </div>
-              {((!useCompactPanels && !useWidePanels) ||
-                (useWidePanels && activeView === 'editor' && selectedImage)) &&
-                hasMainContent && (
+              {!useCompactPanels && hasMainContent && (
                 <SidePanelArea
                   side="right"
                   width={effectiveRightWidth}

@@ -335,7 +335,6 @@ export default function SidePanelArea({
   const setUI = useUIStore((s) => s.setUI);
   const activePanel = useUIStore((s) => s.activePanel);
   const setPanel = useUIStore((s) => s.setPanel);
-
   const colContainerRef = useRef<HTMLDivElement>(null);
 
   const handleVerticalResize = useCallback(
@@ -396,9 +395,9 @@ export default function SidePanelArea({
     return (
       <div className={clsx('flex shrink-0 h-full relative overflow-hidden', isFullScreen ? 'w-0 opacity-0 pointer-events-none' : 'opacity-100')} style={{ width: isFullScreen ? 0 : width }}>
         <div className="shrink-0 w-2 my-auto h-full cursor-col-resize z-20" onPointerDown={onWidthChange} onDoubleClick={onWidthReset} />
-        {!isCollapsed && <div className="flex-1 min-w-0 min-h-0 flex flex-col bg-bg-secondary rounded-lg overflow-hidden border border-surface">
-          <div className="relative flex-1 min-h-0">{activePanel && <div className="absolute inset-0 overflow-y-auto custom-scrollbar">{renderPanel(activePanel)}</div>}</div>
-          <MobilePanelSwitcher activePanel={activePanel} onPanelSelect={setPanel} />
+        {!isCollapsed && <div className="flex-1 min-w-0 min-h-0 flex bg-bg-secondary rounded-lg overflow-hidden border border-surface">
+          <div className="relative flex-1 min-w-0 min-h-0">{activePanel && <div className="absolute inset-0 overflow-y-auto custom-scrollbar">{renderPanel(activePanel)}</div>}</div>
+          <MobilePanelSwitcher activePanel={activePanel} onPanelSelect={setPanel} placement="right" />
         </div>}
       </div>
     );
