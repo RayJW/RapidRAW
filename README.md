@@ -798,10 +798,15 @@ RapidRAW includes camera tethering for studio, portrait, and product photography
         <li><strong>Battery Monitoring:</strong> View the connected camera's battery level directly in RapidRAW.</li>
         <li><strong>Automatic Presets:</strong> Automatically apply a selected preset to newly captured images.</li>
         <li><strong>Instant Ingestion:</strong> Captured images are automatically saved to your active library, indexed, and optionally opened in the editor.</li>
+        <br>
       </ul>
     </td>
-    <td width="35%" valign="middle" align="center">
+    <td width="35%" valign="top" align="center">
+      <br>
       <img src="https://raw.githubusercontent.com/CyberTimon/RapidRAW/assets/.github/assets/tethering.jpeg" alt="RapidRAW Camera Tethering Setup" width="100%" style="border-radius: 8px;">
+      <br><br>
+      <strong>Live Camera Tethering</strong><br>
+      <sub>Sony α7 III connected with real-time Live View</sub>
     </td>
   </tr>
 </table>
