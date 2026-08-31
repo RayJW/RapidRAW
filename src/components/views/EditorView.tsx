@@ -18,7 +18,7 @@ import { ImageFile, Orientation, Panel, ThumbnailAspectRatio } from '../ui/AppPr
 interface EditorViewProps {
   transformWrapperRef: RefObject<any>;
   isResizing: boolean;
-  isCompactPortrait: boolean;
+  layoutMode: 'compact' | 'wide' | 'full';
   isAndroid: boolean;
   compactEditorPanelHeight: number;
   compactEditorPanelCollapsedHeight: number;
@@ -44,7 +44,7 @@ interface EditorViewProps {
 export default function EditorView({
   transformWrapperRef,
   isResizing,
-  isCompactPortrait,
+  layoutMode,
   isAndroid,
   compactEditorPanelHeight,
   compactEditorPanelCollapsedHeight,
@@ -112,7 +112,6 @@ export default function EditorView({
       filmstripHeight={bottomPanelHeight}
       imageList={sortedImageList}
       imageRatings={imageRatings}
-      isAndroid={isAndroid}
       isCopied={isCopied}
       isCopyDisabled={!selectedImage}
       isFilmstripVisible={uiVisibility.filmstrip}
@@ -137,7 +136,8 @@ export default function EditorView({
       setIsFilmstripVisible={(value: boolean) =>
         setUI((state) => ({ uiVisibility: { ...state.uiVisibility, filmstrip: value } }))
       }
-      showFilmstrip={!isCompactPortrait}
+      showFilmstrip={layoutMode !== 'compact'}
+      layoutMode={layoutMode}
       showZoomControls={!isAndroid}
       thumbnailAspectRatio={thumbnailAspectRatio}
       totalImages={sortedImageList.length}
@@ -155,7 +155,7 @@ export default function EditorView({
         opacity: isFullScreen ? 0 : 1,
       }}
     >
-      {!isCompactPortrait && (
+      {layoutMode !== 'compact' && (
         <Resizer
           direction={Orientation.Horizontal}
           onMouseDown={createResizeHandler('bottom', bottomPanelHeight)}
@@ -166,7 +166,7 @@ export default function EditorView({
     </div>
   );
 
-  const editorMobilePanelNode = isCompactPortrait ? (
+  const editorMobilePanelNode = layoutMode === 'compact' ? (
     <div
       className={clsx(
         'flex overflow-hidden shrink-0 flex-col bg-bg-secondary rounded-lg',
@@ -206,9 +206,9 @@ export default function EditorView({
   ) : null;
 
   return (
-    <div className={clsx('flex grow h-full min-h-0', isCompactPortrait ? 'flex-col gap-2' : 'flex-col')}>
-      <div className={clsx('flex-1 flex flex-col min-w-0', isCompactPortrait && 'min-h-0')}>{editorNode}</div>
-      {isCompactPortrait ? editorMobilePanelNode : editorBottomBarNode}
+    <div className={clsx('flex grow h-full min-h-0', layoutMode === 'compact' ? 'flex-col gap-2' : 'flex-col')}>
+      <div className={clsx('flex-1 flex flex-col min-w-0', layoutMode === 'compact' && 'min-h-0')}>{editorNode}</div>
+      {layoutMode === 'compact' ? editorMobilePanelNode : editorBottomBarNode}
     </div>
   );
 }
