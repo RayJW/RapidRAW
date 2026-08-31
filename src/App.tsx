@@ -272,15 +272,22 @@ function App() {
 
   const isAndroid = osPlatform === 'android';
   const COMPACT_EDITOR_MAX_WIDTH = 900;
+  const ANDROID_COMPACT_MAX_WIDTH = 600;
   const ANDROID_FULL_MIN_WIDTH = 1000;
+
   const isPortraitViewport = viewportSize.width > 0 && viewportSize.height > viewportSize.width;
+
   type LayoutMode = 'compact' | 'wide' | 'full';
-  const layoutMode: LayoutMode =
-    isPortraitViewport && viewportSize.width > 0 && viewportSize.width <= COMPACT_EDITOR_MAX_WIDTH
+  const layoutMode: LayoutMode = isAndroid
+    ? viewportSize.width >= ANDROID_FULL_MIN_WIDTH
+      ? 'full'
+      : isPortraitViewport && viewportSize.width < ANDROID_COMPACT_MAX_WIDTH
+        ? 'compact'
+        : 'wide'
+    : isPortraitViewport && viewportSize.width > 0 && viewportSize.width <= COMPACT_EDITOR_MAX_WIDTH
       ? 'compact'
-      : isAndroid && viewportSize.width < ANDROID_FULL_MIN_WIDTH
-        ? 'wide'
-        : 'full';
+      : 'full';
+
   const useCompactPanels = layoutMode === 'compact';
   const useWidePanels = layoutMode === 'wide';
   const compactEditorPanelMinHeight = 220;
