@@ -165,7 +165,10 @@ pub fn generate_transformed_preview(
     let transform_hash = calculate_transform_hash(adjustments);
 
     let (transformed_full_res, unscaled_crop_offset) = {
-        let mut cache_lock = state.full_transformed_cache.lock().unwrap();
+        let mut cache_lock = state
+            .full_transformed_cache
+            .lock()
+            .unwrap_or_else(|e| e.into_inner());
         if let Some((hash, img, offset)) = cache_lock.as_ref() {
             if *hash == transform_hash {
                 (Arc::clone(img), *offset)
@@ -255,7 +258,10 @@ pub fn get_cached_full_warped_image(
     let geo_hash = calculate_geometry_hash(js_adjustments);
 
     {
-        let cache_lock = state.full_warped_cache.lock().unwrap();
+        let cache_lock = state
+            .full_warped_cache
+            .lock()
+            .unwrap_or_else(|e| e.into_inner());
         if let Some((hash, img)) = cache_lock.as_ref()
             && *hash == geo_hash
         {
@@ -274,7 +280,10 @@ pub fn get_cached_full_warped_image(
     let warped_arc = Arc::new(warped_image);
 
     {
-        let mut cache_lock = state.full_warped_cache.lock().unwrap();
+        let mut cache_lock = state
+            .full_warped_cache
+            .lock()
+            .unwrap_or_else(|e| e.into_inner());
         *cache_lock = Some((geo_hash, Arc::clone(&warped_arc)));
     }
 
@@ -286,13 +295,18 @@ async fn update_wgpu_transform(
     payload: WgpuTransformPayload,
     state: tauri::State<'_, AppState>,
 ) -> Result<(), String> {
-    let context = match state.gpu_context.lock().unwrap().as_ref() {
+    let context = match state
+        .gpu_context
+        .lock()
+        .unwrap_or_else(|e| e.into_inner())
+        .as_ref()
+    {
         Some(c) => c.clone(),
         None => return Ok(()),
     };
 
     tokio::task::spawn_blocking(move || {
-        let mut display_lock = context.display.lock().unwrap();
+        let mut display_lock = context.display.lock().unwrap_or_else(|e| e.into_inner());
         if let Some(display) = display_lock.as_mut() {
             display.latest_transform.rect = [payload.x, payload.y, payload.width, payload.height];
             display.latest_transform.clip = [
@@ -362,7 +376,10 @@ fn process_preview_job(
         _ => (if has_roi { 1.4_f32 } else { 1.0_f32 }, 75_u8),
     };
 
-    let mut cached_preview_lock = state.cached_preview.lock().unwrap();
+    let mut cached_preview_lock = state
+        .cached_preview
+        .lock()
+        .unwrap_or_else(|e| e.into_inner());
 
     let base_valid = cached_preview_lock
         .as_ref()
@@ -380,7 +397,10 @@ fn process_preview_job(
             cached.unscaled_crop_offset,
         )
     } else {
-        *state.gpu_image_cache.lock().unwrap() = None;
+        *state
+            .gpu_image_cache
+            .lock()
+            .unwrap_or_else(|e| e.into_inner()) = None;
 
         let (base, scale, offset) =
             generate_transformed_preview(&state, &loaded_image, &adjustments_clone, preview_dim)?;
@@ -410,7 +430,10 @@ fn process_preview_job(
         };
 
         if is_interactive && base_valid {
-            *state.gpu_image_cache.lock().unwrap() = None;
+            *state
+                .gpu_image_cache
+                .lock()
+                .unwrap_or_else(|e| e.into_inner()) = None;
         }
 
         small
@@ -855,62 +878,6 @@ fn generate_uncropped_preview(
 }
 
 #[tauri::command]
-fn generate_original_transformed_preview(
-    js_adjustments: serde_json::Value,
-    target_resolution: Option<u32>,
-    state: tauri::State<AppState>,
-    app_handle: tauri::AppHandle,
-) -> Result<String, String> {
-    let loaded_image = state
-        .original_image
-        .lock()
-        .unwrap()
-        .clone()
-        .ok_or("No original image loaded")?;
-
-    let mut adjustments_clone = js_adjustments.clone();
-
-    if let Some(obj) = adjustments_clone.as_object_mut() {
-        obj.insert(
-            "lensBlurEnabled".to_string(),
-            serde_json::Value::Bool(false),
-        );
-    }
-
-    hydrate_adjustments(&state, &mut adjustments_clone);
-
-    let mut image_for_preview = loaded_image.image.as_ref().clone();
-    if loaded_image.is_raw {
-        apply_cpu_default_raw_processing(&mut image_for_preview);
-    }
-
-    let (transformed_full_res, _unscaled_crop_offset) =
-        apply_all_transformations(Cow::Borrowed(&image_for_preview), &adjustments_clone);
-
-    let settings = load_settings(app_handle).unwrap_or_default();
-    let default_dim = settings.editor_preview_resolution.unwrap_or(1920);
-    let preview_dim = target_resolution.unwrap_or(default_dim);
-
-    let (w, h) = transformed_full_res.dimensions();
-    let transformed_image = if w > preview_dim || h > preview_dim {
-        downscale_f32_image(transformed_full_res.as_ref(), preview_dim, preview_dim)
-    } else {
-        transformed_full_res.into_owned()
-    };
-
-    let (width, height) = transformed_image.dimensions();
-    let rgb_pixels = transformed_image.to_rgb8().into_vec();
-
-    let bytes = Encoder::new(Preset::BaselineFastest)
-        .quality(80)
-        .encode_rgb(&rgb_pixels, width, height)
-        .map_err(|e| format!("Failed to encode with mozjpeg-rs: {}", e))?;
-
-    let base64_str = general_purpose::STANDARD.encode(&bytes);
-    Ok(format!("data:image/jpeg;base64,{}", base64_str))
-}
-
-#[tauri::command]
 async fn preview_geometry_transform(
     params: GeometryParams,
     js_adjustments: serde_json::Value,
@@ -930,7 +897,7 @@ async fn preview_geometry_transform(
         let maybe_cached_image = state
             .geometry_cache
             .lock()
-            .unwrap()
+            .unwrap_or_else(|e| e.into_inner())
             .get(&visual_hash)
             .cloned();
 
@@ -1008,7 +975,10 @@ async fn preview_geometry_transform(
                 "preview_geometry_transform_base_gen",
             )?;
 
-            let mut cache = state.geometry_cache.lock().unwrap();
+            let mut cache = state
+                .geometry_cache
+                .lock()
+                .unwrap_or_else(|e| e.into_inner());
             if cache.len() > 5 {
                 cache.clear();
             }
@@ -1892,7 +1862,7 @@ fn frontend_ready(
     if let Some(session) = &edit_session {
         log::info!(
             "Frontend is ready, returning external edit session for: {}",
-            &session.source
+            session.source
         );
     }
     Ok(LaunchPayload {
@@ -1979,11 +1949,11 @@ pub fn run() {
             {
                 match launch_req.clone() {
                     LaunchRequest::EditSession(session) => {
-                        log::info!("Initial launch with external edit session for: {}", &session.source);
+                        log::info!("Initial launch with external edit session for: {}", session.source);
                         *state.pending_edit_session.lock().unwrap() = Some(session);
                     }
                     LaunchRequest::OpenFile(path) => {
-                        log::info!("Initial open: Storing path {} for later.", &path);
+                        log::info!("Initial open: Storing path {} for later.", path);
                         *state.initial_file_path.lock().unwrap() = Some(path);
                     }
                     _ => {}
@@ -1991,6 +1961,10 @@ pub fn run() {
             }
 
             let app_handle = app.handle().clone();
+
+            if let Ok(cache_dir) = app_handle.path().app_cache_dir() {
+                crate::exif_processing::initialize_cache_dir(cache_dir);
+            }
 
             {
                 let disks_app_handle = app_handle.clone();
@@ -2310,7 +2284,6 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             apply_adjustments,
             generate_preview_for_path,
-            generate_original_transformed_preview,
             generate_preset_preview,
             generate_uncropped_preview,
             preview_geometry_transform,
@@ -2347,6 +2320,8 @@ pub fn run() {
             ai_commands::generate_full_image_depth_map,
             inpainting::invoke_generative_replace_with_mask_def,
             inpainting::generate_manual_cleanup_patch,
+            inpainting::generate_liquify_patch,
+            inpainting::generate_retouch_patch,
             denoising::apply_denoising,
             denoising::batch_denoise_images,
             denoising::save_denoised_image,
