@@ -786,15 +786,25 @@ npm run tauri build -- --features tethering
 
 RapidRAW includes camera tethering for studio, portrait, and product photography workflows. Connect your camera via USB to control exposure settings, monitor your shot in real time, and automatically ingest files directly into your workspace.
 
-### Key Capabilities
-
-- **Real-Time Live View:** High-frame-rate live view with composition guides, 90° rotation, and horizontal flip.
-- **Full Camera Control:** Adjust Aperture, Shutter Speed, ISO, White Balance, Exposure Compensation, Exposure Mode, and Metering Mode directly from RapidRAW.
-- **Autofocus Control:** Trigger autofocus directly from RapidRAW.
-- **Ghost Overlay:** Overlay previous captures with adjustable opacity to maintain consistent framing and perspective.
-- **Battery Monitoring:** View the connected camera's battery level directly in RapidRAW.
-- **Automatic Presets:** Automatically apply a selected preset to newly captured images.
-- **Instant Ingestion:** Captured images are automatically saved to your active library, indexed, and optionally opened in the editor.
+<table width="100%">
+  <tr>
+    <td width="65%" valign="top">
+      <h3>Key Capabilities</h3>
+      <ul>
+        <li><strong>Real-Time Live View:</strong> High-frame-rate live view with composition guides, 90° rotation, and horizontal flip.</li>
+        <li><strong>Full Camera Control:</strong> Adjust Aperture, Shutter Speed, ISO, White Balance, Exposure Compensation, Exposure Mode, and Metering Mode directly from RapidRAW.</li>
+        <li><strong>Autofocus Control:</strong> Trigger autofocus directly from RapidRAW.</li>
+        <li><strong>Ghost Overlay:</strong> Overlay previous captures with adjustable opacity to maintain consistent framing and perspective.</li>
+        <li><strong>Battery Monitoring:</strong> View the connected camera's battery level directly in RapidRAW.</li>
+        <li><strong>Automatic Presets:</strong> Automatically apply a selected preset to newly captured images.</li>
+        <li><strong>Instant Ingestion:</strong> Captured images are automatically saved to your active library, indexed, and optionally opened in the editor.</li>
+      </ul>
+    </td>
+    <td width="35%" valign="middle" align="center">
+      <img src="https://raw.githubusercontent.com/CyberTimon/RapidRAW/assets/.github/assets/tethering.jpeg" alt="RapidRAW Camera Tethering Setup" width="100%" style="border-radius: 8px;">
+    </td>
+  </tr>
+</table>
 
 ### Supported Cameras
 
