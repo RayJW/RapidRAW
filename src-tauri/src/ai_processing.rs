@@ -163,6 +163,118 @@ fn edt_2d(grid: &[bool], width: usize, height: usize) -> Vec<f32> {
     f.into_iter().map(|v| v.sqrt()).collect()
 }
 
+fn box_filter_1d(src: &[f32], w: usize, h: usize, r: usize, horizontal: bool) -> Vec<f32> {
+    let mut dest = vec![0.0; w * h];
+    if horizontal {
+        let mut prefix = vec![0.0; w + 1];
+        for y in 0..h {
+            let row = y * w;
+            for x in 0..w {
+                prefix[x + 1] = prefix[x] + src[row + x];
+            }
+            for x in 0..w {
+                let x_min = x.saturating_sub(r);
+                let x_max = (x + r).min(w - 1);
+                let count = (x_max - x_min + 1) as f32;
+                dest[row + x] = (prefix[x_max + 1] - prefix[x_min]) / count;
+            }
+        }
+    } else {
+        let mut prefix = vec![0.0; h + 1];
+        for x in 0..w {
+            for y in 0..h {
+                prefix[y + 1] = prefix[y] + src[y * w + x];
+            }
+            for y in 0..h {
+                let y_min = y.saturating_sub(r);
+                let y_max = (y + r).min(h - 1);
+                let count = (y_max - y_min + 1) as f32;
+                dest[y * w + x] = (prefix[y_max + 1] - prefix[y_min]) / count;
+            }
+        }
+    }
+    dest
+}
+
+fn box_filter(src: &[f32], w: usize, h: usize, r: usize) -> Vec<f32> {
+    let temp = box_filter_1d(src, w, h, r, true);
+    box_filter_1d(&temp, w, h, r, false)
+}
+
+pub fn fast_guided_filter(
+    guide_hr: &GrayImage,
+    mask_lr: &GrayImage,
+    r: usize,
+    eps: f32,
+) -> GrayImage {
+    let (hr_w, hr_h) = guide_hr.dimensions();
+    let (lr_w, lr_h) = mask_lr.dimensions();
+
+    let w = lr_w as usize;
+    let h = lr_h as usize;
+
+    let guide_lr = imageops::resize(guide_hr, lr_w, lr_h, FilterType::Triangle);
+
+    let mut i_lr = vec![0.0; w * h];
+    let mut p_lr = vec![0.0; w * h];
+    let mut ip_lr = vec![0.0; w * h];
+    let mut ii_lr = vec![0.0; w * h];
+
+    let guide_lr_raw = guide_lr.as_raw();
+    let mask_lr_raw = mask_lr.as_raw();
+
+    for i in 0..(w * h) {
+        let i_val = guide_lr_raw[i] as f32 / 255.0;
+        let p_val = mask_lr_raw[i] as f32 / 255.0;
+
+        i_lr[i] = i_val;
+        p_lr[i] = p_val;
+        ip_lr[i] = i_val * p_val;
+        ii_lr[i] = i_val * i_val;
+    }
+
+    let mean_i = box_filter(&i_lr, w, h, r);
+    let mean_p = box_filter(&p_lr, w, h, r);
+    let mean_ip = box_filter(&ip_lr, w, h, r);
+    let mean_ii = box_filter(&ii_lr, w, h, r);
+
+    let mut a = vec![0.0; w * h];
+    let mut b = vec![0.0; w * h];
+
+    for i in 0..(w * h) {
+        let cov_ip = mean_ip[i] - mean_i[i] * mean_p[i];
+        let var_i = mean_ii[i] - mean_i[i] * mean_i[i];
+        a[i] = cov_ip / (var_i + eps);
+        b[i] = mean_p[i] - a[i] * mean_i[i];
+    }
+
+    let mean_a = box_filter(&a, w, h, r);
+    let mean_b = box_filter(&b, w, h, r);
+
+    let mean_a_img = ImageBuffer::<Luma<f32>, Vec<f32>>::from_raw(lr_w, lr_h, mean_a).unwrap();
+    let mean_b_img = ImageBuffer::<Luma<f32>, Vec<f32>>::from_raw(lr_w, lr_h, mean_b).unwrap();
+
+    let mean_a_hr = imageops::resize(&mean_a_img, hr_w, hr_h, FilterType::Triangle);
+    let mean_b_hr = imageops::resize(&mean_b_img, hr_w, hr_h, FilterType::Triangle);
+
+    let mean_a_hr_raw = mean_a_hr.as_raw();
+    let mean_b_hr_raw = mean_b_hr.as_raw();
+    let guide_hr_raw = guide_hr.as_raw();
+
+    let mut final_mask_raw = vec![0u8; (hr_w * hr_h) as usize];
+
+    for i in 0..(hr_w * hr_h) as usize {
+        let a_val = mean_a_hr_raw[i];
+        let b_val = mean_b_hr_raw[i];
+        let i_val = guide_hr_raw[i] as f32 / 255.0;
+
+        let q = a_val * i_val + b_val;
+        final_mask_raw[i] = (q.clamp(0.0, 1.0) * 255.0).round() as u8;
+    }
+
+    GrayImage::from_raw(hr_w, hr_h, final_mask_raw).unwrap()
+}
+
 fn get_models_dir(app_handle: &tauri::AppHandle) -> Result<PathBuf> {
     let models_dir = app_handle.path().app_data_dir()?.join("models");
     if !models_dir.exists() {
@@ -1039,6 +1151,7 @@ pub fn run_sam_decoder(
     embeddings: &ImageEmbeddings,
     start_point: (f64, f64),
     end_point: (f64, f64),
+    original_image: Option<&DynamicImage>,
 ) -> Result<GrayImage> {
     let (orig_width, orig_height) = embeddings.original_size;
     let long_side = orig_width.max(orig_height) as f64;
@@ -1260,17 +1373,45 @@ pub fn run_sam_decoder(
     let gray_mask = GrayImage::from_raw(final_w as u32, final_h as u32, final_mask_data)
         .ok_or_else(|| anyhow::anyhow!("Failed to create mask image from raw data"))?;
 
-    let feathered_mask = image::imageops::blur(&gray_mask, 2.0);
+    if let Some(img) = original_image {
+        let (orig_width, orig_height) = img.dimensions();
+        let guide_hr = img.to_luma8();
 
-    Ok(feathered_mask)
+        let long_edge = orig_width.max(orig_height) as f32;
+        let radius = (long_edge * 0.0075).clamp(8.0, 24.0);
+
+        let resized_coarse_mask =
+            image::imageops::resize(&gray_mask, orig_width, orig_height, FilterType::Triangle);
+
+        let feathered_coarse_mask = image::imageops::blur(&resized_coarse_mask, radius / 3.0);
+
+        let mut refined_mask =
+            fast_guided_filter(&guide_hr, &feathered_coarse_mask, radius as usize, 0.01);
+
+        for p in refined_mask.pixels_mut() {
+            let v = p[0] as f32 / 255.0;
+            p[0] = (((v - 0.03) / 0.94).clamp(0.0, 1.0) * 255.0).round() as u8;
+        }
+
+        Ok(refined_mask)
+    } else {
+        let feathered_mask = image::imageops::blur(&gray_mask, 2.0);
+        let (orig_width, orig_height) = embeddings.original_size;
+        let final_mask = image::imageops::resize(
+            &feathered_mask,
+            orig_width,
+            orig_height,
+            FilterType::Triangle,
+        );
+
+        Ok(final_mask)
+    }
 }
 
 pub fn run_sky_seg_model(
     image: &DynamicImage,
     sky_seg_session: &Mutex<Session>,
 ) -> Result<GrayImage> {
-    let (orig_width, orig_height) = image.dimensions();
-
     let resized_image = image.resize(SKYSEG_INPUT_SIZE, SKYSEG_INPUT_SIZE, FilterType::Triangle);
     let (resized_w, resized_h) = resized_image.dimensions();
     let resized_rgb = resized_image.into_rgb8();
@@ -1341,7 +1482,13 @@ pub fn run_sky_seg_model(
     let cropped_mask = GrayImage::from_raw(resized_w, resized_h, cropped_mask_data)
         .ok_or_else(|| anyhow::anyhow!("Failed to create mask from Sky Segmentation output"))?;
 
-    let final_mask = imageops::resize(&cropped_mask, orig_width, orig_height, FilterType::Triangle);
+    let guide_hr = image.to_luma8();
+    let mut final_mask = fast_guided_filter(&guide_hr, &cropped_mask, 16, 0.01);
+
+    for p in final_mask.pixels_mut() {
+        let v = p[0] as f32 / 255.0;
+        p[0] = (((v - 0.03) / 0.94).clamp(0.0, 1.0) * 255.0).round() as u8;
+    }
 
     Ok(final_mask)
 }
@@ -1350,8 +1497,6 @@ pub fn run_u2netp_model(
     image: &DynamicImage,
     u2netp_session: &Mutex<Session>,
 ) -> Result<GrayImage> {
-    let (orig_width, orig_height) = image.dimensions();
-
     let resized_image = image.resize(U2NETP_INPUT_SIZE, U2NETP_INPUT_SIZE, FilterType::Triangle);
     let (resized_w, resized_h) = resized_image.dimensions();
     let resized_rgb = resized_image.into_rgb8();
@@ -1422,7 +1567,13 @@ pub fn run_u2netp_model(
     let cropped_mask = GrayImage::from_raw(resized_w, resized_h, cropped_mask_data)
         .ok_or_else(|| anyhow::anyhow!("Failed to create mask from U-2-Netp output"))?;
 
-    let final_mask = imageops::resize(&cropped_mask, orig_width, orig_height, FilterType::Triangle);
+    let guide_hr = image.to_luma8();
+    let mut final_mask = fast_guided_filter(&guide_hr, &cropped_mask, 16, 0.01);
+
+    for p in final_mask.pixels_mut() {
+        let v = p[0] as f32 / 255.0;
+        p[0] = (((v - 0.03) / 0.94).clamp(0.0, 1.0) * 255.0).round() as u8;
+    }
 
     Ok(final_mask)
 }
