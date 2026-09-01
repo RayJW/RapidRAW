@@ -14,6 +14,7 @@ import {
   FolderPlus,
   Images,
   LayoutTemplate,
+  LayersArrowDown,
   Redo,
   RefreshCw,
   RotateCcw,
@@ -242,7 +243,7 @@ export function useAppContextMenus(props: UseAppContextMenusProps) {
         },
         {
           label: t('contextMenus.merge.title'),
-          icon: Layers,
+          icon: LayersArrowDown,
           submenu: [
             { disabled: true, icon: SquaresUnite, label: t('contextMenus.editor.stitchPanorama') },
             { disabled: true, icon: Images, label: t('contextMenus.editor.mergeHdr') },
@@ -611,7 +612,7 @@ export function useAppContextMenus(props: UseAppContextMenusProps) {
         },
         {
           label: t('contextMenus.merge.title'),
-          icon: Layers,
+          icon: LayersArrowDown,
           submenu: [
             {
               disabled: selectionCount < 2 || selectionCount > 30,
