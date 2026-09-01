@@ -373,6 +373,7 @@ export default function CropPanel() {
       transformScale: INITIAL_ADJUSTMENTS.transformScale ?? 100,
       transformXOffset: INITIAL_ADJUSTMENTS.transformXOffset ?? 0,
       transformYOffset: INITIAL_ADJUSTMENTS.transformYOffset ?? 0,
+      guidedPerspective: INITIAL_ADJUSTMENTS.guidedPerspective,
       lensMaker: INITIAL_ADJUSTMENTS.lensMaker,
       lensModel: INITIAL_ADJUSTMENTS.lensModel,
       lensDistortionAmount: INITIAL_ADJUSTMENTS.lensDistortionAmount,
@@ -382,6 +383,7 @@ export default function CropPanel() {
       lensTcaEnabled: INITIAL_ADJUSTMENTS.lensTcaEnabled,
       lensVignetteEnabled: INITIAL_ADJUSTMENTS.lensVignetteEnabled,
       lensDistortionParams: INITIAL_ADJUSTMENTS.lensDistortionParams,
+      lensCorrectionMode: INITIAL_ADJUSTMENTS.lensCorrectionMode,
     }));
   };
 
@@ -693,7 +695,7 @@ export default function CropPanel() {
                   <span className="text-xs mt-2 transition-none">{t('editor.crop.labels.transform')}</span>
                 </motion.div>
                 <motion.div
-                  className="flex flex-col items-center justify-center p-3  cursor-pointer rounded-lg transition-colors bg-surface text-text-secondary hover:bg-card-active hover:text-text-primary group"
+                  className="flex flex-col items-center justify-center p-3 cursor-pointer rounded-lg transition-colors bg-surface text-text-secondary hover:bg-card-active hover:text-text-primary group"
                   onClick={() => setIsLensModalOpen(true)}
                   data-tooltip={t('editor.crop.tooltips.lens')}
                   whileTap={{ scale: 0.98 }}
@@ -722,17 +724,10 @@ export default function CropPanel() {
       <TransformModal
         isOpen={isTransformModalOpen}
         onClose={() => setIsTransformModalOpen(false)}
-        onApply={(newParams) => {
+        onApply={(newAdjustments) => {
           setAdjustments((prev: Adjustments) => ({
             ...prev,
-            transformDistortion: newParams.distortion,
-            transformVertical: newParams.vertical,
-            transformHorizontal: newParams.horizontal,
-            transformRotate: newParams.rotate,
-            transformAspect: newParams.aspect,
-            transformScale: newParams.scale,
-            transformXOffset: newParams.x_offset,
-            transformYOffset: newParams.y_offset,
+            ...newAdjustments,
           }));
         }}
         currentAdjustments={adjustments}

@@ -542,6 +542,14 @@
       "exporting": "Exportieren…",
       "savesTo": "Externe Bearbeitung — speichert in"
     },
+    "guided": {
+      "hint": "Zeichnen Sie entlang der Kanten in Ihrem Foto, die vertikal oder horizontal sein sollten.",
+      "linesStatus": "Aktive Hilfslinien",
+      "toast": {
+        "angleRejected": "Linienwinkel ist zu weit von horizontal oder vertikal entfernt",
+        "maxLines": "Maximal 2 vertikale und 2 horizontale Linien erlaubt"
+      }
+    },
     "layout": {
       "split": "Teilen"
     },
@@ -1164,6 +1172,7 @@
         "curves": "Kurven",
         "exposureToneMapper": "Belichtung & Tonemapper",
         "grain": "Körnung",
+        "guidedPerspective": "Geführte Perspektive",
         "halationGlow": "Lichthof & Glühen",
         "hueShift": "Globaler Farbton-Shift",
         "lensCorrection": "Objektivkorrektur",
@@ -1411,7 +1420,9 @@
       "cancel": "Abbrechen",
       "compareTooltip": "Halten zum Vergleichen",
       "distortion": "Verzerrung",
+      "guided": "Geführte Perspektive",
       "horizontal": "Horizontal",
+      "manual": "Manuelle Transformation",
       "maskWarning": "Transformieren aktualisiert die Basisgeometrie. Masken können sich verschieben, KI-Masken müssen neu generiert werden.",
       "offset": "Versatz",
       "original": "Original",

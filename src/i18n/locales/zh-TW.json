@@ -540,6 +540,14 @@
       "exporting": "正在匯出…",
       "savesTo": "外部編輯 — 儲存至"
     },
+    "guided": {
+      "hint": "沿著照片中應該是垂直或水平的邊緣繪製。",
+      "linesStatus": "活躍引導線",
+      "toast": {
+        "angleRejected": "線條角度偏離水平或垂直太遠",
+        "maxLines": "最多允許 2 條垂直線和 2 條水平線"
+      }
+    },
     "layout": {
       "split": "拆分"
     },
@@ -1162,6 +1170,7 @@
         "curves": "曲線",
         "exposureToneMapper": "曝光與色調映射",
         "grain": "顆粒",
+        "guidedPerspective": "引導透視",
         "halationGlow": "光暈與發光",
         "hueShift": "全域色相偏移",
         "lensCorrection": "鏡頭校正",
@@ -1409,7 +1418,9 @@
       "cancel": "取消",
       "compareTooltip": "按住以對比",
       "distortion": "畸變",
+      "guided": "引導透視",
       "horizontal": "水平",
+      "manual": "手動變換",
       "maskWarning": "變換會更新基礎幾何形狀。現有遮色片可能會偏移，AI 遮色片需要重新生成。",
       "offset": "偏移",
       "original": "原始",

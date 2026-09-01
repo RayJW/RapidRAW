@@ -562,6 +562,14 @@
       "exporting": "Exportando…",
       "savesTo": "Edición externa: se guarda en"
     },
+    "guided": {
+      "hint": "Dibuja a lo largo de los bordes de tu foto que deberían ser verticales u horizontales.",
+      "linesStatus": "Líneas guía activas",
+      "toast": {
+        "angleRejected": "El ángulo de la línea está demasiado lejos de la horizontal o vertical",
+        "maxLines": "Se permiten un máximo de 2 líneas verticales y 2 horizontales"
+      }
+    },
     "layout": {
       "split": "Dividir"
     },
@@ -1188,6 +1196,7 @@
         "curves": "Curvas",
         "exposureToneMapper": "Exposición y Mapeador de tonos",
         "grain": "Grano",
+        "guidedPerspective": "Perspectiva guiada",
         "halationGlow": "Halación y Resplandor",
         "hueShift": "Cambio de tono global",
         "lensCorrection": "Corrección de lente",
@@ -1441,7 +1450,9 @@
       "cancel": "Cancelar",
       "compareTooltip": "Mantén presionado para comparar",
       "distortion": "Distorsión",
+      "guided": "Perspectiva guiada",
       "horizontal": "Horizontal",
+      "manual": "Transformación manual",
       "maskWarning": "Transformar actualiza la geometría base. Las máscaras existentes pueden desplazarse y las máscaras de IA deben regenerarse.",
       "offset": "Desplazamiento",
       "original": "Original",

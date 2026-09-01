@@ -22,7 +22,7 @@ import Slider from '../ui/Slider';
 import Dropdown from '../ui/Dropdown';
 import Switch from '../ui/Switch';
 import throttle from 'lodash.throttle';
-import { Adjustments } from '../../utils/adjustments';
+import { Adjustments, GuideLine } from '../../utils/adjustments';
 import { SelectedImage } from '../ui/AppProperties';
 import clsx from 'clsx';
 import Text from '../ui/Text';
@@ -37,6 +37,8 @@ interface GeometryParams {
   scale: number;
   x_offset: number;
   y_offset: number;
+  guided_lines: GuideLine[];
+  guided_perspective_enabled: boolean;
   lens_distortion_amount: number;
   lens_vignette_amount: number;
   lens_tca_amount: number;
@@ -261,6 +263,9 @@ export default function LensCorrectionModal({
           scale: currentAdjustments.transformScale ?? 100,
           x_offset: currentAdjustments.transformXOffset ?? 0,
           y_offset: currentAdjustments.transformYOffset ?? 0,
+
+          guided_lines: currentAdjustments.guidedPerspective?.lines ?? [],
+          guided_perspective_enabled: currentAdjustments.guidedPerspective?.enabled ?? false,
 
           lens_distortion_amount: currentParams.lensDistortionAmount / SLIDER_DIVISOR,
           lens_vignette_amount: currentParams.lensVignetteAmount / SLIDER_DIVISOR,
@@ -501,6 +506,9 @@ export default function LensCorrectionModal({
         scale: currentAdjustments.transformScale ?? 100,
         x_offset: currentAdjustments.transformXOffset ?? 0,
         y_offset: currentAdjustments.transformYOffset ?? 0,
+
+        guided_lines: currentAdjustments.guidedPerspective?.lines ?? [],
+        guided_perspective_enabled: currentAdjustments.guidedPerspective?.enabled ?? false,
 
         lens_distortion_amount: (currentAdjustments.lensDistortionAmount ?? 100) / SLIDER_DIVISOR,
         lens_vignette_amount: (currentAdjustments.lensVignetteAmount ?? 100) / SLIDER_DIVISOR,

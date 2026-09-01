@@ -540,6 +540,14 @@
       "exporting": "書き出し中…",
       "savesTo": "外部編集 — 保存先"
     },
+    "guided": {
+      "hint": "垂直または水平であるべき写真の縁に沿って描画します。",
+      "linesStatus": "アクティブなガイドライン",
+      "toast": {
+        "angleRejected": "線の角度が水平または垂直から離れすぎています",
+        "maxLines": "垂直線と水平線はそれぞれ最大2本まで許可されています"
+      }
+    },
     "layout": {
       "split": "分割"
     },
@@ -1162,6 +1170,7 @@
         "curves": "トーンカーブ",
         "exposureToneMapper": "露光量とトーンマッパー",
         "grain": "粒子",
+        "guidedPerspective": "ガイド付きパースペクティブ",
         "halationGlow": "ハレーションとグロー",
         "hueShift": "グローバル色相シフト",
         "lensCorrection": "レンズ補正",
@@ -1409,7 +1418,9 @@
       "cancel": "キャンセル",
       "compareTooltip": "長押しで比較",
       "distortion": "歪み歪正",
+      "guided": "ガイド付きパースペクティブ",
       "horizontal": "水平方向",
+      "manual": "手動変形",
       "maskWarning": "変形を適用するとベースの形状が変更されるため、既存のマスクがずれる場合があります。また、AIマスクは再生成する必要があります。",
       "offset": "オフセット",
       "original": "オリジナル",

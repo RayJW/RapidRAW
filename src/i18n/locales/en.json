@@ -542,6 +542,14 @@
       "exporting": "Exporting…",
       "savesTo": "External edit — saves to"
     },
+    "guided": {
+      "hint": "Draw along edges in your photo that should be vertical or horizontal.",
+      "linesStatus": "Active Guide Lines",
+      "toast": {
+        "angleRejected": "Line angle is too far from horizontal or vertical",
+        "maxLines": "Maximum 2 vertical and 2 horizontal lines allowed"
+      }
+    },
     "layout": {
       "split": "Split"
     },
@@ -1164,6 +1172,7 @@
         "curves": "Curves",
         "exposureToneMapper": "Exposure & Tone Mapper",
         "grain": "Grain",
+        "guidedPerspective": "Guided Perspective",
         "halationGlow": "Halation & Glow",
         "hueShift": "Global Hue Shift",
         "lensCorrection": "Lens Correction",
@@ -1411,7 +1420,9 @@
       "cancel": "Cancel",
       "compareTooltip": "Hold to Compare",
       "distortion": "Distortion",
+      "guided": "Guided Perspective",
       "horizontal": "Horizontal",
+      "manual": "Manual Transform",
       "maskWarning": "Transforming updates base geometry. Existing masks may shift, and AI masks must be regenerated.",
       "offset": "Offset",
       "original": "Original",

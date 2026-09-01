@@ -22,6 +22,7 @@ mod file_management;
 mod focus_stacking;
 mod formats;
 mod gpu_processing;
+mod guided_perspective;
 mod hdr_deghosting;
 mod image_loader;
 mod image_processing;
@@ -2402,6 +2403,7 @@ pub fn run() {
             camera_tethering::tether_capture,
             camera_tethering::tether_get_preview,
             camera_tethering::tether_autofocus,
+            guided_perspective::calculate_guided_perspective,
         ])
         .build(tauri::generate_context!())
         .expect("error while building tauri application")

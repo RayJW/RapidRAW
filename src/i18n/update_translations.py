@@ -5,145 +5,301 @@ LOCALES_DIR = Path("./locales")
 
 TRANSLATIONS = {
     "ca": {
-        "contextMenus": {
-            "editor": {
-                "autoLensCorrection": "Correcció d'objectiu automàtica"
+        "editor": {
+            "guided": {
+                "hint": "Dibuixa al llarg de les vores de la foto que haurien de ser verticals o horitzontals.",
+                "linesStatus": "Línies guia actives",
+                "toast": {
+                    "angleRejected": "L'angle de la línia està massa lluny de l'horitzontal o vertical",
+                    "maxLines": "Es permeten com a màxim 2 línies verticals i 2 horitzontals"
+                }
+            }
+        },
+        "modals": {
+            "copyPaste": {
+                "groups": {
+                    "guidedPerspective": "Perspectiva guiada"
+                }
             },
-            "thumbnail": {
-                "autoLensCorrection_one": "Correcció d'objectiu automàtica",
-                "autoLensCorrection_other": "Correcció d'objectiu automàtica"
+            "transform": {
+                "guided": "Perspectiva guiada",
+                "manual": "Transformació manual"
             }
         }
     },
     "de": {
-        "contextMenus": {
-            "editor": {
-                "autoLensCorrection": "Autom. Objektivkorrektur"
+        "editor": {
+            "guided": {
+                "hint": "Zeichnen Sie entlang der Kanten in Ihrem Foto, die vertikal oder horizontal sein sollten.",
+                "linesStatus": "Aktive Hilfslinien",
+                "toast": {
+                    "angleRejected": "Linienwinkel ist zu weit von horizontal oder vertikal entfernt",
+                    "maxLines": "Maximal 2 vertikale und 2 horizontale Linien erlaubt"
+                }
+            }
+        },
+        "modals": {
+            "copyPaste": {
+                "groups": {
+                    "guidedPerspective": "Geführte Perspektive"
+                }
             },
-            "thumbnail": {
-                "autoLensCorrection_one": "Autom. Objektivkorrektur",
-                "autoLensCorrection_other": "Autom. Objektivkorrektur"
+            "transform": {
+                "guided": "Geführte Perspektive",
+                "manual": "Manuelle Transformation"
             }
         }
     },
     "en": {
-        "contextMenus": {
-            "editor": {
-                "autoLensCorrection": "Auto Lens Correction"
+        "editor": {
+            "guided": {
+                "hint": "Draw along edges in your photo that should be vertical or horizontal.",
+                "linesStatus": "Active Guide Lines",
+                "toast": {
+                    "angleRejected": "Line angle is too far from horizontal or vertical",
+                    "maxLines": "Maximum 2 vertical and 2 horizontal lines allowed"
+                }
+            }
+        },
+        "modals": {
+            "copyPaste": {
+                "groups": {
+                    "guidedPerspective": "Guided Perspective"
+                }
             },
-            "thumbnail": {
-                "autoLensCorrection_one": "Auto Lens Correction",
-                "autoLensCorrection_other": "Auto Lens Correction"
+            "transform": {
+                "guided": "Guided Perspective",
+                "manual": "Manual Transform"
             }
         }
     },
     "es": {
-        "contextMenus": {
-            "editor": {
-                "autoLensCorrection": "Corrección de lente automática"
+        "editor": {
+            "guided": {
+                "hint": "Dibuja a lo largo de los bordes de tu foto que deberían ser verticales u horizontales.",
+                "linesStatus": "Líneas guía activas",
+                "toast": {
+                    "angleRejected": "El ángulo de la línea está demasiado lejos de la horizontal o vertical",
+                    "maxLines": "Se permiten un máximo de 2 líneas verticales y 2 horizontales"
+                }
+            }
+        },
+        "modals": {
+            "copyPaste": {
+                "groups": {
+                    "guidedPerspective": "Perspectiva guiada"
+                }
             },
-            "thumbnail": {
-                "autoLensCorrection_one": "Corrección de lente automática",
-                "autoLensCorrection_other": "Corrección de lente automática"
+            "transform": {
+                "guided": "Perspectiva guiada",
+                "manual": "Transformación manual"
             }
         }
     },
     "fr": {
-        "contextMenus": {
-            "editor": {
-                "autoLensCorrection": "Correction d'objectif automatique"
+        "editor": {
+            "guided": {
+                "hint": "Tracez le long des bords de votre photo qui devraient être verticaux ou horizontaux.",
+                "linesStatus": "Lignes de guidage actives",
+                "toast": {
+                    "angleRejected": "L'angle de la ligne est trop éloigné de l'horizontale ou de la verticale",
+                    "maxLines": "Maximum de 2 lignes verticales et 2 lignes horizontales autorisées"
+                }
+            }
+        },
+        "modals": {
+            "copyPaste": {
+                "groups": {
+                    "guidedPerspective": "Perspective guidée"
+                }
             },
-            "thumbnail": {
-                "autoLensCorrection_one": "Correction d'objectif automatique",
-                "autoLensCorrection_other": "Corrections d'objectif automatiques"
+            "transform": {
+                "guided": "Perspective guidée",
+                "manual": "Transformation manuelle"
             }
         }
     },
     "it": {
-        "contextMenus": {
-            "editor": {
-                "autoLensCorrection": "Correzione automatica obiettivo"
+        "editor": {
+            "guided": {
+                "hint": "Disegna lungo i bordi della tua foto che dovrebbero essere verticali o orizzontali.",
+                "linesStatus": "Linee guida attive",
+                "toast": {
+                    "angleRejected": "L'angolo della linea è troppo lontano dall'orizzontale o verticale",
+                    "maxLines": "Sono consentite massimo 2 linee verticali e 2 orizzontali"
+                }
+            }
+        },
+        "modals": {
+            "copyPaste": {
+                "groups": {
+                    "guidedPerspective": "Prospettiva guidata"
+                }
             },
-            "thumbnail": {
-                "autoLensCorrection_one": "Correzione automatica obiettivo",
-                "autoLensCorrection_other": "Correzione automatica obiettivo"
+            "transform": {
+                "guided": "Prospettiva guidata",
+                "manual": "Trasformazione manuale"
             }
         }
     },
     "ja": {
-        "contextMenus": {
-            "editor": {
-                "autoLensCorrection": "自動レンズ補正"
+        "editor": {
+            "guided": {
+                "hint": "垂直または水平であるべき写真の縁に沿って描画します。",
+                "linesStatus": "アクティブなガイドライン",
+                "toast": {
+                    "angleRejected": "線の角度が水平または垂直から離れすぎています",
+                    "maxLines": "垂直線と水平線はそれぞれ最大2本まで許可されています"
+                }
+            }
+        },
+        "modals": {
+            "copyPaste": {
+                "groups": {
+                    "guidedPerspective": "ガイド付きパースペクティブ"
+                }
             },
-            "thumbnail": {
-                "autoLensCorrection_one": "自動レンズ補正",
-                "autoLensCorrection_other": "自動レンズ補正"
+            "transform": {
+                "guided": "ガイド付きパースペクティブ",
+                "manual": "手動変形"
             }
         }
     },
     "ko": {
-        "contextMenus": {
-            "editor": {
-                "autoLensCorrection": "자동 렌즈 교정"
+        "editor": {
+            "guided": {
+                "hint": "사진에서 수직이나 수평이 되어야 하는 가장자리를 따라 그리세요.",
+                "linesStatus": "활성 안내선",
+                "toast": {
+                    "angleRejected": "선의 각도가 수평이나 수직에서 너무 벗어났습니다",
+                    "maxLines": "수직선 2개, 수평선 2개까지만 허용됩니다"
+                }
+            }
+        },
+        "modals": {
+            "copyPaste": {
+                "groups": {
+                    "guidedPerspective": "유도된 원근 보정"
+                }
             },
-            "thumbnail": {
-                "autoLensCorrection_one": "자동 렌즈 교정",
-                "autoLensCorrection_other": "자동 렌즈 교정"
+            "transform": {
+                "guided": "유도된 원근 보정",
+                "manual": "수동 변형"
             }
         }
     },
     "pl": {
-        "contextMenus": {
-            "editor": {
-                "autoLensCorrection": "Automatyczna korekcja obiektywu"
+        "editor": {
+            "guided": {
+                "hint": "Rysuj wzdłuż krawędzi na zdjęciu, które powinny być pionowe lub poziome.",
+                "linesStatus": "Aktywne linie pomocnicze",
+                "toast": {
+                    "angleRejected": "Kąt linii jest zbyt odległy od poziomu lub pionu",
+                    "maxLines": "Dozwolone są maksymalnie 2 linie pionowe i 2 poziome"
+                }
+            }
+        },
+        "modals": {
+            "copyPaste": {
+                "groups": {
+                    "guidedPerspective": "Perspektywa z przewodnikiem"
+                }
             },
-            "thumbnail": {
-                "autoLensCorrection_one": "Automatyczna korekcja obiektywu",
-                "autoLensCorrection_other": "Automatyczna korekcja obiektywu"
+            "transform": {
+                "guided": "Perspektywa z przewodnikiem",
+                "manual": "Ręczne przekształcenie"
             }
         }
     },
     "pt": {
-        "contextMenus": {
-            "editor": {
-                "autoLensCorrection": "Correção automática de lente"
+        "editor": {
+            "guided": {
+                "hint": "Desenhe ao longo das bordas da sua foto que devem ser verticais ou horizontais.",
+                "linesStatus": "Linhas guias ativas",
+                "toast": {
+                    "angleRejected": "O ângulo da linha está muito longe da horizontal ou vertical",
+                    "maxLines": "São permitidas no máximo 2 linhas verticais e 2 horizontais"
+                }
+            }
+        },
+        "modals": {
+            "copyPaste": {
+                "groups": {
+                    "guidedPerspective": "Perspectiva guiada"
+                }
             },
-            "thumbnail": {
-                "autoLensCorrection_one": "Correção automática de lente",
-                "autoLensCorrection_other": "Correção automática de lente"
+            "transform": {
+                "guided": "Perspectiva guiada",
+                "manual": "Transformação manual"
             }
         }
     },
     "ru": {
-        "contextMenus": {
-            "editor": {
-                "autoLensCorrection": "Автокоррекция объектива"
+        "editor": {
+            "guided": {
+                "hint": "Нарисуйте вдоль краев на фото, которые должны быть вертикальными или горизонтальными.",
+                "linesStatus": "Активные направляющие",
+                "toast": {
+                    "angleRejected": "Угол линии слишком далек от горизонтали или вертикали",
+                    "maxLines": "Допускается максимум 2 вертикальные и 2 горизонтальные линии"
+                }
+            }
+        },
+        "modals": {
+            "copyPaste": {
+                "groups": {
+                    "guidedPerspective": "Направляемая перспектива"
+                }
             },
-            "thumbnail": {
-                "autoLensCorrection_one": "Автокоррекция объектива",
-                "autoLensCorrection_other": "Автокоррекция объектива"
+            "transform": {
+                "guided": "Направляемая перспектива",
+                "manual": "Ручная трансформация"
             }
         }
     },
     "zh-CN": {
-        "contextMenus": {
-            "editor": {
-                "autoLensCorrection": "自动镜头校正"
+        "editor": {
+            "guided": {
+                "hint": "沿着照片中应该是垂直或水平的边缘绘制。",
+                "linesStatus": "活跃引导线",
+                "toast": {
+                    "angleRejected": "线条角度偏离水平或垂直太远",
+                    "maxLines": "最多允许 2 条垂直线和 2 条水平线"
+                }
+            }
+        },
+        "modals": {
+            "copyPaste": {
+                "groups": {
+                    "guidedPerspective": "引导透视"
+                }
             },
-            "thumbnail": {
-                "autoLensCorrection_one": "自动镜头校正",
-                "autoLensCorrection_other": "自动镜头校正"
+            "transform": {
+                "guided": "引导透视",
+                "manual": "手动变换"
             }
         }
     },
     "zh-TW": {
-        "contextMenus": {
-            "editor": {
-                "autoLensCorrection": "自動鏡頭校正"
+        "editor": {
+            "guided": {
+                "hint": "沿著照片中應該是垂直或水平的邊緣繪製。",
+                "linesStatus": "活躍引導線",
+                "toast": {
+                    "angleRejected": "線條角度偏離水平或垂直太遠",
+                    "maxLines": "最多允許 2 條垂直線和 2 條水平線"
+                }
+            }
+        },
+        "modals": {
+            "copyPaste": {
+                "groups": {
+                    "guidedPerspective": "引導透視"
+                }
             },
-            "thumbnail": {
-                "autoLensCorrection_one": "自動鏡頭校正",
-                "autoLensCorrection_other": "自動鏡頭校正"
+            "transform": {
+                "guided": "引導透視",
+                "manual": "手動變換"
             }
         }
     }
@@ -195,7 +351,7 @@ def main():
         print(f"Error: Locales directory '{LOCALES_DIR}' does not exist.")
         return
 
-    print("Starting translation updates for Auto Lens Correction...")
+    print("Starting translation updates for Guided Perspective...")
     for lang, trans in TRANSLATIONS.items():
         file_path = LOCALES_DIR / f"{lang}.json"
         update_json_file(file_path, trans)
