@@ -178,6 +178,7 @@
     },
     "editor": {
       "autoAdjust": "Ajustament automàtic",
+      "autoLensCorrection": "Correcció d'objectiu automàtica",
       "cancel": "Cancel·lar",
       "colorLabel": "Etiqueta de color",
       "confirmReset": "Confirmar restabliment",
@@ -240,6 +241,8 @@
       "addToAlbum": "Afegir a l'àlbum",
       "autoAdjust_one": "Ajustament automàtic de la imatge",
       "autoAdjust_other": "Ajustament automàtic de les imatges",
+      "autoLensCorrection_one": "Correcció d'objectiu automàtica",
+      "autoLensCorrection_other": "Correcció d'objectiu automàtica",
       "collage_one": "Emmarcar imatge",
       "collage_other": "Crear collage",
       "confirmDelete": "Confirmar eliminació",

@@ -178,6 +178,7 @@
     },
     "editor": {
       "autoAdjust": "Ajuste Automático",
+      "autoLensCorrection": "Correção automática de lente",
       "cancel": "Cancelar",
       "colorLabel": "Rótulo de Cor",
       "confirmReset": "Confirmar Redefinição",
@@ -245,6 +246,8 @@
       "autoAdjust_many": "Ajustar Imagens Automaticamente",
       "autoAdjust_one": "Ajustar Imagem Automaticamente",
       "autoAdjust_other": "Ajustar Imagens Automaticamente",
+      "autoLensCorrection_one": "Correção automática de lente",
+      "autoLensCorrection_other": "Correção automática de lente",
       "collage_many": "Criar Colagem",
       "collage_one": "Emoldurar Imagem",
       "collage_other": "Criar Colagem",

@@ -178,6 +178,7 @@
     },
     "editor": {
       "autoAdjust": "自動調整影像",
+      "autoLensCorrection": "自動鏡頭校正",
       "cancel": "取消",
       "colorLabel": "顏色標籤",
       "confirmReset": "確認重置",
@@ -240,6 +241,8 @@
       "addToAlbum": "新增到相簿",
       "autoAdjust_one": "自動調整影像",
       "autoAdjust_other": "自動調整影像",
+      "autoLensCorrection_one": "自動鏡頭校正",
+      "autoLensCorrection_other": "自動鏡頭校正",
       "collage_one": "裝裱影像",
       "collage_other": "建立拼貼畫",
       "confirmDelete": "確認刪除",

@@ -178,6 +178,7 @@
     },
     "editor": {
       "autoAdjust": "Bild autom. anpassen",
+      "autoLensCorrection": "Autom. Objektivkorrektur",
       "cancel": "Abbrechen",
       "colorLabel": "Farbmarkierung",
       "confirmReset": "Zurücksetzen bestätigen",
@@ -240,6 +241,8 @@
       "addToAlbum": "Zu Album hinzufügen",
       "autoAdjust_one": "Bild autom. anpassen",
       "autoAdjust_other": "Bilder autom. anpassen",
+      "autoLensCorrection_one": "Autom. Objektivkorrektur",
+      "autoLensCorrection_other": "Autom. Objektivkorrektur",
       "collage_one": "Bild rahmen",
       "collage_other": "Collage erstellen",
       "confirmDelete": "Löschen bestätigen",

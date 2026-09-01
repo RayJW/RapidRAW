@@ -43,6 +43,7 @@ import {
   Briefcase,
   User,
   Album as AlbumIcon,
+  PencilSparkles,
 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { useTranslation } from 'react-i18next';
@@ -75,8 +76,13 @@ export function useAppContextMenus(props: UseAppContextMenusProps) {
   const { t } = useTranslation();
   const { showContextMenu } = useContextMenu();
 
-  const { handleAutoAdjustments, handleResetAdjustments, handleCopyAdjustments, handlePasteAdjustments } =
-    useEditorActions();
+  const {
+    handleAutoAdjustments,
+    handleAutoLensCorrection,
+    handleResetAdjustments,
+    handleCopyAdjustments,
+    handlePasteAdjustments,
+  } = useEditorActions();
   const { handleRate, handleSetColorLabel, handleTagsChanged } = useLibraryActions();
 
   const albumIcons = useMemo(
@@ -201,8 +207,14 @@ export function useAppContextMenus(props: UseAppContextMenusProps) {
           submenu: [
             {
               label: t('contextMenus.editor.autoAdjust'),
-              icon: Aperture,
+              icon: PencilSparkles,
               onClick: handleAutoAdjustments,
+              disabled: !selectedImage?.isReady,
+            },
+            {
+              label: t('contextMenus.editor.autoLensCorrection'),
+              icon: Aperture,
+              onClick: () => handleAutoLensCorrection([selectedImage.path]),
               disabled: !selectedImage?.isReady,
             },
             {
@@ -557,7 +569,12 @@ export function useAppContextMenus(props: UseAppContextMenusProps) {
           label: t('contextMenus.editor.productivity'),
           icon: Gauge,
           submenu: [
-            { label: autoAdjustLabel, icon: Aperture, onClick: handleApplyAutoAdjustmentsToSelection },
+            { label: autoAdjustLabel, icon: PencilSparkles, onClick: handleApplyAutoAdjustmentsToSelection },
+            {
+              label: t('contextMenus.thumbnail.autoLensCorrection', { count: selectionCount }),
+              icon: Aperture,
+              onClick: () => handleAutoLensCorrection(finalSelection),
+            },
             {
               label: denoiseLabel,
               icon: Grip,

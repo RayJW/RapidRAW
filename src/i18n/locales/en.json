@@ -178,6 +178,7 @@
     },
     "editor": {
       "autoAdjust": "Auto Adjust Image",
+      "autoLensCorrection": "Auto Lens Correction",
       "cancel": "Cancel",
       "colorLabel": "Color Label",
       "confirmReset": "Confirm Reset",
@@ -240,6 +241,8 @@
       "addToAlbum": "Add to Album",
       "autoAdjust_one": "Auto Adjust Image",
       "autoAdjust_other": "Auto Adjust Images",
+      "autoLensCorrection_one": "Auto Lens Correction",
+      "autoLensCorrection_other": "Auto Lens Correction",
       "collage_one": "Frame Image",
       "collage_other": "Create Collage",
       "confirmDelete": "Confirm Delete",

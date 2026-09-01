@@ -5,119 +5,145 @@ LOCALES_DIR = Path("./locales")
 
 TRANSLATIONS = {
     "ca": {
-        "editor": {
-            "masks": {
-                "aiTitle": "Seleccions d'IA",
-                "basicTitle": "Eines bàsiques",
-                "rangeTitle": "Rangs i global"
+        "contextMenus": {
+            "editor": {
+                "autoLensCorrection": "Correcció d'objectiu automàtica"
+            },
+            "thumbnail": {
+                "autoLensCorrection_one": "Correcció d'objectiu automàtica",
+                "autoLensCorrection_other": "Correcció d'objectiu automàtica"
             }
         }
     },
     "de": {
-        "editor": {
-            "masks": {
-                "aiTitle": "KI-Auswahl",
-                "basicTitle": "Basis-Werkzeuge",
-                "rangeTitle": "Bereiche & Global"
+        "contextMenus": {
+            "editor": {
+                "autoLensCorrection": "Autom. Objektivkorrektur"
+            },
+            "thumbnail": {
+                "autoLensCorrection_one": "Autom. Objektivkorrektur",
+                "autoLensCorrection_other": "Autom. Objektivkorrektur"
             }
         }
     },
     "en": {
-        "editor": {
-            "masks": {
-                "aiTitle": "AI Selections",
-                "basicTitle": "Basic Tools",
-                "rangeTitle": "Ranges & Global"
+        "contextMenus": {
+            "editor": {
+                "autoLensCorrection": "Auto Lens Correction"
+            },
+            "thumbnail": {
+                "autoLensCorrection_one": "Auto Lens Correction",
+                "autoLensCorrection_other": "Auto Lens Correction"
             }
         }
     },
     "es": {
-        "editor": {
-            "masks": {
-                "aiTitle": "Selecciones de IA",
-                "basicTitle": "Herramientas básicas",
-                "rangeTitle": "Rangos y global"
+        "contextMenus": {
+            "editor": {
+                "autoLensCorrection": "Corrección de lente automática"
+            },
+            "thumbnail": {
+                "autoLensCorrection_one": "Corrección de lente automática",
+                "autoLensCorrection_other": "Corrección de lente automática"
             }
         }
     },
     "fr": {
-        "editor": {
-            "masks": {
-                "aiTitle": "Sélections IA",
-                "basicTitle": "Outils de base",
-                "rangeTitle": "Plages & Global"
+        "contextMenus": {
+            "editor": {
+                "autoLensCorrection": "Correction d'objectif automatique"
+            },
+            "thumbnail": {
+                "autoLensCorrection_one": "Correction d'objectif automatique",
+                "autoLensCorrection_other": "Corrections d'objectif automatiques"
             }
         }
     },
     "it": {
-        "editor": {
-            "masks": {
-                "aiTitle": "Selezioni IA",
-                "basicTitle": "Strumenti di base",
-                "rangeTitle": "Intervalli e Globale"
+        "contextMenus": {
+            "editor": {
+                "autoLensCorrection": "Correzione automatica obiettivo"
+            },
+            "thumbnail": {
+                "autoLensCorrection_one": "Correzione automatica obiettivo",
+                "autoLensCorrection_other": "Correzione automatica obiettivo"
             }
         }
     },
     "ja": {
-        "editor": {
-            "masks": {
-                "aiTitle": "AI選択",
-                "basicTitle": "基本ツール",
-                "rangeTitle": "範囲とグローバル"
+        "contextMenus": {
+            "editor": {
+                "autoLensCorrection": "自動レンズ補正"
+            },
+            "thumbnail": {
+                "autoLensCorrection_one": "自動レンズ補正",
+                "autoLensCorrection_other": "自動レンズ補正"
             }
         }
     },
     "ko": {
-        "editor": {
-            "masks": {
-                "aiTitle": "AI 선택",
-                "basicTitle": "기본 도구",
-                "rangeTitle": "범위 및 글로벌"
+        "contextMenus": {
+            "editor": {
+                "autoLensCorrection": "자동 렌즈 교정"
+            },
+            "thumbnail": {
+                "autoLensCorrection_one": "자동 렌즈 교정",
+                "autoLensCorrection_other": "자동 렌즈 교정"
             }
         }
     },
     "pl": {
-        "editor": {
-            "masks": {
-                "aiTitle": "Zaznaczenia AI",
-                "basicTitle": "Podstawowe narzędzia",
-                "rangeTitle": "Zakresy i globalne"
+        "contextMenus": {
+            "editor": {
+                "autoLensCorrection": "Automatyczna korekcja obiektywu"
+            },
+            "thumbnail": {
+                "autoLensCorrection_one": "Automatyczna korekcja obiektywu",
+                "autoLensCorrection_other": "Automatyczna korekcja obiektywu"
             }
         }
     },
     "pt": {
-        "editor": {
-            "masks": {
-                "aiTitle": "Seleções de IA",
-                "basicTitle": "Ferramentas Básicas",
-                "rangeTitle": "Intervalos e Global"
+        "contextMenus": {
+            "editor": {
+                "autoLensCorrection": "Correção automática de lente"
+            },
+            "thumbnail": {
+                "autoLensCorrection_one": "Correção automática de lente",
+                "autoLensCorrection_other": "Correção automática de lente"
             }
         }
     },
     "ru": {
-        "editor": {
-            "masks": {
-                "aiTitle": "Выделения ИИ",
-                "basicTitle": "Базовые инструменты",
-                "rangeTitle": "Диапазоны и глобальные"
+        "contextMenus": {
+            "editor": {
+                "autoLensCorrection": "Автокоррекция объектива"
+            },
+            "thumbnail": {
+                "autoLensCorrection_one": "Автокоррекция объектива",
+                "autoLensCorrection_other": "Автокоррекция объектива"
             }
         }
     },
     "zh-CN": {
-        "editor": {
-            "masks": {
-                "aiTitle": "AI 选择",
-                "basicTitle": "基本工具",
-                "rangeTitle": "范围与全局"
+        "contextMenus": {
+            "editor": {
+                "autoLensCorrection": "自动镜头校正"
+            },
+            "thumbnail": {
+                "autoLensCorrection_one": "自动镜头校正",
+                "autoLensCorrection_other": "自动镜头校正"
             }
         }
     },
     "zh-TW": {
-        "editor": {
-            "masks": {
-                "aiTitle": "AI 選擇",
-                "basicTitle": "基本工具",
-                "rangeTitle": "範圍與全域"
+        "contextMenus": {
+            "editor": {
+                "autoLensCorrection": "自動鏡頭校正"
+            },
+            "thumbnail": {
+                "autoLensCorrection_one": "自動鏡頭校正",
+                "autoLensCorrection_other": "自動鏡頭校正"
             }
         }
     }
@@ -155,13 +181,7 @@ def update_json_file(file_path: Path, trans: dict):
     # 1. Merge new translations
     deep_merge(data, trans)
 
-    # 2. Clean up removed keys from the diff
-    if "editor" in data and "masks" in data["editor"]:
-        data["editor"]["masks"].pop("createNewTitle", None)
-        if "tooltips" in data["editor"]["masks"]:
-            data["editor"]["masks"]["tooltips"].pop("showMore", None)
-
-    # 3. Sort alphabetically
+    # 2. Sort alphabetically to maintain formatting consistency
     sorted_data = sort_dict_recursively(data)
 
     with open(file_path, "w", encoding="utf-8") as f:
@@ -175,7 +195,7 @@ def main():
         print(f"Error: Locales directory '{LOCALES_DIR}' does not exist.")
         return
 
-    print("Starting translation updates for Mask Panel sections...")
+    print("Starting translation updates for Auto Lens Correction...")
     for lang, trans in TRANSLATIONS.items():
         file_path = LOCALES_DIR / f"{lang}.json"
         update_json_file(file_path, trans)

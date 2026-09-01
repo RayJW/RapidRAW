@@ -178,6 +178,7 @@
     },
     "editor": {
       "autoAdjust": "Regolazione Automatica Immagine",
+      "autoLensCorrection": "Correzione automatica obiettivo",
       "cancel": "Annulla",
       "colorLabel": "Etichetta Colore",
       "confirmReset": "Conferma Ripristino",
@@ -245,6 +246,8 @@
       "autoAdjust_many": "Regolazione Automatica Immagini",
       "autoAdjust_one": "Regolazione Automatica Immagine",
       "autoAdjust_other": "Regolazione Automatica Immagini",
+      "autoLensCorrection_one": "Correzione automatica obiettivo",
+      "autoLensCorrection_other": "Correzione automatica obiettivo",
       "collage_many": "Crea Collage",
       "collage_one": "Incornicia Immagine",
       "collage_other": "Crea Collage",
