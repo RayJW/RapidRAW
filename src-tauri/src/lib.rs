@@ -838,8 +838,9 @@ fn generate_uncropped_preview(
             .collect();
 
         let tm_override = resolve_tonemapper_override_from_handle(&app_handle, is_raw);
-        let uncropped_adjustments =
+        let mut uncropped_adjustments =
             get_all_adjustments_from_json(&adjustments_clone, is_raw, tm_override);
+        uncropped_adjustments.global.show_clipping = 0;
         let lut_path = adjustments_clone["lutPath"].as_str();
         let lut = lut_path.and_then(|p| lut_processing::get_or_load_lut(&state, p).ok());
 
@@ -1142,7 +1143,8 @@ fn generate_preset_preview(
         .collect();
 
     let tm_override = resolve_tonemapper_override_from_handle(&app_handle, is_raw);
-    let all_adjustments = get_all_adjustments_from_json(&js_adjustments, is_raw, tm_override);
+    let mut all_adjustments = get_all_adjustments_from_json(&js_adjustments, is_raw, tm_override);
+    all_adjustments.global.show_clipping = 0;
     let lut_path = js_adjustments["lutPath"].as_str();
     let lut = lut_path.and_then(|p| lut_processing::get_or_load_lut(&state, p).ok());
 
@@ -1574,7 +1576,9 @@ async fn generate_preview_for_path(
             .collect();
 
         let tm_override = resolve_tonemapper_override(&settings, is_raw);
-        let all_adjustments = get_all_adjustments_from_json(&js_adjustments, is_raw, tm_override);
+        let mut all_adjustments =
+            get_all_adjustments_from_json(&js_adjustments, is_raw, tm_override);
+        all_adjustments.global.show_clipping = 0;
         let lut_path = js_adjustments["lutPath"].as_str();
         let lut = lut_path.and_then(|p| lut_processing::get_or_load_lut(&state, p).ok());
         let unique_hash = calculate_full_job_hash(&source_path_str, &js_adjustments);
