@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef, Fragment } from 'react';
 import { useTranslation } from 'react-i18next';
 import { invoke } from '@tauri-apps/api/core';
+import throttle from 'lodash.throttle';
 import { Check, RotateCcw, Grid3X3, Eye, EyeOff, Info, ZoomIn, ZoomOut, Maximize, Trash2, Minus } from 'lucide-react';
 
 import { TextColors, TextVariants, TextWeights } from '../../types/typography';
@@ -348,7 +349,7 @@ export default function TransformModal({ isOpen, onClose, onApply, currentAdjust
   };
 
   const updatePreview = useCallback(
-    async (currentParams: TransformParams, lines: GuideLine[]) => {
+    throttle(async (currentParams: TransformParams, lines: GuideLine[]) => {
       await calculateFullMatrix(currentParams, lines);
       try {
         const fullParams: GeometryParams = {
@@ -381,9 +382,15 @@ export default function TransformModal({ isOpen, onClose, onApply, currentAdjust
       } catch (e) {
         console.error('Preview transform failed', e);
       }
-    },
+    }, 30),
     [currentAdjustments, Ow, Oh],
   );
+
+  useEffect(() => {
+    return () => {
+      updatePreview.cancel?.();
+    };
+  }, [updatePreview]);
 
   useEffect(() => {
     if (isOpen) {
