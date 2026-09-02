@@ -563,6 +563,7 @@
       "savesTo": "Edição externa — salva em"
     },
     "guided": {
+      "drawingActive": "Desenho ativo",
       "hint": "Desenhe ao longo das bordas da sua foto que devem ser verticais ou horizontais.",
       "linesStatus": "Linhas guias ativas",
       "toast": {
@@ -1451,6 +1452,7 @@
       "cancel": "Cancelar",
       "compareTooltip": "Segure para Comparar",
       "distortion": "Distorção",
+      "geometry": "Geometria",
       "guided": "Perspectiva guiada",
       "horizontal": "Horizontal",
       "manual": "Transformação manual",

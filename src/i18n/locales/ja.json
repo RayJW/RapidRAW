@@ -541,6 +541,7 @@
       "savesTo": "外部編集 — 保存先"
     },
     "guided": {
+      "drawingActive": "描画中",
       "hint": "垂直または水平であるべき写真の縁に沿って描画します。",
       "linesStatus": "アクティブなガイドライン",
       "toast": {
@@ -1418,6 +1419,7 @@
       "cancel": "キャンセル",
       "compareTooltip": "長押しで比較",
       "distortion": "歪み歪正",
+      "geometry": "ジオメトリ",
       "guided": "ガイド付きパースペクティブ",
       "horizontal": "水平方向",
       "manual": "手動変形",

@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useMemo } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import debounce from 'lodash.debounce';
+import throttle from 'lodash.throttle';
 import { useEditorStore } from '../store/useEditorStore';
 import { useUIStore } from '../store/useUIStore';
 import { useSettingsStore } from '../store/useSettingsStore';
@@ -314,15 +315,48 @@ export function useImageProcessing(
     [selectedImage?.isReady, flushPipeline, executeApplyAdjustments],
   );
 
+  const throttledUncroppedPreview = useMemo(
+    () =>
+      throttle(
+        (adj: Adjustments) => {
+          if (!useEditorStore.getState().selectedImage?.isReady) return;
+          invoke(Invokes.GenerateUncroppedPreview, { jsAdjustments: adj }).catch(console.error);
+        },
+        30,
+        { leading: true, trailing: true },
+      ),
+    [],
+  );
+
   const generateUncroppedPreview = useCallback(
     (currentAdjustments: Adjustments) => {
+      throttledUncroppedPreview.cancel();
       if (!selectedImage?.isReady) return;
-      invoke(Invokes.GenerateUncroppedPreview, { jsAdjustments: currentAdjustments }).catch((err) =>
-        console.error('Failed to generate uncropped preview:', err),
-      );
+      invoke(Invokes.GenerateUncroppedPreview, { jsAdjustments: currentAdjustments }).catch(console.error);
     },
-    [selectedImage?.isReady],
+    [selectedImage?.isReady, throttledUncroppedPreview],
   );
+
+  useEffect(() => {
+    if (activeView === 'editor' && activePanel === Panel.Crop && selectedImage?.isReady) {
+      if (isSliderDragging) {
+        throttledUncroppedPreview(adjustments);
+      } else {
+        generateUncroppedPreview(adjustments);
+      }
+    }
+    return () => {
+      throttledUncroppedPreview.cancel();
+    };
+  }, [
+    activeView,
+    adjustments,
+    activePanel,
+    selectedImage?.isReady,
+    isSliderDragging,
+    throttledUncroppedPreview,
+    generateUncroppedPreview,
+  ]);
 
   const calculateTargetRes = useCallback(() => {
     const baseTargetRes = appSettings?.editorPreviewResolution || 1920;
@@ -373,12 +407,6 @@ export function useImageProcessing(
       }, 50),
     [applyAdjustments, currentResRef],
   );
-
-  useEffect(() => {
-    if (activeView === 'editor' && activePanel === Panel.Crop && selectedImage?.isReady) {
-      generateUncroppedPreview(adjustments);
-    }
-  }, [activeView, adjustments, activePanel, selectedImage?.isReady, generateUncroppedPreview]);
 
   useEffect(() => {
     if (activeView === 'editor' && selectedImage?.isReady && displaySize.width > 0 && !isSliderDragging) {

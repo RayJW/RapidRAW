@@ -543,6 +543,7 @@
       "savesTo": "External edit — saves to"
     },
     "guided": {
+      "drawingActive": "Drawing Active",
       "hint": "Draw along edges in your photo that should be vertical or horizontal.",
       "linesStatus": "Active Guide Lines",
       "toast": {
@@ -1420,6 +1421,7 @@
       "cancel": "Cancel",
       "compareTooltip": "Hold to Compare",
       "distortion": "Distortion",
+      "geometry": "Geometry",
       "guided": "Guided Perspective",
       "horizontal": "Horizontal",
       "manual": "Manual Transform",

@@ -583,6 +583,7 @@
       "savesTo": "Zewnętrzna edycja — zapisuje do"
     },
     "guided": {
+      "drawingActive": "Rysowanie aktywne",
       "hint": "Rysuj wzdłuż krawędzi na zdjęciu, które powinny być pionowe lub poziome.",
       "linesStatus": "Aktywne linie pomocnicze",
       "toast": {
@@ -1482,6 +1483,7 @@
       "cancel": "Anuluj",
       "compareTooltip": "Przytrzymaj, aby porównać",
       "distortion": "Dystorsja",
+      "geometry": "Geometria",
       "guided": "Perspektywa z przewodnikiem",
       "horizontal": "Poziomo",
       "manual": "Ręczne przekształcenie",

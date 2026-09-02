@@ -543,6 +543,7 @@
       "savesTo": "Externe Bearbeitung — speichert in"
     },
     "guided": {
+      "drawingActive": "Zeichnen aktiv",
       "hint": "Zeichnen Sie entlang der Kanten in Ihrem Foto, die vertikal oder horizontal sein sollten.",
       "linesStatus": "Aktive Hilfslinien",
       "toast": {
@@ -1420,6 +1421,7 @@
       "cancel": "Abbrechen",
       "compareTooltip": "Halten zum Vergleichen",
       "distortion": "Verzerrung",
+      "geometry": "Geometrie",
       "guided": "Geführte Perspektive",
       "horizontal": "Horizontal",
       "manual": "Manuelle Transformation",

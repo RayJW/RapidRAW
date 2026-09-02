@@ -541,6 +541,7 @@
       "savesTo": "외부 편집 — 저장 위치:"
     },
     "guided": {
+      "drawingActive": "그리기 활성화",
       "hint": "사진에서 수직이나 수평이 되어야 하는 가장자리를 따라 그리세요.",
       "linesStatus": "활성 안내선",
       "toast": {
@@ -1418,6 +1419,7 @@
       "cancel": "취소",
       "compareTooltip": "길게 눌러 비교",
       "distortion": "왜곡",
+      "geometry": "기하학",
       "guided": "유도된 원근 보정",
       "horizontal": "수평",
       "manual": "수동 변형",

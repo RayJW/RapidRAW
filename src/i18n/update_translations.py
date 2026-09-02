@@ -7,299 +7,156 @@ TRANSLATIONS = {
     "ca": {
         "editor": {
             "guided": {
-                "hint": "Dibuixa al llarg de les vores de la foto que haurien de ser verticals o horitzontals.",
-                "linesStatus": "Línies guia actives",
-                "toast": {
-                    "angleRejected": "L'angle de la línia està massa lluny de l'horitzontal o vertical",
-                    "maxLines": "Es permeten com a màxim 2 línies verticals i 2 horitzontals"
-                }
+                "drawingActive": "Dibuix actiu"
             }
         },
         "modals": {
-            "copyPaste": {
-                "groups": {
-                    "guidedPerspective": "Perspectiva guiada"
-                }
-            },
             "transform": {
-                "guided": "Perspectiva guiada",
-                "manual": "Transformació manual"
+                "geometry": "Geometria"
             }
         }
     },
     "de": {
         "editor": {
             "guided": {
-                "hint": "Zeichnen Sie entlang der Kanten in Ihrem Foto, die vertikal oder horizontal sein sollten.",
-                "linesStatus": "Aktive Hilfslinien",
-                "toast": {
-                    "angleRejected": "Linienwinkel ist zu weit von horizontal oder vertikal entfernt",
-                    "maxLines": "Maximal 2 vertikale und 2 horizontale Linien erlaubt"
-                }
+                "drawingActive": "Zeichnen aktiv"
             }
         },
         "modals": {
-            "copyPaste": {
-                "groups": {
-                    "guidedPerspective": "Geführte Perspektive"
-                }
-            },
             "transform": {
-                "guided": "Geführte Perspektive",
-                "manual": "Manuelle Transformation"
+                "geometry": "Geometrie"
             }
         }
     },
     "en": {
         "editor": {
             "guided": {
-                "hint": "Draw along edges in your photo that should be vertical or horizontal.",
-                "linesStatus": "Active Guide Lines",
-                "toast": {
-                    "angleRejected": "Line angle is too far from horizontal or vertical",
-                    "maxLines": "Maximum 2 vertical and 2 horizontal lines allowed"
-                }
+                "drawingActive": "Drawing Active"
             }
         },
         "modals": {
-            "copyPaste": {
-                "groups": {
-                    "guidedPerspective": "Guided Perspective"
-                }
-            },
             "transform": {
-                "guided": "Guided Perspective",
-                "manual": "Manual Transform"
+                "geometry": "Geometry"
             }
         }
     },
     "es": {
         "editor": {
             "guided": {
-                "hint": "Dibuja a lo largo de los bordes de tu foto que deberían ser verticales u horizontales.",
-                "linesStatus": "Líneas guía activas",
-                "toast": {
-                    "angleRejected": "El ángulo de la línea está demasiado lejos de la horizontal o vertical",
-                    "maxLines": "Se permiten un máximo de 2 líneas verticales y 2 horizontales"
-                }
+                "drawingActive": "Dibujo activo"
             }
         },
         "modals": {
-            "copyPaste": {
-                "groups": {
-                    "guidedPerspective": "Perspectiva guiada"
-                }
-            },
             "transform": {
-                "guided": "Perspectiva guiada",
-                "manual": "Transformación manual"
+                "geometry": "Geometría"
             }
         }
     },
     "fr": {
         "editor": {
             "guided": {
-                "hint": "Tracez le long des bords de votre photo qui devraient être verticaux ou horizontaux.",
-                "linesStatus": "Lignes de guidage actives",
-                "toast": {
-                    "angleRejected": "L'angle de la ligne est trop éloigné de l'horizontale ou de la verticale",
-                    "maxLines": "Maximum de 2 lignes verticales et 2 lignes horizontales autorisées"
-                }
+                "drawingActive": "Dessin actif"
             }
         },
         "modals": {
-            "copyPaste": {
-                "groups": {
-                    "guidedPerspective": "Perspective guidée"
-                }
-            },
             "transform": {
-                "guided": "Perspective guidée",
-                "manual": "Transformation manuelle"
+                "geometry": "Géométrie"
             }
         }
     },
     "it": {
         "editor": {
             "guided": {
-                "hint": "Disegna lungo i bordi della tua foto che dovrebbero essere verticali o orizzontali.",
-                "linesStatus": "Linee guida attive",
-                "toast": {
-                    "angleRejected": "L'angolo della linea è troppo lontano dall'orizzontale o verticale",
-                    "maxLines": "Sono consentite massimo 2 linee verticali e 2 orizzontali"
-                }
+                "drawingActive": "Disegno attivo"
             }
         },
         "modals": {
-            "copyPaste": {
-                "groups": {
-                    "guidedPerspective": "Prospettiva guidata"
-                }
-            },
             "transform": {
-                "guided": "Prospettiva guidata",
-                "manual": "Trasformazione manuale"
+                "geometry": "Geometria"
             }
         }
     },
     "ja": {
         "editor": {
             "guided": {
-                "hint": "垂直または水平であるべき写真の縁に沿って描画します。",
-                "linesStatus": "アクティブなガイドライン",
-                "toast": {
-                    "angleRejected": "線の角度が水平または垂直から離れすぎています",
-                    "maxLines": "垂直線と水平線はそれぞれ最大2本まで許可されています"
-                }
+                "drawingActive": "描画中"
             }
         },
         "modals": {
-            "copyPaste": {
-                "groups": {
-                    "guidedPerspective": "ガイド付きパースペクティブ"
-                }
-            },
             "transform": {
-                "guided": "ガイド付きパースペクティブ",
-                "manual": "手動変形"
+                "geometry": "ジオメトリ"
             }
         }
     },
     "ko": {
         "editor": {
             "guided": {
-                "hint": "사진에서 수직이나 수평이 되어야 하는 가장자리를 따라 그리세요.",
-                "linesStatus": "활성 안내선",
-                "toast": {
-                    "angleRejected": "선의 각도가 수평이나 수직에서 너무 벗어났습니다",
-                    "maxLines": "수직선 2개, 수평선 2개까지만 허용됩니다"
-                }
+                "drawingActive": "그리기 활성화"
             }
         },
         "modals": {
-            "copyPaste": {
-                "groups": {
-                    "guidedPerspective": "유도된 원근 보정"
-                }
-            },
             "transform": {
-                "guided": "유도된 원근 보정",
-                "manual": "수동 변형"
+                "geometry": "기하학"
             }
         }
     },
     "pl": {
         "editor": {
             "guided": {
-                "hint": "Rysuj wzdłuż krawędzi na zdjęciu, które powinny być pionowe lub poziome.",
-                "linesStatus": "Aktywne linie pomocnicze",
-                "toast": {
-                    "angleRejected": "Kąt linii jest zbyt odległy od poziomu lub pionu",
-                    "maxLines": "Dozwolone są maksymalnie 2 linie pionowe i 2 poziome"
-                }
+                "drawingActive": "Rysowanie aktywne"
             }
         },
         "modals": {
-            "copyPaste": {
-                "groups": {
-                    "guidedPerspective": "Perspektywa z przewodnikiem"
-                }
-            },
             "transform": {
-                "guided": "Perspektywa z przewodnikiem",
-                "manual": "Ręczne przekształcenie"
+                "geometry": "Geometria"
             }
         }
     },
     "pt": {
         "editor": {
             "guided": {
-                "hint": "Desenhe ao longo das bordas da sua foto que devem ser verticais ou horizontais.",
-                "linesStatus": "Linhas guias ativas",
-                "toast": {
-                    "angleRejected": "O ângulo da linha está muito longe da horizontal ou vertical",
-                    "maxLines": "São permitidas no máximo 2 linhas verticais e 2 horizontais"
-                }
+                "drawingActive": "Desenho ativo"
             }
         },
         "modals": {
-            "copyPaste": {
-                "groups": {
-                    "guidedPerspective": "Perspectiva guiada"
-                }
-            },
             "transform": {
-                "guided": "Perspectiva guiada",
-                "manual": "Transformação manual"
+                "geometry": "Geometria"
             }
         }
     },
     "ru": {
         "editor": {
             "guided": {
-                "hint": "Нарисуйте вдоль краев на фото, которые должны быть вертикальными или горизонтальными.",
-                "linesStatus": "Активные направляющие",
-                "toast": {
-                    "angleRejected": "Угол линии слишком далек от горизонтали или вертикали",
-                    "maxLines": "Допускается максимум 2 вертикальные и 2 горизонтальные линии"
-                }
+                "drawingActive": "Рисование активно"
             }
         },
         "modals": {
-            "copyPaste": {
-                "groups": {
-                    "guidedPerspective": "Направляемая перспектива"
-                }
-            },
             "transform": {
-                "guided": "Направляемая перспектива",
-                "manual": "Ручная трансформация"
+                "geometry": "Геометрия"
             }
         }
     },
     "zh-CN": {
         "editor": {
             "guided": {
-                "hint": "沿着照片中应该是垂直或水平的边缘绘制。",
-                "linesStatus": "活跃引导线",
-                "toast": {
-                    "angleRejected": "线条角度偏离水平或垂直太远",
-                    "maxLines": "最多允许 2 条垂直线和 2 条水平线"
-                }
+                "drawingActive": "绘图中"
             }
         },
         "modals": {
-            "copyPaste": {
-                "groups": {
-                    "guidedPerspective": "引导透视"
-                }
-            },
             "transform": {
-                "guided": "引导透视",
-                "manual": "手动变换"
+                "geometry": "几何"
             }
         }
     },
     "zh-TW": {
         "editor": {
             "guided": {
-                "hint": "沿著照片中應該是垂直或水平的邊緣繪製。",
-                "linesStatus": "活躍引導線",
-                "toast": {
-                    "angleRejected": "線條角度偏離水平或垂直太遠",
-                    "maxLines": "最多允許 2 條垂直線和 2 條水平線"
-                }
+                "drawingActive": "繪圖中"
             }
         },
         "modals": {
-            "copyPaste": {
-                "groups": {
-                    "guidedPerspective": "引導透視"
-                }
-            },
             "transform": {
-                "guided": "引導透視",
-                "manual": "手動變換"
+                "geometry": "幾何"
             }
         }
     }
@@ -351,7 +208,7 @@ def main():
         print(f"Error: Locales directory '{LOCALES_DIR}' does not exist.")
         return
 
-    print("Starting translation updates for Guided Perspective...")
+    print("Starting translation updates for drawingActive and geometry...")
     for lang, trans in TRANSLATIONS.items():
         file_path = LOCALES_DIR / f"{lang}.json"
         update_json_file(file_path, trans)

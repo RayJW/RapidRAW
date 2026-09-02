@@ -541,6 +541,7 @@
       "savesTo": "外部编辑 — 保存至"
     },
     "guided": {
+      "drawingActive": "绘图中",
       "hint": "沿着照片中应该是垂直或水平的边缘绘制。",
       "linesStatus": "活跃引导线",
       "toast": {
@@ -1418,6 +1419,7 @@
       "cancel": "取消",
       "compareTooltip": "按住以对比",
       "distortion": "畸变",
+      "geometry": "几何",
       "guided": "引导透视",
       "horizontal": "水平",
       "manual": "手动变换",

@@ -543,6 +543,7 @@
       "savesTo": "Edició externa — es desa a"
     },
     "guided": {
+      "drawingActive": "Dibuix actiu",
       "hint": "Dibuixa al llarg de les vores de la foto que haurien de ser verticals o horitzontals.",
       "linesStatus": "Línies guia actives",
       "toast": {
@@ -1420,6 +1421,7 @@
       "cancel": "Cancel·lar",
       "compareTooltip": "Mantingueu premut per comparar",
       "distortion": "Distorsió",
+      "geometry": "Geometria",
       "guided": "Perspectiva guiada",
       "horizontal": "Horitzontal",
       "manual": "Transformació manual",
