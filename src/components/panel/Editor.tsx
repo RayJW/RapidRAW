@@ -1010,9 +1010,14 @@ export default function Editor({ onBackToLibrary, onContextMenu, onImageSelect, 
         const mouseX = e.clientX - rect.left;
         const mouseY = e.clientY - rect.top;
 
-        let zoomTarget = savedZoomState.current
-          ? savedZoomState.current.scale
-          : Math.min(currentScale * 2, maxScaleRef.current);
+        let zoomTarget = Math.min(currentScale * 2, maxScaleRef.current);
+        if (appSettings?.zoomPhotoToPixelClick ?? false) {
+          // Zoom to 100% (1:1 pixel ratio)
+          const scaleFor100Percent = imageRenderSizeRef.current.scale ? 1 / imageRenderSizeRef.current.scale : 1;
+          zoomTarget = Math.min(scaleFor100Percent, maxScaleRef.current);
+        } else {
+          zoomTarget = savedZoomState.current ? savedZoomState.current.scale : zoomTarget;
+        }
         const ratio = zoomTarget / currentScale;
 
         const newPositionX = mouseX - (mouseX - currentPositionX) * ratio;

@@ -481,6 +481,8 @@ pub struct AppSettings {
     #[serde(default)]
     pub zoom_speed_multiplier: Option<f32>,
     #[serde(default)]
+    pub zoom_photo_to_pixel_click: Option<bool>,
+    #[serde(default)]
     pub keybinds: HashMap<String, Vec<String>>,
     #[serde(default)]
     pub thumbnail_worker_threads: Option<u32>,
@@ -591,6 +593,7 @@ impl Default for AppSettings {
             use_wgpu_renderer: Some(true),
             canvas_input_mode: Some("mouse".to_string()),
             zoom_speed_multiplier: Some(1.0),
+            zoom_photo_to_pixel_click: Some(false),
             keybinds: HashMap::new(),
             #[cfg(target_os = "android")]
             thumbnail_worker_threads: Some(2),
