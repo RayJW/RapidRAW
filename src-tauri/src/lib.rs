@@ -22,6 +22,7 @@ mod file_management;
 mod focus_stacking;
 mod formats;
 mod gpu_processing;
+mod guided_perspective;
 mod hdr_deghosting;
 mod image_loader;
 mod image_processing;
@@ -838,8 +839,9 @@ fn generate_uncropped_preview(
             .collect();
 
         let tm_override = resolve_tonemapper_override_from_handle(&app_handle, is_raw);
-        let uncropped_adjustments =
+        let mut uncropped_adjustments =
             get_all_adjustments_from_json(&adjustments_clone, is_raw, tm_override);
+        uncropped_adjustments.global.show_clipping = 0;
         let lut_path = adjustments_clone["lutPath"].as_str();
         let lut = lut_path.and_then(|p| lut_processing::get_or_load_lut(&state, p).ok());
 
@@ -1142,7 +1144,8 @@ fn generate_preset_preview(
         .collect();
 
     let tm_override = resolve_tonemapper_override_from_handle(&app_handle, is_raw);
-    let all_adjustments = get_all_adjustments_from_json(&js_adjustments, is_raw, tm_override);
+    let mut all_adjustments = get_all_adjustments_from_json(&js_adjustments, is_raw, tm_override);
+    all_adjustments.global.show_clipping = 0;
     let lut_path = js_adjustments["lutPath"].as_str();
     let lut = lut_path.and_then(|p| lut_processing::get_or_load_lut(&state, p).ok());
 
@@ -1574,7 +1577,9 @@ async fn generate_preview_for_path(
             .collect();
 
         let tm_override = resolve_tonemapper_override(&settings, is_raw);
-        let all_adjustments = get_all_adjustments_from_json(&js_adjustments, is_raw, tm_override);
+        let mut all_adjustments =
+            get_all_adjustments_from_json(&js_adjustments, is_raw, tm_override);
+        all_adjustments.global.show_clipping = 0;
         let lut_path = js_adjustments["lutPath"].as_str();
         let lut = lut_path.and_then(|p| lut_processing::get_or_load_lut(&state, p).ok());
         let unique_hash = calculate_full_job_hash(&source_path_str, &js_adjustments);
@@ -2362,6 +2367,7 @@ pub fn run() {
             file_management::save_presets,
             file_management::get_or_create_internal_library_root,
             file_management::reset_adjustments_for_paths,
+            file_management::apply_auto_lens_correction_to_paths,
             file_management::apply_auto_adjustments_to_paths,
             file_management::handle_import_presets_from_file,
             file_management::handle_import_legacy_presets_from_file,
@@ -2397,6 +2403,7 @@ pub fn run() {
             camera_tethering::tether_capture,
             camera_tethering::tether_get_preview,
             camera_tethering::tether_autofocus,
+            guided_perspective::calculate_guided_perspective,
         ])
         .build(tauri::generate_context!())
         .expect("error while building tauri application")

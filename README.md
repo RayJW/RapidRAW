@@ -60,20 +60,26 @@ RapidRAW is still in active development and isn't yet as polished as mature tool
 <details>
 <summary><strong>Recent Changes</strong></summary>
 
+- **2026-09-01:** Implemented guided perspective correction thanks to @hogar1977
+- **2026-09-01:** Add context menu option to auto apply lens correction
+- **2026-08-31:** New edge-aware filter for ai masks, improved sharpening & mobile UI improvements
+- **2026-08-29:** Improved EXIF ​​metadata processing during export
+- **2026-08-29:** Implement folder-level EXIF caching and prevent redundant adjustment saves
+- **2026-08-28:** Categorize mask creation panel
 - **2026-08-27:** Split thumbnail resolution settings into separate grid and editor preview sizes
 - **2026-08-26:** Introduced a retouch tool to effortlessly smooth skin
 - **2026-08-25:** Added a liquify tool to reshape and warp parts of an image
 - **2026-08-24:** New global shift+drag straighten shortcut & improved auto-crop calculation
+
+<details>
+<summary><strong>Expand further</strong></summary>
+
 - **2026-08-20:** Add drag & drop image move system to quickly organize library
 - **2026-08-19:** Restored side panels on tablets
 - **2026-08-17:** Integrated built-in analog film emulations powered by Spektrafilm, featuring a scene-referred V-Log color pipeline in the WGSL shader
 - **2026-08-16:** Added native Camera Tethering with real-time Live View, exposure controls, ghost overlay, and direct library ingestion (macOS & Linux)
 - **2026-08-16:** Added Focus Stacking to merge multi-focus brackets into a single sharp image
 - **2026-08-14:** Export now preserves and writes full EXIF metadata
-
-<details>
-<summary><strong>Expand further</strong></summary>
-
 - **2026-08-13:** Replaced local contrast sharpening with a high-quality multi-scale filter
 - **2026-08-11:** Added automatic canvas cropping for generative AI inpainting workflows
 - **2026-08-07:** Updated Lensfun database for latest camera bodies and lenses
@@ -606,6 +612,7 @@ RapidRAW isn't just for RAW files! You can also import, edit, and convert standa
 - **Graphics & Textures:** `.tga`, `.ico`, `.dds`
 - **Specialist Formats:** `.qoi`, `.ff`
 - **Netpbm Bitmaps:** `.pnm`, `.pbm`, `.pgm`, `.ppm`, `.pam`
+
 </details>
 
 <details>
@@ -926,6 +933,7 @@ If the application crashes immediately when you try to start editing a picture, 
 3.  Locate the **Processing Backend** setting.
 4.  Change it from **Auto** to a specific backend supported by your OS (e.g., **Vulkan**, **DirectX12**, **OpenGL**, or **Metal**).
 5.  Restart the application and try opening the image again. Experiment with different backends if the first one doesn't work.
+
 </details>
 
 <details>
