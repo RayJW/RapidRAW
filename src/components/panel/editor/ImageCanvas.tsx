@@ -15,6 +15,7 @@ import { useEditorStore } from '../../../store/useEditorStore';
 import type { OverlayMode } from '../right/CropPanel';
 import CompositionOverlays from './overlays/CompositionOverlays';
 import { calculateStraightenAngle } from '../../../utils/cropUtils';
+import { toast } from 'react-toastify';
 
 interface CursorPreview {
   visible: boolean;
@@ -2149,12 +2150,14 @@ const ImageCanvas = memo(
         if (e.evt && e.evt.cancelable) e.evt.preventDefault();
 
         if (isGuidedPerspectiveActive && isCropping) {
-          const stage = e.target.getStage();
-          const pos = stage?.getPointerPosition();
-          if (!pos || !uncroppedImageRenderSize?.width || !uncroppedImageRenderSize?.height) return;
-          const uv = mapScreenToUv(pos.x, pos.y);
-          setDraftGuideLine({ p1: uv, p2: uv });
-          isDrawing.current = true;
+          if (e.target === e.target.getStage()) {
+            const stage = e.target.getStage();
+            const pos = stage?.getPointerPosition();
+            if (!pos || !uncroppedImageRenderSize?.width || !uncroppedImageRenderSize?.height) return;
+            const uv = mapScreenToUv(pos.x, pos.y);
+            setDraftGuideLine({ p1: uv, p2: uv });
+            isDrawing.current = true;
+          }
           return;
         }
 
@@ -2647,33 +2650,47 @@ const ImageCanvas = memo(
         const sc2 = mapUvToScreen(p2);
         const dx = sc2.x - sc1.x;
         const dy = sc2.y - sc1.y;
+
         if (Math.hypot(dx, dy) >= 15) {
           const tan35 = Math.tan((35 * Math.PI) / 180);
           const isVert = Math.abs(dx) <= Math.abs(dy) * tan35;
           const isHoriz = Math.abs(dy) <= Math.abs(dx) * tan35;
 
-          if (isVert || isHoriz) {
+          if (!isVert && !isHoriz) {
+            toast.error(t('editor.guided.toast.angleRejected'));
+            return;
+          }
+
+          const type: GuideOrientation = isVert ? 'vertical' : 'horizontal';
+
+          setAdjustments((prev) => {
+            const existingLines = prev.guidedPerspective?.lines || [];
+
+            const existingOfSameType = existingLines.filter((l: GuideLine) => l.type === type);
+            if (existingOfSameType.length >= 2) {
+              toast.error(t('editor.guided.toast.maxLines'));
+              return prev;
+            }
+
             const newGuide: GuideLine = {
               id: crypto.randomUUID(),
-              type: isVert ? 'vertical' : 'horizontal',
+              type,
               p1,
               p2,
             };
 
-            setAdjustments((prev) => {
-              const existingLines = prev.guidedPerspective?.lines || [];
-              const newLines = [...existingLines, newGuide].slice(0, 4);
+            const newLines = [...existingLines, newGuide];
 
-              return {
-                ...prev,
-                guidedPerspective: {
-                  enabled: newLines.length >= 2,
-                  lines: newLines,
-                  autoCrop: true,
-                },
-              };
-            });
-          }
+            return {
+              ...prev,
+              guidedPerspective: {
+                ...prev.guidedPerspective,
+                enabled: newLines.length >= 2,
+                lines: newLines,
+                autoCrop: true,
+              },
+            };
+          });
         }
         return;
       }
@@ -3471,6 +3488,12 @@ const ImageCanvas = memo(
                                 stroke="#3b82f6"
                                 strokeWidth={2}
                                 draggable
+                                onMouseDown={(e) => {
+                                  e.cancelBubble = true;
+                                }}
+                                onTouchStart={(e) => {
+                                  e.cancelBubble = true;
+                                }}
                                 onDragMove={(e) => {
                                   const newUv = mapScreenToUv(e.target.x(), e.target.y());
                                   const baseLines = localDragLines || adjustments.guidedPerspective!.lines;
@@ -3501,6 +3524,12 @@ const ImageCanvas = memo(
                                 stroke="#3b82f6"
                                 strokeWidth={2}
                                 draggable
+                                onMouseDown={(e) => {
+                                  e.cancelBubble = true;
+                                }}
+                                onTouchStart={(e) => {
+                                  e.cancelBubble = true;
+                                }}
                                 onDragMove={(e) => {
                                   const newUv = mapScreenToUv(e.target.x(), e.target.y());
                                   const baseLines = localDragLines || adjustments.guidedPerspective!.lines;
