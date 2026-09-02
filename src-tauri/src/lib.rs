@@ -77,8 +77,8 @@ use webkit2gtk_nvidia_quirk::{
 };
 
 use crate::cache_utils::{
-    DecodedImageCache, GEOMETRY_KEYS, calculate_full_job_hash, calculate_geometry_hash,
-    calculate_transform_hash, calculate_visual_hash,
+    DecodedImageCache, calculate_full_job_hash, calculate_geometry_hash, calculate_transform_hash,
+    calculate_visual_hash,
 };
 use crate::file_management::{parse_virtual_path, read_file_mapped};
 use crate::formats::is_raw_file;
@@ -766,14 +766,9 @@ fn generate_uncropped_preview(
         let is_raw = loaded_image.is_raw;
         let visual_hash = calculate_visual_hash(&path, &adjustments_clone);
 
-        let base_image_to_warp = {
-            let maybe_cached = state
-                .geometry_cache
-                .lock()
-                .unwrap()
-                .get(&visual_hash)
-                .cloned();
-            if let Some(cached) = maybe_cached {
+        let pre_geometry_base = {
+            let mut cache = state.geometry_cache.lock().unwrap();
+            if let Some(cached) = cache.get(&visual_hash).cloned() {
                 cached
             } else {
                 let has_patches = adjustments_clone
@@ -789,73 +784,34 @@ fn generate_uncropped_preview(
                     Cow::Borrowed(loaded_image.image.as_ref())
                 };
 
+                let blurred_image =
+                    crate::lens_blur::apply_lens_blur(patched_image, &adjustments_clone);
+
                 let settings = load_settings(app_handle.clone()).unwrap_or_default();
                 let target_dim =
                     (settings.editor_preview_resolution.unwrap_or(1920) as f32 / 1.5) as u32;
-                let preview_base = downscale_f32_image(&patched_image, target_dim, target_dim);
 
-                let mut temp_adj = adjustments_clone.clone();
-                if let Some(obj) = temp_adj.as_object_mut() {
-                    obj.insert("crop".to_string(), serde_json::Value::Null);
-                    obj.insert("rotation".to_string(), serde_json::json!(0.0));
-                    for key in GEOMETRY_KEYS {
-                        match *key {
-                            "transformScale"
-                            | "lensDistortionAmount"
-                            | "lensVignetteAmount"
-                            | "lensTcaAmount" => {
-                                obj.insert(key.to_string(), serde_json::json!(100.0));
-                            }
-                            "lensDistortionEnabled" | "lensTcaEnabled" | "lensVignetteEnabled" => {
-                                obj.insert(key.to_string(), serde_json::json!(true));
-                            }
-                            "lensDistortionParams" | "lensMaker" | "lensModel" => {
-                                obj.insert(key.to_string(), serde_json::Value::Null);
-                            }
-                            _ => {
-                                obj.insert(key.to_string(), serde_json::json!(0.0));
-                            }
-                        }
-                    }
-                }
+                let downscaled = downscale_f32_image(&blurred_image, target_dim, target_dim);
 
-                let tm_override = resolve_tonemapper_override_from_handle(&app_handle, is_raw);
-                let mut all_adjustments =
-                    get_all_adjustments_from_json(&temp_adj, is_raw, tm_override);
-                all_adjustments.global.show_clipping = 0;
-                let lut_path = temp_adj["lutPath"].as_str();
-                let lut = lut_path.and_then(|p| lut_processing::get_or_load_lut(&state, p).ok());
-
-                let processed_base = process_and_get_dynamic_image(
-                    &context,
-                    &state,
-                    &preview_base,
-                    visual_hash,
-                    RenderRequest {
-                        adjustments: all_adjustments,
-                        mask_bitmaps: &[],
-                        lut,
-                        roi: None,
-                    },
-                    "generate_uncropped_preview_base",
-                )
-                .unwrap_or(preview_base);
-
-                let mut cache = state.geometry_cache.lock().unwrap();
                 if cache.len() > 5 {
                     cache.clear();
                 }
-                cache.insert(visual_hash, processed_base.clone());
-
-                processed_base
+                cache.insert(visual_hash, downscaled.clone());
+                downscaled
             }
+        };
+
+        let scale_for_gpu = if loaded_image.image.width() > 0 {
+            pre_geometry_base.width() as f32 / loaded_image.image.width() as f32
+        } else {
+            1.0
         };
 
         let params = crate::image_processing::get_geometry_params_from_json(&adjustments_clone);
         let mut adjusted_params = params;
         adjusted_params.lens_vignette_amount *= if is_raw { 0.4 } else { 0.8 };
 
-        let warped_image = warp_image_geometry(&base_image_to_warp, adjusted_params);
+        let warped_image = warp_image_geometry(&pre_geometry_base, adjusted_params);
         let orientation_steps = adjustments_clone["orientationSteps"].as_u64().unwrap_or(0) as u8;
         let flipped_image = apply_flip(
             apply_coarse_rotation(Cow::Owned(warped_image), orientation_steps),
@@ -866,16 +822,61 @@ fn generate_uncropped_preview(
         )
         .into_owned();
 
-        let (width, height) = flipped_image.dimensions();
-        let rgb_pixels = flipped_image.to_rgb8().into_vec();
+        let (preview_width, preview_height) = flipped_image.dimensions();
 
-        if let Ok(bytes) = Encoder::new(Preset::BaselineFastest)
-            .quality(80)
-            .encode_rgb(&rgb_pixels, width, height)
-        {
-            let base64_str = general_purpose::STANDARD.encode(&bytes);
-            let data_url = format!("data:image/jpeg;base64,{}", base64_str);
-            let _ = app_handle.emit("preview-update-uncropped", data_url);
+        let mask_definitions: Vec<MaskDefinition> = adjustments_clone
+            .get("masks")
+            .and_then(|m| serde_json::from_value(m.clone()).ok())
+            .unwrap_or_default();
+
+        let mask_bitmaps: Vec<ImageBuffer<Luma<u8>, Vec<u8>>> = mask_definitions
+            .iter()
+            .filter_map(|def| {
+                get_cached_or_generate_mask(
+                    &state,
+                    def,
+                    preview_width,
+                    preview_height,
+                    scale_for_gpu,
+                    (0.0, 0.0),
+                    &adjustments_clone,
+                )
+            })
+            .collect();
+
+        let tm_override = resolve_tonemapper_override_from_handle(&app_handle, is_raw);
+        let mut uncropped_adjustments =
+            get_all_adjustments_from_json(&adjustments_clone, is_raw, tm_override);
+        uncropped_adjustments.global.show_clipping = 0;
+        let lut_path = adjustments_clone["lutPath"].as_str();
+        let lut = lut_path.and_then(|p| lut_processing::get_or_load_lut(&state, p).ok());
+
+        let full_hash = calculate_full_job_hash(&path, &adjustments_clone);
+
+        if let Ok(processed_image) = process_and_get_dynamic_image(
+            &context,
+            &state,
+            &flipped_image,
+            full_hash,
+            RenderRequest {
+                adjustments: uncropped_adjustments,
+                mask_bitmaps: &mask_bitmaps,
+                lut,
+                roi: None,
+            },
+            "generate_uncropped_preview",
+        ) {
+            let (width, height) = processed_image.dimensions();
+            let rgb_pixels = processed_image.to_rgb8().into_vec();
+
+            if let Ok(bytes) = Encoder::new(Preset::BaselineFastest)
+                .quality(80)
+                .encode_rgb(&rgb_pixels, width, height)
+            {
+                let base64_str = general_purpose::STANDARD.encode(&bytes);
+                let data_url = format!("data:image/jpeg;base64,{}", base64_str);
+                let _ = app_handle.emit("preview-update-uncropped", data_url);
+            }
         }
     });
 
