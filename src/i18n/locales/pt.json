@@ -1502,6 +1502,9 @@
       "speed": "Velocidade",
       "title": "Controles do Mouse",
       "zoom": "Multiplicador de Velocidade de Zoom",
+      "zoomClick": "Zoom da foto para 100%",
+      "zoomClickDesc": "Ampliar foto no editor para 100% ao clicar",
+      "zoomClickInfo": "Clique na foto para ampliar instantaneamente para 100% (pixels 1:1) para avaliar a nitidez e o ruído. Quando desativado, clicar aproxima gradualmente.",
       "zoomDesc": "Ajuste a rapidez com que a tela aumenta e diminui o zoom ao usar a roda de rolagem ou o gesto de pinça."
     },
     "data": {

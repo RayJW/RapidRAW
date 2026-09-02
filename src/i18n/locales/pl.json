@@ -1533,6 +1533,9 @@
       "speed": "Prędkość",
       "title": "Sterowanie myszą",
       "zoom": "Mnożnik szybkości przybliżania",
+      "zoomClick": "Powiększ zdjęcie do 100%",
+      "zoomClickDesc": "Powiększ zdjęcie w edytorze do 100% po kliknięciu",
+      "zoomClickInfo": "Kliknij zdjęcie, aby natychmiast powiększyć je do 100% (piksele 1:1) w celu oceny ostrości i szumu. Jeśli wyłączone, kliknięcie przybliża stopniowo.",
       "zoomDesc": "Dostosuj, jak szybko płótno się powiększa i pomniejsza przy użyciu kółka myszy lub gestu szczypania."
     },
     "data": {

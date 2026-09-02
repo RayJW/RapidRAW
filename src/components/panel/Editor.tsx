@@ -1011,10 +1011,12 @@ export default function Editor({ onBackToLibrary, onContextMenu, onImageSelect, 
         const mouseY = e.clientY - rect.top;
 
         let zoomTarget = Math.min(currentScale * 2, maxScaleRef.current);
-        if (appSettings?.zoomPhotoToPixelClick ?? false) {
-          // Zoom to 100% (1:1 pixel ratio)
-          const scaleFor100Percent = imageRenderSizeRef.current.scale ? 1 / imageRenderSizeRef.current.scale : 1;
-          zoomTarget = Math.min(scaleFor100Percent, maxScaleRef.current);
+
+        if (appSettings?.zoomPhotoToPixelClick) {
+          const dpr = typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
+          const scaleForCss100 = imageRenderSizeRef.current.scale ? 1 / imageRenderSizeRef.current.scale : 1;
+          const scaleForPhysical100 = scaleForCss100 / dpr;
+          zoomTarget = Math.max(1.05, Math.min(scaleForPhysical100, maxScaleRef.current));
         } else {
           zoomTarget = savedZoomState.current ? savedZoomState.current.scale : zoomTarget;
         }

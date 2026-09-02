@@ -1501,6 +1501,9 @@
       "speed": "Vitesse",
       "title": "Contrôles de la souris",
       "zoom": "Multiplicateur de vitesse de zoom",
+      "zoomClick": "Zoomer la photo à 100 %",
+      "zoomClickDesc": "Zoomer la photo dans l'éditeur à 100 % au clic",
+      "zoomClickInfo": "Cliquez sur la photo pour zoomer instantanément à 100 % (pixels 1:1) afin d'évaluer la netteté et le bruit. S'il est désactivé, le clic effectue un zoom progressif.",
       "zoomDesc": "Ajustez la vitesse de zoom de la toile lorsque vous utilisez la molette de défilement ou le geste de pincement."
     },
     "data": {

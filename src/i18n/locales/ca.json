@@ -1471,6 +1471,9 @@
       "speed": "Velocitat",
       "title": "Controls del ratolí",
       "zoom": "Multiplicador de velocitat del zoom",
+      "zoomClick": "Amplia la foto al 100%",
+      "zoomClickDesc": "Amplia la foto a l'editor al 100% en fer clic",
+      "zoomClickInfo": "Fes clic a la foto per ampliar-la directament al 100% (píxels 1:1) per avaluar-ne la nitidesa i el soroll. Quan està desactivat, en fer clic s'amplia gradualment.",
       "zoomDesc": "Ajusteu la velocitat a la qual s'apropa o s'allunya el llenç en utilitzar la roda de desplaçament o el gest de pessigar."
     },
     "data": {

@@ -1501,6 +1501,9 @@
       "speed": "Velocidad",
       "title": "Controles del ratón",
       "zoom": "Multiplicador de velocidad de zoom",
+      "zoomClick": "Zoom de foto al 100%",
+      "zoomClickDesc": "Ampliar foto en el editor al 100% al hacer clic",
+      "zoomClickInfo": "Haz clic en la foto para ampliarla directamente al 100% (píxeles 1:1) para evaluar la nitidez y el ruido. Cuando está desactivado, al hacer clic se acerca gradualmente.",
       "zoomDesc": "Ajusta qué tan rápido se acerca y aleja el lienzo al usar la rueda de desplazamiento o el gesto de pellizcar."
     },
     "data": {

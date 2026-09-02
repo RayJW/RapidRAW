@@ -1471,10 +1471,10 @@
       "speed": "Speed",
       "title": "Mouse Controls",
       "zoom": "Zoom Speed Multiplier",
-      "zoomDesc": "Adjust how fast the canvas zooms in and out when using the scroll wheel or pinch gesture.",
       "zoomClick": "Zoom photo to 100%",
       "zoomClickDesc": "Zoom photo in editor to 100% on mouse click",
-      "zoomClickInfo": "Zooms a photo in the photo editor directly to 100% to asses the sharpness and noise levels at pixel level. A second click reverts the image back to full size view."
+      "zoomClickInfo": "Click the photo to instantly zoom to 100% (1:1 pixels) to assess sharpness and noise. When disabled, clicking zooms in gradually.",
+      "zoomDesc": "Adjust how fast the canvas zooms in and out when using the scroll wheel or pinch gesture."
     },
     "data": {
       "clearSidecars": "Clear All Sidecar Files",
