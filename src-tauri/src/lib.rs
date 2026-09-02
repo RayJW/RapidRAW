@@ -50,7 +50,6 @@ use std::io::Write;
 use std::panic;
 use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::sync::mpsc::{self, Receiver, Sender};
-use std::thread;
 
 use std::borrow::Cow;
 use std::sync::{Arc, Mutex};
@@ -744,11 +743,11 @@ async fn apply_adjustments(
 }
 
 #[tauri::command]
-fn generate_uncropped_preview(
+async fn generate_uncropped_preview(
     js_adjustments: serde_json::Value,
-    state: tauri::State<AppState>,
+    state: tauri::State<'_, AppState>,
     app_handle: tauri::AppHandle,
-) -> Result<(), String> {
+) -> Result<String, String> {
     let context = get_or_init_gpu_context(&state, &app_handle)?;
     let mut adjustments_clone = js_adjustments.clone();
     hydrate_adjustments(&state, &mut adjustments_clone);
@@ -760,7 +759,7 @@ fn generate_uncropped_preview(
         .clone()
         .ok_or("No original image loaded")?;
 
-    thread::spawn(move || {
+    tokio::task::spawn_blocking(move || {
         let state = app_handle.state::<AppState>();
         let path = loaded_image.path.clone();
         let is_raw = loaded_image.is_raw;
@@ -875,12 +874,14 @@ fn generate_uncropped_preview(
             {
                 let base64_str = general_purpose::STANDARD.encode(&bytes);
                 let data_url = format!("data:image/jpeg;base64,{}", base64_str);
-                let _ = app_handle.emit("preview-update-uncropped", data_url);
+                return Ok(data_url);
             }
         }
-    });
 
-    Ok(())
+        Err("Failed to process uncropped preview".to_string())
+    })
+    .await
+    .map_err(|e| format!("Task execution failed: {}", e))?
 }
 
 pub fn get_original_image(

@@ -38,6 +38,9 @@ export function useImageProcessing(
   const appSettings = useSettingsStore((state) => state.appSettings);
   const multiSelectedPaths = useLibraryStore((state) => state.multiSelectedPaths);
 
+  const uncroppedJobIdRef = useRef(0);
+  const latestUncroppedJobIdRef = useRef(0);
+
   const inFlightCountRef = useRef(0);
   const lastAnalyticsTimeRef = useRef<number>(0);
   const pendingApplyRef = useRef<{ adjustments: Adjustments; targetRes?: number } | null>(null);
@@ -49,18 +52,6 @@ export function useImageProcessing(
   useEffect(() => {
     selectedImagePathRef.current = selectedImage?.path ?? null;
   }, [selectedImage?.path]);
-
-  const geometricAdjustmentsKey = useMemo(() => {
-    if (!adjustments) return '';
-    const { crop, rotation, flipHorizontal, flipVertical, orientationSteps } = adjustments;
-    return JSON.stringify({ crop, rotation, flipHorizontal, flipVertical, orientationSteps });
-  }, [
-    adjustments?.crop,
-    adjustments?.rotation,
-    adjustments?.flipHorizontal,
-    adjustments?.flipVertical,
-    adjustments?.orientationSteps,
-  ]);
 
   const calculateROI = useCallback(() => {
     if (!transformWrapperRef.current) return null;
@@ -320,7 +311,15 @@ export function useImageProcessing(
       throttle(
         (adj: Adjustments) => {
           if (!useEditorStore.getState().selectedImage?.isReady) return;
-          invoke(Invokes.GenerateUncroppedPreview, { jsAdjustments: adj }).catch(console.error);
+          const jobId = ++uncroppedJobIdRef.current;
+          invoke<string>(Invokes.GenerateUncroppedPreview, { jsAdjustments: adj })
+            .then((dataUrl) => {
+              if (jobId >= latestUncroppedJobIdRef.current) {
+                latestUncroppedJobIdRef.current = jobId;
+                useEditorStore.getState().setEditor({ uncroppedAdjustedPreviewUrl: dataUrl });
+              }
+            })
+            .catch(console.error);
         },
         30,
         { leading: true, trailing: true },
@@ -330,33 +329,16 @@ export function useImageProcessing(
 
   const generateUncroppedPreview = useCallback(
     (currentAdjustments: Adjustments) => {
-      throttledUncroppedPreview.cancel();
-      if (!selectedImage?.isReady) return;
-      invoke(Invokes.GenerateUncroppedPreview, { jsAdjustments: currentAdjustments }).catch(console.error);
+      throttledUncroppedPreview(currentAdjustments);
     },
-    [selectedImage?.isReady, throttledUncroppedPreview],
+    [throttledUncroppedPreview],
   );
 
   useEffect(() => {
     if (activeView === 'editor' && activePanel === Panel.Crop && selectedImage?.isReady) {
-      if (isSliderDragging) {
-        throttledUncroppedPreview(adjustments);
-      } else {
-        generateUncroppedPreview(adjustments);
-      }
+      generateUncroppedPreview(adjustments);
     }
-    return () => {
-      throttledUncroppedPreview.cancel();
-    };
-  }, [
-    activeView,
-    adjustments,
-    activePanel,
-    selectedImage?.isReady,
-    isSliderDragging,
-    throttledUncroppedPreview,
-    generateUncroppedPreview,
-  ]);
+  }, [activeView, adjustments, activePanel, selectedImage?.isReady, generateUncroppedPreview]);
 
   const calculateTargetRes = useCallback(() => {
     const baseTargetRes = appSettings?.editorPreviewResolution || 1920;
