@@ -543,6 +543,7 @@
       "savesTo": "External edit — saves to"
     },
     "guided": {
+      "cancel": "Cancel",
       "drawingActive": "Drawing Active",
       "hint": "Draw along edges in your photo that should be vertical or horizontal.",
       "linesStatus": "Active Guide Lines",

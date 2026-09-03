@@ -541,6 +541,7 @@
       "savesTo": "外部编辑 — 保存至"
     },
     "guided": {
+      "cancel": "取消",
       "drawingActive": "绘图中",
       "hint": "沿着照片中应该是垂直或水平的边缘绘制。",
       "linesStatus": "活跃引导线",

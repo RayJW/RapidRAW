@@ -23,6 +23,7 @@ import {
   Minus,
   Trash2,
   Info,
+  Ban,
 } from 'lucide-react';
 import { useTranslation, Trans } from 'react-i18next';
 import { invoke } from '@tauri-apps/api/core';
@@ -1007,16 +1008,36 @@ export default function CropPanel() {
                             {t('modals.transform.guided')}
                           </Text>
                           <div className="space-y-3">
-                            <Button
-                              variant="primary"
+                            <motion.button
+                              type="button"
                               onClick={() => setEditor({ isGuidedPerspectiveActive: !isGuidedPerspectiveActive })}
-                              className="w-full flex items-center justify-center gap-2"
+                              whileTap={{ scale: 0.98 }}
+                              transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+                              className={clsx(
+                                'w-full flex items-center justify-center p-2.5 rounded-lg text-sm font-medium cursor-pointer transition-colors',
+                                isGuidedPerspectiveActive
+                                  ? 'bg-accent text-button-text group hover:bg-red-600 hover:text-white'
+                                  : 'bg-bg-secondary text-text-secondary hover:bg-card-active hover:text-text-primary',
+                              )}
                             >
-                              <Cuboid size={16} />
-                              {isGuidedPerspectiveActive
-                                ? t('editor.guided.drawingActive')
-                                : t('modals.transform.guided')}
-                            </Button>
+                              {isGuidedPerspectiveActive ? (
+                                <>
+                                  <span className="flex items-center gap-2 group-hover:hidden">
+                                    <Cuboid size={16} />
+                                    {t('editor.guided.drawingActive')}
+                                  </span>
+                                  <span className="hidden items-center gap-2 group-hover:flex">
+                                    <Ban size={16} />
+                                    {t('editor.guided.cancel')}
+                                  </span>
+                                </>
+                              ) : (
+                                <span className="flex items-center gap-2">
+                                  <Cuboid size={16} />
+                                  {t('modals.transform.guided')}
+                                </span>
+                              )}
+                            </motion.button>
 
                             {adjustments.guidedPerspective?.lines && adjustments.guidedPerspective.lines.length > 0 && (
                               <div className="p-3 bg-bg-primary rounded-md border border-surface flex flex-col gap-2">

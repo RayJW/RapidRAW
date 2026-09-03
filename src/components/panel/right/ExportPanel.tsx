@@ -884,62 +884,68 @@ export default function ExportPanel({
             </span>
           ) : null}
         </Text>
-        <Button
-          className={`group rounded-md h-11 w-full flex items-center text-md font-bold! justify-center ${
-            status === Status.Exporting
-              ? 'bg-red-600/80 hover:bg-red-600 text-white'
-              : status === Status.Cancelling
-                ? 'bg-yellow-500/20 text-yellow-400 shadow-none'
-                : status === Status.Success
-                  ? 'bg-green-500/70 text-white shadow-none'
-                  : status === Status.Error
-                    ? 'bg-red-500/20 text-red-400 shadow-none'
-                    : status === Status.Cancelled
-                      ? 'bg-yellow-500/20 text-yellow-400 shadow-none'
-                      : ''
-          }`}
-          disabled={isCancelling || (status !== Status.Exporting && !canExport)}
-          onClick={status === Status.Exporting ? handleCancel : handleExport}
-          size="lg"
+        <motion.div
+          whileTap={!(isCancelling || (status !== Status.Exporting && !canExport)) ? { scale: 0.98 } : undefined}
+          transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+          className="w-full"
         >
-          {status === Status.Exporting ? (
-            <>
-              <span className="flex items-center group-hover:hidden">
-                <Loader size={18} className="animate-spin mr-2" />
-                {progress.total > 1
-                  ? t('export.status.exportingProgress', { current: progress.current, total: progress.total })
-                  : t('export.status.exporting')}
-              </span>
-              <span className="hidden items-center group-hover:flex">
-                <Ban size={18} className="mr-2" />
-                {t('export.status.cancelExport')}
-              </span>
-            </>
-          ) : status === Status.Cancelling ? (
-            <>
-              <Loader size={18} className="animate-spin mr-2" /> {t('export.status.cancelling')}
-            </>
-          ) : status === Status.Success ? (
-            <>
-              <CheckCircle size={18} className="mr-2" /> {t('export.status.success')}
-            </>
-          ) : status === Status.Error ? (
-            <>
-              <XCircle size={18} className="mr-2" /> {errorMessage || t('export.status.failed')}
-            </>
-          ) : status === Status.Cancelled ? (
-            <>
-              <Ban size={18} className="mr-2" /> {t('export.status.cancelled')}
-            </>
-          ) : (
-            <>
-              <FileInput size={18} className="mr-2" />{' '}
-              {numImages > 1
-                ? t('export.status.exportMultiple', { count: numImages, label: itemLabelPlural })
-                : t('export.status.exportSingle', { label: itemLabel })}
-            </>
-          )}
-        </Button>
+          <Button
+            className={`group rounded-md h-11 w-full flex items-center text-md font-bold! justify-center ${
+              status === Status.Exporting
+                ? 'bg-red-600/80 hover:bg-red-600 text-white'
+                : status === Status.Cancelling
+                  ? 'bg-yellow-500/20 text-yellow-400 shadow-none'
+                  : status === Status.Success
+                    ? 'bg-green-500/70 text-white shadow-none'
+                    : status === Status.Error
+                      ? 'bg-red-500/20 text-red-400 shadow-none'
+                      : status === Status.Cancelled
+                        ? 'bg-yellow-500/20 text-yellow-400 shadow-none'
+                        : ''
+            }`}
+            disabled={isCancelling || (status !== Status.Exporting && !canExport)}
+            onClick={status === Status.Exporting ? handleCancel : handleExport}
+            size="lg"
+          >
+            {status === Status.Exporting ? (
+              <>
+                <span className="flex items-center group-hover:hidden">
+                  <Loader size={18} className="animate-spin mr-2" />
+                  {progress.total > 1
+                    ? t('export.status.exportingProgress', { current: progress.current, total: progress.total })
+                    : t('export.status.exporting')}
+                </span>
+                <span className="hidden items-center group-hover:flex">
+                  <Ban size={18} className="mr-2" />
+                  {t('export.status.cancelExport')}
+                </span>
+              </>
+            ) : status === Status.Cancelling ? (
+              <>
+                <Loader size={18} className="animate-spin mr-2" /> {t('export.status.cancelling')}
+              </>
+            ) : status === Status.Success ? (
+              <>
+                <CheckCircle size={18} className="mr-2" /> {t('export.status.success')}
+              </>
+            ) : status === Status.Error ? (
+              <>
+                <XCircle size={18} className="mr-2" /> {errorMessage || t('export.status.failed')}
+              </>
+            ) : status === Status.Cancelled ? (
+              <>
+                <Ban size={18} className="mr-2" /> {t('export.status.cancelled')}
+              </>
+            ) : (
+              <>
+                <FileInput size={18} className="mr-2" />{' '}
+                {numImages > 1
+                  ? t('export.status.exportMultiple', { count: numImages, label: itemLabelPlural })
+                  : t('export.status.exportSingle', { label: itemLabel })}
+              </>
+            )}
+          </Button>
+        </motion.div>
       </div>
     </div>
   );

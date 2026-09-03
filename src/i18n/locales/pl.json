@@ -583,6 +583,7 @@
       "savesTo": "Zewnętrzna edycja — zapisuje do"
     },
     "guided": {
+      "cancel": "Anuluj",
       "drawingActive": "Rysowanie aktywne",
       "hint": "Rysuj wzdłuż krawędzi na zdjęciu, które powinny być pionowe lub poziome.",
       "linesStatus": "Aktywne linie pomocnicze",

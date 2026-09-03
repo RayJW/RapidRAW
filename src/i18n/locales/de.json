@@ -543,6 +543,7 @@
       "savesTo": "Externe Bearbeitung — speichert in"
     },
     "guided": {
+      "cancel": "Abbrechen",
       "drawingActive": "Zeichnen aktiv",
       "hint": "Zeichnen Sie entlang der Kanten in Ihrem Foto, die vertikal oder horizontal sein sollten.",
       "linesStatus": "Aktive Hilfslinien",

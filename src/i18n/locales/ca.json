@@ -543,6 +543,7 @@
       "savesTo": "Edició externa — es desa a"
     },
     "guided": {
+      "cancel": "Cancel·lar",
       "drawingActive": "Dibuix actiu",
       "hint": "Dibuixa al llarg de les vores de la foto que haurien de ser verticals o horitzontals.",
       "linesStatus": "Línies guia actives",

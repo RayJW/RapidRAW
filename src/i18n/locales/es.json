@@ -563,6 +563,7 @@
       "savesTo": "Edición externa: se guarda en"
     },
     "guided": {
+      "cancel": "Cancelar",
       "drawingActive": "Dibujo activo",
       "hint": "Dibuja a lo largo de los bordes de tu foto que deberían ser verticales u horizontales.",
       "linesStatus": "Líneas guía activas",

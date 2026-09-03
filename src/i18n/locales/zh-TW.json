@@ -541,6 +541,7 @@
       "savesTo": "外部編輯 — 儲存至"
     },
     "guided": {
+      "cancel": "取消",
       "drawingActive": "繪圖中",
       "hint": "沿著照片中應該是垂直或水平的邊緣繪製。",
       "linesStatus": "活躍引導線",

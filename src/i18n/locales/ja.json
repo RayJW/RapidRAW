@@ -541,6 +541,7 @@
       "savesTo": "外部編集 — 保存先"
     },
     "guided": {
+      "cancel": "キャンセル",
       "drawingActive": "描画中",
       "hint": "垂直または水平であるべき写真の縁に沿って描画します。",
       "linesStatus": "アクティブなガイドライン",

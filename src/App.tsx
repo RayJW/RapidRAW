@@ -530,6 +530,16 @@ function App() {
   }, [activePanel, activeMaskContainerId, activeAiPatchContainerId, setEditor]);
 
   useEffect(() => {
+    setEditor({
+      isWbPickerActive: false,
+      isStraightenActive: false,
+      isGuidedPerspectiveActive: false,
+      activeMaskId: null,
+      activeAiSubMaskId: null,
+    });
+  }, [activePanel, activeView, setEditor]);
+
+  useEffect(() => {
     const unlisten = listen('ai-connector-status-update', (event: any) => {
       setEditor({ isAIConnectorConnected: event.payload.connected });
     });
@@ -667,9 +677,8 @@ function App() {
   const handlePanelSelect = useCallback(
     (panelId: Panel) => {
       setPanel(panelId);
-      setEditor({ activeMaskId: null, activeAiSubMaskId: null, isWbPickerActive: false });
     },
-    [setPanel, setEditor],
+    [setPanel],
   );
 
   const handleToggleFolder = useCallback(

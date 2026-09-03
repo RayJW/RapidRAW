@@ -563,6 +563,7 @@
       "savesTo": "Modification externe — s'enregistre dans"
     },
     "guided": {
+      "cancel": "Annuler",
       "drawingActive": "Dessin actif",
       "hint": "Tracez le long des bords de votre photo qui devraient être verticaux ou horizontaux.",
       "linesStatus": "Lignes de guidage actives",
