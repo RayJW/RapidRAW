@@ -782,8 +782,7 @@ async fn generate_uncropped_preview(
                     crate::lens_blur::apply_lens_blur(patched_image, &adjustments_clone);
 
                 let settings = load_settings(app_handle.clone()).unwrap_or_default();
-                let target_dim =
-                    (settings.editor_preview_resolution.unwrap_or(1920) as f32 / 1.5) as u32;
+                let target_dim = (settings.editor_preview_resolution.unwrap_or(1920) as f32) as u32;
 
                 let downscaled = downscale_f32_image(&blurred_image, target_dim, target_dim);
 
