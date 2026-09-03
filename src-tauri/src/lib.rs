@@ -1688,7 +1688,9 @@ pub fn run() {
 
     #[cfg(target_os = "linux")]
     {
-        builder = builder.plugin(tauri_plugin_wayland_nvidia_quirk::init());
+        if !is_headless {
+            builder = builder.plugin(tauri_plugin_wayland_nvidia_quirk::init());
+        }
     }
 
     #[cfg(not(any(target_os = "android", target_os = "ios")))]
@@ -1818,6 +1820,15 @@ pub fn run() {
                         std::env::set_var("WGPU_BACKEND", backend);
                     }
 
+                #[cfg(target_os = "linux")]
+                {
+                    if settings.linux_gpu_optimization.unwrap_or(false) {
+                        std::env::set_var("WEBKIT_DISABLE_DMABUF_RENDERER", "1");
+                        std::env::set_var("WEBKIT_DISABLE_COMPOSITING_MODE", "1");
+                        std::env::set_var("NODEVICE_SELECT", "1");
+                    }
+                }
+
                 #[cfg(not(target_os = "android"))]
                 {
                     let resource_path = app_handle
@@ -1847,17 +1858,11 @@ pub fn run() {
                 && backend != "auto" {
                     log::info!("Applied processing backend setting: {}", backend);
                 }
-            #[cfg(target_os = "linux")]
-            {
-                if settings.linux_gpu_optimization.unwrap_or(false) {
-                    log::info!("User enabled forced software compositing fallback.");
-                    unsafe {
-                        std::env::set_var("WEBKIT_DISABLE_DMABUF_RENDERER", "1");
-                        std::env::set_var("WEBKIT_DISABLE_COMPOSITING_MODE", "1");
-                        std::env::set_var("NODEVICE_SELECT", "1");
-                    }
-                }
 
+            #[cfg(target_os = "linux")]
+            if settings.linux_gpu_optimization.unwrap_or(false) {
+                log::info!("Applied Linux Compatibility Mode (forced software compositing).");
+            } else {
                 log::info!(
                     "Wayland Nvidia quirk status: {:?}",
                     tauri_plugin_wayland_nvidia_quirk::status()
