@@ -70,11 +70,6 @@ use tauri::{Emitter, Manager, ipc::Response};
 use tempfile::NamedTempFile;
 use tokio::sync::Mutex as TokioMutex;
 
-#[cfg(target_os = "linux")]
-use webkit2gtk_nvidia_quirk::{
-    ApplyWorkaroundOptions, WorkaroundKind, apply_workaround_with_options, needs_workaround,
-};
-
 use crate::cache_utils::{
     DecodedImageCache, calculate_full_job_hash, calculate_geometry_hash, calculate_transform_hash,
     calculate_visual_hash,
@@ -1685,11 +1680,16 @@ pub fn run() {
         .stack_size(8 * 1024 * 1024)
         .build_global();
 
-    let mut builder = tauri::Builder::default();
-
     let args: Vec<String> = std::env::args().skip(1).collect();
     let launch_req = parse_launch_args(&args);
     let is_headless = matches!(launch_req, LaunchRequest::HeadlessExport(_));
+
+    let mut builder = tauri::Builder::default();
+
+    #[cfg(target_os = "linux")]
+    {
+        builder = builder.plugin(tauri_plugin_wayland_nvidia_quirk::init());
+    }
 
     #[cfg(not(any(target_os = "android", target_os = "ios")))]
     {
@@ -1818,16 +1818,6 @@ pub fn run() {
                         std::env::set_var("WGPU_BACKEND", backend);
                     }
 
-                #[cfg(target_os = "linux")]
-                {
-                    apply_workaround_with_options(ApplyWorkaroundOptions::default());
-                    if settings.linux_gpu_optimization.unwrap_or(false) {
-                        std::env::set_var("WEBKIT_DISABLE_DMABUF_RENDERER", "1");
-                        std::env::set_var("WEBKIT_DISABLE_COMPOSITING_MODE", "1");
-                        std::env::set_var("NODEVICE_SELECT", "1");
-                    }
-                }
-
                 #[cfg(not(target_os = "android"))]
                 {
                     let resource_path = app_handle
@@ -1858,13 +1848,20 @@ pub fn run() {
                     log::info!("Applied processing backend setting: {}", backend);
                 }
             #[cfg(target_os = "linux")]
-            if settings.linux_gpu_optimization.unwrap_or(false) {
-                log::info!("Applied Linux Compatibility Mode (forced software compositing).");
-            } else {
-                match needs_workaround() {
-                    WorkaroundKind::None => {}
-                    kind => log::info!("Applied Nvidia workaround: {:?}", kind),
+            {
+                if settings.linux_gpu_optimization.unwrap_or(false) {
+                    log::info!("User enabled forced software compositing fallback.");
+                    unsafe {
+                        std::env::set_var("WEBKIT_DISABLE_DMABUF_RENDERER", "1");
+                        std::env::set_var("WEBKIT_DISABLE_COMPOSITING_MODE", "1");
+                        std::env::set_var("NODEVICE_SELECT", "1");
+                    }
                 }
+
+                log::info!(
+                    "Wayland Nvidia quirk status: {:?}",
+                    tauri_plugin_wayland_nvidia_quirk::status()
+                );
             }
 
             if let LaunchRequest::HeadlessExport(session) = launch_req {
