@@ -2727,6 +2727,7 @@ pub struct GpuContext {
     pub device: Arc<wgpu::Device>,
     pub queue: Arc<wgpu::Queue>,
     pub limits: wgpu::Limits,
+    pub adapter_info: wgpu::AdapterInfo,
     pub display: Arc<std::sync::Mutex<Option<WgpuDisplay>>>,
 }
 
