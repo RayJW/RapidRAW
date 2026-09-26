@@ -63,6 +63,8 @@ mod raw_processing;
 mod relight;
 mod tagging;
 mod tagging_utils;
+#[cfg(test)]
+mod test_support;
 mod white_balance;
 mod window_customizer;
 
