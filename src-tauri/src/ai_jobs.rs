@@ -760,16 +760,18 @@ struct JobResults {
 fn decode_source(app_handle: &AppHandle, source_path: &Path) -> Result<Arc<DynamicImage>, String> {
     let state = app_handle.state::<AppState>();
     let source_path_str = source_path.to_string_lossy().to_string();
-    if let Some((image, _)) = state
-        .decoded_image_cache
-        .lock()
-        .unwrap()
-        .get(&source_path_str)
+    let settings = crate::app_settings::load_settings(app_handle.clone()).unwrap_or_default();
+    if let Some(fingerprint) =
+        crate::cache_utils::DecodeFingerprint::for_file(source_path, &settings)
+        && let Some((image, _)) = state
+            .decoded_image_cache
+            .lock()
+            .unwrap()
+            .get(&source_path_str, &fingerprint)
     {
         return Ok(image);
     }
 
-    let settings = crate::app_settings::load_settings(app_handle.clone()).unwrap_or_default();
     let image = match read_file_mapped(source_path) {
         Ok(mmap) => crate::image_loader::load_base_image_from_bytes(
             &mmap,

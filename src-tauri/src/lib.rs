@@ -2405,6 +2405,7 @@ pub fn run() {
             effects_cache: Mutex::new(None),
             full_transformed_cache: Mutex::new(None),
             decoded_image_cache: Mutex::new(DecodedImageCache::new(5)),
+            decode_flights: Default::default(),
             thumbnail_manager: ThumbnailManager::new(),
             memory_budget: crate::memory_budget::MemoryBudget::from_total_ram(0.6),
             metadata_manager: MetadataManager::new(),
