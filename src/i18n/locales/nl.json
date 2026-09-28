@@ -43,7 +43,7 @@
         "shadows": "Schaduwen"
       },
       "hue": "Kleurtoon",
-      "localHue": "Lokale Kleurtoon",
+      "localHue": "Lokale kleurtoon",
       "luminance": "Luminantie",
       "mixerColors": {
         "aquas": "Aqua",
@@ -374,7 +374,7 @@
       "generativeEditTitle": "Generatieve bewerking",
       "inpaintingTitle": "Inpainting",
       "liquify": {
-        "mode": "Uitvloeien",
+        "mode": "Uitvloeimodus",
         "modes": {
           "expand": "Uitbreiden",
           "pinch": "Knijpen",
@@ -430,7 +430,7 @@
         "selectionPropertiesTitle": "Selectie-eigenschappen",
         "useBasicInpaint": "Basis inpainting gebruiken"
       },
-      "touchUpTitle": "Bijwerken"
+      "touchUpTitle": "Retoucheren"
     },
     "crop": {
       "aspectRatioHeading": "Beeldverhouding",
@@ -602,7 +602,7 @@
         "brush": "Penseel",
         "eraser": "Gum",
         "feather": "Penseelrandvervaging",
-        "flow": "Doorstroming",
+        "flow": "Stroom",
         "size": "Penseelgrootte"
       },
       "comingSoon": "Binnenkort beschikbaar",
@@ -1220,7 +1220,7 @@
         "colorMixer": "Kleurenmixer",
         "cropAspectRatio": "Bijsnijden & beeldverhouding",
         "curves": "Curven",
-        "exposureToneMapper": "Belichting & toonmapper",
+        "exposureToneMapper": "Belichting & toonmapping",
         "grain": "Korrel",
         "guidedPerspective": "Geleid perspectief",
         "halationGlow": "Halatie & gloed",
@@ -1544,7 +1544,7 @@
         "confirmResetLayout": "Indeling herstellen",
         "confirmResetLayoutTitle": "Werkruimte-indeling herstellen",
         "confirmTitle": "Verwijdering bevestigen",
-        "resetLayoutMessage": "Weet u zeker dat u de werkruimte-indeling wilt herstellen? Alle gedockte panelen, breedtes en schakelpositiesposities worden teruggezet naar hun standaardwaarden.",
+        "resetLayoutMessage": "Weet u zeker dat u de werkruimte-indeling wilt herstellen? Alle gedockte panelen, breedtes en schakelposities worden teruggezet naar hun standaardwaarden.",
         "sidecarMessage": "Weet u zeker dat u alle sidecar-bestanden wilt verwijderen?\n\nDit verwijdert permanent al uw bewerkingen voor alle afbeeldingen in alle actieve hoofdmappen en hun submappen."
       },
       "noFolders": "Geen mappen geselecteerd",
@@ -1771,13 +1771,13 @@
         "applyPreprocessingDesc": "Als ingeschakeld, wordt de basiskleurruisonderdrukking en voorverscherping hierboven ook toegepast op standaardformaten.",
         "colorNr": "Basis kleurruisonderdrukking",
         "colorNrDesc": "Past een cross-bilateraal filter vroeg in de pijplijn toe om chroominantieruis te verwijderen. Hogere waarde = Sterkere ruisonderdrukking.",
-        "defaultNonRawTonemapper": "Standaard niet-RAW-toonmapper",
-        "defaultNonRawTonemapperDesc": "De toonmapper die wordt toegepast op niet-RAW-afbeeldingen (bijv. JPEG, PNG).",
-        "defaultRawTonemapper": "Standaard RAW-toonmapper",
-        "defaultRawTonemapperDesc": "De toonmapper die wordt toegepast op RAW-afbeeldingen.",
+        "defaultNonRawTonemapper": "Standaard niet-RAW-toonmapping",
+        "defaultNonRawTonemapperDesc": "De toonmapping die wordt toegepast op niet-RAW-afbeeldingen (bijv. JPEG, PNG).",
+        "defaultRawTonemapper": "Standaard RAW-toonmapping",
+        "defaultRawTonemapperDesc": "De toonmapping die wordt toegepast op RAW-afbeeldingen.",
         "enableAppleRaw9": "Apple RAW 9 gebruiken voor RAW-bestanden",
         "enablePreprocessingNonRaws": "Inschakelen voor niet-RAW-bestanden",
-        "enableTonemapperOverride": "Toonmapperoverride inschakelen",
+        "enableTonemapperOverride": "Toonmappingoverride inschakelen",
         "highlightRecovery": "RAW-hooglichtenherstel",
         "highlightRecoveryDesc": "Bepaalt hoeveel detail wordt hersteld van uitgeknipte hooglichten in RAW-bestanden. Hogere waarden herstellen meer detail maar kunnen paarse artefacten introduceren.",
         "linearOptions": {
@@ -1795,8 +1795,8 @@
           "agx": "AgX",
           "basic": "Basis"
         },
-        "tonemapperOverride": "Globale toonmapperoverride",
-        "tonemapperOverrideDesc": "Forceer een specifieke toonmapper globaal voor alle afbeeldingen, waardoor de toonmapperschakelaar verborgen wordt in het aanpassingspaneel."
+        "tonemapperOverride": "Globale toonmappingoverride",
+        "tonemapperOverrideDesc": "Forceer een specifieke toonmapping globaal voor alle afbeeldingen, waardoor de toonmappingschakelaar verborgen wordt in het aanpassingspaneel."
       },
       "previewRes": "Voorbeeldresolutie",
       "previewResDesc": "Bepaalt de maximale resolutie van het voorbeeld. Lagere waarden verbeteren de prestaties aanzienlijk.",
