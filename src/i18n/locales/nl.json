@@ -404,9 +404,9 @@
         "liquify": "Uitvloeien {{count}}",
         "liquify_one": "Uitvloeien {{count}}",
         "liquify_other": "Uitvloeien {{count}}",
-        "quickErase": "Snel wissen {{count}}",
-        "quickErase_one": "Snel wissen {{count}}",
-        "quickErase_other": "Snel wissen {{count}}",
+        "quickErase": "Snel verwijderen {{count}}",
+        "quickErase_one": "Snel verwijderen {{count}}",
+        "quickErase_other": "Snel verwijderen {{count}}",
         "retouch": "Retouche {{count}}"
       },
       "resetInpaintingTooltip": "Inpainting herstellen",
