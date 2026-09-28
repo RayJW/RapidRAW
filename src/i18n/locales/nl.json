@@ -1,7 +1,7 @@
 {
   "adjustments": {
     "basic": {
-      "blacks": "Zwarten",
+      "blacks": "Zwarttinten",
       "brightness": "Helderheid",
       "contrast": "Contrast",
       "exposure": "Belichting",
@@ -12,10 +12,10 @@
         "basic": "Basis",
         "basicDesc": "Standaard toonmapping"
       },
-      "reset": "Herstellen",
+      "reset": "Opnieuw instellen",
       "shadows": "Schaduwen",
-      "toneMapper": "Toonmapper",
-      "whites": "Witten"
+      "toneMapper": "Toonmapping",
+      "whites": "Wittinten"   
     },
     "color": {
       "ariaSelectColor": "Selecteer {{name}} kleur",
@@ -46,10 +46,10 @@
       "localHue": "Lokale Kleurtoon",
       "luminance": "Luminantie",
       "mixerColors": {
-        "aquas": "Aqua's",
+        "aquas": "Aqua",
         "blues": "Blauw",
         "greens": "Groen",
-        "magentas": "Magenta's",
+        "magentas": "Magenta",
         "oranges": "Oranje",
         "purples": "Paars",
         "reds": "Rood",
@@ -96,7 +96,7 @@
     },
     "details": {
       "blueYellow": "Blauw/Geel",
-      "centre": "Gecentreerd",
+      "centre": "Centrum",
       "chromaticAberration": "Chromatische aberratie",
       "clarity": "Lokaal contrast",
       "color": "Kleur",
@@ -122,9 +122,9 @@
       "glow": "Gloed",
       "grain": "Korrel",
       "halation": "Halatie",
-      "lensBlur": "Lensvertroebeling",
+      "lensBlur": "Lensonscherpte",
       "lensDiffusion": "Diffusie",
-      "lightFlares": "Lichtschijn",
+      "lightFlares": "Lensflare",
       "lut": "LUT",
       "midpoint": "Middelpunt",
       "roughness": "Ruwheid",
@@ -374,7 +374,7 @@
       "generativeEditTitle": "Generatieve bewerking",
       "inpaintingTitle": "Inpainting",
       "liquify": {
-        "mode": "Vloeibaarmodus",
+        "mode": "Uitvloeien",
         "modes": {
           "expand": "Uitbreiden",
           "pinch": "Knijpen",
@@ -394,20 +394,20 @@
         "aiEdit": "AI-bewerking {{count}}",
         "aiEdit_one": "AI-bewerking {{count}}",
         "aiEdit_other": "AI-bewerking {{count}}",
-        "clone": "Klonen {{count}}",
-        "clone_one": "Klonen {{count}}",
-        "clone_other": "Klonen {{count}}",
-        "heal": "Herstellen {{count}}",
-        "heal_one": "Herstellen {{count}}",
-        "heal_other": "Herstellen {{count}}",
+        "clone": "Kloon {{count}}",
+        "clone_one": "Kloon {{count}}",
+        "clone_other": "Kloon {{count}}",
+        "heal": "Herstel {{count}}",
+        "heal_one": "Herstel {{count}}",
+        "heal_other": "Herstel {{count}}",
         "invertedName": "{{name}} omgekeerd",
-        "liquify": "Vloeibaar maken {{count}}",
-        "liquify_one": "Vloeibaar maken {{count}}",
-        "liquify_other": "Vloeibaar maken {{count}}",
+        "liquify": "Uitvloeien {{count}}",
+        "liquify_one": "Uitvloeien {{count}}",
+        "liquify_other": "Uitvloeien {{count}}",
         "quickErase": "Snel wissen {{count}}",
         "quickErase_one": "Snel wissen {{count}}",
         "quickErase_other": "Snel wissen {{count}}",
-        "retouch": "Retoucheren {{count}}"
+        "retouch": "Retouche {{count}}"
       },
       "resetInpaintingTooltip": "Inpainting herstellen",
       "settings": {
@@ -1149,7 +1149,7 @@
       "foreground": "Voorgrond",
       "heal": "Herstellen",
       "linear": "Lineair",
-      "liquify": "Vloeibaar maken",
+      "liquify": "Uitvloeien",
       "luminance": "Luminantie",
       "others": "Overige",
       "quickErase": "Snel wissen",
