@@ -631,6 +631,7 @@ export default function LibraryGrid(props: any) {
       onToggleRecursiveFolder: handleToggleRecursiveFolder,
       groupBadgeInfo,
       onAspectRatioLoaded: handleAspectRatioLoaded,
+      selectionModeActive: props.selectionModeActive,
     };
   }, [
     gridData,
@@ -639,6 +640,7 @@ export default function LibraryGrid(props: any) {
     onContextMenu,
     handleImageClick,
     handleImageDoubleClick,
+    props.selectionModeActive,
     thumbnailAspectRatio,
     handleImageLoad,
     imageRatings,
@@ -655,7 +657,7 @@ export default function LibraryGrid(props: any) {
       <div
         ref={libraryContainerRef}
         className="flex-1 w-full min-h-0 overflow-hidden"
-        onClick={props.onClearSelection}
+        onClick={props.selectionModeActive ? undefined : props.onClearSelection}
         onContextMenu={props.onEmptyAreaContextMenu}
       />
     );
@@ -679,7 +681,7 @@ export default function LibraryGrid(props: any) {
     <div
       ref={libraryContainerRef}
       className="flex-1 w-full min-h-0 overflow-hidden"
-      onClick={props.onClearSelection}
+      onClick={props.selectionModeActive ? undefined : props.onClearSelection}
       onContextMenu={props.onEmptyAreaContextMenu}
     >
       <div className="flex flex-col w-full h-full min-h-0">
