@@ -177,8 +177,8 @@
       "yellow": "Žlutá"
     },
     "editor": {
-      "autoAdjust": "Automaticky upravit snímek",
-      "autoLensCorrection": "Automatická korekce objektivu",
+      "autoAdjust": "Automaticky upravit",
+      "autoLensCorrection": "Auto korekce objektivu",
       "cancel": "Zrušit",
       "colorLabel": "Barevný štítek",
       "confirmReset": "Potvrďte reset",
@@ -244,10 +244,10 @@
     },
     "thumbnail": {
       "addToAlbum": "Přidat do alba",
-      "autoAdjust_one": "Automaticky upravit snímek",
-      "autoAdjust_other": "Automaticky upravit snímky",
-      "autoLensCorrection_one": "Automatická korekce objektivu",
-      "autoLensCorrection_other": "Automatická korekce objektivu",
+      "autoAdjust_one": "Automaticky upravit",
+      "autoAdjust_other": "Automaticky upravit",
+      "autoLensCorrection_one": "Auto korekce objektivu",
+      "autoLensCorrection_other": "Auto korekce objektivu",
       "collage_one": "Zarámovat snímek",
       "collage_other": "Vytvořit koláž",
       "confirmDelete": "Potvrdit smazání",
@@ -1313,7 +1313,7 @@
     },
     "denoise": {
       "batchProgressText": "Odšumování {{current}} z {{total}}...",
-      "btnBatchDenoise": "Dávkové potlačení šumu a uložení",
+      "btnBatchDenoise": "Odšumovat vše a uložit",
       "btnRetry": "Zkuste to znovu",
       "btnSave": "Uložit",
       "btnStart": "Start",
