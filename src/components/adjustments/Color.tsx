@@ -525,7 +525,7 @@ export default function ColorPanel({
                 {asShotWhiteBalance && (
                   <button
                     onClick={toggleWhiteBalanceMode}
-                    className={`px-1.5 py-0.5 rounded-md text-xs font-semibold transition-colors ${
+                    className={`w-6 h-6 flex items-center justify-center rounded-md text-xs font-semibold transition-colors ${
                       isKelvinMode ? 'bg-accent text-button-text' : 'hover:bg-bg-secondary text-text-secondary'
                     }`}
                     data-tooltip={t('adjustments.color.kelvinModeTooltip')}
@@ -536,7 +536,7 @@ export default function ColorPanel({
                 {toggleWbPicker && (
                   <button
                     onClick={toggleWbPicker}
-                    className={`p-1.5 rounded-md transition-colors ${
+                    className={`w-6 h-6 flex items-center justify-center rounded-md transition-colors ${
                       isWbPickerActive ? 'bg-accent text-button-text' : 'hover:bg-bg-secondary text-text-secondary'
                     }`}
                     data-tooltip={t('adjustments.color.wbPickerTooltip')}
