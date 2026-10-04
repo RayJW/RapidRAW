@@ -18,9 +18,7 @@ import { calculateStraightenAngle } from '../../../utils/cropUtils';
 import { toast } from 'react-toastify';
 import {
   getWhiteBalanceMode,
-  resolveWhiteBalance,
   toRelativeWhiteBalance,
-  WhiteBalance,
   WhiteBalanceMode,
   withKelvinWhiteBalance,
   withRelativeWhiteBalance,
@@ -2205,6 +2203,9 @@ const ImageCanvas = memo(
       setWbHover((p: CursorPreview) => (p.visible ? { ...p, visible: false } : p));
     }, []);
 
+    const isKelvinWhiteBalance = getWhiteBalanceMode(appSettings) === WhiteBalanceMode.Kelvin;
+    const asShotWhiteBalance = selectedImage?.asShotWhiteBalance;
+
     const applyWbPick = useCallback(
       async (corners: Coord[]) => {
         const state = wbSampleStateRef.current;
@@ -2218,17 +2219,20 @@ const ImageCanvas = memo(
           if (state.generation === generation) {
             setWbSample(sample);
           }
-          setAdjustments((prev: Adjustments) => ({
-            ...prev,
-            temperature: sample.temperature,
-            tint: sample.tint,
-          }));
+          if (asShotWhiteBalance) {
+            const picked = { temperature: sample.temperature, tint: sample.tint };
+            setAdjustments((prev: Adjustments) =>
+              isKelvinWhiteBalance
+                ? withKelvinWhiteBalance(prev, picked)
+                : withRelativeWhiteBalance(prev, toRelativeWhiteBalance(asShotWhiteBalance, picked)),
+            );
+          }
           onWbPicked?.();
         } catch (err) {
           console.error('Failed to pick white balance:', err);
         }
       },
-      [setAdjustments, onWbPicked],
+      [setAdjustments, onWbPicked, asShotWhiteBalance, isKelvinWhiteBalance],
     );
 
     useEffect(() => {
@@ -3119,6 +3123,12 @@ const ImageCanvas = memo(
     const wbSwatchFlipX = !!wbSwatchAnchor && wbSwatchAnchor.x > imageRenderSize.width * 0.75;
     const wbSwatchFlipY = !!wbSwatchAnchor && wbSwatchAnchor.y > imageRenderSize.height * 0.75;
     const wbSwatchOffset = WB_SWATCH_OFFSET / effectiveZoomScale;
+    const wbSwatchWhiteBalance =
+      wbSample && asShotWhiteBalance
+        ? isKelvinWhiteBalance
+          ? wbSample
+          : toRelativeWhiteBalance(asShotWhiteBalance, wbSample)
+        : null;
 
     const currentTarget = finalPreviewUrl || selectedImage.thumbnailUrl;
     const baseIsReady = displayState.base === currentTarget && !displayState.fade;
@@ -3571,12 +3581,14 @@ const ImageCanvas = memo(
                 <span className="text-text-secondary">
                   R {wbSwatchRgb[0]} G {wbSwatchRgb[1]} B {wbSwatchRgb[2]}
                 </span>
-                <span className="flex gap-1">
-                  <span>{t('adjustments.color.temperature')}</span>
-                  <span>{Math.round(wbSample.temperature)}</span>
-                  <span className="ml-1">{t('adjustments.color.tint')}</span>
-                  <span>{Math.round(wbSample.tint)}</span>
-                </span>
+                {wbSwatchWhiteBalance && (
+                  <span className="flex gap-1">
+                    <span>{t('adjustments.color.temperature')}</span>
+                    <span>{`${Math.round(wbSwatchWhiteBalance.temperature)}${isKelvinWhiteBalance ? 'K' : ''}`}</span>
+                    <span className="ml-1">{t('adjustments.color.tint')}</span>
+                    <span>{Math.round(wbSwatchWhiteBalance.tint)}</span>
+                  </span>
+                )}
               </div>
             </div>
           )}

@@ -3605,28 +3605,10 @@ fn point_in_convex_quad(px: f64, py: f64, quad: &[(f64, f64)]) -> bool {
     true
 }
 
-fn white_balance_from_rgb(r: f32, g: f32, b: f32) -> (f32, f32) {
-    let sum_rb = r + b;
-    let temperature = if sum_rb > 0.0001 {
-        ((b - r) / sum_rb) * 125.0
-    } else {
-        0.0
-    };
-
-    let m = sum_rb / 2.0;
-    let sum_gm = g + m;
-    let tint = if sum_gm > 0.0001 {
-        ((g - m) / sum_gm) * 400.0
-    } else {
-        0.0
-    };
-
-    (temperature.clamp(-100.0, 100.0), tint.clamp(-100.0, 100.0))
-}
-
 fn compute_white_balance_sample(
     image: &DynamicImage,
     is_raw: bool,
+    as_shot: WhiteBalance,
     corners: &[UvPoint],
 ) -> Result<WhiteBalanceSample, String> {
     if corners.len() < 3 {
@@ -3690,14 +3672,15 @@ fn compute_white_balance_sample(
     let r = (sum[0] / count as f64) as f32;
     let g = (sum[1] / count as f64) as f32;
     let b = (sum[2] / count as f64) as f32;
-    let (temperature, tint) = white_balance_from_rgb(r, g, b);
+    let picked = white_balance::pick_white_balance([r as f64, g as f64, b as f64], as_shot)
+        .unwrap_or(as_shot);
 
     Ok(WhiteBalanceSample {
         r,
         g,
         b,
-        temperature,
-        tint,
+        temperature: picked.temperature as f32,
+        tint: picked.tint as f32,
         count,
     })
 }
@@ -3707,11 +3690,23 @@ pub async fn sample_white_balance(
     corners: Vec<UvPoint>,
     state: tauri::State<'_, AppState>,
 ) -> Result<WhiteBalanceSample, String> {
-    let (image, is_raw) = crate::get_original_image(&state)?;
+    let loaded_image = state
+        .original_image
+        .lock()
+        .unwrap()
+        .clone()
+        .ok_or("No original image loaded")?;
 
-    tokio::task::spawn_blocking(move || compute_white_balance_sample(&image, is_raw, &corners))
-        .await
-        .map_err(|e| format!("Task execution failed: {}", e))?
+    tokio::task::spawn_blocking(move || {
+        compute_white_balance_sample(
+            &loaded_image.image,
+            loaded_image.is_raw,
+            loaded_image.as_shot_white_balance,
+            &corners,
+        )
+    })
+    .await
+    .map_err(|e| format!("Task execution failed: {}", e))?
 }
 
 #[cfg(test)]
@@ -3728,28 +3723,32 @@ mod white_balance_sample_tests {
     }
 
     #[test]
-    fn neutral_grey_gives_zero() {
+    fn neutral_grey_gives_as_shot() {
         let img =
             DynamicImage::ImageRgba32F(ImageBuffer::from_pixel(4, 4, Rgba([0.3, 0.3, 0.3, 1.0])));
-        let s = compute_white_balance_sample(&img, true, &full_frame()).unwrap();
+        let s = compute_white_balance_sample(&img, true, WhiteBalance::reference(), &full_frame())
+            .unwrap();
+        let reference = WhiteBalance::reference();
         assert_eq!(s.count, 16);
-        assert!(s.temperature.abs() < 1e-4);
-        assert!(s.tint.abs() < 1e-4);
+        assert!((s.temperature as f64 - reference.temperature).abs() < 1.0);
+        assert!((s.tint as f64 - reference.tint).abs() < 0.1);
     }
 
     #[test]
     fn non_raw_is_linearised() {
         let img = DynamicImage::ImageRgb32F(ImageBuffer::from_pixel(4, 4, Rgb([0.5, 0.5, 0.5])));
-        let s = compute_white_balance_sample(&img, false, &full_frame()).unwrap();
+        let s = compute_white_balance_sample(&img, false, WhiteBalance::reference(), &full_frame())
+            .unwrap();
         assert!((s.r - srgb_channel_to_linear(0.5)).abs() < 1e-5);
     }
 
     #[test]
-    fn blue_cast_gives_positive_temperature() {
+    fn blue_cast_gives_higher_temperature() {
         let img =
             DynamicImage::ImageRgba32F(ImageBuffer::from_pixel(4, 4, Rgba([0.2, 0.3, 0.4, 1.0])));
-        let s = compute_white_balance_sample(&img, true, &full_frame()).unwrap();
-        assert!(s.temperature > 0.0);
+        let s = compute_white_balance_sample(&img, true, WhiteBalance::reference(), &full_frame())
+            .unwrap();
+        assert!(s.temperature as f64 > WhiteBalance::reference().temperature);
     }
 
     #[test]
@@ -3758,7 +3757,7 @@ mod white_balance_sample_tests {
         buf.put_pixel(2, 1, Rgba([0.9, 0.5, 0.1, 1.0]));
         let img = DynamicImage::ImageRgba32F(buf);
         let quad = vec![uv(0.6, 0.3), uv(0.61, 0.3), uv(0.61, 0.31), uv(0.6, 0.31)];
-        let s = compute_white_balance_sample(&img, true, &quad).unwrap();
+        let s = compute_white_balance_sample(&img, true, WhiteBalance::reference(), &quad).unwrap();
         assert_eq!(s.count, 1);
         assert!((s.r - 0.9).abs() < 1e-5);
     }
@@ -3771,8 +3770,9 @@ mod white_balance_sample_tests {
         }
         let img = DynamicImage::ImageRgba32F(buf);
         let diamond = vec![uv(0.5, 0.0), uv(1.0, 0.5), uv(0.5, 1.0), uv(0.0, 0.5)];
-        let s = compute_white_balance_sample(&img, true, &diamond).unwrap();
+        let s =
+            compute_white_balance_sample(&img, true, WhiteBalance::reference(), &diamond).unwrap();
         assert!(s.count < 16);
-        assert!(s.temperature.abs() < 1e-4);
+        assert!((s.temperature as f64 - WhiteBalance::reference().temperature).abs() < 1.0);
     }
 }

@@ -2263,7 +2263,6 @@ pub fn run() {
             focus_stacking::stitch_focus_stack,
             focus_stacking::save_focus_stack,
             image_loader::load_image,
-            white_balance::pick_white_balance,
             image_loader::is_image_cached,
             panorama_stitching::stitch_panorama,
             panorama_stitching::save_panorama,
