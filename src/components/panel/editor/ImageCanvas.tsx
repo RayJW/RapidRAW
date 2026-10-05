@@ -3159,7 +3159,10 @@ const ImageCanvas = memo(
 
     const effectiveCursor = useMemo(() => {
       if (isGuidedPerspectiveActive && isCropping) return 'crosshair';
-      if (isWbPickerActive) return 'crosshair';
+      if (isWbPickerActive) {
+        if (wbBox || wbHover.visible) return 'none';
+        return 'crosshair';
+      }
       if (isParametricActive) return 'crosshair';
       if (isInitialDrawing) return 'crosshair';
 
@@ -3187,6 +3190,8 @@ const ImageCanvas = memo(
       isGuidedPerspectiveActive,
       isCropping,
       isWbPickerActive,
+      wbBox,
+      wbHover.visible,
       isInitialDrawing,
       isBrushActive,
       isCloneOrHealActive,
