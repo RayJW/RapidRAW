@@ -2039,7 +2039,7 @@ function SettingsPanel({
             <Text variant={TextVariants.small}>
               {isQuickErasePatch
                 ? t('editor.ai.settings.quickEraseDesc')
-                : useFastInpaint
+                : useFastInpaint || isCloud
                   ? t('editor.ai.settings.fastInpaintDesc')
                   : t('editor.ai.settings.generativeDesc')}
             </Text>
