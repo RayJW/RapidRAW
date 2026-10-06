@@ -420,8 +420,6 @@ export default function CurveGraph({
         const minX = index === 0 ? 0 : prevX + 0.01;
         const maxX = index === currentPoints.length - 1 ? 255 : nextX - 0.01;
 
-        // Keep the unsnapped position in the accumulator, otherwise small deltas near an edge
-        // are snapped back every move and the point can never leave it.
         accumulatedPointRef.current.x = Math.max(minX, Math.min(maxX, accumulatedPointRef.current.x));
 
         let x = accumulatedPointRef.current.x;
@@ -539,8 +537,6 @@ export default function CurveGraph({
     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
     const rect = svg.getBoundingClientRect();
 
-    // A click that narrowly misses a point (common at the corners, where the handle overflows
-    // the graph) grabs that point instead of creating a new one next to it.
     let nearestIndex = -1;
     let nearestDistance = Infinity;
     activePoints.forEach((p: Coord, i: number) => {
@@ -560,7 +556,6 @@ export default function CurveGraph({
     const x = Math.max(0, Math.min(255, ((clientX - rect.left) / rect.width) * 255));
     const y = Math.max(0, Math.min(255, 255 - ((clientY - rect.top) / rect.height) * 255));
 
-    // Clicks in the padding are clamped to x = 0 or 255: never stack a second point on an existing x.
     if (activePoints.some((p: Coord) => Math.abs(p.x - x) < MIN_POINT_GAP_X)) return;
 
     onDragStateChange?.(true);
