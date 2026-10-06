@@ -1019,6 +1019,7 @@
       "noMatch": "Нет изображений, соответствующих фильтру.",
       "rating": {
         "all": "Показать все",
+        "andDownSuffix": "и ниже",
         "andUpSuffix": "и выше",
         "fiveOnly": "Только 5",
         "fourAndUp": "4 и выше",
@@ -1099,6 +1100,11 @@
         "filterByFileType": "Фильтр по формату",
         "filterByFlag": "Фильтр по отметке",
         "filterByRating": "Фильтр по рейтингу",
+        "ratingOperator": {
+          "eq": "Ровно этот рейтинг",
+          "gte": "Этот рейтинг и выше",
+          "lte": "Этот рейтинг и ниже"
+        },
         "groupEditedFiles": "Include edited files in groups",
         "groupIgnoreMetadata": "Ignore mismatched EXIF dates",
         "groupOff": "Off",

@@ -996,6 +996,7 @@
       "noMatch": "No se encontraron imágenes que coincidan con tu filtro.",
       "rating": {
         "all": "Mostrar todas",
+        "andDownSuffix": "e inferior",
         "andUpSuffix": "y superior",
         "fiveOnly": "Solo 5",
         "fourAndUp": "4 y superior",
@@ -1076,6 +1077,11 @@
         "filterByFileType": "Filtrar por tipo de archivo",
         "filterByFlag": "Filtrar por marca",
         "filterByRating": "Filtrar por puntuación",
+        "ratingOperator": {
+          "eq": "Exactamente esta puntuación",
+          "gte": "Esta puntuación o superior",
+          "lte": "Esta puntuación o inferior"
+        },
         "groupEditedFiles": "Include edited files in groups",
         "groupIgnoreMetadata": "Ignore mismatched EXIF dates",
         "groupOff": "Off",

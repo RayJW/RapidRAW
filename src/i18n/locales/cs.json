@@ -972,6 +972,7 @@
       "noMatch": "Nebyly nalezeny žádné snímky, které by odpovídaly vašemu filtru.",
       "rating": {
         "all": "Zobrazit vše",
+        "andDownSuffix": "& dolů",
         "andUpSuffix": "& nahoru",
         "fiveOnly": "pouze 5",
         "fourAndUp": "4 a výše",
@@ -1052,6 +1053,11 @@
         "filterByFileType": "Filtrovat podle typu souboru",
         "filterByFlag": "Filtrovat podle příznaku",
         "filterByRating": "Filtrovat podle hodnocení",
+        "ratingOperator": {
+          "eq": "Přesně toto hodnocení",
+          "gte": "Toto hodnocení nebo vyšší",
+          "lte": "Toto hodnocení nebo nižší"
+        },
         "groupEditedFiles": "Zahrnout upravené soubory do skupin",
         "groupIgnoreMetadata": "Ignorovat neshodná data EXIF",
         "groupOff": "Vypnuto",

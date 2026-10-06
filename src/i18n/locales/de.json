@@ -973,6 +973,7 @@
       "noMatch": "Keine Bilder gefunden, die Ihrem Filter entsprechen.",
       "rating": {
         "all": "Alle anzeigen",
+        "andDownSuffix": "& niedriger",
         "andUpSuffix": "& höher",
         "fiveOnly": "Nur 5",
         "fourAndUp": "4 & höher",
@@ -1053,6 +1054,11 @@
         "filterByFileType": "Nach Dateityp filtern",
         "filterByFlag": "Nach Markierung filtern",
         "filterByRating": "Nach Bewertung filtern",
+        "ratingOperator": {
+          "eq": "Genau diese Bewertung",
+          "gte": "Diese Bewertung oder höher",
+          "lte": "Diese Bewertung oder niedriger"
+        },
         "groupEditedFiles": "Include edited files in groups",
         "groupIgnoreMetadata": "Ignore mismatched EXIF dates",
         "groupOff": "Off",

@@ -973,6 +973,7 @@
       "noMatch": "No s'ha trobat cap imatge que coincideixi amb el vostre filtre.",
       "rating": {
         "all": "Mostrar-les totes",
+        "andDownSuffix": "i inferior",
         "andUpSuffix": "i superior",
         "fiveOnly": "Només 5",
         "fourAndUp": "4 i superior",
@@ -1053,6 +1054,11 @@
         "filterByFileType": "Filtrar per tipus de fitxer",
         "filterByFlag": "Filtrar per marca",
         "filterByRating": "Filtrar per puntuació",
+        "ratingOperator": {
+          "eq": "Exactament aquesta puntuació",
+          "gte": "Aquesta puntuació o superior",
+          "lte": "Aquesta puntuació o inferior"
+        },
         "groupEditedFiles": "Incloure fitxers editats als grups",
         "groupIgnoreMetadata": "Ignorar dates EXIF no coincidents",
         "groupOff": "Desactivat",

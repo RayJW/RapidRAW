@@ -961,6 +961,7 @@
       "noMatch": "Geen afbeeldingen gevonden die overeenkomen met uw filter.",
       "rating": {
         "all": "Alles weergeven",
+        "andDownSuffix": "& lager",
         "andUpSuffix": "& hoger",
         "fiveOnly": "Alleen 5",
         "fourAndUp": "4 & hoger",
@@ -1040,6 +1041,11 @@
         "filterByEdited": "Filteren op bewerkingsstatus",
         "filterByFileType": "Filteren op bestandstype",
         "filterByRating": "Filteren op beoordeling",
+        "ratingOperator": {
+          "eq": "Precies deze beoordeling",
+          "gte": "Deze beoordeling of hoger",
+          "lte": "Deze beoordeling of lager"
+        },
         "groupEditedFiles": "Bewerkte bestanden in groepen opnemen",
         "groupIgnoreMetadata": "Niet-overeenkomende EXIF-datums negeren",
         "groupOff": "Uit",

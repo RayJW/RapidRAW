@@ -971,6 +971,7 @@
       "noMatch": "未找到匹配過濾條件的影像。",
       "rating": {
         "all": "顯示全部",
+        "andDownSuffix": "及以下",
         "andUpSuffix": "及以上",
         "fiveOnly": "僅 5 星",
         "fourAndUp": "4 星及以上",
@@ -1051,6 +1052,11 @@
         "filterByFileType": "按檔案型別過濾",
         "filterByFlag": "按標記過濾",
         "filterByRating": "按評分過濾",
+        "ratingOperator": {
+          "eq": "僅此評分",
+          "gte": "此評分及以上",
+          "lte": "此評分及以下"
+        },
         "groupEditedFiles": "Include edited files in groups",
         "groupIgnoreMetadata": "Ignore mismatched EXIF dates",
         "groupOff": "Off",

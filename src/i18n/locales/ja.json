@@ -971,6 +971,7 @@
       "noMatch": "フィルターに一致する画像が見つかりません。",
       "rating": {
         "all": "すべて表示",
+        "andDownSuffix": "以下",
         "andUpSuffix": "以上",
         "fiveOnly": "5のみ",
         "fourAndUp": "4以上",
@@ -1051,6 +1052,11 @@
         "filterByFileType": "ファイル形式でフィルター",
         "filterByFlag": "フラグでフィルター",
         "filterByRating": "評価でフィルター",
+        "ratingOperator": {
+          "eq": "この評価のみ",
+          "gte": "この評価以上",
+          "lte": "この評価以下"
+        },
         "groupEditedFiles": "Include edited files in groups",
         "groupIgnoreMetadata": "Ignore mismatched EXIF dates",
         "groupOff": "Off",
