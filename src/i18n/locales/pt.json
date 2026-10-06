@@ -1793,9 +1793,17 @@
           "feature3": "Substituição Generativa Simples Baseada em CPU",
           "title": "IA Integrada (CPU)"
         },
+        "aiFree": {
+          "description": "Desativa todos os recursos de IA. Todos os controles relacionados à IA são ocultados da interface, para que o RapidRAW funcione como um editor RAW puramente tradicional.",
+          "feature1": "Sem máscaras de IA, desfoque de lente ou edições generativas na interface",
+          "feature2": "As edições de IA existentes continuam a ser exibidas normalmente",
+          "feature3": "Uma interface mais limpa e focada",
+          "title": "Sem IA"
+        },
         "description": "A IA do RapidRAW foi criada para flexibilidade. Escolha seu fluxo de trabalho ideal, desde ferramentas locais rápidas até uma poderosa auto-hospedagem.",
         "providers": {
           "aiConnector": "AI Connector",
+          "aiFree": "Sem IA",
           "cloud": "Nuvem",
           "cpu": "CPU"
         },

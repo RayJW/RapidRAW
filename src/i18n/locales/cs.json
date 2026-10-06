@@ -1756,9 +1756,17 @@
           "feature3": "Jednoduchá generativní výměna založená na CPU",
           "title": "Vestavěná AI (CPU)"
         },
+        "aiFree": {
+          "description": "Vypne všechny funkce AI. Všechny ovládací prvky související s AI jsou v rozhraní skryty, takže RapidRAW funguje jako čistě tradiční editor RAW.",
+          "feature1": "Žádné AI masky, rozostření objektivu ani generativní úpravy v rozhraní",
+          "feature2": "Stávající AI úpravy se nadále zobrazují normálně",
+          "feature3": "Přehlednější a soustředěnější rozhraní",
+          "title": "Bez AI"
+        },
         "description": "AI v RapidRAW je vytvořena pro flexibilitu. Vyberte si ideální pracovní postup, od rychlých místních nástrojů po výkonný vlastní hosting.",
         "providers": {
           "aiConnector": "AI konektor",
+          "aiFree": "Bez AI",
           "cloud": "Cloud",
           "cpu": "CPU"
         },
