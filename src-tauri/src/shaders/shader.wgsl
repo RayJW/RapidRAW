@@ -418,9 +418,29 @@ fn apply_tonal_adjustments(
     var rgb = color;
 
     if (wh != 0.0) {
-        let white_level = 1.0 - wh * 0.25;
-        let w_mult = 1.0 / max(white_level, 0.01);
-        rgb *= w_mult;
+        let w_luma = max(get_luma(max(rgb, vec3<f32>(0.0))), 0.0001);
+        let w_base = max(w_luma * exp2(-clamp(local_log_detail + mid_log_detail, -3.0, 3.0)), 0.0001);
+        let t_w = pow(w_base, 0.4545);
+        let w_pivot = 0.45;
+        let u = max(t_w - w_pivot, 0.0);
+
+        var t_new = t_w;
+        if (wh > 0.0) {
+            t_new = t_w + wh * 0.25 * (u * u) / (1.0 + u * u);
+        } else if (u > 0.0) {
+            t_new = w_pivot + u / (1.0 + (-wh) * 0.3 * u);
+        }
+        let w_ramp = smoothstep(0.25, 0.9, t_w);
+        t_new = mix(t_w, t_new, w_ramp);
+
+        let w_amount = abs(t_new - t_w) * w_ramp;
+        rgb *= pow(t_new, 2.2) / w_base;
+
+        let w_log_d = local_log_detail * 0.4545;
+        let w_safe_detail = exp2(w_log_d / (1.0 + abs(w_log_d) * 0.4));
+        let w_corr = pow(w_safe_detail, 1.0 + w_amount * 1.0) / w_safe_detail;
+        rgb *= pow(w_corr, 2.2);
+        rgb *= exp2(shape_detail(mid_log_detail, GF_REINJECT_SIGMA) * w_amount * 4.0);
     }
 
     let pixel_luma = get_luma(max(rgb, vec3<f32>(0.0)));
@@ -1836,7 +1856,7 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
     composite_rgb_linear = apply_centre_tonal_and_color(composite_rgb_linear, adjustments.global.centre, absolute_coord_i);
     var tonal_log_detail = 0.0;
     var tonal_mid_detail = 0.0;
-    if (t_shadows != 0.0 || t_blacks != 0.0 || t_highlights != 0.0) {
+    if (t_shadows != 0.0 || t_blacks != 0.0 || t_highlights != 0.0 || t_whites != 0.0) {
         tonal_log_detail = (gf_i - (gf.z * gf_i + gf.w)) + lc_log_gain;
         let gf_broad = sample_gf_tex(gf_dehaze_texture, absolute_coord).xy;
         tonal_mid_detail = (gf.z * gf_i + gf.w) - (gf_broad.x * gf_i + gf_broad.y);
