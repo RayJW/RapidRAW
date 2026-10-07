@@ -53,9 +53,10 @@ import { TextColors, TextVariants, TextWeights } from '../../types/typography';
 import { useOsPlatform } from '../../hooks/useOsPlatform';
 import { useCloudUsage } from '../../hooks/useCloudUsage';
 import { open } from '@tauri-apps/plugin-shell';
-import { RotateCcw } from 'lucide-react';
+import { Images, RotateCcw } from 'lucide-react';
 import { useUIStore } from '../../store/useUIStore';
 import { formatBytes } from '../../utils/formatBytes';
+import ImmichSettings from '../immich/ImmichSettings';
 
 interface ConfirmModalState {
   confirmText: string;
@@ -626,6 +627,7 @@ export default function SettingsPanel({
       { id: 'general', label: t('settings.categories.general'), icon: SlidersHorizontal },
       { id: 'processing', label: t('settings.categories.processing'), icon: Cpu },
       { id: 'shortcuts', label: t('settings.categories.shortcuts'), icon: Keyboard },
+      { id: 'immich', label: t('immich.settings.category'), icon: Images },
     ],
     [t],
   );
@@ -1161,7 +1163,7 @@ export default function SettingsPanel({
               </Text>
             </div>
 
-            <div className="relative flex w-full min-[1200px]:w-112.5 p-2 bg-surface rounded-md">
+            <div className="relative flex w-full min-[1200px]:w-150 p-2 bg-surface rounded-md">
               {settingCategories.map((category) => (
                 <button
                   key={category.id}
@@ -2671,6 +2673,18 @@ export default function SettingsPanel({
                       />
                     </div>
                   </div>
+                </motion.div>
+              )}
+
+              {activeCategory === 'immich' && (
+                <motion.div
+                  key="immich"
+                  initial={{ opacity: 0, x: 10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -10 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <ImmichSettings />
                 </motion.div>
               )}
 
