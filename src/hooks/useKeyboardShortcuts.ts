@@ -12,8 +12,9 @@ import { useLibraryActions } from './useLibraryActions';
 
 const getParentFolder = (path: string) => {
   const physicalPath = path.split('?vc=')[0];
-  const separator = Math.max(physicalPath.lastIndexOf('/'), physicalPath.lastIndexOf('\\'));
-  return separator === -1 ? '' : physicalPath.slice(0, separator);
+  const separator = physicalPath.includes('/') ? '/' : '\\';
+  const lastSep = physicalPath.lastIndexOf(separator);
+  return lastSep === -1 ? physicalPath : physicalPath.slice(0, lastSep);
 };
 
 interface KeyboardShortcutsProps {

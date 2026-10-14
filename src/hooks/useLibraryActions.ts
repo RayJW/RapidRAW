@@ -300,14 +300,13 @@ export function useLibraryActions(handleImageSelect?: (path: string, openInEdito
       if (shiftKey && shiftAnchor) {
         const settings = useSettingsStore.getState();
         // Recursive ranges follow the rendered folder order and omit collapsed sections.
-        const rangePaths =
-          settings.appSettings?.libraryViewMode === LibraryViewMode.Recursive && options.visibleImagePaths
-            ? options.visibleImagePaths
-            : computeSortedLibrary(libraryState, settings).map((image) => image.path);
+        const visibleRangePaths =
+          settings.appSettings?.libraryViewMode === LibraryViewMode.Recursive ? options.visibleImagePaths : undefined;
+        const rangePaths = visibleRangePaths ?? computeSortedLibrary(libraryState, settings).map((image) => image.path);
         const anchorIndex = rangePaths.indexOf(shiftAnchor);
         const currentIndex = rangePaths.indexOf(path);
 
-        if (currentIndex !== -1) {
+        if (currentIndex !== -1 && (anchorIndex !== -1 || visibleRangePaths !== undefined)) {
           // A hidden anchor becomes a one-item range, resetting the anchor to this click.
           const start = anchorIndex === -1 ? currentIndex : Math.min(anchorIndex, currentIndex);
           const end = anchorIndex === -1 ? currentIndex : Math.max(anchorIndex, currentIndex);
