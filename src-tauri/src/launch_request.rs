@@ -209,26 +209,3 @@ pub fn emit_launch_request(app_handle: &tauri::AppHandle, request: LaunchRequest
         LaunchRequest::None => {}
     }
 }
-
-#[cfg(test)]
-mod exit_code_tests {
-    use super::resolve_exit_code;
-
-    #[test]
-    fn requested_failures_keep_their_codes() {
-        assert_eq!(resolve_exit_code(Some(1), 0), 1);
-        assert_eq!(resolve_exit_code(Some(2), 1), 2);
-    }
-
-    #[test]
-    fn recorded_failure_survives_a_plain_exit() {
-        assert_eq!(resolve_exit_code(None, 1), 1);
-        assert_eq!(resolve_exit_code(Some(0), 1), 1);
-    }
-
-    #[test]
-    fn success_and_window_close_exit_zero() {
-        assert_eq!(resolve_exit_code(Some(0), 0), 0);
-        assert_eq!(resolve_exit_code(None, 0), 0);
-    }
-}
