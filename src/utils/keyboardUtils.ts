@@ -400,7 +400,11 @@ export function normalizeCombo(event: KeyboardEvent, osPlatform?: string): strin
     code = 'Equal';
   } else if (code === 'NumpadSubtract') {
     code = 'Minus';
-  } else if (!code.startsWith('Numpad') && punctuationCodes[event.key]) {
+  } else if (
+    !code.startsWith('Numpad') &&
+    !(/^Digit[0-9]$/.test(code) && !event.ctrlKey && !event.metaKey && !event.altKey) &&
+    punctuationCodes[event.key]
+  ) {
     code = punctuationCodes[event.key];
   }
   if (isValidShortcutKey(code)) {
