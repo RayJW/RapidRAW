@@ -2850,13 +2850,13 @@ pub async fn apply_auto_lens_correction_to_paths(
 
 const FULL_DECODE_WORKER_THREADS: usize = 2;
 
-fn update_sidecars_from_images(
+async fn update_sidecars_from_images(
     paths: Vec<String>,
     app_handle: AppHandle,
     operation: &'static str,
     fast_decode: bool,
     update: impl Fn(&DynamicImage, &str, &AppSettings, &mut Value) + Send + Sync + 'static,
-) {
+) -> Result<(), String> {
     let state = app_handle.state::<AppState>();
     add_to_thumbnail_queue(&state, paths.len(), &app_handle);
 
@@ -2956,8 +2956,11 @@ fn update_sidecars_from_images(
         } else {
             paths.iter().for_each(process);
         }
-    });
+    })
+    .await
+    .map_err(|e| e.to_string())
 }
+
 #[tauri::command]
 pub async fn apply_auto_adjustments_to_paths(
     paths: Vec<String>,
@@ -3000,9 +3003,8 @@ pub async fn apply_auto_adjustments_to_paths(
                 }
             }
         },
-    );
-
-    Ok(())
+    )
+    .await
 }
 
 #[tauri::command]
@@ -3018,9 +3020,8 @@ pub async fn apply_auto_straighten_to_paths(
         |image, source_path, _, adjustments| {
             crate::auto_straighten::straighten_adjustments(image, source_path, adjustments)
         },
-    );
-
-    Ok(())
+    )
+    .await
 }
 fn update_metadata_for_paths(
     paths: &[String],
