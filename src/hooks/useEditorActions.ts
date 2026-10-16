@@ -151,13 +151,14 @@ export function useEditorActions() {
       const rotation: number | null = await invoke(Invokes.CalculateAutoStraighten, {
         jsAdjustments: useEditorStore.getState().adjustments,
       });
-      if (useEditorStore.getState().selectedImage?.path !== selectedImage.path) return;
+      const loadedImage = useEditorStore.getState().selectedImage;
+      if (loadedImage?.path !== selectedImage.path) return;
       if (rotation === null) {
         toast.info(t('editor.crop.autoStraightenNoLines'));
         return;
       }
       setEditor({ liveRotation: null, isStraightenActive: false });
-      setAdjustments((prev: Adjustments) => withRotation(prev, selectedImage, rotation));
+      setAdjustments((prev: Adjustments) => withRotation(prev, loadedImage, rotation));
     } catch (err) {
       toast.error(t('editor.crop.autoStraightenFailed', { error: String(err) }));
     } finally {
