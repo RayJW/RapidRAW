@@ -1065,8 +1065,6 @@
     "header": {
       "cancel": "Cancel",
       "deselectAll": "Deselect All",
-      "selectAll": "Select All",
-      "selectItems": "Select items",
       "search": {
         "addFilterOrSearch": "Add filter or search...",
         "indexingImages": "Indexing Images...",
@@ -1078,6 +1076,8 @@
         "tooltipClearSearch": "Clear search",
         "tooltipSearchFilter": "Search or Filter"
       },
+      "selectAll": "Select All",
+      "selectItems": "Select items",
       "title": "Library",
       "viewOptions": {
         "currentFolder": "Current Folder",

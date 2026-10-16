@@ -1065,8 +1065,6 @@
     "header": {
       "cancel": "Abbrechen",
       "deselectAll": "Alle abwählen",
-      "selectAll": "Alle auswählen",
-      "selectItems": "Bilder auswählen",
       "search": {
         "addFilterOrSearch": "Filter oder Suche hinzufügen...",
         "indexingImages": "Bilder werden indiziert...",
@@ -1078,6 +1076,8 @@
         "tooltipClearSearch": "Suche löschen",
         "tooltipSearchFilter": "Suchen oder Filtern"
       },
+      "selectAll": "Alle auswählen",
+      "selectItems": "Bilder auswählen",
       "title": "Bibliothek",
       "viewOptions": {
         "currentFolder": "Aktueller Ordner",

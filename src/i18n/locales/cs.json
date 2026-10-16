@@ -1062,6 +1062,8 @@
       }
     },
     "header": {
+      "cancel": "Zrušit",
+      "deselectAll": "Odznačit vše",
       "search": {
         "addFilterOrSearch": "Přidat filtr nebo hledat...",
         "indexingImages": "Indexování snímků...",
@@ -1073,6 +1075,8 @@
         "tooltipClearSearch": "Vymazat vyhledávání",
         "tooltipSearchFilter": "Hledat nebo filtrovat"
       },
+      "selectAll": "Vybrat vše",
+      "selectItems": "Vybrat položky",
       "title": "Knihovna",
       "viewOptions": {
         "currentFolder": "Aktuální složka",
@@ -1193,7 +1197,8 @@
     "tooltips": {
       "communityPresets": "Presety komunity",
       "goHome": "Přejít na domovskou stránku",
-      "importImages": "Import snímků"
+      "importImages": "Import snímků",
+      "select": "Vybrat"
     }
   },
   "masks": {
