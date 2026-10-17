@@ -279,10 +279,8 @@ pub fn load_sidecar_with_exif(sidecar_path: &Path, source_path: &Path) -> ImageM
     meta
 }
 
-/// Held while removing a primary sidecar or creating a virtual copy, so neither sees a stale folder.
 pub static SIDECAR_LAYOUT_LOCK: Mutex<()> = Mutex::new(());
 
-/// Writes the sidecar, or removes it when it only holds defaults.
 pub fn write_sidecar(
     sidecar_path: &Path,
     source_path: &Path,
@@ -290,7 +288,6 @@ pub fn write_sidecar(
 ) -> std::io::Result<()> {
     if is_default_sidecar(sidecar_path, source_path, metadata) {
         let _layout = SIDECAR_LAYOUT_LOCK.lock().unwrap();
-        // The library only lists the original next to its virtual copies while its sidecar exists.
         if !has_virtual_copy_sidecars(source_path) {
             return match fs::remove_file(sidecar_path) {
                 Err(e) if e.kind() != std::io::ErrorKind::NotFound => Err(e),
@@ -338,7 +335,6 @@ fn is_default_sidecar(sidecar_path: &Path, source_path: &Path, metadata: &ImageM
         return true;
     };
 
-    // Only a plain copy of the file EXIF may go. Edited EXIF or EXIF the file lacks must stay.
     if file_management::is_cloud_placeholder(source_path) {
         return false;
     }

@@ -144,7 +144,6 @@ fn is_null_or_all_true(value: &Value) -> bool {
     }
 }
 
-/// True only when every adjustment is known and at its default. Anything unknown counts as edited.
 pub fn is_default_adjustments(adjustments: &Value) -> bool {
     let map = match adjustments {
         Value::Null => return true,
@@ -155,7 +154,6 @@ pub fn is_default_adjustments(adjustments: &Value) -> bool {
         return false;
     };
 
-    // A missing or false flag means the old rendering without baseline exposure.
     if map.get(BASELINE_EXPOSURE_KEY).and_then(Value::as_bool) != Some(true) {
         return false;
     }

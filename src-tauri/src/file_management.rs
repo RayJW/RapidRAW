@@ -389,7 +389,6 @@ pub struct ImportSettings {
     pub delete_after_import: bool,
 }
 
-/// Splits a sidecar file name into the source file name and the virtual copy id, if any.
 pub fn parse_sidecar_name(file_name: &str) -> Option<(&str, Option<&str>)> {
     let base = file_name.strip_suffix(".rrdata")?;
     if base.len() >= 7 && base.as_bytes()[base.len() - 7] == b'.' {
@@ -1355,7 +1354,6 @@ pub async fn get_pinned_folder_trees(
     }
 }
 
-/// Checks if the given path exists and is an iCloud placeholder file on macOS.
 #[cfg(target_os = "macos")]
 pub fn is_cloud_placeholder(path: &Path) -> bool {
     use std::os::unix::ffi::OsStrExt;
