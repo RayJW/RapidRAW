@@ -878,14 +878,16 @@ export default function CropPanel() {
                       )}
                       key={savedIndex < 0 ? preset.name : `saved-${savedIndex}`}
                       onClick={() => handlePresetClick(preset)}
-                      data-tooltip={preset.tooltip}
+                      data-tooltip={
+                        preset.value === ORIGINAL_RATIO && originalDimensions
+                          ? `${preset.tooltip} (${formatRatioLabel(originalDimensions.width, originalDimensions.height)})`
+                          : preset.tooltip
+                      }
                       whileTap={{ scale: 0.98 }}
                       transition={{ type: 'spring', stiffness: 400, damping: 17 }}
                     >
                       <Text color={isPresetActive(preset) ? TextColors.button : TextColors.secondary}>
-                        {preset.value === ORIGINAL_RATIO && originalDimensions
-                          ? `${preset.name} (${formatRatioLabel(originalDimensions.width, originalDimensions.height)})`
-                          : preset.name}
+                        {preset.name}
                       </Text>
                       {savedIndex >= 0 && (
                         <button
