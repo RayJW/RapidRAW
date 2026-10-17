@@ -261,18 +261,6 @@ export default function LibraryGrid(props: any) {
   const isClickSelectionRef = useRef(false);
   const clickTimerRef = useRef<any>(null);
 
-  const handleImageClick = useCallback(
-    (path: string, e: any) => {
-      isClickSelectionRef.current = true;
-      if (clickTimerRef.current) clearTimeout(clickTimerRef.current);
-      clickTimerRef.current = setTimeout(() => {
-        isClickSelectionRef.current = false;
-      }, 300);
-      onImageClick?.(path, e);
-    },
-    [onImageClick],
-  );
-
   const handleImageDoubleClick = useCallback(
     (path: string) => {
       isClickSelectionRef.current = true;
@@ -508,6 +496,28 @@ export default function LibraryGrid(props: any) {
     thumbnailAspectRatio,
     ratioMapVersion,
   ]);
+
+  const visibleImagePaths = useMemo(
+    () =>
+      gridData
+        ? gridData.rows.flatMap((row) =>
+            row.type === 'images' ? row.images.map((image: ImageFile) => image.path) : [],
+          )
+        : [],
+    [gridData],
+  );
+
+  const handleImageClick = useCallback(
+    (path: string, e: any) => {
+      isClickSelectionRef.current = true;
+      if (clickTimerRef.current) clearTimeout(clickTimerRef.current);
+      clickTimerRef.current = setTimeout(() => {
+        isClickSelectionRef.current = false;
+      }, 300);
+      onImageClick?.(path, e, visibleImagePaths);
+    },
+    [onImageClick, visibleImagePaths],
+  );
 
   useEffect(() => {
     if (!listHandle?.element || !gridData) return;
