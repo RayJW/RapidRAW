@@ -862,14 +862,11 @@ export default function Editor({ onBackToLibrary, onContextMenu, onImageSelect, 
         if (now - lastCtrlClickTimeRef.current < 300) {
           lastCtrlClickTimeRef.current = 0;
 
-          const originalAspectRatio =
-            selectedImage?.width && selectedImage?.height ? selectedImage.width / selectedImage.height : null;
-
           setAdjustments((prev) => ({
             ...prev,
             crop: INITIAL_ADJUSTMENTS.crop,
             rotation: INITIAL_ADJUSTMENTS.rotation ?? 0,
-            aspectRatio: originalAspectRatio,
+            aspectRatio: INITIAL_ADJUSTMENTS.aspectRatio,
           }));
 
           setEditor({ liveRotation: null, isSliderDragging: false });
@@ -1747,7 +1744,7 @@ export default function Editor({ onBackToLibrary, onContextMenu, onImageSelect, 
           effectiveRotation,
         );
       } else if (aspectChanged) {
-        if (!aspectRatio) {
+        if (aspectRatio === null) {
           nextPixelCrop = currentAdjCrop;
         } else {
           const curW = currentAdjCrop.width;
@@ -2032,7 +2029,7 @@ export default function Editor({ onBackToLibrary, onContextMenu, onImageSelect, 
 
       const lastRatio = oldW / oldH;
       const newRatio = newW / newH;
-      const isProportional = adjustments.aspectRatio || Math.abs(lastRatio - newRatio) < 0.005;
+      const isProportional = adjustments.aspectRatio !== null || Math.abs(lastRatio - newRatio) < 0.005;
 
       if (isProportional) {
         const oldCX = oldL + oldW / 2;
