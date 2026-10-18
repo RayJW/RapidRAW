@@ -18,7 +18,7 @@ pub use config::ImmichSettings;
 pub use files::{ensure_local, ensure_local_all};
 pub use thumbnails::placeholder_thumbnail;
 
-const MIN_VERSION: (u32, u32, u32) = (2, 0, 0);
+const MIN_VERSION: (u32, u32, u32) = (2, 5, 0);
 
 struct Session {
     settings: ImmichSettings,
