@@ -1,6 +1,14 @@
 import { create } from 'zustand';
 import { useSettingsStore } from '../../store/useSettingsStore';
-import { getImmichApiKey, ImmichAlbum, ImmichTimelineMonth, listImmichAlbums, listImmichTimeline } from './immichApi';
+import {
+  getImmichApiKey,
+  getImmichSyncStatus,
+  ImmichAlbum,
+  ImmichSyncStatus,
+  ImmichTimelineMonth,
+  listImmichAlbums,
+  listImmichTimeline,
+} from './immichApi';
 
 interface ImmichState {
   isConfigured: boolean;
@@ -8,6 +16,8 @@ interface ImmichState {
   isLoading: boolean;
   error: string | null;
   timeline: ImmichTimelineMonth[];
+  syncStatus: ImmichSyncStatus;
+  setSyncStatus(syncStatus: ImmichSyncStatus): void;
   loadTimeline(): Promise<void>;
   refresh(): Promise<void>;
   loadAlbums(): Promise<void>;
@@ -19,6 +29,8 @@ export const useImmichStore = create<ImmichState>((set, get) => ({
   isLoading: false,
   error: null,
   timeline: [],
+  syncStatus: { offline: false, pending: 0 },
+  setSyncStatus: (syncStatus) => set({ syncStatus }),
   loadTimeline: async () => {
     try {
       set({ timeline: await listImmichTimeline() });
@@ -33,7 +45,10 @@ export const useImmichStore = create<ImmichState>((set, get) => ({
       const apiKey = serverUrl ? (await getImmichApiKey()).apiKey : '';
       const isConfigured = !!serverUrl && !!apiKey.trim();
       set({ isConfigured, ...(isConfigured ? {} : { albums: [], error: null }) });
-      if (isConfigured) await get().loadAlbums();
+      if (isConfigured) {
+        set({ syncStatus: await getImmichSyncStatus() });
+        await get().loadAlbums();
+      }
     } catch (err) {
       console.error('Failed to read Immich settings:', err);
     }

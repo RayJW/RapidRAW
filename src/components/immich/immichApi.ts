@@ -16,6 +16,7 @@ export const ImmichInvokes = {
   ListAlbums: 'immich_list_albums',
   GetImages: 'immich_get_images',
   Timeline: 'immich_timeline',
+  SyncStatus: 'immich_sync_status',
 } as const;
 
 export interface ImmichSettings {
@@ -46,6 +47,11 @@ export interface ImmichAlbum {
 export interface ImmichTimelineMonth {
   timeBucket: string;
   count: number;
+}
+
+export interface ImmichSyncStatus {
+  offline: boolean;
+  pending: number;
 }
 
 export interface ImmichConnectionInfo {
@@ -95,3 +101,5 @@ export const monthFilter = (timeBucket: string): ImmichFilter => {
 
 export const getImmichAlbumImages = (albumId: string) =>
   invoke<ImageFile[]>(ImmichInvokes.GetImages, { filter: albumIdToFilter(albumId) });
+
+export const getImmichSyncStatus = () => invoke<ImmichSyncStatus>(ImmichInvokes.SyncStatus);

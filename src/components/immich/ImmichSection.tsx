@@ -1,7 +1,7 @@
 import { ReactNode, useEffect, useMemo } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import clsx from 'clsx';
-import { Album as AlbumIcon, RefreshCw, Users } from 'lucide-react';
+import { Album as AlbumIcon, CloudOff, CloudUpload, RefreshCw, Users } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useShallow } from 'zustand/react/shallow';
 import Text from '../ui/Text';
@@ -30,9 +30,10 @@ export default function ImmichSection({
   showImageCounts,
 }: ImmichSectionProps) {
   const { t } = useTranslation();
-  const { isConfigured, albums, isLoading, error, refresh, loadAlbums } = useImmichStore(
+  const { isConfigured, albums, isLoading, error, syncStatus, refresh, loadAlbums } = useImmichStore(
     useShallow((state) => ({
       isConfigured: state.isConfigured,
+      syncStatus: state.syncStatus,
       albums: state.albums,
       isLoading: state.isLoading,
       error: state.error,
@@ -59,6 +60,18 @@ export default function ImmichSection({
   return (
     <>
       <div>{header}</div>
+      {(syncStatus.offline || syncStatus.pending > 0) && (
+        <Text variant={TextVariants.small} className="flex items-center gap-2 px-3 pb-1">
+          {syncStatus.offline ? (
+            <CloudOff size={14} className="shrink-0" />
+          ) : (
+            <CloudUpload size={14} className="shrink-0" />
+          )}
+          {syncStatus.offline ? t('immich.sync.offline') : null}
+          {syncStatus.offline && syncStatus.pending > 0 ? ' · ' : null}
+          {syncStatus.pending > 0 ? t('immich.sync.pending', { count: syncStatus.pending }) : null}
+        </Text>
+      )}
       <AnimatePresence initial={false}>
         {isOpen && (
           <motion.div

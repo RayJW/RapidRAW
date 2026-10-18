@@ -972,7 +972,7 @@
       "apiKeyDesc": "In Immich unter Kontoeinstellungen → API-Schlüssel anlegen. Er muss Alben, Assets und die Zeitleiste lesen und Originale herunterladen dürfen.",
       "cacheDir": "Cache-Ordner",
       "cacheDirDefault": "Standard",
-      "cacheDirDesc": "Wo heruntergeladene Originale liegen.",
+      "cacheDirDesc": "Hier liegen heruntergeladene Originale. Bearbeitungen, die noch nicht in Immich angekommen sind, gibt es nur hier – wähle also einen Ort, der nicht automatisch aufgeräumt wird.",
       "cacheLimit": "Cache-Größe (GB)",
       "cacheLimitDesc": "Heruntergeladene Originale über dieser Größe werden entfernt, älteste zuerst. Bearbeitungen bleiben erhalten.",
       "cacheTitle": "Cache",
@@ -989,9 +989,15 @@
       "test": "Verbindung testen",
       "working": "Einen Moment…"
     },
+    "sync": {
+      "offline": "Offline",
+      "pending": "Bearbeitungen, die auf Immich warten: {{count}}"
+    },
     "toasts": {
+      "backOnline": "Immich ist wieder erreichbar, alle Bearbeitungen sind dort gespeichert.",
       "downloadFailed": "Download aus Immich fehlgeschlagen: {{error}}",
-      "editsConflict": "{{fileName}} wurde auch auf einem anderen Rechner bearbeitet. Deine Bearbeitung bleibt, die andere Fassung liegt als virtuelle Kopie daneben."
+      "editsConflict": "{{fileName}} wurde auch auf einem anderen Rechner bearbeitet. Deine Bearbeitung bleibt, die andere Fassung liegt als virtuelle Kopie daneben.",
+      "offline": "Immich ist nicht erreichbar. Deine Bearbeitungen bleiben hier und werden gesendet, sobald es wieder da ist."
     }
   },
   "library": {
