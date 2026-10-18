@@ -317,6 +317,16 @@ impl ImmichClient {
         .map(|_| ())
     }
 
+    pub async fn trash(&self, asset_ids: &[String]) -> Result<(), String> {
+        self.send(
+            self.request(Method::DELETE, "/assets")
+                .json(&json!({ "ids": asset_ids, "force": false })),
+            "moving to trash",
+        )
+        .await
+        .map(|_| ())
+    }
+
     pub async fn thumbnail(&self, asset_id: &str, size: &str) -> Result<Vec<u8>, String> {
         let response = self
             .send(

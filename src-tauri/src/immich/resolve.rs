@@ -4,7 +4,7 @@ use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
 
 use super::client::{Asset, ImmichClient, Stack};
-use super::registry::RemoteImage;
+use super::registry::{self, RemoteImage};
 
 #[derive(Debug, Clone)]
 pub struct Resolved {
@@ -116,7 +116,7 @@ pub async fn listing(
         .search(query)
         .await?
         .into_iter()
-        .filter(|asset| asset.kind == "IMAGE")
+        .filter(|asset| asset.kind == "IMAGE" && !registry::is_trashing(&asset.id))
         .collect();
     let stacks = StackIndex::new(client.stacks().await?);
 

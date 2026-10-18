@@ -7,6 +7,7 @@ mod resolve;
 mod secrets;
 mod sync;
 mod thumbnails;
+mod trash;
 mod uploads;
 
 use once_cell::sync::Lazy;
@@ -19,6 +20,7 @@ use client::ImmichClient;
 pub use config::ImmichSettings;
 pub use files::{ensure_local, ensure_local_all};
 pub use thumbnails::placeholder_thumbnail;
+pub use trash::trash_remote;
 pub use uploads::on_exported;
 
 const MIN_VERSION: (u32, u32, u32) = (2, 5, 0);

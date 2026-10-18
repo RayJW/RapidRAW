@@ -72,6 +72,9 @@ export function useImmichEvents(refreshLibrary: () => void) {
           refreshRef.current();
         }, REFRESH_DELAY_MS);
       }),
+      listen<{ error: string }>('immich-trash', ({ payload }) => {
+        toast.error(t('immich.toasts.trashFailed', { error: payload.error }));
+      }),
       listen<ConflictEvent>('immich-edits-conflict', ({ payload }) => {
         toast.info(t('immich.toasts.editsConflict', { fileName: payload.fileName }));
         refreshRef.current();
