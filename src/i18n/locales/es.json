@@ -142,6 +142,7 @@
       "relightColor": "Color de la luz",
       "relightCone": "Cono",
       "relightDepth": "Profundidad",
+      "relightDuplicateLight": "Duplicar luz",
       "relightElevation": "Elevación",
       "relightFalloff": "Atenuación",
       "relightHint": "Añade o selecciona una luz y haz clic o arrastra en la imagen para colocarla.",

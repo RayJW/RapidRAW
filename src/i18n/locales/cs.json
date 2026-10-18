@@ -141,6 +141,7 @@
       "relightColor": "Barva světla",
       "relightCone": "Kužel",
       "relightDepth": "Hloubka",
+      "relightDuplicateLight": "Duplikovat světlo",
       "relightElevation": "Výška",
       "relightFalloff": "Útlum",
       "relightHint": "Přidejte nebo vyberte světlo a klikněte nebo táhněte v obrázku pro jeho umístění.",

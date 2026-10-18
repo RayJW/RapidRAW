@@ -142,6 +142,7 @@
       "relightColor": "Kolor światła",
       "relightCone": "Stożek",
       "relightDepth": "Głębia",
+      "relightDuplicateLight": "Duplikuj światło",
       "relightElevation": "Wysokość",
       "relightFalloff": "Spadek",
       "relightHint": "Dodaj lub wybierz światło, a następnie kliknij lub przeciągnij na obrazie, aby je umieścić.",

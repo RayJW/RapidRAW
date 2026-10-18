@@ -142,6 +142,7 @@
       "relightColor": "조명 색상",
       "relightCone": "원뿔",
       "relightDepth": "깊이",
+      "relightDuplicateLight": "조명 복제",
       "relightElevation": "고도",
       "relightFalloff": "감쇠",
       "relightHint": "조명을 추가하거나 선택한 다음 이미지를 클릭하거나 드래그하여 위치를 지정하세요.",

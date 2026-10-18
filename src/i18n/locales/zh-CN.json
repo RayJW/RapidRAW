@@ -142,6 +142,7 @@
       "relightColor": "灯光颜色",
       "relightCone": "光锥",
       "relightDepth": "深度",
+      "relightDuplicateLight": "复制灯光",
       "relightElevation": "仰角",
       "relightFalloff": "衰减",
       "relightHint": "添加或选择一个灯光，然后在图像上点击或拖动以放置。",
