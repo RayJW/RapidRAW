@@ -6,7 +6,7 @@ use std::sync::{Arc, Mutex};
 use std::time::{SystemTime, UNIX_EPOCH};
 use tauri::{AppHandle, Emitter};
 
-use super::{Session, registry, session};
+use super::{Session, registry, session, sync};
 
 pub async fn ensure_local(app_handle: &AppHandle, path: &Path) -> Result<(), String> {
     let Some(entry) = registry::get(path) else {
@@ -17,6 +17,12 @@ pub async fn ensure_local(app_handle: &AppHandle, path: &Path) -> Result<(), Str
     if !path.exists() {
         download(app_handle, &session, &entry.asset_id, path).await?;
         prune_cache_later(&session);
+    }
+    if let Err(e) = sync::pull(app_handle, &session.client, &entry.asset_id, path).await {
+        log::warn!(
+            "Could not fetch the edits of {} from Immich: {e}",
+            path.display()
+        );
     }
     Ok(())
 }

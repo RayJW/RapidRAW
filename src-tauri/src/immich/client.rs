@@ -43,6 +43,14 @@ pub struct TimelineMonth {
     pub count: u64,
 }
 
+#[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct MetadataEntry {
+    pub key: String,
+    pub value: Value,
+    pub updated_at: String,
+}
+
 #[derive(Deserialize)]
 struct Version {
     major: u32,
@@ -168,6 +176,56 @@ impl ImmichClient {
             "timeline",
         )
         .await
+    }
+
+    pub async fn metadata(
+        &self,
+        asset_id: &str,
+        key: &str,
+    ) -> Result<Option<MetadataEntry>, String> {
+        let response = self
+            .request(Method::GET, &format!("/assets/{asset_id}/metadata/{key}"))
+            .send()
+            .await
+            .map_err(|e| format!("Immich is not reachable (edits): {e}"))?;
+        let status = response.status();
+        if status.is_success() {
+            return response
+                .json::<MetadataEntry>()
+                .await
+                .map(Some)
+                .map_err(|e| format!("Unexpected answer from Immich (edits): {e}"));
+        }
+        let detail = response.text().await.unwrap_or_default();
+        if status == reqwest::StatusCode::NOT_FOUND
+            || (status == reqwest::StatusCode::BAD_REQUEST && detail.contains("not found"))
+        {
+            return Ok(None);
+        }
+        Err(format!(
+            "Immich rejected reading edits (HTTP {})",
+            status.as_u16()
+        ))
+    }
+
+    pub async fn set_metadata(
+        &self,
+        asset_id: &str,
+        key: &str,
+        value: &Value,
+    ) -> Result<String, String> {
+        let entries: Vec<MetadataEntry> = self
+            .json(
+                self.request(Method::PUT, &format!("/assets/{asset_id}/metadata"))
+                    .json(&json!({ "items": [{ "key": key, "value": value }] })),
+                "saving edits",
+            )
+            .await?;
+        entries
+            .into_iter()
+            .find(|e| e.key == key)
+            .map(|e| e.updated_at)
+            .ok_or_else(|| "Immich did not confirm the saved edits".to_string())
     }
 
     pub async fn download_original(&self, asset_id: &str, target: &Path) -> Result<(), String> {

@@ -979,7 +979,7 @@
       "category": "Immich",
       "connected": "Verbunden als {{user}} (Immich {{version}})",
       "connectionTitle": "Immich",
-      "description": "Zeigt die Fotos deines Immich-Servers in der Bibliothek, damit du sie direkt bearbeiten kannst. Originale werden beim Öffnen heruntergeladen; Bearbeitungen bleiben auf diesem Rechner.",
+      "description": "Zeigt die Fotos deines Immich-Servers in der Bibliothek, damit du sie direkt bearbeiten kannst. Originale werden beim Öffnen heruntergeladen, und deine Bearbeitungen werden in Immich gespeichert – so sehen sie auf jedem Rechner gleich aus.",
       "keyInFile": "In einer Datei gespeichert, die nur du lesen kannst: Es ist kein Schlüsselbund erreichbar. Unter KDE in den Einstellungen der KDE-Brieftasche die Secret-Service-Schnittstelle einschalten und erneut speichern.",
       "keyInStore": "Im Schlüsselbund des Systems gespeichert.",
       "save": "Speichern",
@@ -990,7 +990,8 @@
       "working": "Einen Moment…"
     },
     "toasts": {
-      "downloadFailed": "Download aus Immich fehlgeschlagen: {{error}}"
+      "downloadFailed": "Download aus Immich fehlgeschlagen: {{error}}",
+      "editsConflict": "{{fileName}} wurde auch auf einem anderen Rechner bearbeitet. Deine Bearbeitung bleibt, die andere Fassung liegt als virtuelle Kopie daneben."
     }
   },
   "library": {

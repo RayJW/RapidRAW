@@ -1,9 +1,10 @@
 use serde::Serialize;
+use std::path::Path;
 use tauri::AppHandle;
 
 use super::client::{Album, ImmichClient, TimelineMonth};
 use super::config::{self, ApiKeyInfo};
-use super::{MIN_VERSION, registry, reset_session, resolve, session};
+use super::{MIN_VERSION, registry, reset_session, resolve, session, sync};
 use crate::file_management::ImageFile;
 
 #[derive(Serialize)]
@@ -62,6 +63,11 @@ pub async fn immich_timeline(app_handle: AppHandle) -> Result<Vec<TimelineMonth>
 }
 
 #[tauri::command]
+pub fn immich_sync_status() -> sync::SyncStatus {
+    sync::status()
+}
+
+#[tauri::command]
 pub async fn immich_get_images(
     filter: resolve::Filter,
     app_handle: AppHandle,
@@ -74,6 +80,7 @@ pub async fn immich_get_images(
     for item in resolved {
         let path = item.path.to_string_lossy().into_owned();
         if item.path.exists() {
+            local_paths.extend(virtual_copies(&item.path));
             local_paths.push(path);
         } else {
             placeholders.push(placeholder_file(&path, item.file_modified_at.as_deref()));
@@ -97,4 +104,26 @@ fn placeholder_file(path: &str, file_modified_at: Option<&str>) -> ImageFile {
         .map(|t| t.timestamp().max(0) as u64)
         .unwrap_or(0);
     ImageFile::placeholder(path.to_string(), modified)
+}
+
+fn virtual_copies(path: &Path) -> Vec<String> {
+    let (Some(folder), Some(name)) = (path.parent(), path.file_name()) else {
+        return Vec::new();
+    };
+    let name = name.to_string_lossy();
+    let Ok(files) = std::fs::read_dir(folder) else {
+        return Vec::new();
+    };
+    files
+        .flatten()
+        .filter_map(|file| {
+            let file_name = file.file_name().to_string_lossy().into_owned();
+            match crate::file_management::parse_sidecar_name(&file_name) {
+                Some((base, Some(id))) if base == name => {
+                    Some(format!("{}?vc={id}", path.display()))
+                }
+                _ => None,
+            }
+        })
+        .collect()
 }

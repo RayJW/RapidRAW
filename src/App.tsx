@@ -463,7 +463,7 @@ function App() {
     handleTogglePinFolder,
   });
 
-  useImmichEvents();
+  useImmichEvents(handleLibraryRefresh);
 
   useTauriListeners({
     refreshAllFolderTrees,

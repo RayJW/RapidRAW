@@ -2024,6 +2024,10 @@ pub fn run() {
 
             let app_handle = app.handle().clone();
 
+            if !is_headless {
+                crate::immich::start(&app_handle);
+            }
+
             if let Ok(cache_dir) = app_handle.path().app_cache_dir() {
                 crate::ai_denoise::initialize_cache_dir(cache_dir.clone());
                 crate::exif_processing::initialize_cache_dir(cache_dir);
@@ -2527,6 +2531,7 @@ pub fn run() {
             immich::commands::immich_test_connection,
             immich::commands::immich_list_albums,
             immich::commands::immich_get_images,
+            immich::commands::immich_sync_status,
             immich::commands::immich_timeline,
         ])
         .build(tauri::generate_context!())

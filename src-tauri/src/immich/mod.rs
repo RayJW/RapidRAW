@@ -5,6 +5,7 @@ mod files;
 mod registry;
 mod resolve;
 mod secrets;
+mod sync;
 mod thumbnails;
 
 use once_cell::sync::Lazy;
@@ -50,7 +51,19 @@ fn session(app_handle: &AppHandle) -> Result<Arc<Session>, String> {
     });
     *SESSION.write().unwrap() = Some(session.clone());
     files::prune_cache_later(&session);
+    sync::start(app_handle);
     Ok(session)
+}
+
+pub fn start(app_handle: &AppHandle) {
+    let app_handle = app_handle.clone();
+    tauri::async_runtime::spawn(async move {
+        let _ = session(&app_handle);
+    });
+}
+
+fn current_session() -> Option<Arc<Session>> {
+    SESSION.read().unwrap().clone()
 }
 
 fn reset_session(forget_images: bool) {
