@@ -6,6 +6,7 @@ use std::sync::RwLock;
 #[derive(Debug, Clone)]
 pub struct RemoteImage {
     pub asset_id: String,
+    pub listed_asset_id: String,
 }
 
 static ENTRIES: Lazy<RwLock<HashMap<PathBuf, RemoteImage>>> =

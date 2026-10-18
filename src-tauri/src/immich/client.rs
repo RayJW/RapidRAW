@@ -15,6 +15,8 @@ pub struct Asset {
     pub original_file_name: String,
     #[serde(default)]
     pub file_modified_at: Option<String>,
+    #[serde(default)]
+    pub is_trashed: bool,
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
@@ -41,6 +43,13 @@ pub struct User {
 pub struct TimelineMonth {
     pub time_bucket: String,
     pub count: u64,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct Stack {
+    pub primary_asset_id: String,
+    pub assets: Vec<Asset>,
 }
 
 #[derive(Deserialize, Debug, Clone)]
@@ -168,6 +177,11 @@ impl ImmichClient {
                 _ => return Ok(found),
             }
         }
+    }
+
+    pub async fn stacks(&self) -> Result<Vec<Stack>, String> {
+        self.json(self.request(Method::GET, "/stacks"), "stacks")
+            .await
     }
 
     pub async fn timeline_months(&self) -> Result<Vec<TimelineMonth>, String> {

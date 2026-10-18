@@ -1,9 +1,9 @@
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
 
-use super::client::{Asset, ImmichClient};
+use super::client::{Asset, ImmichClient, Stack};
 use super::registry::RemoteImage;
 
 #[derive(Debug, Clone)]
@@ -66,6 +66,45 @@ pub fn cache_path(asset: &Asset, cache_dir: &Path) -> PathBuf {
         .join(safe_file_name(&asset.original_file_name))
 }
 
+struct StackIndex {
+    stacks: Vec<Stack>,
+    by_asset: HashMap<String, usize>,
+}
+
+impl StackIndex {
+    fn new(stacks: Vec<Stack>) -> Self {
+        let by_asset = stacks
+            .iter()
+            .enumerate()
+            .flat_map(|(i, s)| s.assets.iter().map(move |a| (a.id.clone(), i)))
+            .collect();
+        Self { stacks, by_asset }
+    }
+
+    fn primary_of(&self, asset: &Asset) -> Option<&str> {
+        let stack = &self.stacks[*self.by_asset.get(&asset.id)?];
+        (stack.primary_asset_id != asset.id).then_some(stack.primary_asset_id.as_str())
+    }
+
+    fn source<'a>(&'a self, listed: &'a Asset, cache_dir: &Path) -> &'a Asset {
+        if is_raw(listed) {
+            return listed;
+        }
+        self.by_asset
+            .get(&listed.id)
+            .map(|&i| self.stacks[i].assets.as_slice())
+            .unwrap_or_default()
+            .iter()
+            .filter(|a| a.id != listed.id && !a.is_trashed && is_raw(a))
+            .max_by_key(|raw| cache_path(raw, cache_dir).exists())
+            .unwrap_or(listed)
+    }
+}
+
+fn is_raw(asset: &Asset) -> bool {
+    crate::formats::is_raw_file(&asset.original_file_name)
+}
+
 pub async fn listing(
     client: &ImmichClient,
     filter: &Filter,
@@ -73,22 +112,37 @@ pub async fn listing(
 ) -> Result<Vec<Resolved>, String> {
     let mut query = filter.to_query();
     query["order"] = json!("desc");
-    let mut seen = HashSet::new();
-    Ok(client
+    let assets: Vec<Asset> = client
         .search(query)
         .await?
         .into_iter()
         .filter(|asset| asset.kind == "IMAGE")
-        .filter_map(|asset| {
-            let path = cache_path(&asset, cache_dir);
-            if !crate::formats::is_supported_image_file(&path) || !seen.insert(path.clone()) {
-                return None;
-            }
-            Some(Resolved {
-                path,
-                file_modified_at: asset.file_modified_at,
-                image: RemoteImage { asset_id: asset.id },
-            })
-        })
-        .collect())
+        .collect();
+    let stacks = StackIndex::new(client.stacks().await?);
+
+    let listed_ids: HashSet<&str> = assets.iter().map(|a| a.id.as_str()).collect();
+    let mut seen = HashSet::new();
+    let mut resolved = Vec::with_capacity(assets.len());
+    for listed in &assets {
+        if stacks
+            .primary_of(listed)
+            .is_some_and(|primary| listed_ids.contains(primary))
+        {
+            continue;
+        }
+        let source = stacks.source(listed, cache_dir);
+        let path = cache_path(source, cache_dir);
+        if !crate::formats::is_supported_image_file(&path) || !seen.insert(path.clone()) {
+            continue;
+        }
+        resolved.push(Resolved {
+            path,
+            file_modified_at: source.file_modified_at.clone(),
+            image: RemoteImage {
+                asset_id: source.id.clone(),
+                listed_asset_id: listed.id.clone(),
+            },
+        });
+    }
+    Ok(resolved)
 }

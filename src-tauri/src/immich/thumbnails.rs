@@ -19,7 +19,7 @@ pub fn placeholder_thumbnail(
     if !is_placeholder(&source) {
         return None;
     }
-    let asset_id = registry::get(&source)?.asset_id;
+    let asset_id = registry::get(&source)?.listed_asset_id;
     let small = thumb_cache_dir.join(format!("immich_{asset_id}_small.jpg"));
     let medium = thumb_cache_dir.join(format!("immich_{asset_id}_medium.jpg"));
     let as_strings = |small: &Path, medium: &Path| {
