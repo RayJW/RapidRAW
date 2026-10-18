@@ -158,7 +158,7 @@ interface SpatialEffectProps {
   onToggle(enabled: boolean): void;
 }
 
-const SpatialEffect = ({ children, enabled, label, onToggle }: SpatialEffectProps) => {
+export const SpatialEffect = ({ children, enabled, label, onToggle }: SpatialEffectProps) => {
   return (
     <div>
       <Switch label={label} checked={enabled} onChange={onToggle} />
