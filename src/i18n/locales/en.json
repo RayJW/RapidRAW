@@ -977,7 +977,7 @@
     },
     "settings": {
       "apiKey": "API key",
-      "apiKeyDesc": "Create one in Immich under Account Settings → API Keys. It needs to read albums, assets and the timeline, and to download originals.",
+      "apiKeyDesc": "Create one in Immich under Account Settings → API Keys with these permissions: album.read, albumAsset.create, asset.read, asset.view, asset.download, asset.upload, asset.update, asset.delete, stack.read, stack.create and user.read.",
       "cacheDir": "Cache folder",
       "cacheDirDefault": "Default",
       "cacheDirDesc": "Where downloaded originals are kept. Edits that haven't reached Immich yet are only stored here, so choose a place that isn't cleaned up automatically.",
@@ -999,7 +999,7 @@
     },
     "sync": {
       "offline": "Offline",
-      "pending": "Edits waiting for Immich: {{count}}"
+      "pending": "Edits waiting for Immich: {{number}}"
     },
     "toasts": {
       "backOnline": "Immich is reachable again, and all edits are saved there.",
@@ -1008,7 +1008,7 @@
       "offline": "Immich is not reachable. Your edits are kept here and sent as soon as it's back.",
       "trashFailed": "Could not move to Immich's trash: {{error}}",
       "uploadFailed": "Upload of {{fileName}} to Immich failed: {{error}}",
-      "uploaded": "Uploaded to Immich: {{count}}"
+      "uploaded": "Uploaded to Immich: {{number}}"
     }
   },
   "library": {

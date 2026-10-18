@@ -957,6 +957,14 @@
     }
   },
   "immich": {
+    "export": {
+      "album": "アルバム",
+      "destination": "Immich",
+      "noAlbum": "アルバムなし",
+      "sourceAlbum": "画像を開いたアルバム",
+      "withOriginal": "オリジナルもアップロード",
+      "withOriginalDesc": "ローカルフォルダーの画像の場合: オリジナルが編集内容とともにアップロードされ、エクスポートがその上にスタックされます。Immich の画像は常にオリジナルの上にスタックされます。"
+    },
     "section": {
       "empty": "サーバーにアルバムがありません。",
       "error": "Immich に接続できません。",
@@ -967,17 +975,17 @@
     },
     "settings": {
       "apiKey": "API キー",
-      "apiKeyDesc": "Immich の「アカウント設定 → API キー」で作成してください。アルバム、アセット、タイムラインの読み取りとオリジナルのダウンロードの権限が必要です。",
+      "apiKeyDesc": "Immich の「アカウント設定 → API キー」で、次の権限を付けて作成してください: album.read, albumAsset.create, asset.read, asset.view, asset.download, asset.upload, asset.update, asset.delete, stack.read, stack.create, user.read",
       "cacheDir": "キャッシュフォルダー",
       "cacheDirDefault": "デフォルト",
-      "cacheDirDesc": "ダウンロードしたオリジナルの保存先です。",
+      "cacheDirDesc": "ダウンロードしたオリジナルの保存先です。まだ Immich に届いていない編集内容はここにしか保存されないため、自動的に削除されない場所を選んでください。",
       "cacheLimit": "キャッシュサイズ (GB)",
       "cacheLimitDesc": "このサイズを超えると、ダウンロードしたオリジナルが古いものから削除されます。編集内容には影響しません。",
       "cacheTitle": "キャッシュ",
       "category": "Immich",
       "connected": "{{user}} として接続しました (Immich {{version}})",
       "connectionTitle": "Immich",
-      "description": "Immich サーバーの写真をライブラリで閲覧し、そのまま編集できます。オリジナルは開いたときにダウンロードされ、編集内容はこのコンピューターに保存されます。",
+      "description": "Immich サーバーの写真をライブラリで閲覧し、そのまま編集できます。オリジナルは開いたときにダウンロードされ、編集内容は Immich に保存されるので、どのコンピューターでも同じに見えます。",
       "keyInFile": "本人だけが読めるファイルに保存されています。利用できる資格情報ストアがありません。KDE の場合は、KDE ウォレットの設定で Secret Service インターフェースを有効にしてから、もう一度保存してください。",
       "keyInStore": "システムの資格情報ストアに保存されています。",
       "save": "保存",
@@ -987,8 +995,18 @@
       "test": "接続をテスト",
       "working": "処理中…"
     },
+    "sync": {
+      "offline": "オフライン",
+      "pending": "Immich への送信待ちの編集: {{number}}"
+    },
     "toasts": {
-      "downloadFailed": "Immich からダウンロードできませんでした: {{error}}"
+      "backOnline": "Immich に再び接続でき、すべての編集内容が保存されました。",
+      "downloadFailed": "Immich からダウンロードできませんでした: {{error}}",
+      "editsConflict": "{{fileName}} は別のコンピューターでも編集されています。あなたの編集内容はそのまま残り、もう一方のバージョンは仮想コピーとして保存されます。",
+      "offline": "Immich に接続できません。編集内容はここに保持され、接続が戻りしだい送信されます。",
+      "trashFailed": "Immich のゴミ箱に移動できませんでした: {{error}}",
+      "uploadFailed": "{{fileName}} を Immich にアップロードできませんでした: {{error}}",
+      "uploaded": "Immich にアップロードしました: {{number}}"
     }
   },
   "library": {

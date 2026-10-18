@@ -69,7 +69,7 @@ export default function ImmichSection({
           )}
           {syncStatus.offline ? t('immich.sync.offline') : null}
           {syncStatus.offline && syncStatus.pending > 0 ? ' · ' : null}
-          {syncStatus.pending > 0 ? t('immich.sync.pending', { count: syncStatus.pending }) : null}
+          {syncStatus.pending > 0 ? t('immich.sync.pending', { number: syncStatus.pending }) : null}
         </Text>
       )}
       <AnimatePresence initial={false}>

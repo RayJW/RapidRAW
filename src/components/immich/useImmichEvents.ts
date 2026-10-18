@@ -65,7 +65,7 @@ export function useImmichEvents(refreshLibrary: () => void) {
         clearTimeout(refreshTimer.current);
         refreshTimer.current = setTimeout(() => {
           if (uploaded.current > 0) {
-            toast.success(t('immich.toasts.uploaded', { count: uploaded.current }));
+            toast.success(t('immich.toasts.uploaded', { number: uploaded.current }));
             uploaded.current = 0;
           }
           useImmichStore.getState().loadAlbums();

@@ -983,6 +983,14 @@
     }
   },
   "immich": {
+    "export": {
+      "album": "Álbum",
+      "destination": "Immich",
+      "noAlbum": "Sem álbum",
+      "sourceAlbum": "Álbum a partir do qual a imagem foi aberta",
+      "withOriginal": "Enviar também o original",
+      "withOriginalDesc": "Para imagens de uma pasta local: o original é enviado com as respetivas edições e a exportação é empilhada por cima. As imagens do Immich são sempre empilhadas sobre o seu original."
+    },
     "section": {
       "empty": "Não há álbuns no servidor.",
       "error": "O Immich não está acessível.",
@@ -993,17 +1001,17 @@
     },
     "settings": {
       "apiKey": "Chave de API",
-      "apiKeyDesc": "Crie uma no Immich em Definições da conta → Chaves de API. Tem de poder ler álbuns, recursos e a cronologia, e transferir originais.",
+      "apiKeyDesc": "Crie uma no Immich em Definições da conta → Chaves de API com estas permissões: album.read, albumAsset.create, asset.read, asset.view, asset.download, asset.upload, asset.update, asset.delete, stack.read, stack.create e user.read.",
       "cacheDir": "Pasta de cache",
       "cacheDirDefault": "Predefinida",
-      "cacheDirDesc": "Onde são guardados os originais transferidos.",
+      "cacheDirDesc": "Onde são guardados os originais transferidos. As edições que ainda não chegaram ao Immich só ficam guardadas aqui, por isso escolha um local que não seja limpo automaticamente.",
       "cacheLimit": "Tamanho da cache (GB)",
       "cacheLimitDesc": "Os originais transferidos que excedam este tamanho são removidos, começando pelos mais antigos. As edições não são afetadas.",
       "cacheTitle": "Cache",
       "category": "Immich",
       "connected": "Ligado como {{user}} (Immich {{version}})",
       "connectionTitle": "Immich",
-      "description": "Explore as fotografias do seu servidor Immich na biblioteca e edite-as diretamente. Os originais são transferidos quando os abre; as edições ficam neste computador.",
+      "description": "Explore as fotografias do seu servidor Immich na biblioteca e edite-as diretamente. Os originais são transferidos quando os abre e as edições são guardadas no Immich, para que fiquem iguais em todos os computadores.",
       "keyInFile": "Guardada num ficheiro que só você pode ler: não há nenhum armazenamento de credenciais disponível. No KDE, ative a interface Secret Service nas definições da Carteira do KDE e guarde novamente.",
       "keyInStore": "Guardada no armazenamento de credenciais do sistema.",
       "save": "Guardar",
@@ -1013,8 +1021,18 @@
       "test": "Testar ligação",
       "working": "A processar…"
     },
+    "sync": {
+      "offline": "Offline",
+      "pending": "Edições a aguardar envio para o Immich: {{number}}"
+    },
     "toasts": {
-      "downloadFailed": "Não foi possível transferir do Immich: {{error}}"
+      "backOnline": "O Immich está novamente acessível e todas as edições estão guardadas lá.",
+      "downloadFailed": "Não foi possível transferir do Immich: {{error}}",
+      "editsConflict": "{{fileName}} também foi editada noutro computador. As suas edições mantêm-se e a outra versão é guardada como cópia virtual.",
+      "offline": "O Immich não está acessível. As suas edições ficam guardadas aqui e serão enviadas assim que voltar a estar disponível.",
+      "trashFailed": "Não foi possível mover para o lixo do Immich: {{error}}",
+      "uploadFailed": "Não foi possível enviar {{fileName}} para o Immich: {{error}}",
+      "uploaded": "Enviadas para o Immich: {{number}}"
     }
   },
   "library": {

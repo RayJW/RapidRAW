@@ -977,7 +977,7 @@
     },
     "settings": {
       "apiKey": "API-Schlüssel",
-      "apiKeyDesc": "In Immich unter Kontoeinstellungen → API-Schlüssel anlegen. Er muss Alben, Assets und die Zeitleiste lesen und Originale herunterladen dürfen.",
+      "apiKeyDesc": "In Immich unter Kontoeinstellungen → API-Schlüssel anlegen, mit diesen Berechtigungen: album.read, albumAsset.create, asset.read, asset.view, asset.download, asset.upload, asset.update, asset.delete, stack.read, stack.create und user.read.",
       "cacheDir": "Cache-Ordner",
       "cacheDirDefault": "Standard",
       "cacheDirDesc": "Hier liegen heruntergeladene Originale. Bearbeitungen, die noch nicht in Immich angekommen sind, gibt es nur hier – wähle also einen Ort, der nicht automatisch aufgeräumt wird.",
@@ -999,7 +999,7 @@
     },
     "sync": {
       "offline": "Offline",
-      "pending": "Bearbeitungen, die auf Immich warten: {{count}}"
+      "pending": "Bearbeitungen, die auf Immich warten: {{number}}"
     },
     "toasts": {
       "backOnline": "Immich ist wieder erreichbar, alle Bearbeitungen sind dort gespeichert.",
@@ -1008,7 +1008,7 @@
       "offline": "Immich ist nicht erreichbar. Deine Bearbeitungen bleiben hier und werden gesendet, sobald es wieder da ist.",
       "trashFailed": "Verschieben in den Immich-Papierkorb fehlgeschlagen: {{error}}",
       "uploadFailed": "Hochladen von {{fileName}} zu Immich fehlgeschlagen: {{error}}",
-      "uploaded": "Zu Immich hochgeladen: {{count}}"
+      "uploaded": "Zu Immich hochgeladen: {{number}}"
     }
   },
   "library": {
