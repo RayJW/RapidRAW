@@ -118,8 +118,9 @@ const CommunityPage = ({ onBackToLibrary, imageList, currentFolderPath }: Commun
   useEffect(() => {
     const setupPreviewImages = async () => {
       setPreviews({});
+      const localImages = imageList.filter((image) => !image.is_cloud_placeholder);
 
-      if (!currentFolderPath || imageList.length === 0) {
+      if (!currentFolderPath || localImages.length === 0) {
         const defaultPath = await fetchDefaultPreviewImage();
         if (defaultPath) {
           setPreviewImagePaths([defaultPath]);
@@ -127,13 +128,13 @@ const CommunityPage = ({ onBackToLibrary, imageList, currentFolderPath }: Commun
         return;
       }
 
-      const shuffled = shuffleArray(imageList);
+      const shuffled = shuffleArray(localImages);
 
-      if (imageList.length === 1) {
-        setPreviewImagePaths([imageList[0].path]);
-      } else if (imageList.length >= 2 && imageList.length <= 3) {
+      if (localImages.length === 1) {
+        setPreviewImagePaths([localImages[0].path]);
+      } else if (localImages.length >= 2 && localImages.length <= 3) {
         setPreviewImagePaths(shuffled.slice(0, 2).map((img) => img.path));
-      } else if (imageList.length >= 4) {
+      } else if (localImages.length >= 4) {
         setPreviewImagePaths(shuffled.slice(0, 4).map((img) => img.path));
       }
     };
