@@ -63,6 +63,16 @@ pub async fn immich_timeline(app_handle: AppHandle) -> Result<Vec<TimelineMonth>
 }
 
 #[tauri::command]
+pub fn immich_prepare_export(
+    album: String,
+    with_original: bool,
+    app_handle: AppHandle,
+) -> Result<String, String> {
+    super::uploads::prepare_export(&app_handle, &album, with_original)
+        .map(|folder| folder.to_string_lossy().into_owned())
+}
+
+#[tauri::command]
 pub fn immich_sync_status() -> sync::SyncStatus {
     sync::status()
 }

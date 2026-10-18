@@ -141,6 +141,7 @@ pub async fn listing(
             image: RemoteImage {
                 asset_id: source.id.clone(),
                 listed_asset_id: listed.id.clone(),
+                album_id: filter.album_id.clone(),
             },
         });
     }

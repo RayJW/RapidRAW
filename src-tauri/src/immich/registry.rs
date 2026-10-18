@@ -7,6 +7,7 @@ use std::sync::RwLock;
 pub struct RemoteImage {
     pub asset_id: String,
     pub listed_asset_id: String,
+    pub album_id: Option<String>,
 }
 
 static ENTRIES: Lazy<RwLock<HashMap<PathBuf, RemoteImage>>> =
@@ -18,6 +19,12 @@ pub fn insert(path: PathBuf, image: RemoteImage) {
 
 pub fn get(path: &Path) -> Option<RemoteImage> {
     ENTRIES.read().unwrap().get(path).cloned()
+}
+
+pub fn set_listed_asset(path: &Path, listed_asset_id: &str) {
+    if let Some(entry) = ENTRIES.write().unwrap().get_mut(path) {
+        entry.listed_asset_id = listed_asset_id.to_string();
+    }
 }
 
 pub fn is_placeholder(path: &Path) -> bool {

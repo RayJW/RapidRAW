@@ -2532,6 +2532,7 @@ pub fn run() {
             immich::commands::immich_list_albums,
             immich::commands::immich_get_images,
             immich::commands::immich_sync_status,
+            immich::commands::immich_prepare_export,
             immich::commands::immich_timeline,
         ])
         .build(tauri::generate_context!())

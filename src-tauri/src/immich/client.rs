@@ -1,3 +1,4 @@
+use reqwest::multipart::{Form, Part};
 use reqwest::{Client, Method, RequestBuilder, Response};
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
@@ -43,6 +44,11 @@ pub struct User {
 pub struct TimelineMonth {
     pub time_bucket: String,
     pub count: u64,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct UploadResult {
+    pub id: String,
 }
 
 #[derive(Deserialize, Debug, Clone)]
@@ -262,6 +268,55 @@ impl ImmichClient {
         file.flush().await.map_err(|e| e.to_string())
     }
 
+    pub async fn upload(
+        &self,
+        path: &Path,
+        created_at: &str,
+        modified_at: &str,
+    ) -> Result<UploadResult, String> {
+        let file_name = path
+            .file_name()
+            .map(|n| n.to_string_lossy().into_owned())
+            .unwrap_or_else(|| "export.jpg".to_string());
+        let bytes = tokio::fs::read(path)
+            .await
+            .map_err(|e| format!("Cannot read '{}': {e}", path.display()))?;
+        let part = Part::bytes(bytes)
+            .file_name(file_name.clone())
+            .mime_str(mime_for(&file_name))
+            .map_err(|e| e.to_string())?;
+        let form = Form::new()
+            .text("fileCreatedAt", created_at.to_string())
+            .text("fileModifiedAt", modified_at.to_string())
+            .text("filename", file_name)
+            .part("assetData", part);
+        self.json(
+            self.request(Method::POST, "/assets").multipart(form),
+            "upload",
+        )
+        .await
+    }
+
+    pub async fn add_to_album(&self, album_id: &str, asset_ids: &[String]) -> Result<(), String> {
+        self.send(
+            self.request(Method::PUT, &format!("/albums/{album_id}/assets"))
+                .json(&json!({ "ids": asset_ids })),
+            "adding to album",
+        )
+        .await
+        .map(|_| ())
+    }
+
+    pub async fn create_stack(&self, asset_ids: &[String]) -> Result<(), String> {
+        self.send(
+            self.request(Method::POST, "/stacks")
+                .json(&json!({ "assetIds": asset_ids })),
+            "stacking",
+        )
+        .await
+        .map(|_| ())
+    }
+
     pub async fn thumbnail(&self, asset_id: &str, size: &str) -> Result<Vec<u8>, String> {
         let response = self
             .send(
@@ -277,5 +332,23 @@ impl ImmichClient {
             .await
             .map(|b| b.to_vec())
             .map_err(|e| e.to_string())
+    }
+}
+
+fn mime_for(file_name: &str) -> &'static str {
+    let ext = Path::new(file_name)
+        .extension()
+        .and_then(|e| e.to_str())
+        .map(|e| e.to_ascii_lowercase())
+        .unwrap_or_default();
+    match ext.as_str() {
+        "jpg" | "jpeg" => "image/jpeg",
+        "png" => "image/png",
+        "tif" | "tiff" => "image/tiff",
+        "webp" => "image/webp",
+        "avif" => "image/avif",
+        "jxl" => "image/jxl",
+        "heic" | "heif" => "image/heic",
+        _ => "application/octet-stream",
     }
 }

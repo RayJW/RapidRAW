@@ -12,15 +12,25 @@ interface DownloadEvent {
   error?: string;
 }
 
+interface UploadEvent {
+  fileName: string;
+  state: 'done' | 'error';
+  error?: string;
+}
+
 interface ConflictEvent {
   path: string;
   fileName: string;
 }
 
+const REFRESH_DELAY_MS = 1500;
+
 export function useImmichEvents(refreshLibrary: () => void) {
   const { t } = useTranslation();
   const refreshRef = useRef(refreshLibrary);
   refreshRef.current = refreshLibrary;
+  const refreshTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const uploaded = useRef(0);
 
   useEffect(() => {
     const unlisteners = [
@@ -44,6 +54,24 @@ export function useImmichEvents(refreshLibrary: () => void) {
         }
         useImmichStore.getState().setSyncStatus(payload);
       }),
+      listen<UploadEvent>('immich-upload', ({ payload }) => {
+        if (payload.state === 'done') {
+          uploaded.current += 1;
+        } else {
+          toast.error(t('immich.toasts.uploadFailed', { fileName: payload.fileName, error: payload.error }));
+        }
+      }),
+      listen('immich-library-changed', () => {
+        clearTimeout(refreshTimer.current);
+        refreshTimer.current = setTimeout(() => {
+          if (uploaded.current > 0) {
+            toast.success(t('immich.toasts.uploaded', { count: uploaded.current }));
+            uploaded.current = 0;
+          }
+          useImmichStore.getState().loadAlbums();
+          refreshRef.current();
+        }, REFRESH_DELAY_MS);
+      }),
       listen<ConflictEvent>('immich-edits-conflict', ({ payload }) => {
         toast.info(t('immich.toasts.editsConflict', { fileName: payload.fileName }));
         refreshRef.current();
@@ -51,6 +79,7 @@ export function useImmichEvents(refreshLibrary: () => void) {
     ];
 
     return () => {
+      clearTimeout(refreshTimer.current);
       unlisteners.forEach((unlisten) => unlisten.then((fn) => fn()));
     };
   }, [t]);

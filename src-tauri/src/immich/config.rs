@@ -11,6 +11,8 @@ pub struct ImmichSettings {
     pub server_url: String,
     pub cache_dir: Option<String>,
     pub cache_limit_gb: u32,
+    pub export_album: String,
+    pub export_with_original: bool,
 }
 
 impl Default for ImmichSettings {
@@ -19,6 +21,8 @@ impl Default for ImmichSettings {
             server_url: String::new(),
             cache_dir: None,
             cache_limit_gb: 20,
+            export_album: "source".to_string(),
+            export_with_original: true,
         }
     }
 }

@@ -17,18 +17,23 @@ export const ImmichInvokes = {
   GetImages: 'immich_get_images',
   Timeline: 'immich_timeline',
   SyncStatus: 'immich_sync_status',
+  PrepareExport: 'immich_prepare_export',
 } as const;
 
 export interface ImmichSettings {
   serverUrl: string;
   cacheDir: string | null;
   cacheLimitGb: number;
+  exportAlbum: string;
+  exportWithOriginal: boolean;
 }
 
 export const DEFAULT_IMMICH_SETTINGS: ImmichSettings = {
   serverUrl: '',
   cacheDir: null,
   cacheLimitGb: 20,
+  exportAlbum: 'source',
+  exportWithOriginal: true,
 };
 
 export interface ImmichApiKeyInfo {
@@ -103,3 +108,6 @@ export const getImmichAlbumImages = (albumId: string) =>
   invoke<ImageFile[]>(ImmichInvokes.GetImages, { filter: albumIdToFilter(albumId) });
 
 export const getImmichSyncStatus = () => invoke<ImmichSyncStatus>(ImmichInvokes.SyncStatus);
+
+export const prepareImmichExport = (album: string, withOriginal: boolean) =>
+  invoke<string>(ImmichInvokes.PrepareExport, { album, withOriginal });

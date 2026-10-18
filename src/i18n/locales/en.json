@@ -959,6 +959,14 @@
     }
   },
   "immich": {
+    "export": {
+      "album": "Album",
+      "destination": "Immich",
+      "noAlbum": "No album",
+      "sourceAlbum": "Album the image was opened from",
+      "withOriginal": "Upload the original too",
+      "withOriginalDesc": "For images from a local folder: the original is uploaded with its edits and the export is stacked on top of it. Images from Immich are always stacked on their original."
+    },
     "section": {
       "empty": "No albums on the server.",
       "error": "Immich is not reachable.",
@@ -997,7 +1005,9 @@
       "backOnline": "Immich is reachable again, and all edits are saved there.",
       "downloadFailed": "Could not download from Immich: {{error}}",
       "editsConflict": "{{fileName}} was also edited on another computer. Your edits stay, and the other version is kept as a virtual copy.",
-      "offline": "Immich is not reachable. Your edits are kept here and sent as soon as it's back."
+      "offline": "Immich is not reachable. Your edits are kept here and sent as soon as it's back.",
+      "uploadFailed": "Upload of {{fileName}} to Immich failed: {{error}}",
+      "uploaded": "Uploaded to Immich: {{count}}"
     }
   },
   "library": {
