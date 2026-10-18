@@ -85,6 +85,9 @@ struct SearchResponse {
     assets: SearchPage,
 }
 
+const PAGE_SIZE: u32 = 1000;
+const PARALLEL_PAGES: u32 = 4;
+
 pub struct ImmichClient {
     base: String,
     api_key: String,
@@ -165,24 +168,36 @@ impl ImmichClient {
     }
 
     pub async fn search(&self, query: Value) -> Result<Vec<Asset>, String> {
-        let mut found = Vec::new();
-        let mut page = 1u32;
-        loop {
-            let mut body = query.clone();
-            body["page"] = json!(page);
-            body["size"] = json!(1000);
-            let result: SearchResponse = self
-                .json(
-                    self.request(Method::POST, "/search/metadata").json(&body),
-                    "search",
-                )
-                .await?;
-            found.extend(result.assets.items);
-            match result.assets.next_page.and_then(|p| p.parse().ok()) {
-                Some(next) if next > page => page = next,
-                _ => return Ok(found),
+        let (mut found, mut more) = self.search_page(&query, 1).await?;
+        let mut next = 2;
+        while more {
+            let pages = futures::future::try_join_all(
+                (next..next + PARALLEL_PAGES).map(|page| self.search_page(&query, page)),
+            )
+            .await?;
+            for (items, has_next) in pages {
+                found.extend(items);
+                more = has_next;
+                if !more {
+                    break;
+                }
             }
+            next += PARALLEL_PAGES;
         }
+        Ok(found)
+    }
+
+    async fn search_page(&self, query: &Value, page: u32) -> Result<(Vec<Asset>, bool), String> {
+        let mut body = query.clone();
+        body["page"] = json!(page);
+        body["size"] = json!(PAGE_SIZE);
+        let result: SearchResponse = self
+            .json(
+                self.request(Method::POST, "/search/metadata").json(&body),
+                "search",
+            )
+            .await?;
+        Ok((result.assets.items, result.assets.next_page.is_some()))
     }
 
     pub async fn stacks(&self) -> Result<Vec<Stack>, String> {
