@@ -3,13 +3,9 @@ import { RotateCcw, Copy, ClipboardPaste, PencilSparkles, ChartArea, LayoutList 
 import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
-import BasicAdjustments from '../../adjustments/Basic';
-import CurveGraph from '../../adjustments/Curves';
-import ColorPanel from '../../adjustments/Color';
-import DetailsPanel from '../../adjustments/Details';
-import EffectsPanel from '../../adjustments/Effects';
 import CollapsibleSection from '../../ui/CollapsibleSection';
-import Waveform from '../editor/Waveform';
+import AdjustmentSection from '../../adjustments/AdjustmentSection';
+import ConnectedWaveform from '../editor/ConnectedWaveform';
 import Resizer from '../../ui/Resizer';
 import AdjustmentSectionsSubMenu from './AdjustmentSectionsSubMenu';
 import {
@@ -24,7 +20,6 @@ import {
   toggleToolActive,
 } from '../../../utils/adjustments';
 import { useContextMenu } from '../../../context/ContextMenuContext';
-import { ToolVisibilityContext } from '../../../context/ToolVisibilityContext';
 import { OPTION_SEPARATOR, Orientation } from '../../ui/AppProperties';
 import Text from '../../ui/Text';
 import { TextVariants, TextColors, TextWeights } from '../../../types/typography';
@@ -35,76 +30,14 @@ import { useUIStore } from '../../../store/useUIStore';
 import { useEditorActions } from '../../../hooks/useEditorActions';
 import { useWaveformControls } from '../../../hooks/useWaveformControls';
 
-const SECTION_COMPONENTS: Record<string, any> = {
-  basic: BasicAdjustments,
-  curves: CurveGraph,
-  color: ColorPanel,
-  details: DetailsPanel,
-  effects: EffectsPanel,
-};
-
-function AdjustmentSectionContent({
-  sectionName,
-  activeTools,
-  onToggleTool,
-  ...sectionProps
-}: {
+function AdjustmentSectionContent(props: {
   sectionName: string;
   activeTools: ActiveTools;
   onToggleTool(id: string): void;
   [key: string]: unknown;
 }) {
   const adjustments = useEditorStore((state) => state.adjustments);
-  const histogram = useEditorStore((state) => (sectionName === 'curves' ? state.histogram : null));
-  const contextValue = useMemo(
-    () => ({ activeTools, onToggleTool, section: sectionName }),
-    [activeTools, onToggleTool, sectionName],
-  );
-  const SectionComponent = SECTION_COMPONENTS[sectionName];
-
-  return (
-    <ToolVisibilityContext.Provider value={contextValue}>
-      <SectionComponent adjustments={adjustments} histogram={histogram} {...sectionProps} />
-    </ToolVisibilityContext.Provider>
-  );
-}
-
-function ControlsWaveform({
-  setDisplayMode,
-  setAdjustments,
-  theme,
-}: {
-  setDisplayMode(mode: string): void;
-  setAdjustments(value: (prev: Adjustments) => Adjustments): void;
-  theme?: string;
-}) {
-  const { waveform, histogram, activeWaveformChannel, showClipping } = useEditorStore(
-    useShallow((state) => ({
-      waveform: state.waveform,
-      histogram: state.histogram,
-      activeWaveformChannel: state.activeWaveformChannel,
-      showClipping: state.adjustments.showClipping || false,
-    })),
-  );
-
-  const onToggleClipping = useCallback(() => {
-    setAdjustments((prev: Adjustments) => ({
-      ...prev,
-      showClipping: !prev.showClipping,
-    }));
-  }, [setAdjustments]);
-
-  return (
-    <Waveform
-      waveformData={waveform || null}
-      histogram={histogram}
-      displayMode={activeWaveformChannel || 'luma'}
-      setDisplayMode={setDisplayMode}
-      showClipping={showClipping}
-      onToggleClipping={onToggleClipping}
-      theme={theme}
-    />
-  );
+  return <AdjustmentSection {...props} adjustments={adjustments} />;
 }
 
 export default function Controls() {
@@ -341,7 +274,7 @@ export default function Controls() {
             className="shrink-0 flex flex-col relative border-b border-surface overflow-hidden"
           >
             <div className="grow w-full h-full p-3 pb-2 min-h-0">
-              <ControlsWaveform
+              <ConnectedWaveform
                 setDisplayMode={setActiveWaveformChannel}
                 setAdjustments={setAdjustments}
                 theme={theme}

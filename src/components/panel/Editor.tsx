@@ -324,16 +324,19 @@ export default function Editor({ onBackToLibrary, onContextMenu, onImageSelect, 
 
   const updateSubMaskLocal = useCallback(
     (subMaskId: string, updatedData: any) => {
+      const updateContainers = <T extends MaskContainer | AiPatch>(containers: T[]): T[] =>
+        containers.map((c) =>
+          c.subMasks.some((sm: SubMask) => sm.id === subMaskId)
+            ? {
+                ...c,
+                subMasks: c.subMasks.map((sm: SubMask) => (sm.id === subMaskId ? { ...sm, ...updatedData } : sm)),
+              }
+            : c,
+        );
       setAdjustments((prev: Adjustments) => ({
         ...prev,
-        masks: prev.masks.map((c: MaskContainer) => ({
-          ...c,
-          subMasks: c.subMasks.map((sm: SubMask) => (sm.id === subMaskId ? { ...sm, ...updatedData } : sm)),
-        })),
-        aiPatches: (prev.aiPatches || []).map((p: AiPatch) => ({
-          ...p,
-          subMasks: p.subMasks.map((sm: SubMask) => (sm.id === subMaskId ? { ...sm, ...updatedData } : sm)),
-        })),
+        masks: updateContainers(prev.masks),
+        aiPatches: updateContainers(prev.aiPatches || []),
       }));
     },
     [setAdjustments],
