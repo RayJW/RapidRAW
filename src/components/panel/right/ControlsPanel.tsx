@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { RotateCcw, Copy, ClipboardPaste, PencilSparkles, ChartArea, LayoutList } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
@@ -13,6 +13,7 @@ import Waveform from '../editor/Waveform';
 import Resizer from '../../ui/Resizer';
 import AdjustmentSectionsSubMenu from './AdjustmentSectionsSubMenu';
 import {
+  ActiveTools,
   Adjustments,
   INITIAL_ADJUSTMENTS,
   ADJUSTMENT_SECTIONS,
@@ -33,6 +34,78 @@ import { useSettingsStore } from '../../../store/useSettingsStore';
 import { useUIStore } from '../../../store/useUIStore';
 import { useEditorActions } from '../../../hooks/useEditorActions';
 import { useWaveformControls } from '../../../hooks/useWaveformControls';
+
+const SECTION_COMPONENTS: Record<string, any> = {
+  basic: BasicAdjustments,
+  curves: CurveGraph,
+  color: ColorPanel,
+  details: DetailsPanel,
+  effects: EffectsPanel,
+};
+
+function AdjustmentSectionContent({
+  sectionName,
+  activeTools,
+  onToggleTool,
+  ...sectionProps
+}: {
+  sectionName: string;
+  activeTools: ActiveTools;
+  onToggleTool(id: string): void;
+  [key: string]: unknown;
+}) {
+  const adjustments = useEditorStore((state) => state.adjustments);
+  const histogram = useEditorStore((state) => (sectionName === 'curves' ? state.histogram : null));
+  const contextValue = useMemo(
+    () => ({ activeTools, onToggleTool, section: sectionName }),
+    [activeTools, onToggleTool, sectionName],
+  );
+  const SectionComponent = SECTION_COMPONENTS[sectionName];
+
+  return (
+    <ToolVisibilityContext.Provider value={contextValue}>
+      <SectionComponent adjustments={adjustments} histogram={histogram} {...sectionProps} />
+    </ToolVisibilityContext.Provider>
+  );
+}
+
+function ControlsWaveform({
+  setDisplayMode,
+  setAdjustments,
+  theme,
+}: {
+  setDisplayMode(mode: string): void;
+  setAdjustments(value: (prev: Adjustments) => Adjustments): void;
+  theme?: string;
+}) {
+  const { waveform, histogram, activeWaveformChannel, showClipping } = useEditorStore(
+    useShallow((state) => ({
+      waveform: state.waveform,
+      histogram: state.histogram,
+      activeWaveformChannel: state.activeWaveformChannel,
+      showClipping: state.adjustments.showClipping || false,
+    })),
+  );
+
+  const onToggleClipping = useCallback(() => {
+    setAdjustments((prev: Adjustments) => ({
+      ...prev,
+      showClipping: !prev.showClipping,
+    }));
+  }, [setAdjustments]);
+
+  return (
+    <Waveform
+      waveformData={waveform || null}
+      histogram={histogram}
+      displayMode={activeWaveformChannel || 'luma'}
+      setDisplayMode={setDisplayMode}
+      showClipping={showClipping}
+      onToggleClipping={onToggleClipping}
+      theme={theme}
+    />
+  );
+}
 
 export default function Controls() {
   const { t } = useTranslation();
@@ -58,29 +131,30 @@ export default function Controls() {
   );
 
   const {
-    adjustments,
+    activeToolsState,
+    sectionVisibility,
     copiedSectionAdjustments,
-    histogram,
     selectedImage,
     isWbPickerActive,
     isWaveformVisible,
-    waveform,
-    activeWaveformChannel,
     waveformHeight,
     setEditor,
   } = useEditorStore(
     useShallow((state) => ({
-      adjustments: state.adjustments,
+      activeToolsState: state.adjustments.activeTools,
+      sectionVisibility: state.adjustments.sectionVisibility,
       copiedSectionAdjustments: state.copiedSectionAdjustments,
-      histogram: state.histogram,
       selectedImage: state.selectedImage,
       isWbPickerActive: state.isWbPickerActive,
       isWaveformVisible: state.isWaveformVisible,
-      waveform: state.waveform,
-      activeWaveformChannel: state.activeWaveformChannel,
       waveformHeight: state.waveformHeight,
       setEditor: state.setEditor,
     })),
+  );
+
+  const activeTools = useMemo(
+    () => getActiveTools({ activeTools: activeToolsState, sectionVisibility }),
+    [activeToolsState, sectionVisibility],
   );
 
   const setCopiedSectionAdjustments = useCallback(
@@ -111,12 +185,15 @@ export default function Controls() {
     [setUI],
   );
 
-  const handleToggleVisibility = (id: string) => {
-    setAdjustments((prev: Adjustments) => ({
-      ...prev,
-      activeTools: toggleToolActive(getActiveTools(prev), id),
-    }));
-  };
+  const handleToggleVisibility = useCallback(
+    (id: string) => {
+      setAdjustments((prev: Adjustments) => ({
+        ...prev,
+        activeTools: toggleToolActive(getActiveTools(prev), id),
+      }));
+    },
+    [setAdjustments],
+  );
 
   const handleResetAdjustments = () => {
     setAdjustments((prev: Adjustments) => ({
@@ -156,6 +233,7 @@ export default function Controls() {
     }
 
     const handleCopy = () => {
+      const { adjustments } = useEditorStore.getState();
       const adjustmentsToCopy: any = {};
       for (const key of sectionKeys) {
         if (Object.prototype.hasOwnProperty.call(adjustments, key)) {
@@ -263,18 +341,9 @@ export default function Controls() {
             className="shrink-0 flex flex-col relative border-b border-surface overflow-hidden"
           >
             <div className="grow w-full h-full p-3 pb-2 min-h-0">
-              <Waveform
-                waveformData={waveform || null}
-                histogram={histogram}
-                displayMode={activeWaveformChannel || 'luma'}
+              <ControlsWaveform
                 setDisplayMode={setActiveWaveformChannel}
-                showClipping={adjustments.showClipping || false}
-                onToggleClipping={() => {
-                  setAdjustments((prev: Adjustments) => ({
-                    ...prev,
-                    showClipping: !prev.showClipping,
-                  }));
-                }}
+                setAdjustments={setAdjustments}
                 theme={theme}
               />
             </div>
@@ -286,16 +355,7 @@ export default function Controls() {
       <div className="grow overflow-y-scroll p-3 flex flex-col gap-2">
         {selectedImage ? (
           visibleSections.map((sectionName: string) => {
-            const SectionComponent: any = {
-              basic: BasicAdjustments,
-              curves: CurveGraph,
-              color: ColorPanel,
-              details: DetailsPanel,
-              effects: EffectsPanel,
-            }[sectionName];
-
             const title = t(`editor.adjustments.sections.${sectionName}`);
-            const activeTools = getActiveTools(adjustments);
 
             return (
               <div className="shrink-0 group" key={sectionName}>
@@ -307,23 +367,20 @@ export default function Controls() {
                   onToggleVisibility={() => handleToggleVisibility(sectionName)}
                   title={title}
                 >
-                  <ToolVisibilityContext.Provider
-                    value={{ activeTools, onToggleTool: handleToggleVisibility, section: sectionName }}
-                  >
-                    <SectionComponent
-                      adjustments={adjustments}
-                      setAdjustments={setAdjustments}
-                      histogram={histogram}
-                      theme={theme}
-                      handleLutSelect={handleLutSelect}
-                      onLutHover={setLutPreviewOverride}
-                      appSettings={appSettings}
-                      asShotWhiteBalance={selectedImage.asShotWhiteBalance}
-                      isWbPickerActive={isWbPickerActive}
-                      toggleWbPicker={toggleWbPicker}
-                      onDragStateChange={onDragStateChange}
-                    />
-                  </ToolVisibilityContext.Provider>
+                  <AdjustmentSectionContent
+                    sectionName={sectionName}
+                    activeTools={activeTools}
+                    onToggleTool={handleToggleVisibility}
+                    setAdjustments={setAdjustments}
+                    theme={theme}
+                    handleLutSelect={handleLutSelect}
+                    onLutHover={setLutPreviewOverride}
+                    appSettings={appSettings}
+                    asShotWhiteBalance={selectedImage.asShotWhiteBalance}
+                    isWbPickerActive={isWbPickerActive}
+                    toggleWbPicker={toggleWbPicker}
+                    onDragStateChange={onDragStateChange}
+                  />
                 </CollapsibleSection>
               </div>
             );
