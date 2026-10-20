@@ -1770,6 +1770,16 @@
       "title": "我的鏡頭"
     },
     "processing": {
+      "advanced": {
+        "heading": "進階",
+        "headingDesc": "縮圖、快取與匯出的效能調整。預設值適合大多數使用者。",
+        "title": "進階設定",
+        "auto": "自動",
+        "exportThreads": "並行匯出",
+        "exportThreadsDesc": "同時匯出的影像數量。「自動」會依據你的 CPU 選擇合適的值。如果大型匯出失敗或顯示卡記憶體較少，請調低。",
+        "exportMemoryLimit": "匯出記憶體上限",
+        "exportMemoryLimitDesc": "批次匯出可使用的可用記憶體比例。調低可在大型匯出期間讓其他應用程式保持流暢。"
+      },
       "ai": {
         "cloud": {
           "description": "對於那些想要更簡單解決方案的使用者，可選訂閱提供與自託管相同的高品質結果，無需任何麻煩。這是最方便的選擇，也是支援本專案的最佳方式。",
@@ -1913,7 +1923,6 @@
       "previewResDesc": "確定預覽的最大解析度。較低的值可顯著提高效能。",
       "previewStrategy": "預覽渲染策略",
       "qualities": {
-        "full": "全解析度",
         "high": "高品質",
         "performance": "效能優先"
       },

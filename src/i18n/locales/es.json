@@ -1808,6 +1808,16 @@
       "title": "Mis lentes"
     },
     "processing": {
+      "advanced": {
+        "heading": "Avanzado",
+        "headingDesc": "Ajustes de rendimiento para miniaturas, caché y exportaciones. Los valores predeterminados funcionan bien para la mayoría.",
+        "title": "Ajustes avanzados",
+        "auto": "Automático",
+        "exportThreads": "Exportaciones en paralelo",
+        "exportThreadsDesc": "Número de imágenes que se exportan a la vez. Automático elige un valor según tu CPU. Redúcelo si las exportaciones grandes fallan o tu GPU tiene poca memoria.",
+        "exportMemoryLimit": "Límite de memoria de exportación",
+        "exportMemoryLimitDesc": "Porcentaje de la RAM libre que pueden usar las exportaciones por lotes. Redúcelo para que otras aplicaciones sigan respondiendo durante exportaciones grandes."
+      },
       "ai": {
         "cloud": {
           "description": "Para aquellos que desean una solución más simple, una suscripción opcional proporciona los mismos resultados de alta calidad que el autoalojamiento sin ninguna molestia. Esta es la opción más conveniente y la mejor manera de apoyar el proyecto.",
@@ -1951,7 +1961,6 @@
       "previewResDesc": "Determina la resolución máxima de la vista previa. Valores más bajos mejoran considerablemente el rendimiento.",
       "previewStrategy": "Estrategia de renderizado de la vista previa",
       "qualities": {
-        "full": "Resolución completa",
         "high": "Alta calidad",
         "performance": "Rendimiento"
       },

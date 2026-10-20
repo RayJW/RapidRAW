@@ -1772,6 +1772,16 @@
       "title": "My Lenses"
     },
     "processing": {
+      "advanced": {
+        "heading": "Advanced",
+        "headingDesc": "Performance tuning for thumbnails, caching and exports. The defaults work well for most users.",
+        "title": "Advanced Settings",
+        "auto": "Auto",
+        "exportThreads": "Parallel Exports",
+        "exportThreadsDesc": "Number of images exported at the same time. Auto picks a value based on your CPU. Lower it if large exports fail or your GPU has little memory.",
+        "exportMemoryLimit": "Export Memory Limit",
+        "exportMemoryLimitDesc": "Share of free RAM that batch exports may use. Lower it to keep other apps responsive during large exports."
+      },
       "ai": {
         "cloud": {
           "description": "For those who want a simpler solution, an optional subscription provides the same high-quality results as self-hosting without any hassle. This is the most convenient option and the best way to support the project.",
@@ -1915,7 +1925,6 @@
       "previewResDesc": "Determines the maximum resolution of the preview. Lower values significantly improve performance.",
       "previewStrategy": "Preview Rendering Strategy",
       "qualities": {
-        "full": "Full Resolution",
         "high": "High Quality",
         "performance": "Performance"
       },

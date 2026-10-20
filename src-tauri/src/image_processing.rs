@@ -329,11 +329,32 @@ pub fn get_geometry_params_from_json(adjustments: &serde_json::Value) -> Geometr
 }
 
 pub fn downscale_f32_image(image: &DynamicImage, nwidth: u32, nheight: u32) -> DynamicImage {
+    downscale_f32_image_if_needed(image, nwidth, nheight).unwrap_or_else(|| image.clone())
+}
+
+fn u8_to_f32_lut() -> &'static [f32; 256] {
+    static LUT: OnceLock<[f32; 256]> = OnceLock::new();
+    LUT.get_or_init(|| {
+        let ramp = image::RgbImage::from_fn(256, 1, |x, _| image::Rgb([x as u8; 3]));
+        let converted = DynamicImage::ImageRgb8(ramp).to_rgb32f();
+        let mut lut = [0.0f32; 256];
+        for (i, v) in lut.iter_mut().enumerate() {
+            *v = converted.get_pixel(i as u32, 0)[0];
+        }
+        lut
+    })
+}
+
+pub fn downscale_f32_image_if_needed(
+    image: &DynamicImage,
+    nwidth: u32,
+    nheight: u32,
+) -> Option<DynamicImage> {
     let start = std::time::Instant::now();
 
     let (width, height) = image.dimensions();
     if nwidth == 0 || nheight == 0 || (nwidth >= width && nheight >= height) {
-        return image.clone();
+        return None;
     }
 
     let ratio = (nwidth as f32 / width as f32).min(nheight as f32 / height as f32);
@@ -341,17 +362,8 @@ pub fn downscale_f32_image(image: &DynamicImage, nwidth: u32, nheight: u32) -> D
     let new_h = (height as f32 * ratio).round() as u32;
 
     if new_w == 0 || new_h == 0 {
-        return image.clone();
+        return None;
     }
-
-    let tmp_img;
-    let img_ref = if let Some(rgb) = image.as_rgb32f() {
-        rgb
-    } else {
-        tmp_img = image.to_rgb32f();
-        &tmp_img
-    };
-    let src: &[f32] = img_ref.as_raw();
 
     let x_ratio = width as f32 / new_w as f32;
     let y_ratio = height as f32 / new_h as f32;
@@ -434,58 +446,103 @@ pub fn downscale_f32_image(image: &DynamicImage, nwidth: u32, nheight: u32) -> D
     }
 
     let mut out_buf = vec![0.0f32; (new_w * new_h * 3) as usize];
+    let filter = BoxFilter {
+        width_usize,
+        new_w,
+        x_bounds: &x_bounds,
+        x_weights: &x_weights,
+        y_bounds: &y_bounds,
+        y_weights: &y_weights,
+    };
 
-    out_buf
-        .par_chunks_exact_mut(new_w as usize * 3)
-        .enumerate()
-        .for_each(|(y_out, row)| {
-            let (y_in_start, y_in_end, y_wt_offset) = y_bounds[y_out];
-            let y_len = y_in_end - y_in_start;
-            let y_wts = &y_weights[y_wt_offset..y_wt_offset + y_len];
-
-            for (x_out, &(x_in_start, x_in_end, x_wt_offset)) in x_bounds.iter().enumerate() {
-                let mut r_sum = 0.0;
-                let mut g_sum = 0.0;
-                let mut b_sum = 0.0;
-
-                let x_len = x_in_end - x_in_start;
-                let x_wts = &x_weights[x_wt_offset..x_wt_offset + x_len];
-
-                for (dy, &w_y) in y_wts.iter().enumerate() {
-                    let y_in = y_in_start + dy;
-                    let row_offset = y_in * width_usize * 3;
-
-                    let src_start = row_offset + x_in_start * 3;
-                    let src_end = row_offset + x_in_end * 3;
-                    let src_slice = &src[src_start..src_end];
-
-                    for (&w_x, chunk) in x_wts.iter().zip(src_slice.as_chunks::<3>().0) {
-                        let w = w_x * w_y;
-
-                        let r = chunk[0].max(0.0);
-                        let g = chunk[1].max(0.0);
-                        let b = chunk[2].max(0.0);
-
-                        r_sum += r * w;
-                        g_sum += g * w;
-                        b_sum += b * w;
-                    }
-                }
-
-                let out_idx = x_out * 3;
-
-                row[out_idx] = r_sum;
-                row[out_idx + 1] = g_sum;
-                row[out_idx + 2] = b_sum;
-            }
-        });
+    match image {
+        DynamicImage::ImageRgb32F(rgb) => filter.run::<3, f32>(rgb.as_raw(), |v| v, &mut out_buf),
+        DynamicImage::ImageRgb8(rgb) => {
+            let lut = u8_to_f32_lut();
+            filter.run::<3, u8>(rgb.as_raw(), |v| lut[v as usize], &mut out_buf)
+        }
+        DynamicImage::ImageRgba8(rgba) => {
+            let lut = u8_to_f32_lut();
+            filter.run::<4, u8>(rgba.as_raw(), |v| lut[v as usize], &mut out_buf)
+        }
+        _ => {
+            let converted = image.to_rgb32f();
+            filter.run::<3, f32>(converted.as_raw(), |v| v, &mut out_buf)
+        }
+    }
 
     let out = Rgb32FImage::from_raw(new_w, new_h, out_buf).expect("buffer size mismatch");
     let result = DynamicImage::ImageRgb32F(out);
 
     log::info!("downscale_f32_image took {:.2?}", start.elapsed());
 
-    result
+    Some(result)
+}
+
+struct BoxFilter<'a> {
+    width_usize: usize,
+    new_w: u32,
+    x_bounds: &'a [(usize, usize, usize)],
+    x_weights: &'a [f32],
+    y_bounds: &'a [(usize, usize, usize)],
+    y_weights: &'a [f32],
+}
+
+impl BoxFilter<'_> {
+    fn run<const C: usize, T: Copy + Sync>(
+        &self,
+        src: &[T],
+        to_f32: impl Fn(T) -> f32 + Sync,
+        out_buf: &mut [f32],
+    ) {
+        let width_usize = self.width_usize;
+        out_buf
+            .par_chunks_exact_mut(self.new_w as usize * 3)
+            .enumerate()
+            .for_each(|(y_out, row)| {
+                let (y_in_start, y_in_end, y_wt_offset) = self.y_bounds[y_out];
+                let y_len = y_in_end - y_in_start;
+                let y_wts = &self.y_weights[y_wt_offset..y_wt_offset + y_len];
+
+                for (x_out, &(x_in_start, x_in_end, x_wt_offset)) in
+                    self.x_bounds.iter().enumerate()
+                {
+                    let mut r_sum = 0.0;
+                    let mut g_sum = 0.0;
+                    let mut b_sum = 0.0;
+
+                    let x_len = x_in_end - x_in_start;
+                    let x_wts = &self.x_weights[x_wt_offset..x_wt_offset + x_len];
+
+                    for (dy, &w_y) in y_wts.iter().enumerate() {
+                        let y_in = y_in_start + dy;
+                        let row_offset = y_in * width_usize * C;
+
+                        let src_start = row_offset + x_in_start * C;
+                        let src_end = row_offset + x_in_end * C;
+                        let src_slice = &src[src_start..src_end];
+
+                        for (&w_x, chunk) in x_wts.iter().zip(src_slice.as_chunks::<C>().0) {
+                            let w = w_x * w_y;
+
+                            let r = to_f32(chunk[0]).max(0.0);
+                            let g = to_f32(chunk[1]).max(0.0);
+                            let b = to_f32(chunk[2]).max(0.0);
+
+                            r_sum += r * w;
+                            g_sum += g * w;
+                            b_sum += b * w;
+                        }
+                    }
+
+                    let out_idx = x_out * 3;
+
+                    row[out_idx] = r_sum;
+                    row[out_idx + 1] = g_sum;
+                    row[out_idx + 2] = b_sum;
+                }
+            });
+    }
 }
 
 #[inline(always)]
@@ -3947,4 +4004,57 @@ pub async fn sample_white_balance(
     })
     .await
     .map_err(|e| format!("Task execution failed: {}", e))?
+}
+
+#[cfg(test)]
+mod downscale_tests {
+    use super::*;
+
+    fn pseudo_random_bytes(len: usize, seed: u32) -> Vec<u8> {
+        let mut state = seed;
+        (0..len)
+            .map(|_| {
+                state = state.wrapping_mul(1_664_525).wrapping_add(1_013_904_223);
+                (state >> 24) as u8
+            })
+            .collect()
+    }
+
+    #[test]
+    fn u8_fast_path_matches_f32_conversion() {
+        for &(w, h, tw) in &[
+            (1013u32, 677u32, 480u32),
+            (640, 960, 320),
+            (300, 200, 299),
+            (4000, 3, 1280),
+        ] {
+            let rgb = image::RgbImage::from_raw(w, h, pseudo_random_bytes((w * h * 3) as usize, w))
+                .unwrap();
+            let rgba =
+                image::RgbaImage::from_raw(w, h, pseudo_random_bytes((w * h * 4) as usize, h))
+                    .unwrap();
+
+            for img in [DynamicImage::ImageRgb8(rgb), DynamicImage::ImageRgba8(rgba)] {
+                let fast = downscale_f32_image(&img, tw, tw);
+                let reference =
+                    downscale_f32_image(&DynamicImage::ImageRgb32F(img.to_rgb32f()), tw, tw);
+                let fast_bits: Vec<u32> = fast
+                    .as_rgb32f()
+                    .unwrap()
+                    .as_raw()
+                    .iter()
+                    .map(|v| v.to_bits())
+                    .collect();
+                let ref_bits: Vec<u32> = reference
+                    .as_rgb32f()
+                    .unwrap()
+                    .as_raw()
+                    .iter()
+                    .map(|v| v.to_bits())
+                    .collect();
+                assert_eq!(fast.dimensions(), reference.dimensions());
+                assert!(fast_bits == ref_bits, "mismatch for {}x{} -> {}", w, h, tw);
+            }
+        }
+    }
 }

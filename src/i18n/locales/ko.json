@@ -1770,6 +1770,16 @@
       "title": "내 렌즈"
     },
     "processing": {
+      "advanced": {
+        "heading": "고급",
+        "headingDesc": "썸네일, 캐시, 내보내기 성능을 조정합니다. 대부분의 사용자는 기본값으로 충분합니다.",
+        "title": "고급 설정",
+        "auto": "자동",
+        "exportThreads": "병렬 내보내기",
+        "exportThreadsDesc": "동시에 내보내는 이미지 수입니다. 자동은 CPU에 맞는 값을 선택합니다. 큰 내보내기가 실패하거나 GPU 메모리가 적다면 낮추세요.",
+        "exportMemoryLimit": "내보내기 메모리 한도",
+        "exportMemoryLimitDesc": "일괄 내보내기가 사용할 수 있는 여유 RAM의 비율입니다. 큰 내보내기 중에도 다른 앱이 원활하게 동작하도록 하려면 낮추세요."
+      },
       "ai": {
         "cloud": {
           "description": "더 간단한 솔루션을 원하는 사용자를 위해, 선택적 구독은 번거로움 없이 셀프 호스팅과 동일한 고품질 결과를 제공합니다. 가장 편리한 옵션이며 프로젝트를 지원하는 가장 좋은 방법입니다.",
@@ -1913,7 +1923,6 @@
       "previewResDesc": "미리보기의 최대 해상도를 결정합니다. 값이 낮을수록 성능이 크게 향상됩니다.",
       "previewStrategy": "미리보기 렌더링 전략",
       "qualities": {
-        "full": "전체 해상도",
         "high": "고품질",
         "performance": "성능"
       },

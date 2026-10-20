@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import {
   Aperture,
@@ -86,7 +86,24 @@ export interface UseAppContextMenusProps {
   handleTogglePinFolder: (path: string) => Promise<void>;
 }
 
-export function useAppContextMenus(props: UseAppContextMenusProps) {
+export function useAppContextMenus(latestProps: UseAppContextMenusProps) {
+  const propsRef = useRef(latestProps);
+  propsRef.current = latestProps;
+  const props = useMemo<UseAppContextMenusProps>(
+    () => ({
+      handleImageSelect: (path) => propsRef.current.handleImageSelect(path),
+      handleBackToLibrary: () => propsRef.current.handleBackToLibrary(),
+      handleRenameFiles: (paths) => propsRef.current.handleRenameFiles(paths),
+      handleImportClick: (path) => propsRef.current.handleImportClick(path),
+      handleLibraryRefresh: () => propsRef.current.handleLibraryRefresh(),
+      refreshAllFolderTrees: () => propsRef.current.refreshAllFolderTrees(),
+      refreshImageList: () => propsRef.current.refreshImageList(),
+      executeDelete: (paths, options) => propsRef.current.executeDelete(paths, options),
+      handleDeleteRejected: () => propsRef.current.handleDeleteRejected(),
+      handleTogglePinFolder: (path) => propsRef.current.handleTogglePinFolder(path),
+    }),
+    [],
+  );
   const { t } = useTranslation();
   const { showContextMenu } = useContextMenu();
 

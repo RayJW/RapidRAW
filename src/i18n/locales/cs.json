@@ -1773,6 +1773,16 @@
       "title": "Moje objektivy"
     },
     "processing": {
+      "advanced": {
+        "heading": "Pokročilé",
+        "headingDesc": "Ladění výkonu náhledů, mezipaměti a exportů. Výchozí hodnoty vyhovují většině uživatelů.",
+        "title": "Pokročilá nastavení",
+        "auto": "Automaticky",
+        "exportThreads": "Paralelní exporty",
+        "exportThreadsDesc": "Počet obrázků exportovaných současně. Automaticky zvolí hodnotu podle procesoru. Snižte ji, pokud velké exporty selhávají nebo má grafická karta málo paměti.",
+        "exportMemoryLimit": "Limit paměti pro export",
+        "exportMemoryLimitDesc": "Podíl volné paměti RAM, který mohou dávkové exporty využít. Snižte jej, aby ostatní aplikace zůstaly při velkých exportech svižné."
+      },
       "ai": {
         "cloud": {
           "description": "Pro ty, kteří chtějí jednodušší řešení, poskytuje volitelné předplatné stejně vysoce kvalitní výsledky jako vlastní hosting bez jakýchkoli starostí. Je to nejpohodlnější možnost a nejlepší způsob, jak podpořit projekt.",
@@ -1916,7 +1926,6 @@
       "previewResDesc": "Určuje maximální rozlišení náhledu. Nižší hodnoty výrazně zlepšují výkon.",
       "previewStrategy": "Náhled strategie vykreslování",
       "qualities": {
-        "full": "Plné rozlišení",
         "high": "Vysoká kvalita",
         "performance": "Výkon"
       },

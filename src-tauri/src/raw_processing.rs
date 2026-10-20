@@ -347,16 +347,22 @@ fn mono_pixels_to_rgb(
         .ok_or_else(|| anyhow!("Developed image size does not match its dimensions"))
 }
 
+pub fn raw_dimensions(file_bytes: &[u8]) -> Option<(usize, usize)> {
+    let source = RawSource::new_from_slice(file_bytes);
+    let decoder = rawler::get_decoder(&source).ok()?;
+    let raw_img = decoder
+        .raw_image(&source, &RawDecodeParams::default(), true)
+        .ok()?;
+    Some((raw_img.width, raw_img.height))
+}
+
 pub fn get_fast_demosaic_scale_factor(
     file_bytes: &[u8],
     decoded_width: u32,
     decoded_height: u32,
 ) -> f32 {
-    let source = RawSource::new_from_slice(file_bytes);
-    if let Ok(decoder) = rawler::get_decoder(&source)
-        && let Ok(raw_img) = decoder.raw_image(&source, &RawDecodeParams::default(), true)
-    {
-        let max_orig = (raw_img.width as f32).max(raw_img.height as f32);
+    if let Some((raw_width, raw_height)) = raw_dimensions(file_bytes) {
+        let max_orig = (raw_width as f32).max(raw_height as f32);
         let max_comp = (decoded_width as f32).max(decoded_height as f32);
         if max_orig > 0.0 {
             let ratio = max_comp / max_orig;

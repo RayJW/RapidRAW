@@ -20,6 +20,7 @@ use rawler::Orientation;
 use rayon::prelude::*;
 use serde::Deserialize;
 use serde_json::Value;
+use std::borrow::Cow;
 use std::collections::HashMap;
 use std::fs;
 use std::panic;
@@ -78,22 +79,26 @@ pub fn load_and_composite(
 ) -> Result<DynamicImage> {
     let base_image =
         load_base_image_from_bytes(base_image, path, use_fast_raw_dev, settings, cancel_token)?;
-    prepare_base_image(&base_image, path, adjustments)
+    let prepared = match prepare_base_image_cow(&base_image, path, adjustments)? {
+        Cow::Owned(img) => Some(img),
+        Cow::Borrowed(_) => None,
+    };
+    Ok(prepared.unwrap_or(base_image))
 }
 
-pub fn prepare_base_image(
-    base_image: &DynamicImage,
+pub fn prepare_base_image_cow<'a>(
+    base_image: &'a DynamicImage,
     path: &str,
     adjustments: &Value,
-) -> Result<DynamicImage> {
+) -> Result<Cow<'a, DynamicImage>> {
     let has_patches = adjustments
         .get("aiPatches")
         .and_then(|v| v.as_array())
         .is_some_and(|a| !a.is_empty());
 
     match crate::ai_denoise::apply_ai_denoise(base_image, path, adjustments) {
-        std::borrow::Cow::Owned(denoised) if !has_patches => Ok(denoised),
-        denoised => composite_patches_on_image(&denoised, adjustments),
+        Cow::Owned(denoised) if !has_patches => Ok(Cow::Owned(denoised)),
+        denoised => composite_patches_cow(denoised, adjustments),
     }
 }
 
@@ -436,14 +441,21 @@ pub fn composite_patches_on_image(
     base_image: &DynamicImage,
     current_adjustments: &Value,
 ) -> Result<DynamicImage> {
+    composite_patches_cow(Cow::Borrowed(base_image), current_adjustments).map(Cow::into_owned)
+}
+
+fn composite_patches_cow<'a>(
+    base_image: Cow<'a, DynamicImage>,
+    current_adjustments: &Value,
+) -> Result<Cow<'a, DynamicImage>> {
     let patches_val = match current_adjustments.get("aiPatches") {
         Some(val) => val,
-        None => return Ok(base_image.clone()),
+        None => return Ok(base_image),
     };
 
     let patches_arr = match patches_val.as_array() {
         Some(arr) if !arr.is_empty() => arr,
-        _ => return Ok(base_image.clone()),
+        _ => return Ok(base_image),
     };
 
     let visible_patches: Vec<&Value> = patches_arr
@@ -465,7 +477,7 @@ pub fn composite_patches_on_image(
         .collect();
 
     if visible_patches.is_empty() {
-        return Ok(base_image.clone());
+        return Ok(base_image);
     }
 
     let (base_w, base_h) = base_image.dimensions();
@@ -589,7 +601,7 @@ pub fn composite_patches_on_image(
 
     let decoded_patches = decoded_patches?;
 
-    let mut composited_image = base_image.clone();
+    let mut composited_image = base_image.into_owned();
     let lut = srgb_to_linear_lut();
 
     let get_color = |patch: &DecodedPatch, r: u8, g: u8, b: u8| -> (f32, f32, f32) {
@@ -854,7 +866,7 @@ pub fn composite_patches_on_image(
         }
     }
 
-    Ok(composited_image)
+    Ok(Cow::Owned(composited_image))
 }
 
 #[tauri::command]

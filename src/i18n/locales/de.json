@@ -1772,6 +1772,16 @@
       "title": "Meine Objektive"
     },
     "processing": {
+      "advanced": {
+        "heading": "Erweitert",
+        "headingDesc": "Leistungsoptimierung für Vorschaubilder, Cache und Exporte. Die Standardwerte passen für die meisten Nutzer.",
+        "title": "Erweiterte Einstellungen",
+        "auto": "Automatisch",
+        "exportThreads": "Parallele Exporte",
+        "exportThreadsDesc": "Anzahl der gleichzeitig exportierten Bilder. Automatisch wählt einen Wert passend zu deiner CPU. Verringere ihn, wenn große Exporte fehlschlagen oder deine GPU wenig Speicher hat.",
+        "exportMemoryLimit": "Speicherlimit für Exporte",
+        "exportMemoryLimitDesc": "Anteil des freien Arbeitsspeichers, den Stapelexporte nutzen dürfen. Verringere ihn, damit andere Apps bei großen Exporten flüssig bleiben."
+      },
       "ai": {
         "cloud": {
           "description": "Für diejenigen, die eine einfachere Lösung wünschen, bietet ein optionales Abonnement die gleichen hochwertigen Ergebnisse wie das Selbst-Hosting ohne den Aufwand. Dies ist die bequemste Option und der beste Weg, das Projekt zu unterstützen.",
@@ -1915,7 +1925,6 @@
       "previewResDesc": "Bestimmt die maximale Auflösung der Vorschau. Niedrigere Werte verbessern die Leistung deutlich.",
       "previewStrategy": "Strategie für Vorschau-Rendering",
       "qualities": {
-        "full": "Volle Auflösung",
         "high": "Hohe Qualität",
         "performance": "Leistung"
       },

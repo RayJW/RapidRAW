@@ -1808,6 +1808,16 @@
       "title": "Mes objectifs"
     },
     "processing": {
+      "advanced": {
+        "heading": "Avancé",
+        "headingDesc": "Réglages de performance pour les vignettes, le cache et les exports. Les valeurs par défaut conviennent à la plupart des utilisateurs.",
+        "title": "Paramètres avancés",
+        "auto": "Auto",
+        "exportThreads": "Exports parallèles",
+        "exportThreadsDesc": "Nombre d'images exportées en même temps. Auto choisit une valeur selon votre processeur. Réduisez-la si les gros exports échouent ou si votre GPU a peu de mémoire.",
+        "exportMemoryLimit": "Limite de mémoire d'export",
+        "exportMemoryLimitDesc": "Part de la RAM libre que les exports par lot peuvent utiliser. Réduisez-la pour que les autres applications restent réactives pendant les gros exports."
+      },
       "ai": {
         "cloud": {
           "description": "Pour ceux qui souhaitent une solution plus simple, un abonnement optionnel fournit les mêmes résultats de haute qualité que l'auto-hébergement, sans aucun tracas. C'est l'option la plus pratique et la meilleure façon de soutenir le projet.",
@@ -1951,7 +1961,6 @@
       "previewResDesc": "Détermine la résolution maximale de l'aperçu. Des valeurs plus basses améliorent considérablement les performances.",
       "previewStrategy": "Stratégie de rendu de l'aperçu",
       "qualities": {
-        "full": "Pleine Résolution",
         "high": "Haute Qualité",
         "performance": "Performance"
       },

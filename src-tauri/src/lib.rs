@@ -554,9 +554,8 @@ fn process_preview_job(
 
     let has_roi = roi.is_some();
     let (interactive_divisor, interactive_quality) = match live_quality {
-        "full" => (1.0_f32, 85_u8),
-        "performance" => (if has_roi { 1.8_f32 } else { 1.5_f32 }, 65_u8),
-        _ => (if has_roi { 1.4_f32 } else { 1.0_f32 }, 75_u8),
+        "performance" => (if has_roi { 1.4_f32 } else { 1.2_f32 }, 75_u8),
+        _ => (1.0_f32, 85_u8),
     };
 
     let mut cached_preview_lock = state

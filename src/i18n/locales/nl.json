@@ -1745,6 +1745,16 @@
       "title": "Mijn lenzen"
     },
     "processing": {
+      "advanced": {
+        "heading": "Geavanceerd",
+        "headingDesc": "Prestatie-instellingen voor miniaturen, cache en exports. De standaardwaarden werken voor de meeste gebruikers.",
+        "title": "Geavanceerde instellingen",
+        "auto": "Automatisch",
+        "exportThreads": "Parallelle exports",
+        "exportThreadsDesc": "Aantal afbeeldingen dat tegelijk wordt geëxporteerd. Automatisch kiest een waarde op basis van je CPU. Verlaag dit als grote exports mislukken of je GPU weinig geheugen heeft.",
+        "exportMemoryLimit": "Geheugenlimiet voor exports",
+        "exportMemoryLimitDesc": "Deel van het vrije RAM dat batch-exports mogen gebruiken. Verlaag dit om andere apps responsief te houden tijdens grote exports."
+      },
       "ai": {
         "cloud": {
           "description": "Voor wie een eenvoudigere oplossing wil, biedt een optioneel abonnement dezelfde hoogwaardige resultaten als zelfhosting zonder gedoe. Dit is de meest handige optie en de beste manier om het project te ondersteunen.",
@@ -1888,7 +1898,6 @@
       "previewResDesc": "Bepaalt de maximale resolutie van het voorbeeld. Lagere waarden verbeteren de prestaties aanzienlijk.",
       "previewStrategy": "Voorbeeldrenderstrategie",
       "qualities": {
-        "full": "Volledige resolutie",
         "high": "Hoge kwaliteit",
         "performance": "Prestaties"
       },

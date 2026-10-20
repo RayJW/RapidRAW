@@ -1846,6 +1846,16 @@
       "title": "Moje obiektywy"
     },
     "processing": {
+      "advanced": {
+        "heading": "Zaawansowane",
+        "headingDesc": "Dostrajanie wydajności miniatur, pamięci podręcznej i eksportu. Wartości domyślne sprawdzą się u większości użytkowników.",
+        "title": "Ustawienia zaawansowane",
+        "auto": "Automatycznie",
+        "exportThreads": "Eksporty równoległe",
+        "exportThreadsDesc": "Liczba obrazów eksportowanych jednocześnie. Automatycznie dobiera wartość do procesora. Zmniejsz ją, jeśli duże eksporty się nie udają lub karta graficzna ma mało pamięci.",
+        "exportMemoryLimit": "Limit pamięci eksportu",
+        "exportMemoryLimitDesc": "Część wolnej pamięci RAM, z której mogą korzystać eksporty wsadowe. Zmniejsz ją, aby inne aplikacje działały płynnie podczas dużych eksportów."
+      },
       "ai": {
         "cloud": {
           "description": "Dla osób szukających prostego rozwiązania, opcjonalna subskrypcja dostarcza tych samych wysokiej jakości wyników co własny serwer bez żadnych problemów. To najwygodniejsza opcja i najlepszy sposób na wsparcie projektu.",
@@ -1989,7 +1999,6 @@
       "previewResDesc": "Ogranicza maksymalną rozdzielczość podglądu. Niższe wartości zauważalnie poprawiają wydajność.",
       "previewStrategy": "Strategia renderowania podglądu",
       "qualities": {
-        "full": "Pełna rozdzielczość",
         "high": "Wysoka jakość",
         "performance": "Wydajność"
       },

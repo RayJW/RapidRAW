@@ -1770,6 +1770,16 @@
       "title": "我的镜头"
     },
     "processing": {
+      "advanced": {
+        "heading": "高级",
+        "headingDesc": "缩略图、缓存和导出的性能调整。默认值适合大多数用户。",
+        "title": "高级设置",
+        "auto": "自动",
+        "exportThreads": "并行导出",
+        "exportThreadsDesc": "同时导出的图像数量。“自动”会根据你的 CPU 选择合适的值。如果大型导出失败或显卡显存较小，请调低。",
+        "exportMemoryLimit": "导出内存上限",
+        "exportMemoryLimitDesc": "批量导出可使用的空闲内存比例。调低可在大型导出期间保持其他应用流畅。"
+      },
       "ai": {
         "cloud": {
           "description": "对于那些想要更简单解决方案的用户，可选订阅提供与自托管相同的高质量结果，无需任何麻烦。这是最方便的选择，也是支持本项目的最佳方式。",
@@ -1913,7 +1923,6 @@
       "previewResDesc": "确定预览的最大分辨率。较低的值可显著提高性能。",
       "previewStrategy": "预览渲染策略",
       "qualities": {
-        "full": "全分辨率",
         "high": "高质量",
         "performance": "性能优先"
       },

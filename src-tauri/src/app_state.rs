@@ -124,6 +124,10 @@ pub struct CachedPreview {
 }
 
 pub struct GpuImageCache {
+    pub entries: Vec<GpuImageEntry>,
+}
+
+pub struct GpuImageEntry {
     pub texture: Texture,
     pub texture_view: TextureView,
     pub gf_coeffs_view: TextureView,
@@ -132,6 +136,7 @@ pub struct GpuImageCache {
     pub width: u32,
     pub height: u32,
     pub transform_hash: u64,
+    pub source: (usize, usize),
 }
 
 pub struct GpuProcessorState {

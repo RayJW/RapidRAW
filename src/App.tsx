@@ -78,6 +78,8 @@ import {
 import ImageProcessingManager from './components/managers/ImageProcessingManager';
 import ImageLoaderManager from './components/managers/ImageLoaderManager';
 
+const DND_MEASURING = { droppable: { strategy: MeasuringStrategy.Always } };
+
 const insertChildrenIntoTree = (node: any, targetPath: string, newChildren: any[]): any => {
   if (!node) return null;
 
@@ -891,11 +893,7 @@ function App() {
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
             collisionDetection={pointerWithin}
-            measuring={{
-              droppable: {
-                strategy: MeasuringStrategy.Always,
-              },
-            }}
+            measuring={DND_MEASURING}
           >
             <div className="flex flex-row grow h-full min-h-0">
               {!shouldHideFolderTree && hasMainContent && (
