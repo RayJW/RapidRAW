@@ -983,6 +983,12 @@
     }
   },
   "immich": {
+    "close": {
+      "cancel": "Annuler",
+      "closeAnyway": "Fermer quand même",
+      "message": "Retouches en attente d'envoi vers Immich : {{number}}. Elles restent sur cet ordinateur et seront envoyées la prochaine fois que RapidRAW tournera et qu'Immich sera joignable.",
+      "title": "Retouches pas encore dans Immich"
+    },
     "export": {
       "album": "Album",
       "destination": "Immich",

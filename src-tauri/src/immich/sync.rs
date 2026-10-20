@@ -207,6 +207,17 @@ pub async fn pull(
                 &remote.value,
                 Some(remote.updated_at),
             );
+            let app = app_handle.clone();
+            let path = source.to_string_lossy().into_owned();
+            tauri::async_runtime::spawn_blocking(move || {
+                let settings = crate::app_settings::load_settings(app.clone()).unwrap_or_default();
+                crate::file_management::regenerate_thumbnails(
+                    std::iter::once(path),
+                    &app,
+                    &settings,
+                    false,
+                );
+            });
             let _ = app_handle.emit(
                 "immich-edits-fetched",
                 json!({

@@ -960,6 +960,12 @@
     }
   },
   "immich": {
+    "close": {
+      "cancel": "Zrušit",
+      "closeAnyway": "Přesto zavřít",
+      "message": "Úpravy čekající na Immich: {{number}}. Zůstávají v tomto počítači a odešlou se, až RapidRAW příště poběží a Immich bude dostupný.",
+      "title": "Úpravy ještě nejsou v Immichi"
+    },
     "export": {
       "album": "Album",
       "destination": "Immich",

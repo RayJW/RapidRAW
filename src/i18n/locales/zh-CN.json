@@ -957,6 +957,12 @@
     }
   },
   "immich": {
+    "close": {
+      "cancel": "取消",
+      "closeAnyway": "仍然关闭",
+      "message": "等待同步到 Immich 的编辑：{{number}}。它们会保留在这台电脑上，并在下次运行 RapidRAW 且 Immich 可用时发送。",
+      "title": "编辑尚未同步到 Immich"
+    },
     "export": {
       "album": "相册",
       "destination": "Immich",

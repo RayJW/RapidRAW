@@ -957,6 +957,12 @@
     }
   },
   "immich": {
+    "close": {
+      "cancel": "취소",
+      "closeAnyway": "그래도 닫기",
+      "message": "Immich 전송 대기 중인 편집: {{number}}. 편집 내용은 이 컴퓨터에 남아 있으며, 다음에 RapidRAW를 실행하고 Immich에 연결되면 전송됩니다.",
+      "title": "아직 Immich에 없는 편집"
+    },
     "export": {
       "album": "앨범",
       "destination": "Immich",

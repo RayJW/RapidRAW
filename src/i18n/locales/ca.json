@@ -960,6 +960,12 @@
     }
   },
   "immich": {
+    "close": {
+      "cancel": "Cancel·la",
+      "closeAnyway": "Tanca igualment",
+      "message": "Edicions pendents d'enviar a Immich: {{number}}. Es queden en aquest ordinador i s'enviaran la propera vegada que RapidRAW s'executi i Immich estigui disponible.",
+      "title": "Edicions encara no a Immich"
+    },
     "export": {
       "album": "Àlbum",
       "destination": "Immich",

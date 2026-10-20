@@ -1,9 +1,11 @@
 import { useEffect, useRef } from 'react';
 import { listen } from '@tauri-apps/api/event';
+import { getCurrentWindow } from '@tauri-apps/api/window';
+import { ask } from '@tauri-apps/plugin-dialog';
 import { toast } from 'react-toastify';
 import { useTranslation } from 'react-i18next';
 import { useLibraryStore } from '../../store/useLibraryStore';
-import { ImmichSyncStatus } from './immichApi';
+import { flushImmichEdits, ImmichSyncStatus } from './immichApi';
 import { useImmichStore } from './useImmichStore';
 
 interface DownloadEvent {
@@ -89,6 +91,26 @@ export function useImmichEvents(refreshLibrary: () => void) {
     return () => {
       clearTimeout(refreshTimer.current);
       unlisteners.forEach((unlisten) => unlisten.then((fn) => fn()));
+    };
+  }, [t]);
+  useEffect(() => {
+    const unlisten = getCurrentWindow().onCloseRequested(async (event) => {
+      try {
+        const status = await flushImmichEdits();
+        if (status.pending === 0) return;
+        const closeAnyway = await ask(t('immich.close.message', { number: status.pending }), {
+          title: t('immich.close.title'),
+          kind: 'warning',
+          okLabel: t('immich.close.closeAnyway'),
+          cancelLabel: t('immich.close.cancel'),
+        });
+        if (!closeAnyway) event.preventDefault();
+      } catch (err) {
+        console.error('Failed to send Immich edits before closing:', err);
+      }
+    });
+    return () => {
+      unlisten.then((fn) => fn());
     };
   }, [t]);
 }

@@ -1007,6 +1007,12 @@
     }
   },
   "immich": {
+    "close": {
+      "cancel": "Anuluj",
+      "closeAnyway": "Zamknij mimo to",
+      "message": "Edycje czekające na Immich: {{number}}. Pozostają na tym komputerze i zostaną wysłane przy następnym uruchomieniu RapidRAW, gdy Immich będzie dostępny.",
+      "title": "Edycje jeszcze nie w Immich"
+    },
     "export": {
       "album": "Album",
       "destination": "Immich",

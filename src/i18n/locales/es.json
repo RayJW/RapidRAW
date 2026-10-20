@@ -983,6 +983,12 @@
     }
   },
   "immich": {
+    "close": {
+      "cancel": "Cancelar",
+      "closeAnyway": "Cerrar de todos modos",
+      "message": "Ediciones pendientes de enviar a Immich: {{number}}. Se quedan en este equipo y se enviarán la próxima vez que RapidRAW se ejecute e Immich esté disponible.",
+      "title": "Ediciones aún no en Immich"
+    },
     "export": {
       "album": "Álbum",
       "destination": "Immich",

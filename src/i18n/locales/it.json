@@ -985,6 +985,12 @@
     }
   },
   "immich": {
+    "close": {
+      "cancel": "Annulla",
+      "closeAnyway": "Chiudi comunque",
+      "message": "Modifiche in attesa di Immich: {{number}}. Restano su questo computer e verranno inviate la prossima volta che RapidRAW è in esecuzione e Immich è raggiungibile.",
+      "title": "Modifiche non ancora su Immich"
+    },
     "export": {
       "album": "Album",
       "destination": "Immich",

@@ -959,6 +959,12 @@
     }
   },
   "immich": {
+    "close": {
+      "cancel": "Cancel",
+      "closeAnyway": "Close anyway",
+      "message": "Edits waiting for Immich: {{number}}. They stay on this computer and are sent the next time RapidRAW runs and Immich is reachable.",
+      "title": "Edits not in Immich yet"
+    },
     "export": {
       "album": "Album",
       "destination": "Immich",

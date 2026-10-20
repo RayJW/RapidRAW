@@ -1007,6 +1007,12 @@
     }
   },
   "immich": {
+    "close": {
+      "cancel": "Отмена",
+      "closeAnyway": "Всё равно закрыть",
+      "message": "Правок ожидает отправки в Immich: {{number}}. Они останутся на этом компьютере и будут отправлены при следующем запуске RapidRAW, когда Immich будет доступен.",
+      "title": "Правки ещё не в Immich"
+    },
     "export": {
       "album": "Альбом",
       "destination": "Immich",

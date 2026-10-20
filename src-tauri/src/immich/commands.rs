@@ -94,6 +94,18 @@ pub async fn immich_remove_from_album(
 }
 
 #[tauri::command]
+pub async fn immich_flush(app_handle: AppHandle) -> sync::SyncStatus {
+    if let Some(session) = super::current_session() {
+        let _ = tokio::time::timeout(
+            std::time::Duration::from_secs(8),
+            sync::send_unsent(&app_handle, &session),
+        )
+        .await;
+    }
+    sync::status()
+}
+
+#[tauri::command]
 pub fn immich_sync_status() -> sync::SyncStatus {
     sync::status()
 }

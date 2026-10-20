@@ -959,6 +959,12 @@
     }
   },
   "immich": {
+    "close": {
+      "cancel": "Abbrechen",
+      "closeAnyway": "Trotzdem schließen",
+      "message": "Bearbeitungen, die auf Immich warten: {{number}}. Sie bleiben auf diesem Rechner und werden gesendet, sobald RapidRAW das nächste Mal läuft und Immich erreichbar ist.",
+      "title": "Bearbeitungen noch nicht in Immich"
+    },
     "export": {
       "album": "Album",
       "destination": "Immich",

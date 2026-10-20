@@ -957,6 +957,12 @@
     }
   },
   "immich": {
+    "close": {
+      "cancel": "キャンセル",
+      "closeAnyway": "このまま閉じる",
+      "message": "Immich への送信待ちの編集: {{number}}。編集内容はこのコンピューターに残り、次回 RapidRAW を起動して Immich に接続できたときに送信されます。",
+      "title": "Immich に未送信の編集"
+    },
     "export": {
       "album": "アルバム",
       "destination": "Immich",
