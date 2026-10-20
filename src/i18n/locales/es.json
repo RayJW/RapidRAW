@@ -207,6 +207,11 @@
       "renameGroup": "Renombrar grupo",
       "rootDir": "Directorio raíz"
     },
+    "autoAdjustModes": {
+      "normal": "Normal",
+      "strong": "Fuerte",
+      "subtle": "Sutil"
+    },
     "colors": {
       "blue": "Azul",
       "green": "Verde",

@@ -207,6 +207,11 @@
       "renameGroup": "Rename Group",
       "rootDir": "Root Directory"
     },
+    "autoAdjustModes": {
+      "normal": "Normal",
+      "strong": "Strong",
+      "subtle": "Subtle"
+    },
     "colors": {
       "blue": "Blue",
       "green": "Green",

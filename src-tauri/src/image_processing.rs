@@ -1642,7 +1642,6 @@ pub fn is_geometry_identity(params: &GeometryParams) -> bool {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct AutoAdjustmentResults {
     pub exposure: f64,
-    pub brightness: f64,
     pub contrast: f64,
     pub highlights: f64,
     pub shadows: f64,
@@ -3706,7 +3705,6 @@ pub fn perform_auto_analysis(image: &DynamicImage, exposure: f32) -> AutoAdjustm
     const BLACKS_SCALE: f64 = 0.5;
     const WHITES_SCALE: f64 = 0.2;
     const EXPOSURE_OUTPUT_SCALE: f64 = 20.0;
-    const BRIGHTNESS_SCALE: f64 = 0.007;
 
     let analysis_preview = apply_exposure(
         downscale_f32_image(image, ANALYSIS_MAX_DIM, ANALYSIS_MAX_DIM),
@@ -3860,15 +3858,12 @@ pub fn perform_auto_analysis(image: &DynamicImage, exposure: f32) -> AutoAdjustm
     }
 
     let adj_p1 = percentile(&adjusted_luma_hist, 0.01);
-    let adj_p50 = percentile(&adjusted_luma_hist, 0.50);
     let adj_p99 = percentile(&adjusted_luma_hist, 0.99);
     let blacks: f64 = -(adj_p1 as f64 * BLACKS_SCALE);
     let whites: f64 = (adj_p99 as f64 - 255.0) * WHITES_SCALE;
-    let brightness: f64 = (MID_GRAY - adj_p50 as f64) * BRIGHTNESS_SCALE;
 
     AutoAdjustmentResults {
         exposure: (exposure / EXPOSURE_OUTPUT_SCALE).clamp(-5.0, 5.0),
-        brightness: brightness.clamp(-5.0, 5.0),
         contrast: contrast.clamp(-100.0, 100.0),
         highlights: highlights.clamp(-100.0, 100.0),
         shadows: shadows.clamp(-100.0, 100.0),
@@ -3884,33 +3879,50 @@ pub fn perform_auto_analysis(image: &DynamicImage, exposure: f32) -> AutoAdjustm
     }
 }
 
-pub fn auto_results_to_json(results: &AutoAdjustmentResults) -> serde_json::Value {
-    json!({
-        "exposure": results.exposure,
-        "brightness": results.brightness,
-        "contrast": results.contrast,
-        "highlights": results.highlights,
-        "shadows": results.shadows,
-        "vibrance": results.vibrancy,
-        "vignetteAmount": results.vignette_amount,
-        "clarity": results.clarity,
-        "centré": results.centre,
+#[derive(Deserialize, Debug, Clone, Copy, Default, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub enum AutoAdjustMode {
+    Subtle,
+    #[default]
+    Normal,
+    Strong,
+}
 
-        "dehaze": results.dehaze,
+pub fn auto_results_to_json(
+    results: &AutoAdjustmentResults,
+    mode: AutoAdjustMode,
+) -> serde_json::Value {
+    let k = match mode {
+        AutoAdjustMode::Subtle => 0.5,
+        AutoAdjustMode::Normal => 1.0,
+        AutoAdjustMode::Strong => 1.5,
+    };
+    let c = |v: f64| (v * k).clamp(-100.0, 100.0);
+    json!({
+        "exposure": (results.exposure * k).clamp(-5.0, 5.0),
+        "contrast": c(results.contrast),
+        "highlights": c(results.highlights),
+        "shadows": c(results.shadows),
+        "whites": c(results.whites),
+        "blacks": c(results.blacks),
+        "vibrance": c(results.vibrancy),
+        "clarity": c(results.clarity),
+        "dehaze": c(results.dehaze),
+        "centré": c(results.centre),
+        "vignetteAmount": c(results.vignette_amount),
         "activeTools": {
             "basic": true,
             "colorPresence": true,
             "presence": true,
             "vignette": true
-        },
-        "whites": results.whites,
-        "blacks": results.blacks
+        }
     })
 }
 
 #[tauri::command]
 pub fn calculate_auto_adjustments(
     js_adjustments: serde_json::Value,
+    mode: Option<AutoAdjustMode>,
     state: tauri::State<AppState>,
     app_handle: tauri::AppHandle,
 ) -> Result<serde_json::Value, String> {
@@ -3926,7 +3938,7 @@ pub fn calculate_auto_adjustments(
         effective_baseline_exposure(&js_adjustments, loaded_image.as_shot, render.baseline);
     let results = perform_auto_analysis(&loaded_image.image, exposure);
 
-    Ok(auto_results_to_json(&results))
+    Ok(auto_results_to_json(&results, mode.unwrap_or_default()))
 }
 
 #[derive(Deserialize, Clone, Copy)]

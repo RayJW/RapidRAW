@@ -38,9 +38,9 @@ use crate::gpu_processing;
 use crate::image_loader;
 use crate::image_processing::GpuContext;
 use crate::image_processing::{
-    Crop, ImageFlag, ImageMetadata, apply_coarse_rotation, apply_cpu_default_raw_processing,
-    apply_crop, apply_exposure, apply_flip, apply_geometry_warp, apply_rotation,
-    auto_results_to_json, default_adjustments, effective_baseline_exposure,
+    AutoAdjustMode, Crop, ImageFlag, ImageMetadata, apply_coarse_rotation,
+    apply_cpu_default_raw_processing, apply_crop, apply_exposure, apply_flip, apply_geometry_warp,
+    apply_rotation, auto_results_to_json, default_adjustments, effective_baseline_exposure,
     get_all_adjustments_from_json, perform_auto_analysis, resolve_render_options,
 };
 use crate::mask_generation::MaskDefinition;
@@ -3060,14 +3060,16 @@ async fn update_sidecars_from_images(
 #[tauri::command]
 pub async fn apply_auto_adjustments_to_paths(
     paths: Vec<String>,
+    mode: Option<AutoAdjustMode>,
     app_handle: AppHandle,
 ) -> Result<(), String> {
+    let mode = mode.unwrap_or_default();
     update_sidecars_from_images(
         paths,
         app_handle,
         "auto adjustments",
         true,
-        |image, source_path, settings, adjustments| {
+        move |image, source_path, settings, adjustments| {
             let auto_results = perform_auto_analysis(
                 image,
                 effective_baseline_exposure(
@@ -3076,7 +3078,7 @@ pub async fn apply_auto_adjustments_to_paths(
                     BaselineOptions::from_settings(settings),
                 ),
             );
-            let auto_adjustments_json = auto_results_to_json(&auto_results);
+            let auto_adjustments_json = auto_results_to_json(&auto_results, mode);
 
             let mut active_tools = crate::image_processing::active_tools(adjustments);
 

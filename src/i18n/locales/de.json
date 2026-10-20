@@ -207,6 +207,11 @@
       "renameGroup": "Gruppe umbenennen",
       "rootDir": "Stammverzeichnis"
     },
+    "autoAdjustModes": {
+      "normal": "Normal",
+      "strong": "Stark",
+      "subtle": "Dezent"
+    },
     "colors": {
       "blue": "Blau",
       "green": "Grün",

@@ -207,6 +207,11 @@
       "renameGroup": "Zmień nazwę grupy",
       "rootDir": "Katalog główny"
     },
+    "autoAdjustModes": {
+      "normal": "Normalne",
+      "strong": "Mocne",
+      "subtle": "Subtelne"
+    },
     "colors": {
       "blue": "Niebieski",
       "green": "Zielony",

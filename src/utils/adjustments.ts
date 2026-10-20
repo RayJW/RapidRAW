@@ -25,6 +25,12 @@ export enum PasteMode {
   Replace = 'replace',
 }
 
+export enum AutoAdjustMode {
+  Subtle = 'subtle',
+  Normal = 'normal',
+  Strong = 'strong',
+}
+
 export interface CopyPasteSettings {
   mode: PasteMode;
   includedAdjustments: Array<string>;

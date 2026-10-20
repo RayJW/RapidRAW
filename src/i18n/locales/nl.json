@@ -206,6 +206,11 @@
       "renameGroup": "Groep hernoemen",
       "rootDir": "Hoofdmap"
     },
+    "autoAdjustModes": {
+      "normal": "Normaal",
+      "strong": "Sterk",
+      "subtle": "Subtiel"
+    },
     "colors": {
       "blue": "Blauw",
       "green": "Groen",

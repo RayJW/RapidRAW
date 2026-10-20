@@ -207,6 +207,11 @@
       "renameGroup": "Renommer le groupe",
       "rootDir": "Répertoire racine"
     },
+    "autoAdjustModes": {
+      "normal": "Normal",
+      "strong": "Fort",
+      "subtle": "Subtil"
+    },
     "colors": {
       "blue": "Bleu",
       "green": "Vert",

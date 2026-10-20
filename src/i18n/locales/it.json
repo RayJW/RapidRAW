@@ -207,6 +207,11 @@
       "renameGroup": "Rinomina Gruppo",
       "rootDir": "Cartella Principale"
     },
+    "autoAdjustModes": {
+      "normal": "Normale",
+      "strong": "Forte",
+      "subtle": "Leggero"
+    },
     "colors": {
       "blue": "Blu",
       "green": "Verde",

@@ -206,6 +206,11 @@
       "renameGroup": "Přejmenovat skupinu",
       "rootDir": "Kořenový adresář"
     },
+    "autoAdjustModes": {
+      "normal": "Normální",
+      "strong": "Silné",
+      "subtle": "Jemné"
+    },
     "colors": {
       "blue": "Modrá",
       "green": "Zelená",

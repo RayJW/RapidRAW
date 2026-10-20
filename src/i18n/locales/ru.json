@@ -207,6 +207,11 @@
       "renameGroup": "Переименовать группу",
       "rootDir": "Корневой каталог"
     },
+    "autoAdjustModes": {
+      "normal": "Обычная",
+      "strong": "Сильная",
+      "subtle": "Мягкая"
+    },
     "colors": {
       "blue": "Синий",
       "green": "Зеленый",

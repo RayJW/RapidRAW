@@ -207,6 +207,11 @@
       "renameGroup": "그룹 이름 변경",
       "rootDir": "루트 디렉터리"
     },
+    "autoAdjustModes": {
+      "normal": "보통",
+      "strong": "강하게",
+      "subtle": "약하게"
+    },
     "colors": {
       "blue": "파랑",
       "green": "초록",

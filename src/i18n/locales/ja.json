@@ -207,6 +207,11 @@
       "renameGroup": "グループ名を変更",
       "rootDir": "ルートディレクトリ"
     },
+    "autoAdjustModes": {
+      "normal": "標準",
+      "strong": "強",
+      "subtle": "弱"
+    },
     "colors": {
       "blue": "ブルー",
       "green": "グリーン",

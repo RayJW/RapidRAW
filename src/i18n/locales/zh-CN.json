@@ -207,6 +207,11 @@
       "renameGroup": "重命名组",
       "rootDir": "根目录"
     },
+    "autoAdjustModes": {
+      "normal": "标准",
+      "strong": "强",
+      "subtle": "轻微"
+    },
     "colors": {
       "blue": "蓝色",
       "green": "绿色",

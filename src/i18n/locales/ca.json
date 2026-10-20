@@ -207,6 +207,11 @@
       "renameGroup": "Reanomenar grup",
       "rootDir": "Directori arrel"
     },
+    "autoAdjustModes": {
+      "normal": "Normal",
+      "strong": "Intens",
+      "subtle": "Subtil"
+    },
     "colors": {
       "blue": "Blau",
       "green": "Verd",
