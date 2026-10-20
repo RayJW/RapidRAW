@@ -977,7 +977,7 @@
     },
     "settings": {
       "apiKey": "API-Schlüssel",
-      "apiKeyDesc": "In Immich unter Kontoeinstellungen → API-Schlüssel anlegen, mit diesen Berechtigungen: album.read, albumAsset.create, asset.read, asset.view, asset.download, asset.upload, asset.update, asset.delete, stack.read, stack.create und user.read.",
+      "apiKeyDesc": "In Immich unter Kontoeinstellungen → API-Schlüssel anlegen, mit diesen Berechtigungen: album.read, albumAsset.create, albumAsset.delete, asset.read, asset.view, asset.download, asset.upload, asset.update, asset.delete, stack.read, stack.create und user.read.",
       "cacheDir": "Cache-Ordner",
       "cacheDirDefault": "Standard",
       "cacheDirDesc": "Hier liegen heruntergeladene Originale. Bearbeitungen, die noch nicht in Immich angekommen sind, gibt es nur hier – wähle also einen Ort, der nicht automatisch aufgeräumt wird.",

@@ -72,6 +72,7 @@ import TaggingSubMenu from '../context/TaggingSubMenu';
 import { reloadAdjustmentsForPaths, useEditorActions } from './useEditorActions';
 import { useLibraryActions } from './useLibraryActions';
 import { globalImageCache } from '../utils/ImageLRUCache';
+import { immichAlbumOf, isImmichAlbumId, removeFromImmichAlbum } from '../components/immich/immichApi';
 
 export interface UseAppContextMenusProps {
   handleImageSelect: (path: string) => void;
@@ -544,6 +545,16 @@ export function useAppContextMenus(latestProps: UseAppContextMenusProps) {
 
       const handleRemoveFromAlbum = async () => {
         if (!activeAlbumId) return;
+        const immichAlbum = immichAlbumOf(activeAlbumId);
+        if (immichAlbum) {
+          try {
+            await removeFromImmichAlbum(immichAlbum, finalSelection);
+            setLibrary({ imageList: imageList.filter((i) => !finalSelection.includes(i.path)) });
+          } catch (e) {
+            toast.error(String(e));
+          }
+          return;
+        }
         const newTree = JSON.parse(JSON.stringify(albumTree));
 
         const removeImages = (nodes: AlbumItem[]): boolean => {
@@ -824,7 +835,7 @@ export function useAppContextMenus(latestProps: UseAppContextMenusProps) {
               ? buildAddToAlbumMenu(albumTree, finalSelection)
               : [{ label: t('contextMenus.thumbnail.noAlbums'), disabled: true }],
         },
-        ...(activeAlbumId
+        ...(activeAlbumId && (!isImmichAlbumId(activeAlbumId) || immichAlbumOf(activeAlbumId))
           ? [
               {
                 label: t('contextMenus.thumbnail.removeFromAlbum', { count: selectionCount }),

@@ -1025,7 +1025,7 @@
     },
     "settings": {
       "apiKey": "API-ключ",
-      "apiKeyDesc": "Создайте его в Immich в разделе «Настройки аккаунта → API-ключи» с такими разрешениями: album.read, albumAsset.create, asset.read, asset.view, asset.download, asset.upload, asset.update, asset.delete, stack.read, stack.create и user.read.",
+      "apiKeyDesc": "Создайте его в Immich в разделе «Настройки аккаунта → API-ключи» с такими разрешениями: album.read, albumAsset.create, albumAsset.delete, asset.read, asset.view, asset.download, asset.upload, asset.update, asset.delete, stack.read, stack.create и user.read.",
       "cacheDir": "Папка кэша",
       "cacheDirDefault": "По умолчанию",
       "cacheDirDesc": "Где хранятся загруженные оригиналы. Правки, которые ещё не попали в Immich, хранятся только здесь, поэтому выберите место, которое не очищается автоматически.",

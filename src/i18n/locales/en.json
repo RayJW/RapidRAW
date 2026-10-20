@@ -977,7 +977,7 @@
     },
     "settings": {
       "apiKey": "API key",
-      "apiKeyDesc": "Create one in Immich under Account Settings → API Keys with these permissions: album.read, albumAsset.create, asset.read, asset.view, asset.download, asset.upload, asset.update, asset.delete, stack.read, stack.create and user.read.",
+      "apiKeyDesc": "Create one in Immich under Account Settings → API Keys with these permissions: album.read, albumAsset.create, albumAsset.delete, asset.read, asset.view, asset.download, asset.upload, asset.update, asset.delete, stack.read, stack.create and user.read.",
       "cacheDir": "Cache folder",
       "cacheDirDefault": "Default",
       "cacheDirDesc": "Where downloaded originals are kept. Edits that haven't reached Immich yet are only stored here, so choose a place that isn't cleaned up automatically.",

@@ -73,6 +73,27 @@ pub fn immich_prepare_export(
 }
 
 #[tauri::command]
+pub async fn immich_remove_from_album(
+    album_id: String,
+    paths: Vec<String>,
+    app_handle: AppHandle,
+) -> Result<(), String> {
+    let session = session(&app_handle)?;
+    let ids: Vec<String> = paths
+        .iter()
+        .filter(|path| !path.contains("?vc="))
+        .filter_map(|path| {
+            registry::get(&crate::file_management::parse_virtual_path(path).0)
+                .map(|entry| entry.listed_asset_id)
+        })
+        .collect();
+    if ids.is_empty() {
+        return Ok(());
+    }
+    session.client.remove_from_album(&album_id, &ids).await
+}
+
+#[tauri::command]
 pub fn immich_sync_status() -> sync::SyncStatus {
     sync::status()
 }

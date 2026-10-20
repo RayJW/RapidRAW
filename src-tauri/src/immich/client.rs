@@ -323,6 +323,20 @@ impl ImmichClient {
         .map(|_| ())
     }
 
+    pub async fn remove_from_album(
+        &self,
+        album_id: &str,
+        asset_ids: &[String],
+    ) -> Result<(), String> {
+        self.send(
+            self.request(Method::DELETE, &format!("/albums/{album_id}/assets"))
+                .json(&json!({ "ids": asset_ids })),
+            "removing from album",
+        )
+        .await
+        .map(|_| ())
+    }
+
     pub async fn create_stack(&self, asset_ids: &[String]) -> Result<(), String> {
         self.send(
             self.request(Method::POST, "/stacks")

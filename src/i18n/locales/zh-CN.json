@@ -975,7 +975,7 @@
     },
     "settings": {
       "apiKey": "API 密钥",
-      "apiKeyDesc": "在 Immich 的“帐户设置 → API 密钥”中创建，并授予以下权限：album.read, albumAsset.create, asset.read, asset.view, asset.download, asset.upload, asset.update, asset.delete, stack.read, stack.create、user.read。",
+      "apiKeyDesc": "在 Immich 的“帐户设置 → API 密钥”中创建，并授予以下权限：album.read, albumAsset.create, albumAsset.delete, asset.read, asset.view, asset.download, asset.upload, asset.update, asset.delete, stack.read, stack.create、user.read。",
       "cacheDir": "缓存文件夹",
       "cacheDirDefault": "默认",
       "cacheDirDesc": "已下载原始文件的存放位置。尚未同步到 Immich 的编辑内容只保存在这里，因此请选择不会被自动清理的位置。",

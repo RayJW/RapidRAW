@@ -971,7 +971,7 @@
     },
     "settings": {
       "apiKey": "API-sleutel",
-      "apiKeyDesc": "Maak er een aan in Immich onder Accountinstellingen → API-sleutels met deze rechten: album.read, albumAsset.create, asset.read, asset.view, asset.download, asset.upload, asset.update, asset.delete, stack.read, stack.create en user.read.",
+      "apiKeyDesc": "Maak er een aan in Immich onder Accountinstellingen → API-sleutels met deze rechten: album.read, albumAsset.create, albumAsset.delete, asset.read, asset.view, asset.download, asset.upload, asset.update, asset.delete, stack.read, stack.create en user.read.",
       "cacheDir": "Cachemap",
       "cacheDirDefault": "Standaard",
       "cacheDirDesc": "Waar gedownloade originelen worden bewaard. Bewerkingen die Immich nog niet hebben bereikt, staan alleen hier, dus kies een plek die niet automatisch wordt opgeschoond.",

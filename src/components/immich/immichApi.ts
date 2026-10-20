@@ -18,6 +18,7 @@ export const ImmichInvokes = {
   Timeline: 'immich_timeline',
   SyncStatus: 'immich_sync_status',
   PrepareExport: 'immich_prepare_export',
+  RemoveFromAlbum: 'immich_remove_from_album',
 } as const;
 
 export interface ImmichSettings {
@@ -85,6 +86,15 @@ export const albumIdToFilter = (albumId: string): ImmichFilter => {
   }
   return { albumId: rest };
 };
+
+export const immichAlbumOf = (albumId: string | null | undefined) => {
+  if (!isImmichAlbumId(albumId)) return null;
+  const rest = albumId.slice(IMMICH_ALBUM_PREFIX.length);
+  return rest.startsWith(FILTER_MARKER) ? null : rest;
+};
+
+export const removeFromImmichAlbum = (albumId: string, paths: string[]) =>
+  invoke<void>(ImmichInvokes.RemoveFromAlbum, { albumId, paths });
 
 export const getImmichApiKey = () => invoke<ImmichApiKeyInfo>(ImmichInvokes.GetApiKey);
 

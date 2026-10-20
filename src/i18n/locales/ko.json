@@ -975,7 +975,7 @@
     },
     "settings": {
       "apiKey": "API 키",
-      "apiKeyDesc": "Immich의 계정 설정 → API 키에서 다음 권한으로 만드세요: album.read, albumAsset.create, asset.read, asset.view, asset.download, asset.upload, asset.update, asset.delete, stack.read, stack.create, user.read",
+      "apiKeyDesc": "Immich의 계정 설정 → API 키에서 다음 권한으로 만드세요: album.read, albumAsset.create, albumAsset.delete, asset.read, asset.view, asset.download, asset.upload, asset.update, asset.delete, stack.read, stack.create, user.read",
       "cacheDir": "캐시 폴더",
       "cacheDirDefault": "기본값",
       "cacheDirDesc": "다운로드한 원본이 저장되는 위치입니다. 아직 Immich에 전송되지 않은 편집 내용은 여기에만 저장되므로, 자동으로 정리되지 않는 위치를 선택하세요.",

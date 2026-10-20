@@ -1001,7 +1001,7 @@
     },
     "settings": {
       "apiKey": "Clé d'API",
-      "apiKeyDesc": "Créez-en une dans Immich sous Paramètres du compte → Clés d'API avec ces autorisations : album.read, albumAsset.create, asset.read, asset.view, asset.download, asset.upload, asset.update, asset.delete, stack.read, stack.create et user.read.",
+      "apiKeyDesc": "Créez-en une dans Immich sous Paramètres du compte → Clés d'API avec ces autorisations : album.read, albumAsset.create, albumAsset.delete, asset.read, asset.view, asset.download, asset.upload, asset.update, asset.delete, stack.read, stack.create et user.read.",
       "cacheDir": "Dossier du cache",
       "cacheDirDefault": "Par défaut",
       "cacheDirDesc": "Emplacement des originaux téléchargés. Les retouches qui ne sont pas encore arrivées dans Immich ne sont enregistrées qu'ici : choisissez donc un emplacement qui n'est pas nettoyé automatiquement.",

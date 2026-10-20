@@ -978,7 +978,7 @@
     },
     "settings": {
       "apiKey": "API klíč",
-      "apiKeyDesc": "Vytvořte jej v Immichi v Nastavení účtu → API klíče s těmito oprávněními: album.read, albumAsset.create, asset.read, asset.view, asset.download, asset.upload, asset.update, asset.delete, stack.read, stack.create a user.read.",
+      "apiKeyDesc": "Vytvořte jej v Immichi v Nastavení účtu → API klíče s těmito oprávněními: album.read, albumAsset.create, albumAsset.delete, asset.read, asset.view, asset.download, asset.upload, asset.update, asset.delete, stack.read, stack.create a user.read.",
       "cacheDir": "Složka mezipaměti",
       "cacheDirDefault": "Výchozí",
       "cacheDirDesc": "Kde se ukládají stažené originály. Úpravy, které se ještě nedostaly do Immiche, jsou uložené jen zde, proto zvolte místo, které se automaticky nečistí.",

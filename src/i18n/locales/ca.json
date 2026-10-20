@@ -978,7 +978,7 @@
     },
     "settings": {
       "apiKey": "Clau d'API",
-      "apiKeyDesc": "Crea'n una a Immich a Configuració del compte → Claus d'API amb aquests permisos: album.read, albumAsset.create, asset.read, asset.view, asset.download, asset.upload, asset.update, asset.delete, stack.read, stack.create i user.read.",
+      "apiKeyDesc": "Crea'n una a Immich a Configuració del compte → Claus d'API amb aquests permisos: album.read, albumAsset.create, albumAsset.delete, asset.read, asset.view, asset.download, asset.upload, asset.update, asset.delete, stack.read, stack.create i user.read.",
       "cacheDir": "Carpeta de memòria cau",
       "cacheDirDefault": "Per defecte",
       "cacheDirDesc": "On es guarden els originals descarregats. Les edicions que encara no han arribat a Immich només es desen aquí, així que tria un lloc que no es netegi automàticament.",

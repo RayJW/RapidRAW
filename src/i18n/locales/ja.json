@@ -975,7 +975,7 @@
     },
     "settings": {
       "apiKey": "API キー",
-      "apiKeyDesc": "Immich の「アカウント設定 → API キー」で、次の権限を付けて作成してください: album.read, albumAsset.create, asset.read, asset.view, asset.download, asset.upload, asset.update, asset.delete, stack.read, stack.create, user.read",
+      "apiKeyDesc": "Immich の「アカウント設定 → API キー」で、次の権限を付けて作成してください: album.read, albumAsset.create, albumAsset.delete, asset.read, asset.view, asset.download, asset.upload, asset.update, asset.delete, stack.read, stack.create, user.read",
       "cacheDir": "キャッシュフォルダー",
       "cacheDirDefault": "デフォルト",
       "cacheDirDesc": "ダウンロードしたオリジナルの保存先です。まだ Immich に届いていない編集内容はここにしか保存されないため、自動的に削除されない場所を選んでください。",

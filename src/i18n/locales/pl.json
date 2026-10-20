@@ -1025,7 +1025,7 @@
     },
     "settings": {
       "apiKey": "Klucz API",
-      "apiKeyDesc": "Utwórz go w Immich w Ustawieniach konta → Klucze API z tymi uprawnieniami: album.read, albumAsset.create, asset.read, asset.view, asset.download, asset.upload, asset.update, asset.delete, stack.read, stack.create i user.read.",
+      "apiKeyDesc": "Utwórz go w Immich w Ustawieniach konta → Klucze API z tymi uprawnieniami: album.read, albumAsset.create, albumAsset.delete, asset.read, asset.view, asset.download, asset.upload, asset.update, asset.delete, stack.read, stack.create i user.read.",
       "cacheDir": "Folder pamięci podręcznej",
       "cacheDirDefault": "Domyślny",
       "cacheDirDesc": "Miejsce przechowywania pobranych oryginałów. Edycje, które jeszcze nie trafiły do Immich, są zapisane tylko tutaj, więc wybierz miejsce, które nie jest automatycznie czyszczone.",

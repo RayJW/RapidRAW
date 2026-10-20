@@ -1001,7 +1001,7 @@
     },
     "settings": {
       "apiKey": "Chave de API",
-      "apiKeyDesc": "Crie uma no Immich em Definições da conta → Chaves de API com estas permissões: album.read, albumAsset.create, asset.read, asset.view, asset.download, asset.upload, asset.update, asset.delete, stack.read, stack.create e user.read.",
+      "apiKeyDesc": "Crie uma no Immich em Definições da conta → Chaves de API com estas permissões: album.read, albumAsset.create, albumAsset.delete, asset.read, asset.view, asset.download, asset.upload, asset.update, asset.delete, stack.read, stack.create e user.read.",
       "cacheDir": "Pasta de cache",
       "cacheDirDefault": "Predefinida",
       "cacheDirDesc": "Onde são guardados os originais transferidos. As edições que ainda não chegaram ao Immich só ficam guardadas aqui, por isso escolha um local que não seja limpo automaticamente.",
