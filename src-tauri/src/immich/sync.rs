@@ -310,10 +310,10 @@ pub fn start(app_handle: &AppHandle) {
     let app_handle = app_handle.clone();
     tauri::async_runtime::spawn(async move {
         loop {
+            tokio::time::sleep(INTERVAL).await;
             if let Some(session) = current_session() {
                 send_unsent(&app_handle, &session).await;
             }
-            tokio::time::sleep(INTERVAL).await;
         }
     });
 }
