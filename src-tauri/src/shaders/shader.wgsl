@@ -587,11 +587,15 @@ fn apply_highlights_adjustment(
 
     let luma_base = pixel_luma * exp2(-local_log_detail);
     let detail_ratio = pixel_luma / max(luma_base, 1e-4);
+    let orig_log_detail = log2(max(detail_ratio, 1e-4));
 
     let safe_detail = clamp(detail_ratio, 0.65, 1.55);
 
     let log_detail = log2(safe_detail);
     let soft_log_detail = log_detail / (1.0 + abs(log_detail) * 0.40);
+
+    let k_abs = min(abs(highlights_adj), 1.0);
+    let detail_ramp = k_abs * (2.0 - k_abs);
 
     var target_luma: f32 = pixel_luma;
 
@@ -601,12 +605,13 @@ fn apply_highlights_adjustment(
 
         let compression_strength = k * 2.2;
         let compressed_delta = delta_base / (1.0 + compression_strength * (delta_base / (1.0 + delta_base * 0.35)));
-        let target_base = l_pivot + compressed_delta;
+        let target_base = luma_base + (compressed_delta - delta_base);
 
         let neg_soft_detail = local_log_detail / (1.0 + abs(local_log_detail) * 0.80);
         let restoration_gain = 1.0 + k * 0.3;
         let structure_gain = shape_detail(mid_log_detail, GF_REINJECT_SIGMA) * k * 0.6;
-        let recovered_detail = exp2(neg_soft_detail * restoration_gain + structure_gain);
+        let recovered_log = mix(orig_log_detail, neg_soft_detail * restoration_gain, detail_ramp);
+        let recovered_detail = exp2(recovered_log + structure_gain);
 
         let recovered_target = target_base * recovered_detail;
 
@@ -617,9 +622,10 @@ fn apply_highlights_adjustment(
         let boost = highlights_adj * 0.70;
         let delta_base = max(luma_base - l_pivot, 0.0);
         let boosted_delta = delta_base * (1.0 + boost / (1.0 + delta_base * 0.25));
-        let target_base = l_pivot + boosted_delta;
+        let target_base = luma_base + (boosted_delta - delta_base);
 
-        let detail_boost = exp2(soft_log_detail * (1.0 + highlights_adj * 0.20));
+        let boosted_log = mix(orig_log_detail, soft_log_detail * (1.0 + highlights_adj * 0.20), detail_ramp);
+        let detail_boost = exp2(boosted_log);
         let boosted_target = target_base * detail_boost;
 
         let blend = smoothstep(l_pivot, l_pivot + 0.22, pixel_luma);
