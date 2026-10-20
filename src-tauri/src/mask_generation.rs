@@ -1459,9 +1459,24 @@ pub fn resolve_warped_image_for_masks(
     }
 }
 
-pub fn build_full_source_image(base_image: &DynamicImage, is_raw: bool) -> Cow<'_, DynamicImage> {
+fn build_full_source_image(base_image: &DynamicImage, is_raw: bool) -> Cow<'_, DynamicImage> {
     let mut image = Cow::Borrowed(base_image);
     if is_raw {
+        apply_cpu_default_raw_processing(image.to_mut());
+    }
+    image
+}
+
+pub fn build_converted_source_image<'a>(
+    base_image: &'a DynamicImage,
+    is_raw: bool,
+    adjustments: &serde_json::Value,
+) -> Cow<'a, DynamicImage> {
+    let mut image = crate::negative_conversion::apply_negative_conversion(
+        Cow::Borrowed(base_image),
+        adjustments,
+    );
+    if crate::negative_conversion::effective_is_raw(is_raw, adjustments) {
         apply_cpu_default_raw_processing(image.to_mut());
     }
     image
@@ -1505,7 +1520,7 @@ pub fn build_warped_image_for_masks<'a>(
     if masks.iter().any(|m| m.requires_warped_image()) {
         Some(Cow::Owned(build_full_warped_image_rgb8(
             base_image,
-            is_raw,
+            crate::negative_conversion::effective_is_raw(is_raw, adjustments),
             adjustments,
         )))
     } else {

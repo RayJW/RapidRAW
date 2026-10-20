@@ -94,6 +94,14 @@ fn hash_ai_denoise(adjustments: &serde_json::Value, hasher: &mut DefaultHasher) 
     }
 }
 
+fn hash_negative_conversion(adjustments: &serde_json::Value, hasher: &mut DefaultHasher) {
+    let enabled = crate::negative_conversion::is_enabled(adjustments);
+    enabled.hash(hasher);
+    if enabled {
+        hash_effect_keys(adjustments, crate::negative_conversion::PARAM_KEYS, hasher);
+    }
+}
+
 fn hash_orientation(adjustments: &serde_json::Value, hasher: &mut DefaultHasher) {
     adjustments["orientationSteps"]
         .as_u64()
@@ -131,6 +139,7 @@ pub fn calculate_patch_hash(adjustments: &serde_json::Value) -> u64 {
 
     hash_ai_patches(adjustments, &mut hasher);
     hash_ai_denoise(adjustments, &mut hasher);
+    hash_negative_conversion(adjustments, &mut hasher);
 
     let uses_generated_masks = adjustments
         .get("aiPatches")
@@ -369,6 +378,7 @@ pub fn calculate_transform_hash(adjustments: &serde_json::Value) -> u64 {
 
     hash_ai_patches(adjustments, &mut hasher);
     hash_ai_denoise(adjustments, &mut hasher);
+    hash_negative_conversion(adjustments, &mut hasher);
 
     hasher.finish()
 }

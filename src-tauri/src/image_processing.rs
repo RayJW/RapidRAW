@@ -2141,12 +2141,14 @@ pub fn resolve_tonemapper_override(settings: &crate::AppSettings, is_raw: bool) 
 #[derive(Clone, Copy, Debug, Default)]
 pub struct RenderOptions {
     pub tonemapper_override: Option<u32>,
+    pub non_raw_tonemapper_override: Option<u32>,
     pub baseline: BaselineOptions,
 }
 
 pub fn resolve_render_options(settings: &crate::AppSettings, is_raw: bool) -> RenderOptions {
     RenderOptions {
         tonemapper_override: resolve_tonemapper_override(settings, is_raw),
+        non_raw_tonemapper_override: resolve_tonemapper_override(settings, false),
         baseline: BaselineOptions::from_settings(settings),
     }
 }
@@ -2287,6 +2289,18 @@ pub fn is_image_edited(
     {
         return true;
     }
+    if [
+        ("noiseReduction", "aiDenoiseEnabled"),
+        ("negativeConversion", "negativeConversionEnabled"),
+        ("lensBlur", "lensBlurEnabled"),
+        ("relight", "relightEnabled"),
+        ("fog", "fogEnabled"),
+    ]
+    .iter()
+    .any(|(tool, enabled_key)| is_effect_enabled(adj, tool, enabled_key))
+    {
+        return true;
+    }
 
     if let Some(crop_val) = adj.get("crop")
         && !crop_val.is_null()
@@ -2336,6 +2350,7 @@ pub fn is_image_edited(
     let reference = AsShot::reference();
     let render = RenderOptions {
         tonemapper_override,
+        non_raw_tonemapper_override: tonemapper_override,
         baseline: BaselineOptions::default(),
     };
     let current_adj = get_all_adjustments_from_json(adj, is_raw, reference, render);
@@ -2374,6 +2389,7 @@ const LEGACY_SECTION_TOOLS: &[(&str, &[&str])] = &[
             "presence",
             "noiseReduction",
             "chromaticAberration",
+            "negativeConversion",
         ],
     ),
     (
@@ -2870,6 +2886,23 @@ pub fn get_all_adjustments_from_json(
     as_shot: AsShot,
     render: RenderOptions,
 ) -> AllAdjustments {
+    let (is_raw, as_shot, render) = if crate::negative_conversion::is_enabled(js_adjustments) {
+        let exposure = AsShot::reference().exposure;
+        let tonemapper_override = render.non_raw_tonemapper_override;
+        (
+            false,
+            AsShot {
+                exposure,
+                ..as_shot
+            },
+            RenderOptions {
+                tonemapper_override,
+                ..render
+            },
+        )
+    } else {
+        (is_raw, as_shot, render)
+    };
     let target_white_balance = if is_tool_active(js_adjustments, "whiteBalance") {
         white_balance::from_adjustments(js_adjustments, as_shot.white_balance)
     } else {
@@ -4046,6 +4079,7 @@ fn compute_white_balance_sample(
 #[tauri::command]
 pub async fn sample_white_balance(
     corners: Vec<UvPoint>,
+    js_adjustments: Option<Value>,
     state: tauri::State<'_, AppState>,
 ) -> Result<WhiteBalanceSample, String> {
     let loaded_image = state
@@ -4054,11 +4088,22 @@ pub async fn sample_white_balance(
         .unwrap()
         .clone()
         .ok_or("No original image loaded")?;
+    let adjustments = js_adjustments.unwrap_or_default();
+    let converted = crate::negative_conversion::is_enabled(&adjustments)
+        .then(|| crate::cached_patched_image(&state, &loaded_image.image, &adjustments))
+        .flatten();
 
     tokio::task::spawn_blocking(move || {
+        let image = match &converted {
+            Some(image) => Cow::Borrowed(image.as_ref()),
+            None => crate::negative_conversion::apply_negative_conversion(
+                Cow::Borrowed(loaded_image.image.as_ref()),
+                &adjustments,
+            ),
+        };
         compute_white_balance_sample(
-            &loaded_image.image,
-            loaded_image.is_raw,
+            &image,
+            crate::negative_conversion::effective_is_raw(loaded_image.is_raw, &adjustments),
             loaded_image.as_shot.white_balance,
             &corners,
         )

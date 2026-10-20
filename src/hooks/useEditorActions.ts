@@ -318,6 +318,23 @@ export function useEditorActions() {
     [handleAutoStraighten, t],
   );
 
+  const handleConvertNegatives = useCallback(
+    (paths: string[]) => {
+      const { selectedImage } = useEditorStore.getState();
+      const editingPath = useUIStore.getState().activeView === 'editor' ? selectedImage?.path : undefined;
+      const batchPaths = paths.filter((path) => path !== editingPath);
+      if (batchPaths.length < paths.length) {
+        setAdjustments((prev: Adjustments) => ({ ...prev, negativeConversionEnabled: true }));
+      }
+      if (batchPaths.length === 0) return;
+      batchPaths.forEach((p) => globalImageCache.delete(p));
+      invoke(Invokes.ApplyAdjustmentsToPaths, { paths: batchPaths, adjustments: { negativeConversionEnabled: true } })
+        .then(() => reloadAdjustmentsForPaths(batchPaths))
+        .catch((err) => toast.error(`Failed to convert negatives: ${err}`));
+    },
+    [setAdjustments],
+  );
+
   const handleCopyAdjustments = useCallback(async (pathOrEvent?: string | any) => {
     const pathOverride = typeof pathOrEvent === 'string' ? pathOrEvent : undefined;
     const { selectedImage, adjustments } = useEditorStore.getState();
@@ -484,6 +501,7 @@ export function useEditorActions() {
     setLutPreviewOverride,
     handleResetAdjustments,
     handleAutoLensCorrection,
+    handleConvertNegatives,
     handleCopyAdjustments,
     handlePasteAdjustments,
     handleZoomChange,

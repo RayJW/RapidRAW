@@ -283,6 +283,7 @@ pub async fn generate_ai_depth_mask(
 
 #[tauri::command]
 pub async fn generate_full_image_depth_map(
+    js_adjustments: serde_json::Value,
     state: tauri::State<'_, AppState>,
     app_handle: tauri::AppHandle,
 ) -> Result<String, String> {
@@ -295,8 +296,11 @@ pub async fn generate_full_image_depth_map(
     .map_err(|e| e.to_string())?;
 
     let loaded_image = get_loaded_image(&state)?;
-    let source_image =
-        crate::mask_generation::build_full_source_image(&loaded_image.image, loaded_image.is_raw);
+    let source_image = crate::mask_generation::build_converted_source_image(
+        &loaded_image.image,
+        loaded_image.is_raw,
+        &js_adjustments,
+    );
 
     let depth_img = crate::ai_processing::run_depth_anything_model(
         source_image.as_ref(),
@@ -309,6 +313,7 @@ pub async fn generate_full_image_depth_map(
 
 #[tauri::command]
 pub async fn generate_relight_normal_map(
+    js_adjustments: serde_json::Value,
     state: tauri::State<'_, AppState>,
     app_handle: tauri::AppHandle,
 ) -> Result<String, String> {
@@ -321,8 +326,11 @@ pub async fn generate_relight_normal_map(
     .map_err(|e| e.to_string())?;
 
     let loaded_image = get_loaded_image(&state)?;
-    let source_image =
-        crate::mask_generation::build_full_source_image(&loaded_image.image, loaded_image.is_raw);
+    let source_image = crate::mask_generation::build_converted_source_image(
+        &loaded_image.image,
+        loaded_image.is_raw,
+        &js_adjustments,
+    );
 
     let normal_img =
         crate::ai_processing::run_normal_model(source_image.as_ref(), normal_model.as_ref())

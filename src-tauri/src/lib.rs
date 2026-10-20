@@ -101,7 +101,7 @@ use crate::cache_utils::{
 use crate::file_management::{parse_virtual_path, read_file_mapped};
 use crate::formats::is_raw_file;
 use crate::hdr_deghosting::{align_hdr_frames, assert_uniform_dimensions, load_hdr_frames};
-use crate::image_loader::{composite_patches_on_image, load_and_composite};
+use crate::image_loader::{load_and_composite, prepare_base_image_cow};
 use crate::image_processing::{
     Crop, RenderRequest, apply_coarse_rotation, apply_flip, apply_geometry_warp,
     apply_linear_to_srgb, downscale_f32_image, get_all_adjustments_from_json,
@@ -401,20 +401,11 @@ fn compute_patched(
     loaded_image: &LoadedImage,
     adjustments: &serde_json::Value,
 ) -> Result<Arc<DynamicImage>, String> {
-    let has_patches = adjustments
-        .get("aiPatches")
-        .and_then(|v| v.as_array())
-        .is_some_and(|a| !a.is_empty());
-    let denoised =
-        crate::ai_denoise::apply_ai_denoise(&loaded_image.image, &loaded_image.path, adjustments);
-
-    match (denoised, has_patches) {
-        (base, true) => Ok(Arc::new(
-            composite_patches_on_image(&base, adjustments)
-                .map_err(|e| format!("Failed to composite AI patches: {}", e))?,
-        )),
-        (Cow::Owned(img), false) => Ok(Arc::new(img)),
-        (Cow::Borrowed(_), false) => Ok(Arc::clone(&loaded_image.image)),
+    match prepare_base_image_cow(&loaded_image.image, &loaded_image.path, adjustments)
+        .map_err(|e| format!("Failed to composite AI patches: {}", e))?
+    {
+        Cow::Owned(img) => Ok(Arc::new(img)),
+        Cow::Borrowed(_) => Ok(Arc::clone(&loaded_image.image)),
     }
 }
 
@@ -505,9 +496,13 @@ pub fn get_cached_full_warped_image_for_path(
         return Ok(img);
     }
 
+    let source = crate::negative_conversion::apply_negative_conversion(
+        Cow::Borrowed(loaded_image.image.as_ref()),
+        js_adjustments,
+    );
     let warped_arc = Arc::new(build_full_warped_image_rgb8(
-        &loaded_image.image,
-        loaded_image.is_raw,
+        &source,
+        crate::negative_conversion::effective_is_raw(loaded_image.is_raw, js_adjustments),
         js_adjustments,
     ));
     *state
@@ -1308,8 +1303,13 @@ async fn generate_all_community_previews(
                 .unwrap_or(serde_json::Value::Null);
             }
 
-            let (transformed_image, _scaled_crop_offset) =
-                crate::apply_all_transformations(Cow::Borrowed(base_image), &scaled_adjustments);
+            let (transformed_image, _scaled_crop_offset) = crate::apply_all_transformations(
+                crate::negative_conversion::apply_negative_conversion(
+                    Cow::Borrowed(base_image),
+                    &scaled_adjustments,
+                ),
+                &scaled_adjustments,
+            );
             let (img_w, img_h) = transformed_image.dimensions();
 
             let mask_definitions: Vec<MaskDefinition> = scaled_adjustments
@@ -2511,8 +2511,6 @@ pub fn run() {
             lens_correction::get_lensfun_lenses_for_maker,
             lens_correction::autodetect_lens,
             lens_correction::get_lens_distortion_params,
-            negative_conversion::preview_negative_conversion,
-            negative_conversion::convert_negatives,
             camera_tethering::tether_list_cameras,
             camera_tethering::tether_connect,
             camera_tethering::tether_get_settings,

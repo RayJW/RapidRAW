@@ -9,7 +9,6 @@ import CopyPasteSettingsModal from './CopyPasteSettingsModal';
 import PanoramaModal from './PanoramaModal';
 import HdrModal from './HdrModal';
 import FocusStackModal from './FocusStackModal';
-import NegativeConversionModal from './NegativeConversionModal';
 import DenoiseModal from './DenoiseModal';
 import type { DenoiseMethod } from './DenoiseModal';
 import CreateFolderModal from './CreateFolderModal';
@@ -30,7 +29,6 @@ export interface AppModalsProps {
   handleStartHdr: (paths: string[]) => void;
   handleStartFocusStack: (paths: string[]) => void;
   handleSaveFocusStack: () => Promise<string>;
-  refreshImageList: () => Promise<void>;
   handleApplyDenoise: (intensity: number, method: DenoiseMethod) => Promise<void>;
   handleBatchDenoise: (intensity: number, method: DenoiseMethod, paths: string[]) => Promise<string[]>;
   handleSaveDenoisedImage: () => Promise<string>;
@@ -72,7 +70,6 @@ export default function AppModals(props: AppModalsProps) {
     panoramaModalState,
     hdrModalState,
     focusStackModalState,
-    negativeModalState,
     denoiseModalState,
     cullingModalState,
     collageModalState,
@@ -95,7 +92,6 @@ export default function AppModals(props: AppModalsProps) {
       panoramaModalState: state.panoramaModalState,
       hdrModalState: state.hdrModalState,
       focusStackModalState: state.focusStackModalState,
-      negativeModalState: state.negativeModalState,
       denoiseModalState: state.denoiseModalState,
       cullingModalState: state.cullingModalState,
       collageModalState: state.collageModalState,
@@ -233,18 +229,6 @@ export default function AppModals(props: AppModalsProps) {
         onSave={props.handleSaveFocusStack}
         onMerge={() => props.handleStartFocusStack(focusStackModalState.sourcePaths)}
         progressMessage={focusStackModalState.progressMessage}
-      />
-      <NegativeConversionModal
-        isOpen={negativeModalState.isOpen}
-        onClose={() => setUI((state) => ({ negativeModalState: { ...state.negativeModalState, isOpen: false } }))}
-        targetPaths={negativeModalState.targetPaths}
-        onSave={(savedPaths) => {
-          props.refreshImageList().then(() => {
-            if (selectedImage && negativeModalState.targetPaths.includes(selectedImage.path) && savedPaths.length > 0) {
-              props.handleImageSelect(savedPaths[0]);
-            }
-          });
-        }}
       />
       <DenoiseModal
         isOpen={denoiseModalState.isOpen}

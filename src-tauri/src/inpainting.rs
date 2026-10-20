@@ -33,7 +33,10 @@ fn prepare_source_image(
         .unwrap()
         .clone()
         .ok_or("No original image loaded")?;
-    let is_raw = loaded_image.is_raw;
+    let is_raw = crate::negative_conversion::effective_is_raw(
+        loaded_image.is_raw,
+        &source_image_adjustments,
+    );
 
     let composited = prepare_base_image_cow(
         &loaded_image.image,

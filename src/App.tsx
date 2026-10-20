@@ -1031,7 +1031,6 @@ function App() {
           handleSaveFocusStack={handleSaveFocusStack}
           handleSaveHdr={handleSaveHdr}
           handleStartHdr={handleStartHdr}
-          refreshImageList={handleLibraryRefresh}
           handleApplyDenoise={handleApplyDenoise}
           handleBatchDenoise={handleBatchDenoise}
           handleSaveDenoisedImage={handleSaveDenoisedImage}

@@ -96,9 +96,10 @@ pub fn prepare_base_image_cow<'a>(
         .and_then(|v| v.as_array())
         .is_some_and(|a| !a.is_empty());
 
-    match crate::ai_denoise::apply_ai_denoise(base_image, path, adjustments) {
-        Cow::Owned(denoised) if !has_patches => Ok(Cow::Owned(denoised)),
-        denoised => composite_patches_cow(denoised, adjustments),
+    let denoised = crate::ai_denoise::apply_ai_denoise(base_image, path, adjustments);
+    match crate::negative_conversion::apply_negative_conversion(denoised, adjustments) {
+        Cow::Owned(prepared) if !has_patches => Ok(Cow::Owned(prepared)),
+        prepared => composite_patches_cow(prepared, adjustments),
     }
 }
 
@@ -435,13 +436,6 @@ pub fn load_image_with_orientation(
     };
 
     Ok(DynamicImage::ImageRgb32F(oriented_image.to_rgb32f()))
-}
-
-pub fn composite_patches_on_image(
-    base_image: &DynamicImage,
-    current_adjustments: &Value,
-) -> Result<DynamicImage> {
-    composite_patches_cow(Cow::Borrowed(base_image), current_adjustments).map(Cow::into_owned)
 }
 
 fn composite_patches_cow<'a>(

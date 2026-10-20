@@ -112,6 +112,7 @@ export function useAppContextMenus(latestProps: UseAppContextMenusProps) {
     handleAutoLensCorrection,
     handleAutoStraighten,
     handleAutoStraightenPaths,
+    handleConvertNegatives,
     handleResetAdjustments,
     handleCopyAdjustments,
     handlePasteAdjustments,
@@ -293,11 +294,8 @@ export function useAppContextMenus(latestProps: UseAppContextMenusProps) {
             {
               label: t('contextMenus.editor.convertNegative'),
               icon: Film,
-              onClick: () => {
-                if (selectedImage) {
-                  setUI({ negativeModalState: { isOpen: true, targetPaths: [selectedImage.path] } });
-                }
-              },
+              onClick: () => handleConvertNegatives([selectedImage.path]),
+              disabled: !selectedImage?.isReady,
             },
             {
               icon: LayoutTemplate,
@@ -645,9 +643,7 @@ export function useAppContextMenus(latestProps: UseAppContextMenusProps) {
               label: conversionLabel,
               icon: Film,
               disabled: selectionCount === 0,
-              onClick: () => {
-                setUI({ negativeModalState: { isOpen: true, targetPaths: finalSelection } });
-              },
+              onClick: () => handleConvertNegatives(finalSelection),
             },
             {
               icon: LayoutTemplate,
