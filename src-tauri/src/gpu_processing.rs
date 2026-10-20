@@ -34,6 +34,7 @@ pub enum RenderOutputPrecision {
 pub struct RenderRequest<'a> {
     pub adjustments: AllAdjustments,
     pub mask_bitmaps: &'a [ImageBuffer<Luma<u8>, Vec<u8>>],
+    pub mask_cache_key: Option<u64>,
     pub lut: Option<Arc<Lut>>,
     pub roi: Option<Roi>,
 }
@@ -642,8 +643,113 @@ pub struct GpuProcessor {
 
     pub tile_output_texture: wgpu::Texture,
     pub tile_output_texture_view: wgpu::TextureView,
+    full_image_size: wgpu::Extent3d,
+    display_textures: std::sync::OnceLock<DisplayTextures>,
+    readback_pool: ReadbackPool,
+}
+
+type ReadbackPool = Arc<std::sync::Mutex<Vec<wgpu::Buffer>>>;
+
+const READBACK_POOL_SIZE: usize = 3;
+
+fn recycle_readback_buffer(pool: &ReadbackPool, buffer: wgpu::Buffer) {
+    let mut pool = pool.lock().unwrap_or_else(|e| e.into_inner());
+    if pool.len() >= READBACK_POOL_SIZE {
+        pool.remove(0);
+    }
+    pool.push(buffer);
+}
+
+pub struct PooledReadback {
+    view: Option<wgpu::BufferView>,
+    buffer: wgpu::Buffer,
+    pool: ReadbackPool,
+}
+
+impl std::ops::Deref for PooledReadback {
+    type Target = [u8];
+
+    fn deref(&self) -> &[u8] {
+        self.view.as_deref().unwrap_or(&[])
+    }
+}
+
+impl Drop for PooledReadback {
+    fn drop(&mut self) {
+        drop(self.view.take());
+        self.buffer.unmap();
+        recycle_readback_buffer(&self.pool, self.buffer.clone());
+    }
+}
+
+struct AnalyticsReadback {
+    device: Arc<wgpu::Device>,
+    buffer: wgpu::Buffer,
+    pool: ReadbackPool,
+    submission: wgpu::SubmissionIndex,
+    analytics: crate::AnalyticsConfig,
+    width: u32,
+    height: u32,
+    row_stride: usize,
+}
+
+fn analytics_readback_sender() -> &'static std::sync::mpsc::Sender<AnalyticsReadback> {
+    static SENDER: std::sync::OnceLock<std::sync::mpsc::Sender<AnalyticsReadback>> =
+        std::sync::OnceLock::new();
+    SENDER.get_or_init(|| {
+        let (tx, rx) = std::sync::mpsc::channel::<AnalyticsReadback>();
+        std::thread::spawn(move || {
+            while let Ok(mut readback) = rx.recv() {
+                while let Ok(newer) = rx.try_recv() {
+                    recycle_readback_buffer(&readback.pool, readback.buffer);
+                    readback = newer;
+                }
+                complete_analytics_readback(readback);
+            }
+        });
+        tx
+    })
+}
+
+fn complete_analytics_readback(readback: AnalyticsReadback) {
+    let (tx, rx) = std::sync::mpsc::channel::<Result<(), wgpu::BufferAsyncError>>();
+    readback
+        .buffer
+        .slice(..)
+        .map_async(wgpu::MapMode::Read, move |result| {
+            let _ = tx.send(result);
+        });
+
+    if let Err(e) = readback.device.poll(wgpu::PollType::Wait {
+        submission_index: Some(readback.submission),
+        timeout: Some(std::time::Duration::from_secs(60)),
+    }) {
+        log::error!("Async analytics readback poll failed: {}", e);
+        return;
+    }
+
+    if let Ok(Ok(())) = rx.recv() {
+        let analytics = readback.analytics;
+        let _ = analytics.sender.send(crate::AnalyticsJob {
+            path: analytics.path,
+            frame: AnalyticsFrame {
+                data: AnalyticsPixels::Mapped(PooledReadback {
+                    view: Some(readback.buffer.slice(..).get_mapped_range()),
+                    buffer: readback.buffer,
+                    pool: readback.pool,
+                }),
+                width: readback.width,
+                height: readback.height,
+                row_stride: readback.row_stride,
+            },
+            compute_waveform: analytics.compute_waveform,
+            active_waveform_channel: analytics.active_waveform_channel,
+        });
+    }
+}
+
+pub struct DisplayTextures {
     pub working_texture: wgpu::Texture,
-    pub working_texture_view: wgpu::TextureView,
     pub output_texture: wgpu::Texture,
     pub output_texture_view: wgpu::TextureView,
 }
@@ -728,7 +834,7 @@ struct MaskCache {
     width: u32,
     height: u32,
     layers: u32,
-    data: Vec<u8>,
+    key: u64,
     texture: wgpu::Texture,
     view: wgpu::TextureView,
 }
@@ -1365,34 +1471,6 @@ impl GpuProcessor {
         });
         let tile_output_texture_view = tile_output_texture.create_view(&Default::default());
 
-        let working_texture = device.create_texture(&wgpu::TextureDescriptor {
-            label: Some("Working Output Texture"),
-            size: full_image_size,
-            mip_level_count: 1,
-            sample_count: 1,
-            dimension: wgpu::TextureDimension::D2,
-            format: wgpu::TextureFormat::Rgba8Unorm,
-            usage: wgpu::TextureUsages::TEXTURE_BINDING
-                | wgpu::TextureUsages::COPY_DST
-                | wgpu::TextureUsages::COPY_SRC,
-            view_formats: &[],
-        });
-        let working_texture_view = working_texture.create_view(&Default::default());
-
-        let output_texture = device.create_texture(&wgpu::TextureDescriptor {
-            label: Some("Full Output Texture"),
-            size: full_image_size,
-            mip_level_count: 1,
-            sample_count: 1,
-            dimension: wgpu::TextureDimension::D2,
-            format: wgpu::TextureFormat::Rgba8Unorm,
-            usage: wgpu::TextureUsages::TEXTURE_BINDING
-                | wgpu::TextureUsages::COPY_DST
-                | wgpu::TextureUsages::COPY_SRC,
-            view_formats: &[],
-        });
-        let output_texture_view = output_texture.create_view(&Default::default());
-
         Ok(Self {
             context,
             blur_bgl,
@@ -1440,10 +1518,9 @@ impl GpuProcessor {
             structure_blur_view,
             tile_output_texture,
             tile_output_texture_view,
-            working_texture,
-            working_texture_view,
-            output_texture,
-            output_texture_view,
+            full_image_size,
+            display_textures: std::sync::OnceLock::new(),
+            readback_pool: Arc::new(std::sync::Mutex::new(Vec::new())),
         })
     }
 
@@ -1650,6 +1727,7 @@ impl GpuProcessor {
         mask_bitmaps: &[ImageBuffer<Luma<u8>, Vec<u8>>],
         width: u32,
         height: u32,
+        cache_key: Option<u64>,
     ) -> wgpu::TextureView {
         if mask_bitmaps.is_empty() {
             return self.dummy_mask_view.clone();
@@ -1661,25 +1739,13 @@ impl GpuProcessor {
         let buffer_size = (width as usize) * (height as usize) * (layers as usize);
 
         let mut cache = self.mask_cache.lock().unwrap_or_else(|e| e.into_inner());
-        if let Some(c) = cache.as_ref()
+        if let (Some(c), Some(key)) = (cache.as_ref(), cache_key)
             && c.width == width
             && c.height == height
             && c.layers == layers
+            && c.key == key
         {
-            let mut offset = 0;
-            let mut same = true;
-            for bitmap in mask_bitmaps.iter().take(MAX_MASKS) {
-                let raw = bitmap.as_raw();
-                let end = (offset + raw.len()).min(buffer_size);
-                if c.data[offset..end] != raw[..end - offset] {
-                    same = false;
-                    break;
-                }
-                offset = end;
-            }
-            if same && c.data[offset..].iter().all(|&v| v == 0) {
-                return c.view.clone();
-            }
+            return c.view.clone();
         }
 
         let mut data = Vec::with_capacity(buffer_size);
@@ -1693,8 +1759,13 @@ impl GpuProcessor {
             height,
             depth_or_array_layers: layers,
         };
-        let texture = match cache.take() {
-            Some(c) if c.width == width && c.height == height && c.layers == layers => {
+        let reusable = cache_key.and_then(|_| {
+            cache
+                .take()
+                .filter(|c| c.width == width && c.height == height && c.layers == layers)
+        });
+        let texture = match reusable {
+            Some(c) => {
                 queue.write_texture(
                     c.texture.as_image_copy(),
                     &data,
@@ -1707,7 +1778,7 @@ impl GpuProcessor {
                 );
                 c.texture
             }
-            _ => device.create_texture_with_data(
+            None => device.create_texture_with_data(
                 queue,
                 &wgpu::TextureDescriptor {
                     label: Some("Full Mask Texture Array"),
@@ -1727,14 +1798,16 @@ impl GpuProcessor {
             dimension: Some(wgpu::TextureViewDimension::D2Array),
             ..Default::default()
         });
-        *cache = Some(MaskCache {
-            width,
-            height,
-            layers,
-            data,
-            texture,
-            view: view.clone(),
-        });
+        if let Some(key) = cache_key {
+            *cache = Some(MaskCache {
+                width,
+                height,
+                layers,
+                key,
+                texture,
+                view: view.clone(),
+            });
+        }
         view
     }
 
@@ -1846,6 +1919,49 @@ impl GpuProcessor {
                 .insert(key, Some(pipeline));
         });
         generic.clone()
+    }
+
+    fn readback_buffer(&self, size: u64) -> wgpu::Buffer {
+        let pooled = {
+            let mut pool = self.readback_pool.lock().unwrap_or_else(|e| e.into_inner());
+            pool.iter()
+                .position(|buffer| buffer.size() == size)
+                .map(|index| pool.swap_remove(index))
+        };
+        pooled.unwrap_or_else(|| {
+            self.context.device.create_buffer(&wgpu::BufferDescriptor {
+                label: Some("Async Analytics Readback Buffer"),
+                size,
+                usage: wgpu::BufferUsages::COPY_DST | wgpu::BufferUsages::MAP_READ,
+                mapped_at_creation: false,
+            })
+        })
+    }
+
+    pub fn display_textures(&self) -> &DisplayTextures {
+        self.display_textures.get_or_init(|| {
+            let descriptor = |label| wgpu::TextureDescriptor {
+                label: Some(label),
+                size: self.full_image_size,
+                mip_level_count: 1,
+                sample_count: 1,
+                dimension: wgpu::TextureDimension::D2,
+                format: wgpu::TextureFormat::Rgba8Unorm,
+                usage: wgpu::TextureUsages::TEXTURE_BINDING
+                    | wgpu::TextureUsages::COPY_DST
+                    | wgpu::TextureUsages::COPY_SRC,
+                view_formats: &[],
+            };
+            let device = &self.context.device;
+            let working_texture = device.create_texture(&descriptor("Working Output Texture"));
+            let output_texture = device.create_texture(&descriptor("Full Output Texture"));
+            let output_texture_view = output_texture.create_view(&Default::default());
+            DisplayTextures {
+                working_texture,
+                output_texture,
+                output_texture_view,
+            }
+        })
     }
 
     fn high_precision_pipeline(&self) -> &HighPrecisionPipeline {
@@ -1964,7 +2080,8 @@ impl GpuProcessor {
         });
         let out_width = bounds.width;
         let out_height = bounds.height;
-        let mask_texture_view = self.mask_view(request.mask_bitmaps, width, height);
+        let mask_texture_view =
+            self.mask_view(request.mask_bitmaps, width, height, request.mask_cache_key);
         let (lut_texture_view, lut_sampler) = match &request.lut {
             Some(lut) => self.lut_view(lut),
             None => (self.dummy_lut_view.clone(), self.dummy_lut_sampler.clone()),
@@ -2362,7 +2479,7 @@ impl GpuProcessor {
                             aspect: wgpu::TextureAspect::All,
                         },
                         wgpu::TexelCopyTextureInfo {
-                            texture: &self.working_texture,
+                            texture: &self.display_textures().working_texture,
                             mip_level: 0,
                             origin: wgpu::Origin3d {
                                 x: x_start,
@@ -2687,16 +2804,11 @@ fn process_and_get_dynamic_image_inner(
         let padded_bytes_per_row = (unpadded_bytes_per_row + align - 1) & !(align - 1);
         let output_buffer_size = (padded_bytes_per_row * out_h) as u64;
 
-        let output_buffer = device.create_buffer(&wgpu::BufferDescriptor {
-            label: Some("Async Analytics Readback Buffer"),
-            size: output_buffer_size,
-            usage: wgpu::BufferUsages::COPY_DST | wgpu::BufferUsages::MAP_READ,
-            mapped_at_creation: false,
-        });
+        let output_buffer = processor.readback_buffer(output_buffer_size);
 
         final_encoder.copy_texture_to_buffer(
             wgpu::TexelCopyTextureInfo {
-                texture: &processor.working_texture,
+                texture: &processor.display_textures().working_texture,
                 mip_level: 0,
                 origin: wgpu::Origin3d {
                     x: out_x,
@@ -2728,7 +2840,7 @@ fn process_and_get_dynamic_image_inner(
     if output_to_display {
         final_encoder.copy_texture_to_texture(
             wgpu::TexelCopyTextureInfo {
-                texture: &processor.working_texture,
+                texture: &processor.display_textures().working_texture,
                 mip_level: 0,
                 origin: wgpu::Origin3d {
                     x: out_x,
@@ -2738,7 +2850,7 @@ fn process_and_get_dynamic_image_inner(
                 aspect: wgpu::TextureAspect::All,
             },
             wgpu::TexelCopyTextureInfo {
-                texture: &processor.output_texture,
+                texture: &processor.display_textures().output_texture,
                 mip_level: 0,
                 origin: wgpu::Origin3d {
                     x: out_x,
@@ -2760,38 +2872,15 @@ fn process_and_get_dynamic_image_inner(
 
     if let Some(analytics) = analytics_config {
         if let (Some(output_buffer), Some(submission)) = (async_readback_buffer, final_submission) {
-            let padded_bytes_per_row: u32 = async_padded_bpr;
-            let device_clone = context.device.clone();
-
-            std::thread::spawn(move || {
-                let buffer_slice = output_buffer.slice(..);
-                let (tx, rx) = std::sync::mpsc::channel::<Result<(), wgpu::BufferAsyncError>>();
-
-                buffer_slice.map_async(wgpu::MapMode::Read, move |result| {
-                    let _ = tx.send(result);
-                });
-
-                if let Err(e) = device_clone.poll(wgpu::PollType::Wait {
-                    submission_index: Some(submission),
-                    timeout: Some(std::time::Duration::from_secs(60)),
-                }) {
-                    log::error!("Async analytics readback poll failed: {}", e);
-                    return;
-                }
-
-                if let Ok(Ok(())) = rx.recv() {
-                    let _ = analytics.sender.send(crate::AnalyticsJob {
-                        path: analytics.path,
-                        frame: AnalyticsFrame {
-                            data: AnalyticsPixels::Mapped(buffer_slice.get_mapped_range()),
-                            width: out_w,
-                            height: out_h,
-                            row_stride: padded_bytes_per_row as usize,
-                        },
-                        compute_waveform: analytics.compute_waveform,
-                        active_waveform_channel: analytics.active_waveform_channel,
-                    });
-                }
+            let _ = analytics_readback_sender().send(AnalyticsReadback {
+                device: Arc::clone(&context.device),
+                buffer: output_buffer,
+                pool: Arc::clone(&processor.readback_pool),
+                submission,
+                analytics,
+                width: out_w,
+                height: out_h,
+                row_stride: async_padded_bpr as usize,
             });
         } else {
             if let RenderedPixels::U8(pixels) = &processed_pixels {
@@ -2838,7 +2927,9 @@ fn process_and_get_dynamic_image_inner(
                 },
                 wgpu::BindGroupEntry {
                     binding: 1,
-                    resource: wgpu::BindingResource::TextureView(&processor.output_texture_view),
+                    resource: wgpu::BindingResource::TextureView(
+                        &processor.display_textures().output_texture_view,
+                    ),
                 },
                 wgpu::BindGroupEntry {
                     binding: 2,

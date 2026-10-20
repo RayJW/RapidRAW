@@ -15,7 +15,7 @@ use std::thread;
 use anyhow::Result;
 use chrono::{DateTime, Utc};
 use image::codecs::jpeg::JpegEncoder;
-use image::{DynamicImage, GenericImageView, ImageBuffer, Luma};
+use image::{DynamicImage, GenericImageView};
 use rayon::prelude::*;
 use regex::regex;
 use serde::{Deserialize, Serialize};
@@ -1422,6 +1422,21 @@ fn apply_exif_orientation(img: DynamicImage, orientation: u32) -> DynamicImage {
     }
 }
 
+fn reserve_thumbnail_decode(
+    state: &AppState,
+    source_path: &Path,
+    is_raw: bool,
+    preloaded_image: Option<&DynamicImage>,
+) -> Option<crate::memory_budget::MemoryReservation> {
+    if preloaded_image.is_some() || rayon::current_thread_index().is_some() {
+        return None;
+    }
+    let pixels = crate::memory_budget::image_pixel_count(source_path, is_raw)?;
+    state
+        .memory_budget
+        .reserve(pixels * if is_raw { 10 } else { 20 }, None)
+}
+
 fn exif_embedded_preview(exif: &exif::Exif) -> Option<DynamicImage> {
     let (jpeg_bytes, ifd) = find_embedded_jpeg(exif, exif::In::PRIMARY)
         .map(|b| (b, exif::In::PRIMARY))
@@ -1501,6 +1516,9 @@ fn generate_thumbnail_data_with_metadata(
 
     let null_adjustments = serde_json::Value::Null;
     let adjustments = metadata.map_or(&null_adjustments, |m| &m.adjustments);
+    let cached_patched = preloaded_image.and_then(|img| {
+        crate::cached_patched_image(&app_handle.state::<AppState>(), img, adjustments)
+    });
 
     let always_decode_raw = settings.always_decode_raw_thumbnails.unwrap_or(false);
 
@@ -1551,10 +1569,11 @@ fn generate_thumbnail_data_with_metadata(
         } else {
             let mut raw_scale_factor = 1.0f32;
 
-            let _decode_permit = rayon::current_thread_index()
-                .is_none()
-                .then(|| state.thumbnail_manager.acquire_decode_permit());
-            let composite_image: Cow<DynamicImage> = if let Some(img) = preloaded_image {
+            let _decode_reservation =
+                reserve_thumbnail_decode(&state, &source_path, is_raw, preloaded_image);
+            let composite_image: Cow<DynamicImage> = if let Some(patched) = &cached_patched {
+                Cow::Borrowed(patched)
+            } else if let Some(img) = preloaded_image {
                 image_loader::prepare_base_image_cow(img, &source_path_str, adjustments)?
             } else {
                 let mmap_guard;
@@ -1714,30 +1733,26 @@ fn generate_thumbnail_data_with_metadata(
             .and_then(|m| serde_json::from_value(m.clone()).ok())
             .unwrap_or_else(Vec::new);
 
-        let mask_bitmaps: Vec<ImageBuffer<Luma<u8>, Vec<u8>>> = mask_definitions
-            .iter()
-            .filter_map(|def| {
-                crate::get_cached_or_generate_mask(
-                    &state,
-                    path_str,
-                    def,
-                    preview_w,
-                    preview_h,
-                    total_scale,
-                    (
-                        unscaled_crop_offset.0 * total_scale,
-                        unscaled_crop_offset.1 * total_scale,
-                    ),
-                    &meta.adjustments,
-                )
-            })
-            .collect();
+        let mask_bitmaps = crate::mask_generation::get_cached_or_generate_masks(
+            &state,
+            path_str,
+            &mask_definitions,
+            preview_w,
+            preview_h,
+            total_scale,
+            (
+                unscaled_crop_offset.0 * total_scale,
+                unscaled_crop_offset.1 * total_scale,
+            ),
+            &meta.adjustments,
+        )
+        .bitmaps;
 
         let gpu_adjustments = get_all_adjustments_from_json(
             &meta.adjustments,
             is_raw,
             as_shot(&source_path_str),
-            resolve_render_options(&settings, is_raw),
+            resolve_render_options(settings, is_raw),
         );
         let lut_path = meta.adjustments["lutPath"].as_str();
         let lut = lut_path.and_then(|p| {
@@ -1766,6 +1781,7 @@ fn generate_thumbnail_data_with_metadata(
             gpu_processing::RenderRequest {
                 adjustments: gpu_adjustments,
                 mask_bitmaps: &mask_bitmaps,
+                mask_cache_key: None,
                 lut,
                 roi: None,
             },
@@ -1777,7 +1793,15 @@ fn generate_thumbnail_data_with_metadata(
         }
     }
 
-    let mut final_image: Cow<DynamicImage> = if let Some(img) = preloaded_image {
+    let _decode_reservation = reserve_thumbnail_decode(
+        &app_handle.state::<AppState>(),
+        &source_path,
+        is_raw,
+        preloaded_image,
+    );
+    let mut final_image: Cow<DynamicImage> = if let Some(patched) = &cached_patched {
+        Cow::Borrowed(patched)
+    } else if let Some(img) = preloaded_image {
         image_loader::prepare_base_image_cow(img, &source_path_str, adjustments)?
     } else {
         Cow::Owned(match read_file_mapped(&source_path) {
@@ -2805,6 +2829,29 @@ pub async fn reset_adjustments_for_paths(
     Ok(())
 }
 
+const RAM_PER_BATCH_DECODE_BYTES: u64 = 2 * 1024 * 1024 * 1024;
+
+fn for_each_batch_decode<T: Sync>(items: &[T], f: impl Fn(&T) + Sync) {
+    static WORKERS: std::sync::OnceLock<usize> = std::sync::OnceLock::new();
+    let workers = *WORKERS.get_or_init(|| {
+        let mut sys = sysinfo::System::new();
+        sys.refresh_memory();
+        let ram_limit = (sys.total_memory() / RAM_PER_BATCH_DECODE_BYTES).max(1) as usize;
+        rayon::current_num_threads().min(ram_limit).max(1)
+    });
+
+    let next = std::sync::atomic::AtomicUsize::new(0);
+    std::thread::scope(|scope| {
+        for _ in 0..workers.min(items.len()) {
+            scope.spawn(|| {
+                while let Some(item) = items.get(next.fetch_add(1, Ordering::Relaxed)) {
+                    f(item);
+                }
+            });
+        }
+    });
+}
+
 pub(crate) fn regenerate_thumbnails(
     paths: &[String],
     app_handle: &AppHandle,
@@ -2827,7 +2874,7 @@ pub(crate) fn regenerate_thumbnails(
 
     let gpu_context = gpu_processing::get_or_init_gpu_context(&state, app_handle).ok();
 
-    paths.par_iter().for_each(|path_str| {
+    for_each_batch_decode(paths, |path_str| {
         let result = generate_single_thumbnail_and_cache(
             path_str,
             &thumb_cache_dir,
@@ -3017,7 +3064,7 @@ async fn update_sidecars_from_images(
         };
 
         if fast_decode {
-            paths.par_iter().for_each(process);
+            for_each_batch_decode(&paths, process);
         } else if let Ok(pool) = rayon::ThreadPoolBuilder::new()
             .num_threads(FULL_DECODE_WORKER_THREADS)
             .build()

@@ -1344,8 +1344,18 @@ pub fn inverse_transform_point(
     (x, y)
 }
 
+fn rgb32f_mut(image: &mut DynamicImage) -> &mut Rgb32FImage {
+    if image.as_rgb32f().is_none() {
+        *image = DynamicImage::ImageRgb32F(image.to_rgb32f());
+    }
+    match image {
+        DynamicImage::ImageRgb32F(buffer) => buffer,
+        _ => unreachable!(),
+    }
+}
+
 pub fn apply_cpu_default_raw_processing(image: &mut DynamicImage) {
-    let mut f32_image = image.to_rgb32f();
+    let f32_image = rgb32f_mut(image);
 
     const GAMMA: f32 = 2.38;
     const INV_GAMMA: f32 = 1.0 / GAMMA;
@@ -1364,8 +1374,6 @@ pub fn apply_cpu_default_raw_processing(image: &mut DynamicImage) {
         pixel_chunk[1] = g_contrast.clamp(0.0, 1.0);
         pixel_chunk[2] = b_contrast.clamp(0.0, 1.0);
     });
-
-    *image = DynamicImage::ImageRgb32F(f32_image);
 }
 
 fn srgb_channel_to_linear(c: f32) -> f32 {
@@ -2155,7 +2163,7 @@ pub fn apply_cpu_agx_tonemap(image: &mut DynamicImage) {
 
     let (pipe_to_rendering, rendering_to_pipe) = calculate_agx_matrices_glam();
 
-    let mut f32_image = image.to_rgb32f();
+    let f32_image = rgb32f_mut(image);
 
     f32_image.par_chunks_mut(3).for_each(|pixel_chunk| {
         let r = pixel_chunk[0];
@@ -2203,8 +2211,6 @@ pub fn apply_cpu_agx_tonemap(image: &mut DynamicImage) {
         pixel_chunk[1] = final_color.y.clamp(0.0, 1.0);
         pixel_chunk[2] = final_color.z.clamp(0.0, 1.0);
     });
-
-    *image = DynamicImage::ImageRgb32F(f32_image);
 }
 
 pub fn is_image_edited(
@@ -3105,7 +3111,7 @@ pub struct HistogramData {
 
 pub enum AnalyticsPixels {
     Owned(Vec<u8>),
-    Mapped(wgpu::BufferView),
+    Mapped(crate::gpu_processing::PooledReadback),
 }
 
 impl std::ops::Deref for AnalyticsPixels {

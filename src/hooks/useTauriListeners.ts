@@ -320,8 +320,13 @@ export function useTauriListeners({
         });
       }),
       listen('wgpu-frame-ready', (event: any) => {
-        if (isEffectActive && event.payload?.path === useEditorStore.getState().selectedImage?.path) {
-          useEditorStore.getState().setEditor({ hasRenderedFirstFrame: true });
+        const editorState = useEditorStore.getState();
+        if (
+          isEffectActive &&
+          !editorState.hasRenderedFirstFrame &&
+          event.payload?.path === editorState.selectedImage?.path
+        ) {
+          editorState.setEditor({ hasRenderedFirstFrame: true });
         }
       }),
       listen('panorama-progress', (event: any) => {

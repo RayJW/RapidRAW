@@ -1513,67 +1513,84 @@ pub fn build_warped_image_for_masks<'a>(
     }
 }
 
+pub struct GeneratedMasks {
+    pub bitmaps: Vec<GrayImage>,
+    pub cache_key: u64,
+}
+
 #[allow(clippy::too_many_arguments)]
-pub fn get_cached_or_generate_mask(
+pub fn get_cached_or_generate_masks(
     state: &tauri::State<AppState>,
     path: &str,
-    def: &MaskDefinition,
+    definitions: &[MaskDefinition],
     width: u32,
     height: u32,
     scale: f32,
     crop_offset: (f32, f32),
     adjustments: &serde_json::Value,
-) -> Option<GrayImage> {
-    let mut hasher = DefaultHasher::new();
+) -> GeneratedMasks {
+    let mut combined_hasher = DefaultHasher::new();
+    let mut bitmaps = Vec::with_capacity(definitions.len());
 
-    let mut def_for_hash = def.clone();
-    def_for_hash.adjustments = serde_json::Value::Null;
-    let def_json = serde_json::to_string(&def_for_hash).unwrap_or_default();
-    def_json.hash(&mut hasher);
-    path.hash(&mut hasher);
-
-    if def.requires_warped_image() {
-        crate::cache_utils::calculate_geometry_hash(adjustments).hash(&mut hasher);
-    }
-
-    width.hash(&mut hasher);
-    height.hash(&mut hasher);
-    scale.to_bits().hash(&mut hasher);
-    crop_offset.0.to_bits().hash(&mut hasher);
-    crop_offset.1.to_bits().hash(&mut hasher);
-
-    let key = hasher.finish();
-
-    {
-        let cache = state.mask_cache.lock().unwrap_or_else(|e| e.into_inner());
-        if let Some(img) = cache.get(&key) {
-            return Some(img.clone());
+    for def in definitions {
+        let mut hasher = DefaultHasher::new();
+        let def_json = serde_json::to_string(&(
+            &def.id,
+            &def.name,
+            def.visible,
+            def.invert,
+            def.opacity,
+            &def.sub_masks,
+        ))
+        .unwrap_or_default();
+        def_json.hash(&mut hasher);
+        path.hash(&mut hasher);
+        if def.requires_warped_image() {
+            crate::cache_utils::calculate_geometry_hash(adjustments).hash(&mut hasher);
         }
+        width.hash(&mut hasher);
+        height.hash(&mut hasher);
+        scale.to_bits().hash(&mut hasher);
+        crop_offset.0.to_bits().hash(&mut hasher);
+        crop_offset.1.to_bits().hash(&mut hasher);
+        let key = hasher.finish();
+
+        let cached = state
+            .mask_cache
+            .lock()
+            .unwrap_or_else(|e| e.into_inner())
+            .get(&key)
+            .cloned();
+
+        let bitmap = cached.or_else(|| {
+            let warped_image = def
+                .requires_warped_image()
+                .then(|| get_cached_full_warped_image_for_path(state, Some(path), adjustments).ok())
+                .flatten();
+            let generated = generate_mask_bitmap(
+                def,
+                width,
+                height,
+                scale,
+                crop_offset,
+                warped_image.as_deref(),
+            )?;
+
+            let mut cache = state.mask_cache.lock().unwrap_or_else(|e| e.into_inner());
+            let cached_bytes: usize = cache.values().map(|m| m.as_raw().len()).sum();
+            if cache.len() > 50 || cached_bytes > MASK_CACHE_LIMIT_BYTES {
+                cache.clear();
+            }
+            cache.insert(key, generated.clone());
+            Some(generated)
+        });
+
+        (key, bitmap.is_some()).hash(&mut combined_hasher);
+        bitmaps.extend(bitmap);
     }
 
-    let warped_image = if def.requires_warped_image() {
-        get_cached_full_warped_image_for_path(state, Some(path), adjustments).ok()
-    } else {
-        None
-    };
-
-    let generated = generate_mask_bitmap(
-        def,
-        width,
-        height,
-        scale,
-        crop_offset,
-        warped_image.as_deref(),
-    );
-
-    if let Some(img) = &generated {
-        let mut cache = state.mask_cache.lock().unwrap_or_else(|e| e.into_inner());
-        let cached_bytes: usize = cache.values().map(|m| m.as_raw().len()).sum();
-        if cache.len() > 50 || cached_bytes > MASK_CACHE_LIMIT_BYTES {
-            cache.clear();
-        }
-        cache.insert(key, img.clone());
+    GeneratedMasks {
+        bitmaps,
+        cache_key: combined_hasher.finish(),
     }
-
-    generated
 }

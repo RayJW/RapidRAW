@@ -46,7 +46,7 @@ fn hash_ai_patches(adjustments: &serde_json::Value, hasher: &mut DefaultHasher) 
                 .unwrap_or(true);
             is_visible.hash(hasher);
 
-            if let Some(patch_data) = patch.get("patchData") {
+            let mask_from_sub_masks = if let Some(patch_data) = patch.get("patchData") {
                 let color_len = patch_data
                     .get("color")
                     .and_then(|v| v.as_str())
@@ -60,6 +60,8 @@ fn hash_ai_patches(adjustments: &serde_json::Value, hasher: &mut DefaultHasher) 
                     .unwrap_or("")
                     .len();
                 mask_len.hash(hasher);
+
+                color_len > 0 && mask_len == 0
             } else {
                 let data_len = patch
                     .get("patchDataBase64")
@@ -67,9 +69,10 @@ fn hash_ai_patches(adjustments: &serde_json::Value, hasher: &mut DefaultHasher) 
                     .unwrap_or("")
                     .len();
                 data_len.hash(hasher);
-            }
+                true
+            };
 
-            if let Some(sub_masks_val) = patch.get("subMasks") {
+            if mask_from_sub_masks && let Some(sub_masks_val) = patch.get("subMasks") {
                 sub_masks_val.to_string().hash(hasher);
             }
 

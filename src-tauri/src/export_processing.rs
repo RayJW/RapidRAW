@@ -45,7 +45,7 @@ use crate::mask_generation::{MaskDefinition, build_warped_image_for_masks, gener
 use crate::as_shot::as_shot;
 use crate::cache_utils::{calculate_full_job_hash, calculate_transform_hash};
 use crate::{
-    apply_all_transformations, generate_transformed_preview, get_cached_or_generate_mask,
+    apply_all_transformations, generate_transformed_preview, get_cached_or_generate_masks,
     hydrate_adjustments, load_settings,
 };
 
@@ -917,88 +917,23 @@ fn apply_export_geometry_and_watermark(
 
 const FALLBACK_EXPORT_MEMORY: u64 = 4 * 1024 * 1024 * 1024;
 
-struct MemoryBudget {
-    total: u64,
-    available: Mutex<u64>,
-    released: std::sync::Condvar,
-}
-
-struct MemoryReservation {
-    budget: Arc<MemoryBudget>,
-    bytes: u64,
-}
-
-impl MemoryBudget {
-    fn new(total: u64) -> Arc<Self> {
-        Arc::new(Self {
-            total,
-            available: Mutex::new(total),
-            released: std::sync::Condvar::new(),
-        })
-    }
-
-    fn reserve(
-        self: &Arc<Self>,
-        bytes: u64,
-        cancellation_token: &AtomicBool,
-    ) -> Option<MemoryReservation> {
-        let bytes = bytes.min(self.total);
-        let mut available = self.available.lock().unwrap_or_else(|e| e.into_inner());
-        while *available < bytes {
-            if cancellation_token.load(Ordering::SeqCst) {
-                return None;
-            }
-            available = self
-                .released
-                .wait_timeout(available, std::time::Duration::from_millis(200))
-                .unwrap_or_else(|e| e.into_inner())
-                .0;
-        }
-        *available -= bytes;
-        Some(MemoryReservation {
-            budget: Arc::clone(self),
-            bytes,
-        })
-    }
-}
-
-impl Drop for MemoryReservation {
-    fn drop(&mut self) {
-        *self
-            .budget
-            .available
-            .lock()
-            .unwrap_or_else(|e| e.into_inner()) += self.bytes;
-        self.budget.released.notify_all();
-    }
-}
-
 fn estimate_export_memory(
     source_path: &str,
     is_raw: bool,
     loaded_dimensions: Option<(u32, u32)>,
     mask_count: usize,
 ) -> u64 {
-    let dimensions = loaded_dimensions
-        .map(|(w, h)| (w as u64, h as u64))
-        .or_else(|| {
-            if is_raw {
-                let mmap = read_file_mapped(Path::new(source_path)).ok()?;
-                crate::raw_processing::raw_dimensions(&mmap).map(|(w, h)| (w as u64, h as u64))
-            } else {
-                image::image_dimensions(source_path)
-                    .ok()
-                    .map(|(w, h)| (w as u64, h as u64))
-            }
-        });
+    let pixels = loaded_dimensions
+        .map(|(w, h)| w as u64 * h as u64)
+        .or_else(|| crate::memory_budget::image_pixel_count(Path::new(source_path), is_raw));
 
-    let Some((width, height)) = dimensions else {
+    let Some(pixels) = pixels else {
         return FALLBACK_EXPORT_MEMORY;
     };
 
     let bytes_per_pixel = if is_raw { 48 } else { 40 }
         + 6 * mask_count.min(crate::image_processing::MAX_MASKS) as u64;
-    width * height * bytes_per_pixel
+    pixels * bytes_per_pixel
 }
 
 fn ensure_export_not_cancelled(cancellation_token: &AtomicBool) -> Result<(), String> {
@@ -1175,6 +1110,7 @@ fn process_image_for_export_pipeline(
         RenderRequest {
             adjustments: all_adjustments,
             mask_bitmaps: &mask_bitmaps,
+            mask_cache_key: None,
             lut,
             roi: None,
         },
@@ -1558,6 +1494,7 @@ fn export_masks_for_image(
                 RenderRequest {
                     adjustments: single_adjustments,
                     mask_bitmaps: &single_bitmaps,
+                    mask_cache_key: None,
                     lut: lut.clone(),
                     roi: None,
                 },
@@ -1670,6 +1607,7 @@ fn export_adjustments_as_lut(
         RenderRequest {
             adjustments: all_adjustments,
             mask_bitmaps: &[],
+            mask_cache_key: None,
             lut,
             roi: None,
         },
@@ -1733,8 +1671,9 @@ pub(crate) async fn export_images_impl(
 
     let available_ram = sys.available_memory();
     let available_ram_gb = available_ram as f64 / 1024.0 / 1024.0 / 1024.0;
-    let memory_budget =
-        MemoryBudget::new((available_ram as f64 * memory_limit as f64 / 100.0) as u64);
+    let memory_budget = crate::memory_budget::MemoryBudget::new(
+        (available_ram as f64 * memory_limit as f64 / 100.0) as u64,
+    );
 
     let num_threads = if paths.len() == 1 {
         1
@@ -1997,13 +1936,25 @@ pub(crate) async fn export_images_impl(
                             .map(|loaded| (loaded.image.width(), loaded.image.height())),
                         js_adjustments["masks"].as_array().map_or(0, |m| m.len()),
                     );
-                    let Some(_memory_reservation) =
-                        memory_budget.reserve(estimated_memory, &cancellation_token_clone)
+                    let Some(_export_reservation) =
+                        memory_budget.reserve(estimated_memory, Some(&cancellation_token_clone))
+                    else {
+                        return Err("Export cancelled".to_string());
+                    };
+                    let Some(_app_reservation) = state
+                        .memory_budget
+                        .reserve(estimated_memory, Some(&cancellation_token_clone))
                     else {
                         return Err("Export cancelled".to_string());
                     };
 
-                    let base_image: Cow<DynamicImage> = if let Some(loaded_image) = &loaded_image {
+                    let cached_patched = loaded_image.as_ref().and_then(|loaded_image| {
+                        crate::cached_patched_image(&state, &loaded_image.image, &js_adjustments)
+                    });
+
+                    let base_image: Cow<DynamicImage> = if let Some(patched) = &cached_patched {
+                        Cow::Borrowed(patched)
+                    } else if let Some(loaded_image) = &loaded_image {
                         prepare_base_image_cow(
                             &loaded_image.image,
                             &loaded_image.path,
@@ -2420,21 +2371,17 @@ pub async fn estimate_export_sizes(
             unscaled_crop_offset.1 * scale,
         );
 
-        let mask_bitmaps: Vec<ImageBuffer<Luma<u8>, Vec<u8>>> = mask_definitions
-            .iter()
-            .filter_map(|def| {
-                get_cached_or_generate_mask(
-                    &state,
-                    &loaded_image.path,
-                    def,
-                    img_w,
-                    img_h,
-                    scale,
-                    scaled_crop_offset,
-                    &adjustments_clone,
-                )
-            })
-            .collect();
+        let mask_bitmaps = get_cached_or_generate_masks(
+            &state,
+            &loaded_image.path,
+            &mask_definitions,
+            img_w,
+            img_h,
+            scale,
+            scaled_crop_offset,
+            &adjustments_clone,
+        )
+        .bitmaps;
 
         let render = resolve_render_options_from_handle(&app_handle, is_raw);
         let mut all_adjustments =
@@ -2455,6 +2402,7 @@ pub async fn estimate_export_sizes(
             RenderRequest {
                 adjustments: all_adjustments,
                 mask_bitmaps: &mask_bitmaps,
+                mask_cache_key: None,
                 lut,
                 roi: None,
             },
@@ -2556,21 +2504,17 @@ pub async fn estimate_export_sizes(
             unscaled_crop_offset.1 * gpu_scale,
         );
 
-        let mask_bitmaps: Vec<ImageBuffer<Luma<u8>, Vec<u8>>> = mask_definitions
-            .iter()
-            .filter_map(|def| {
-                get_cached_or_generate_mask(
-                    &state,
-                    &source_path_str,
-                    def,
-                    preview_w,
-                    preview_h,
-                    total_scale,
-                    scaled_crop_offset,
-                    &js_adjustments,
-                )
-            })
-            .collect();
+        let mask_bitmaps = get_cached_or_generate_masks(
+            &state,
+            &source_path_str,
+            &mask_definitions,
+            preview_w,
+            preview_h,
+            total_scale,
+            scaled_crop_offset,
+            &js_adjustments,
+        )
+        .bitmaps;
 
         let render = resolve_render_options_from_handle(&app_handle, is_raw);
         let mut all_adjustments = get_all_adjustments_from_json(
@@ -2595,6 +2539,7 @@ pub async fn estimate_export_sizes(
             RenderRequest {
                 adjustments: all_adjustments,
                 mask_bitmaps: &mask_bitmaps,
+                mask_cache_key: None,
                 lut,
                 roi: None,
             },
