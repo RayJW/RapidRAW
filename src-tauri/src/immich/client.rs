@@ -220,6 +220,7 @@ impl ImmichClient {
     ) -> Result<Option<MetadataEntry>, String> {
         let response = self
             .request(Method::GET, &format!("/assets/{asset_id}/metadata/{key}"))
+            .timeout(Duration::from_secs(5))
             .send()
             .await
             .map_err(|e| format!("Immich is not reachable (edits): {e}"))?;

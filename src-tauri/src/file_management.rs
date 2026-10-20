@@ -3226,11 +3226,13 @@ pub fn set_flag_for_paths(
 }
 
 #[tauri::command]
-pub fn load_metadata(path: String, app_handle: AppHandle) -> Result<ImageMetadata, String> {
+pub async fn load_metadata(path: String, app_handle: AppHandle) -> Result<ImageMetadata, String> {
+    let (source_path, sidecar_path) = parse_virtual_path(&path);
+    crate::immich::fetch_edits(&app_handle, &source_path).await;
+
     let settings = load_settings(app_handle).unwrap_or_default();
     let enable_xmp_sync = settings.enable_xmp_sync.unwrap_or(false);
 
-    let (source_path, sidecar_path) = parse_virtual_path(&path);
     let mut metadata = crate::exif_processing::load_sidecar(&sidecar_path);
 
     if enable_xmp_sync && sync_metadata_from_xmp(&source_path, &mut metadata) {

@@ -59,6 +59,24 @@ fn session(app_handle: &AppHandle) -> Result<Arc<Session>, String> {
     Ok(session)
 }
 
+pub async fn fetch_edits(app_handle: &AppHandle, path: &Path) {
+    let Some(entry) = registry::get(path) else {
+        return;
+    };
+    if sync::status().offline {
+        return;
+    }
+    let Ok(session) = session(app_handle) else {
+        return;
+    };
+    if let Err(e) = sync::pull(app_handle, &session.client, &entry.asset_id, path).await {
+        log::warn!(
+            "Could not fetch the edits of {} from Immich: {e}",
+            path.display()
+        );
+    }
+}
+
 pub fn start(app_handle: &AppHandle) {
     let app_handle = app_handle.clone();
     tauri::async_runtime::spawn(async move {

@@ -207,6 +207,13 @@ pub async fn pull(
                 &remote.value,
                 Some(remote.updated_at),
             );
+            let _ = app_handle.emit(
+                "immich-edits-fetched",
+                json!({
+                    "path": source,
+                    "rating": remote.value.get("rating").and_then(Value::as_u64).unwrap_or(0),
+                }),
+            );
         }
     }
     Ok(())

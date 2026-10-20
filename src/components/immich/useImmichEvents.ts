@@ -75,6 +75,11 @@ export function useImmichEvents(refreshLibrary: () => void) {
       listen<{ error: string }>('immich-trash', ({ payload }) => {
         toast.error(t('immich.toasts.trashFailed', { error: payload.error }));
       }),
+      listen<{ path: string; rating: number }>('immich-edits-fetched', ({ payload }) => {
+        useLibraryStore.getState().setLibrary((state) => ({
+          imageRatings: { ...state.imageRatings, [payload.path]: payload.rating },
+        }));
+      }),
       listen<ConflictEvent>('immich-edits-conflict', ({ payload }) => {
         toast.info(t('immich.toasts.editsConflict', { fileName: payload.fileName }));
         refreshRef.current();
