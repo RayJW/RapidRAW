@@ -1428,6 +1428,11 @@ pub fn apply_linear_to_srgb(image: DynamicImage) -> DynamicImage {
 }
 
 pub fn apply_orientation(image: DynamicImage, orientation: Orientation) -> DynamicImage {
+    if let DynamicImage::ImageRgb32F(buffer) = &image
+        && !matches!(orientation, Orientation::Normal | Orientation::Unknown)
+    {
+        return DynamicImage::ImageRgb32F(orient_rgb32f(buffer, orientation));
+    }
     match orientation {
         Orientation::Normal | Orientation::Unknown => image,
         Orientation::HorizontalFlip => image.fliph(),
@@ -1437,6 +1442,56 @@ pub fn apply_orientation(image: DynamicImage, orientation: Orientation) -> Dynam
         Orientation::Rotate90 => image.rotate90(),
         Orientation::Transverse => image.rotate270().fliph(),
         Orientation::Rotate270 => image.rotate270(),
+    }
+}
+
+fn orient_rgb32f(src: &Rgb32FImage, orientation: Orientation) -> Rgb32FImage {
+    let width = src.width() as usize;
+    let data = src.as_raw();
+    oriented_rgb32f(width, src.height() as usize, orientation, |x, y| {
+        let i = (y * width + x) * 3;
+        [data[i], data[i + 1], data[i + 2]]
+    })
+}
+
+pub fn oriented_rgb32f(
+    width: usize,
+    height: usize,
+    orientation: Orientation,
+    pixel: impl Fn(usize, usize) -> [f32; 3] + Sync,
+) -> Rgb32FImage {
+    fn remap(
+        out_w: usize,
+        out_h: usize,
+        pixel: impl Fn(usize, usize) -> [f32; 3] + Sync,
+    ) -> Rgb32FImage {
+        const BAND: usize = 16;
+        let mut out = vec![0.0f32; out_w * out_h * 3];
+        out.par_chunks_mut(out_w * 3 * BAND)
+            .enumerate()
+            .for_each(|(band, chunk)| {
+                let y0 = band * BAND;
+                let rows = chunk.len() / (out_w * 3);
+                for x in 0..out_w {
+                    for dy in 0..rows {
+                        let d = (dy * out_w + x) * 3;
+                        chunk[d..d + 3].copy_from_slice(&pixel(x, y0 + dy));
+                    }
+                }
+            });
+        Rgb32FImage::from_raw(out_w as u32, out_h as u32, out).unwrap()
+    }
+
+    let (w, h) = (width, height);
+    match orientation {
+        Orientation::Normal | Orientation::Unknown => remap(w, h, pixel),
+        Orientation::HorizontalFlip => remap(w, h, |x, y| pixel(w - 1 - x, y)),
+        Orientation::Rotate180 => remap(w, h, |x, y| pixel(w - 1 - x, h - 1 - y)),
+        Orientation::VerticalFlip => remap(w, h, |x, y| pixel(x, h - 1 - y)),
+        Orientation::Transpose => remap(h, w, |x, y| pixel(y, x)),
+        Orientation::Rotate90 => remap(h, w, |x, y| pixel(y, h - 1 - x)),
+        Orientation::Transverse => remap(h, w, |x, y| pixel(w - 1 - y, h - 1 - x)),
+        Orientation::Rotate270 => remap(h, w, |x, y| pixel(w - 1 - y, x)),
     }
 }
 
@@ -4061,6 +4116,39 @@ mod downscale_tests {
                 assert_eq!(fast.dimensions(), reference.dimensions());
                 assert!(fast_bits == ref_bits, "mismatch for {}x{} -> {}", w, h, tw);
             }
+        }
+    }
+
+    #[test]
+    fn rgb32f_orientation_matches_image_crate() {
+        let (w, h) = (37u32, 23u32);
+        let data: Vec<f32> = (0..w * h * 3).map(|i| i as f32 * 0.37).collect();
+        let img = DynamicImage::ImageRgb32F(Rgb32FImage::from_raw(w, h, data).unwrap());
+        for orientation in [
+            Orientation::HorizontalFlip,
+            Orientation::Rotate180,
+            Orientation::VerticalFlip,
+            Orientation::Transpose,
+            Orientation::Rotate90,
+            Orientation::Transverse,
+            Orientation::Rotate270,
+        ] {
+            let fast = apply_orientation(img.clone(), orientation);
+            let reference = match orientation {
+                Orientation::HorizontalFlip => img.fliph(),
+                Orientation::Rotate180 => img.rotate180(),
+                Orientation::VerticalFlip => img.flipv(),
+                Orientation::Transpose => img.rotate90().fliph(),
+                Orientation::Rotate90 => img.rotate90(),
+                Orientation::Transverse => img.rotate270().fliph(),
+                _ => img.rotate270(),
+            };
+            assert_eq!(fast.dimensions(), reference.dimensions());
+            assert!(
+                fast.as_rgb32f().unwrap().as_raw() == reference.as_rgb32f().unwrap().as_raw(),
+                "mismatch for {:?}",
+                orientation
+            );
         }
     }
 }
