@@ -2733,63 +2733,41 @@ pub async fn apply_adjustments_to_paths(
     adjustments: Value,
     app_handle: AppHandle,
 ) -> Result<(), String> {
-    let state = app_handle.state::<AppState>();
-    add_to_thumbnail_queue(&state, paths.len(), &app_handle);
+    let lens_db = app_handle
+        .state::<AppState>()
+        .lens_db
+        .lock()
+        .unwrap()
+        .clone();
 
     tauri::async_runtime::spawn_blocking(move || {
-        let settings = load_settings(app_handle.clone()).unwrap_or_default();
-        let enable_xmp_sync = settings.enable_xmp_sync.unwrap_or(false);
-        let create_xmp_if_missing = settings.create_xmp_if_missing.unwrap_or(false);
+        update_sidecars_and_thumbnails(paths, app_handle, move |source_path, sidecar_path| {
+            let mut metadata =
+                crate::exif_processing::load_sidecar_with_exif(sidecar_path, source_path);
 
-        let lens_db = app_handle
-            .state::<AppState>()
-            .lens_db
-            .lock()
-            .unwrap()
-            .clone();
-
-        paths.par_iter().for_each(|path| {
-            let (source_path, sidecar_path) = parse_virtual_path(path);
-
-            let mut existing_metadata =
-                crate::exif_processing::load_sidecar_with_exif(&sidecar_path, &source_path);
-
-            let mut new_adjustments = existing_metadata.adjustments;
-            if new_adjustments.is_null() {
-                new_adjustments = default_adjustments();
+            if metadata.adjustments.is_null() {
+                metadata.adjustments = default_adjustments();
             }
 
-            if let (Some(new_map), Some(pasted_map)) =
-                (new_adjustments.as_object_mut(), adjustments.as_object())
-            {
+            if let (Some(new_map), Some(pasted_map)) = (
+                metadata.adjustments.as_object_mut(),
+                adjustments.as_object(),
+            ) {
                 for (k, v) in pasted_map {
                     new_map.insert(k.clone(), v.clone());
                 }
             }
 
             resolve_lens_params_in_adjustments(
-                &mut new_adjustments,
-                &existing_metadata.exif,
+                &mut metadata.adjustments,
+                &metadata.exif,
                 lens_db.as_deref(),
             );
-
-            existing_metadata.adjustments = new_adjustments;
-
-            let _ = crate::exif_processing::write_sidecar(
-                &sidecar_path,
-                &source_path,
-                &existing_metadata,
-            );
-
-            if enable_xmp_sync {
-                sync_metadata_to_xmp(&source_path, &existing_metadata, create_xmp_if_missing);
-            }
+            metadata
         });
-
-        regenerate_thumbnails(&paths, &app_handle, &settings);
-    });
-
-    Ok(())
+    })
+    .await
+    .map_err(|e| e.to_string())
 }
 
 #[tauri::command]
@@ -2797,41 +2775,59 @@ pub async fn reset_adjustments_for_paths(
     paths: Vec<String>,
     app_handle: AppHandle,
 ) -> Result<(), String> {
-    let state = app_handle.state::<AppState>();
-    add_to_thumbnail_queue(&state, paths.len(), &app_handle);
-
     tauri::async_runtime::spawn_blocking(move || {
-        let settings = load_settings(app_handle.clone()).unwrap_or_default();
-        let enable_xmp_sync = settings.enable_xmp_sync.unwrap_or(false);
-        let create_xmp_if_missing = settings.create_xmp_if_missing.unwrap_or(false);
-
-        paths.par_iter().for_each(|path| {
-            let (source_path, sidecar_path) = parse_virtual_path(path);
-
-            let mut existing_metadata = crate::exif_processing::load_sidecar(&sidecar_path);
-
-            existing_metadata.adjustments = default_adjustments();
-
-            let _ = crate::exif_processing::write_sidecar(
-                &sidecar_path,
-                &source_path,
-                &existing_metadata,
-            );
-
-            if enable_xmp_sync {
-                sync_metadata_to_xmp(&source_path, &existing_metadata, create_xmp_if_missing);
-            }
+        update_sidecars_and_thumbnails(paths, app_handle, |_, sidecar_path| {
+            let mut metadata = crate::exif_processing::load_sidecar(sidecar_path);
+            metadata.adjustments = default_adjustments();
+            metadata
         });
-
-        regenerate_thumbnails(&paths, &app_handle, &settings);
     });
 
     Ok(())
 }
 
+fn update_sidecars_and_thumbnails(
+    paths: Vec<String>,
+    app_handle: AppHandle,
+    update: impl Fn(&Path, &Path) -> ImageMetadata + Sync,
+) {
+    let state = app_handle.state::<AppState>();
+    add_to_thumbnail_queue(&state, paths.len(), &app_handle);
+
+    let settings = load_settings(app_handle.clone()).unwrap_or_default();
+    let enable_xmp_sync = settings.enable_xmp_sync.unwrap_or(false);
+    let create_xmp_if_missing = settings.create_xmp_if_missing.unwrap_or(false);
+
+    let (updated_tx, updated_rx) = std::sync::mpsc::channel::<String>();
+    let thumbnail_app_handle = app_handle.clone();
+    let thumbnail_settings = settings.clone();
+    tauri::async_runtime::spawn_blocking(move || {
+        regenerate_thumbnails(
+            updated_rx.into_iter(),
+            &thumbnail_app_handle,
+            &thumbnail_settings,
+            false,
+        );
+    });
+
+    paths
+        .par_iter()
+        .for_each_with(updated_tx, |updated_tx, path| {
+            let (source_path, sidecar_path) = parse_virtual_path(path);
+            let metadata = update(&source_path, &sidecar_path);
+
+            let _ = crate::exif_processing::write_sidecar(&sidecar_path, &source_path, &metadata);
+            if enable_xmp_sync {
+                sync_metadata_to_xmp(&source_path, &metadata, create_xmp_if_missing);
+            }
+
+            let _ = updated_tx.send(path.clone());
+        });
+}
+
 const RAM_PER_BATCH_DECODE_BYTES: u64 = 2 * 1024 * 1024 * 1024;
 
-fn for_each_batch_decode<T: Sync>(items: &[T], f: impl Fn(&T) + Sync) {
+fn run_batch_workers<T: Send>(items: impl Iterator<Item = T> + Send, work: impl Fn(T) + Sync) {
     static WORKERS: std::sync::OnceLock<usize> = std::sync::OnceLock::new();
     let workers = *WORKERS.get_or_init(|| {
         let mut sys = sysinfo::System::new();
@@ -2840,12 +2836,16 @@ fn for_each_batch_decode<T: Sync>(items: &[T], f: impl Fn(&T) + Sync) {
         rayon::current_num_threads().min(ram_limit).max(1)
     });
 
-    let next = std::sync::atomic::AtomicUsize::new(0);
+    let items = std::sync::Mutex::new(items);
     std::thread::scope(|scope| {
-        for _ in 0..workers.min(items.len()) {
+        for _ in 0..workers {
             scope.spawn(|| {
-                while let Some(item) = items.get(next.fetch_add(1, Ordering::Relaxed)) {
-                    f(item);
+                loop {
+                    let next = items.lock().unwrap_or_else(|e| e.into_inner()).next();
+                    match next {
+                        Some(item) => work(item),
+                        None => break,
+                    }
                 }
             });
         }
@@ -2853,9 +2853,10 @@ fn for_each_batch_decode<T: Sync>(items: &[T], f: impl Fn(&T) + Sync) {
 }
 
 pub(crate) fn regenerate_thumbnails(
-    paths: &[String],
+    paths: impl Iterator<Item = String> + Send,
     app_handle: &AppHandle,
     settings: &AppSettings,
+    force_regenerate: bool,
 ) {
     let state = app_handle.state::<AppState>();
     let thumb_cache_dir = match resolve_thumbnail_cache_dir(app_handle) {
@@ -2863,9 +2864,7 @@ pub(crate) fn regenerate_thumbnails(
         Err(e) => {
             log::warn!("Unable to initialize thumbnail cache directory: {}", e);
             for path in paths {
-                emit_thumbnail_cache_setup_error(app_handle, path, &e);
-            }
-            for _ in 0..paths.len() {
+                emit_thumbnail_cache_setup_error(app_handle, &path, &e);
                 increment_thumbnail_progress(&state, app_handle);
             }
             return;
@@ -2874,13 +2873,14 @@ pub(crate) fn regenerate_thumbnails(
 
     let gpu_context = gpu_processing::get_or_init_gpu_context(&state, app_handle).ok();
 
-    for_each_batch_decode(paths, |path_str| {
+    run_batch_workers(paths, |path| {
+        let path_str = path.as_str();
         let result = generate_single_thumbnail_and_cache(
             path_str,
             &thumb_cache_dir,
             gpu_context.as_ref(),
             None,
-            true,
+            force_regenerate,
             app_handle,
             settings,
             None,
@@ -2906,9 +2906,6 @@ pub async fn apply_auto_lens_correction_to_paths(
     paths: Vec<String>,
     app_handle: tauri::AppHandle,
 ) -> Result<(), String> {
-    let settings = load_settings(app_handle.clone()).unwrap_or_default();
-    let enable_xmp_sync = settings.enable_xmp_sync.unwrap_or(false);
-    let create_xmp_if_missing = settings.create_xmp_if_missing.unwrap_or(false);
     let lens_db = app_handle
         .state::<AppState>()
         .lens_db
@@ -2916,18 +2913,16 @@ pub async fn apply_auto_lens_correction_to_paths(
         .unwrap()
         .clone();
 
-    let sidecar_paths = paths.clone();
     tauri::async_runtime::spawn_blocking(move || {
-        sidecar_paths.par_iter().for_each(|path| {
-            let (source_path, sidecar_path) = parse_virtual_path(path);
-            let mut existing_metadata =
-                crate::exif_processing::load_sidecar_with_exif(&sidecar_path, &source_path);
+        update_sidecars_and_thumbnails(paths, app_handle, move |source_path, sidecar_path| {
+            let mut metadata =
+                crate::exif_processing::load_sidecar_with_exif(sidecar_path, source_path);
 
-            if existing_metadata.adjustments.is_null() {
-                existing_metadata.adjustments = default_adjustments();
+            if metadata.adjustments.is_null() {
+                metadata.adjustments = default_adjustments();
             }
 
-            if let Some(obj) = existing_metadata.adjustments.as_object_mut() {
+            if let Some(obj) = metadata.adjustments.as_object_mut() {
                 obj.insert("lensCorrectionMode".to_string(), serde_json::json!("auto"));
                 obj.insert("lensDistortionEnabled".to_string(), serde_json::json!(true));
                 obj.insert("lensTcaEnabled".to_string(), serde_json::json!(true));
@@ -2935,31 +2930,15 @@ pub async fn apply_auto_lens_correction_to_paths(
             }
 
             resolve_lens_params_in_adjustments(
-                &mut existing_metadata.adjustments,
-                &existing_metadata.exif,
+                &mut metadata.adjustments,
+                &metadata.exif,
                 lens_db.as_deref(),
             );
-
-            let _ = crate::exif_processing::write_sidecar(
-                &sidecar_path,
-                &source_path,
-                &existing_metadata,
-            );
-
-            if enable_xmp_sync {
-                sync_metadata_to_xmp(&source_path, &existing_metadata, create_xmp_if_missing);
-            }
+            metadata
         });
     })
     .await
-    .map_err(|e| e.to_string())?;
-
-    add_to_thumbnail_queue(&app_handle.state::<AppState>(), paths.len(), &app_handle);
-    tauri::async_runtime::spawn_blocking(move || {
-        regenerate_thumbnails(&paths, &app_handle, &settings)
-    });
-
-    Ok(())
+    .map_err(|e| e.to_string())
 }
 
 const FULL_DECODE_WORKER_THREADS: usize = 2;
@@ -3001,7 +2980,7 @@ async fn update_sidecars_from_images(
                 let (source_path, sidecar_path) = parse_virtual_path(path);
                 let source_path_str = source_path.to_string_lossy().to_string();
 
-                let file_bytes = fs::read(&source_path).map_err(|e| e.to_string())?;
+                let file_bytes = read_file_mapped(&source_path).map_err(|e| e.to_string())?;
                 let image = image_loader::load_base_image_from_bytes(
                     &file_bytes,
                     &source_path_str,
@@ -3064,7 +3043,7 @@ async fn update_sidecars_from_images(
         };
 
         if fast_decode {
-            for_each_batch_decode(&paths, process);
+            run_batch_workers(paths.iter(), process);
         } else if let Ok(pool) = rayon::ThreadPoolBuilder::new()
             .num_threads(FULL_DECODE_WORKER_THREADS)
             .build()
