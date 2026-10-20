@@ -261,6 +261,10 @@ fn develop_internal(
                 height: crop.d.h,
             };
 
+            let levels =
+                highlight_reconstruction::detect_clip_levels(&pixels.data, region, rescale_factor);
+            let clips: [f32; 3] = std::array::from_fn(|c| wb[c] * levels[c]);
+
             pixels
                 .data
                 .par_chunks_exact_mut(region.stride)
@@ -273,7 +277,7 @@ fn develop_internal(
                         }
                     }
                 });
-            highlight_reconstruction::reconstruct_highlights(&mut pixels.data, region, wb);
+            highlight_reconstruction::reconstruct_highlights(&mut pixels.data, region, clips);
             check_cancel()?;
 
             let data = &pixels.data;
