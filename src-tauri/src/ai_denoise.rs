@@ -514,6 +514,7 @@ pub fn ensure_generated(
     tauri::async_runtime::spawn(async move {
         let result = generate(&app_handle, loaded_image, key.clone(), source, fingerprint).await;
         cache().pending.remove(&key);
+        crate::ai_jobs::release_deferred(&path);
         match result {
             Ok(()) => {
                 let _ = app_handle.emit("ai-denoise-ready", &path);
@@ -536,17 +537,31 @@ pub fn has_cached_entry(path: &str) -> bool {
         || read_disk_header(&key).is_some_and(|h| h.source == source)
 }
 
+pub fn is_generating(path: &str) -> bool {
+    cache().pending.contains(&entry_key(&source_string(path)))
+}
+
 pub fn generate_for_base(
     app_handle: &tauri::AppHandle,
     path: &str,
     base: &DynamicImage,
-) -> Result<(), String> {
+) -> Result<bool, String> {
     let source = source_string(path);
     let key = entry_key(&source);
     if !cache().pending.insert(key.clone()) {
-        return Ok(());
+        return Ok(false);
     }
 
+    let fingerprints = base_fingerprints(base);
+    if is_ready(&key, &source, fingerprints) {
+        cache().pending.remove(&key);
+        return Ok(true);
+    }
+
+    let _ = app_handle.emit(
+        "ai-denoise-progress",
+        serde_json::json!({ "path": path, "progress": 0.0 }),
+    );
     let state = app_handle.state::<AppState>();
     let result = tauri::async_runtime::block_on(crate::ai_processing::get_or_init_denoise_model(
         app_handle,
@@ -555,12 +570,34 @@ pub fn generate_for_base(
     ))
     .map_err(|e| e.to_string())
     .and_then(|session| {
-        let [fingerprint, _] = base_fingerprints(base);
-        denoise_into_cache(base, &session, key.clone(), source, fingerprint, &|_| {})
+        denoise_into_cache(
+            base,
+            &session,
+            key.clone(),
+            source,
+            fingerprints[0],
+            &|progress| {
+                let _ = app_handle.emit(
+                    "ai-denoise-progress",
+                    serde_json::json!({ "path": path, "progress": progress }),
+                );
+            },
+        )
     });
 
     cache().pending.remove(&key);
-    result
+    match &result {
+        Ok(()) => {
+            let _ = app_handle.emit("ai-denoise-ready", path);
+        }
+        Err(error) => {
+            let _ = app_handle.emit(
+                "ai-denoise-error",
+                serde_json::json!({ "path": path, "error": error }),
+            );
+        }
+    }
+    result.map(|()| true)
 }
 
 fn cache_files() -> Vec<(PathBuf, u64)> {

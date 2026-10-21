@@ -45,7 +45,7 @@ import { useUIStore } from '../../store/useUIStore';
 import SettingsPanel from './SettingsPanel';
 
 import LibraryGrid from './library/LibraryGrid';
-import { AiJobsIndicator, SearchInput, ViewOptionsDropdown } from './library/LibraryHeader';
+import { AiJobsMenu, SearchInput, ViewOptionsDropdown } from './library/LibraryHeader';
 
 export interface ColumnWidths {
   thumbnail: number;
@@ -595,7 +595,6 @@ export default function MainLibrary(props: MainLibraryProps) {
               )}
             </div>
             <div className="flex items-center gap-4 shrink-0">
-              <AiJobsIndicator />
               {props.importState.status === Status.Importing && (
                 <Text as="div" color={TextColors.accent} className="flex items-center gap-2 animate-pulse">
                   <FolderInput size={16} />
@@ -619,6 +618,7 @@ export default function MainLibrary(props: MainLibraryProps) {
                   <span>{t('library.import.failed')}</span>
                 </Text>
               )}
+              <AiJobsMenu />
               <DisplayModeSwitch displayMode={libraryDisplayMode} setDisplayMode={setLibraryDisplayMode} t={t} />
 
               <div className="flex items-center bg-surface p-1 rounded-lg gap-1 border border-border-color/20">

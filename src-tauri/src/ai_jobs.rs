@@ -203,13 +203,10 @@ fn sub_mask_id(sub_mask: &Value) -> Option<&str> {
     sub_mask.get("id").and_then(Value::as_str)
 }
 
-fn plan(adjustments: &Value, path: &str, source_id: &str, is_open: bool) -> Vec<Job> {
+fn plan(adjustments: &Value, path: &str, source_id: &str) -> Vec<Job> {
     let mut jobs = Vec::new();
 
-    if !is_open
-        && crate::ai_denoise::is_enabled(adjustments)
-        && !crate::ai_denoise::has_cached_entry(path)
-    {
+    if crate::ai_denoise::is_enabled(adjustments) && !crate::ai_denoise::has_cached_entry(path) {
         jobs.push(Job::Denoise);
     }
 
@@ -407,6 +404,7 @@ struct Journal {
 struct Queue {
     pending: VecDeque<String>,
     reserved: HashSet<String>,
+    deferred: HashSet<String>,
     journal_path: Option<PathBuf>,
     processing: Option<String>,
     requeue_processing: bool,
@@ -417,14 +415,19 @@ struct Queue {
 enum Outcome {
     Finished,
     Interrupted,
+    Deferred,
 }
 
 impl Queue {
     fn next_path(&self, open_path: Option<String>) -> Option<String> {
+        let mut ready = self
+            .pending
+            .iter()
+            .filter(|path| !self.deferred.contains(*path));
         if !self.status.paused {
-            return self.pending.front().cloned();
+            return ready.next().cloned();
         }
-        open_path.filter(|path| self.pending.contains(path))
+        open_path.filter(|open| ready.any(|path| path == open))
     }
 
     fn persist(&self) {
@@ -496,19 +499,12 @@ pub fn release(paths: &[String]) {
 
 pub fn needs_generation(adjustments: &Value, source_path: &Path) -> bool {
     has_ai_results(adjustments)
-        && source_id(source_path).is_some_and(|id| {
-            !plan(adjustments, &source_path.to_string_lossy(), &id, false).is_empty()
-        })
+        && source_id(source_path)
+            .is_some_and(|id| has_pending_jobs(adjustments, &source_path.to_string_lossy(), &id))
 }
 
-pub fn has_pending_jobs(
-    app_handle: &AppHandle,
-    adjustments: &Value,
-    path: &str,
-    source_id: &str,
-) -> bool {
-    let is_open = open_image_path(app_handle).as_deref() == Some(path);
-    !plan(adjustments, path, source_id, is_open).is_empty()
+pub fn has_pending_jobs(adjustments: &Value, path: &str, source_id: &str) -> bool {
+    !plan(adjustments, path, source_id).is_empty()
 }
 
 pub fn enqueue(app_handle: &AppHandle, paths: &[String], front: bool) {
@@ -562,8 +558,8 @@ pub fn enqueue(app_handle: &AppHandle, paths: &[String], front: bool) {
 pub fn prioritize(app_handle: &AppHandle, path: &str) {
     let (_, sidecar_path) = parse_virtual_path(path);
     let metadata = crate::exif_processing::load_sidecar(&sidecar_path);
-    let has_jobs = source_id_for(path)
-        .is_some_and(|id| has_pending_jobs(app_handle, &metadata.adjustments, path, &id));
+    let has_jobs =
+        source_id_for(path).is_some_and(|id| has_pending_jobs(&metadata.adjustments, path, &id));
     if has_jobs {
         enqueue(app_handle, &[path.to_string()], true);
     }
@@ -632,6 +628,12 @@ fn finish_path(app_handle: &AppHandle, path: &str, result: Result<Outcome, Strin
     match result {
         _ if requeue => queue.pending.push_back(path.to_string()),
         Ok(Outcome::Interrupted) => queue.pending.push_front(path.to_string()),
+        Ok(Outcome::Deferred) => {
+            queue.pending.push_back(path.to_string());
+            if crate::ai_denoise::is_generating(path) {
+                queue.deferred.insert(path.to_string());
+            }
+        }
         Ok(Outcome::Finished) => {
             queue.attempts.remove(path);
             queue.status.completed += 1;
@@ -668,10 +670,28 @@ fn finish_path(app_handle: &AppHandle, path: &str, result: Result<Outcome, Strin
     emit_status(app_handle, &mut queue);
 }
 
+pub fn release_deferred(path: &str) {
+    let source = parse_virtual_path(path).0;
+    let mut queue = queue();
+    let before = queue.deferred.len();
+    queue
+        .deferred
+        .retain(|deferred| parse_virtual_path(deferred).0 != source);
+    if queue.deferred.len() != before {
+        JOBS.wake.notify_one();
+    }
+}
+
 pub fn ensure_ready(app_handle: &AppHandle, path: &str) -> Result<(), String> {
     let result = {
         let _lane = JOBS.lane.lock().unwrap_or_else(|e| e.into_inner());
-        process_path(app_handle, path, None)
+        loop {
+            let result = process_path(app_handle, path, None);
+            if !matches!(result, Ok(Outcome::Deferred)) {
+                break result;
+            }
+            std::thread::sleep(std::time::Duration::from_millis(200));
+        }
     };
     if result.is_ok() {
         finish_path(app_handle, path, Ok(Outcome::Finished));
@@ -743,8 +763,7 @@ fn process_path(
     let source_id = source_id(&source_path).ok_or("Unable to read the source image")?;
     let adjustments = crate::exif_processing::load_sidecar(&sidecar_path).adjustments;
 
-    let is_open = open_image_path(app_handle).as_deref() == Some(path);
-    let jobs = plan(&adjustments, path, &source_id, is_open);
+    let jobs = plan(&adjustments, path, &source_id);
     if jobs.is_empty() {
         return Ok(Outcome::Finished);
     }
@@ -778,7 +797,13 @@ fn process_path(
         }
 
         let job_result = match &job {
-            Job::Denoise => crate::ai_denoise::generate_for_base(app_handle, path, &base),
+            Job::Denoise => match crate::ai_denoise::generate_for_base(app_handle, path, &base) {
+                Ok(false) => {
+                    outcome = Outcome::Deferred;
+                    continue;
+                }
+                result => result.map(|_| ()),
+            },
             Job::EffectMap(map) => {
                 let source_image = crate::mask_generation::build_converted_source_image(
                     &base,
@@ -827,7 +852,7 @@ fn process_path(
         commit_results(app_handle, path, &source_id, results)?;
     }
 
-    if generated_any && !is_open {
+    if generated_any {
         let state = app_handle.state::<AppState>();
         crate::file_management::add_to_thumbnail_queue(&state, 1, app_handle);
         let settings = crate::app_settings::load_settings(app_handle.clone()).unwrap_or_default();
@@ -1003,7 +1028,7 @@ pub fn get_pending_ai_paths() -> Vec<String> {
 }
 
 #[tauri::command]
-pub fn pause_ai_jobs(app_handle: AppHandle) {
+pub async fn pause_ai_jobs(app_handle: AppHandle) {
     let mut queue = queue();
     if queue.pending.is_empty() {
         return;
@@ -1015,7 +1040,7 @@ pub fn pause_ai_jobs(app_handle: AppHandle) {
 }
 
 #[tauri::command]
-pub fn resume_ai_jobs(app_handle: AppHandle) {
+pub async fn resume_ai_jobs(app_handle: AppHandle) {
     let mut queue = queue();
     queue.status.paused = false;
     queue.persist();
@@ -1024,16 +1049,17 @@ pub fn resume_ai_jobs(app_handle: AppHandle) {
 }
 
 #[tauri::command]
-pub fn discard_ai_jobs(app_handle: AppHandle) {
+pub async fn discard_ai_jobs(app_handle: AppHandle) {
     JOBS.interrupt_generation.fetch_add(1, Ordering::SeqCst);
     let mut queue = queue();
     let removed: Vec<String> = queue.pending.drain(..).collect();
+    queue.deferred.clear();
     queue.attempts.clear();
     queue.status.completed = 0;
     queue.status.paused = false;
     queue.persist();
-    emit_status(&app_handle, &mut queue);
     emit_pending_change(&app_handle, &[], &removed, false);
+    emit_status(&app_handle, &mut queue);
 }
 
 #[tauri::command]
@@ -1042,9 +1068,8 @@ pub async fn queue_ai_jobs(paths: Vec<String>, app_handle: AppHandle) -> Result<
         let (with_work, resolved): (Vec<String>, Vec<String>) =
             paths.into_iter().partition(|path| {
                 let metadata = crate::exif_processing::load_sidecar(&parse_virtual_path(path).1);
-                source_id_for(path).is_some_and(|id| {
-                    has_pending_jobs(&app_handle, &metadata.adjustments, path, &id)
-                })
+                source_id_for(path)
+                    .is_some_and(|id| has_pending_jobs(&metadata.adjustments, path, &id))
             });
         emit_pending_change(&app_handle, &[], &resolved, true);
         enqueue(&app_handle, &with_work, false);
@@ -1054,7 +1079,7 @@ pub async fn queue_ai_jobs(paths: Vec<String>, app_handle: AppHandle) -> Result<
 }
 
 #[tauri::command]
-pub fn retry_failed_ai_jobs(app_handle: AppHandle) {
+pub async fn retry_failed_ai_jobs(app_handle: AppHandle) {
     let failed: Vec<String> = queue()
         .status
         .failed

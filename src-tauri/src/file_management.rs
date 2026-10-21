@@ -2779,7 +2779,7 @@ pub async fn apply_adjustments_to_paths(
         let reserved_paths = paths.clone();
         let jobs_app_handle = app_handle.clone();
         let ai_work = std::sync::Mutex::new(Vec::new());
-        let (ai_work_ref, jobs_handle_ref) = (&ai_work, &jobs_app_handle);
+        let ai_work_ref = &ai_work;
         update_sidecars_and_thumbnails(paths, app_handle, move |path, source_path, metadata| {
             crate::exif_processing::fill_missing_exif(metadata, source_path);
 
@@ -2815,12 +2815,7 @@ pub async fn apply_adjustments_to_paths(
             );
 
             if let Some(source_id) = &source_id
-                && crate::ai_jobs::has_pending_jobs(
-                    jobs_handle_ref,
-                    &metadata.adjustments,
-                    path,
-                    source_id,
-                )
+                && crate::ai_jobs::has_pending_jobs(&metadata.adjustments, path, source_id)
             {
                 ai_work_ref.lock().unwrap().push(path.to_string());
             }
