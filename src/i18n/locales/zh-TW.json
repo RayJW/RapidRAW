@@ -404,7 +404,7 @@
       "comingSoon": "即將推出",
       "connection": {
         "backendLabel": "AI 後端：",
-        "builtinDesc": "使用基礎本地 CPU。在設定中選擇雲端或 AI 聯結器以使用生成式替換。",
+        "builtinDesc": "使用基礎內建 AI。在設定中選擇雲端或 AI 聯結器以使用生成式替換。",
         "builtinLabel": "內建 AI：",
         "cloudLabel": "雲端 AI：",
         "connectorConnectedDesc": "已連線到本地生成式後端。",
@@ -1842,8 +1842,11 @@
           "description": "直接整合到 RapidRAW 中，這些功能完全在您的計算機上執行。它們快速、免費且無需設定，非常適合日常加速工作流程。",
           "feature1": "AI 遮色片（主體、天空、前景）",
           "feature2": "自動影像標籤",
-          "feature3": "簡單的 CPU 生成式替換",
-          "title": "內建 AI（CPU）"
+          "feature3": "簡單的本機生成式替換",
+          "gpuAcceleration": "GPU 加速",
+          "gpuAccelerationDesc": "在顯示卡上執行降噪、遮罩、深度圖與法線圖以及標籤等內建 AI 功能，大幅提升速度。如果遇到當機或 AI 結果不正確，請關閉此選項。",
+          "gpuAccelerationLabel": "為 AI 模型使用 GPU",
+          "title": "內建 AI"
         },
         "aiFree": {
           "description": "關閉所有 AI 功能。所有與 AI 相關的控制項都會從介面中隱藏，RapidRAW 將作為純傳統的 RAW 編輯器運作。",
@@ -1857,7 +1860,7 @@
           "aiConnector": "AI 聯結器",
           "aiFree": "無 AI",
           "cloud": "雲端",
-          "cpu": "CPU"
+          "cpu": "內建"
         },
         "title": "生成式 AI"
       },

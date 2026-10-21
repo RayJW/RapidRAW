@@ -404,7 +404,7 @@
       "comingSoon": "即将推出",
       "connection": {
         "backendLabel": "AI 后端：",
-        "builtinDesc": "使用基础本地 CPU。在设置中选择云端或 AI 连接器以使用生成式替换。",
+        "builtinDesc": "使用基础内置 AI。在设置中选择云端或 AI 连接器以使用生成式替换。",
         "builtinLabel": "内置 AI：",
         "cloudLabel": "云端 AI：",
         "connectorConnectedDesc": "已连接到本地生成式后端。",
@@ -1842,8 +1842,11 @@
           "description": "直接集成到 RapidRAW 中，这些功能完全在您的计算机上运行。它们快速、免费且无需设置，非常适合日常加速工作流程。",
           "feature1": "AI 蒙版（主体、天空、前景）",
           "feature2": "自动图像标签",
-          "feature3": "简单的 CPU 生成式替换",
-          "title": "内置 AI（CPU）"
+          "feature3": "简单的本地生成式替换",
+          "gpuAcceleration": "GPU 加速",
+          "gpuAccelerationDesc": "在显卡上运行降噪、蒙版、深度图和法线图以及标签等内置 AI 功能，大幅提升速度。如果遇到崩溃或 AI 结果不正确，请关闭此选项。",
+          "gpuAccelerationLabel": "为 AI 模型使用 GPU",
+          "title": "内置 AI"
         },
         "aiFree": {
           "description": "关闭所有 AI 功能。所有与 AI 相关的控件都会从界面中隐藏，RapidRAW 将作为纯传统的 RAW 编辑器运行。",
@@ -1857,7 +1860,7 @@
           "aiConnector": "AI 连接器",
           "aiFree": "无 AI",
           "cloud": "云端",
-          "cpu": "CPU"
+          "cpu": "内置"
         },
         "title": "生成式 AI"
       },

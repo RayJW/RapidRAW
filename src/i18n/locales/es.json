@@ -421,7 +421,7 @@
       "comingSoon": "Próximamente",
       "connection": {
         "backendLabel": "Backend de IA:",
-        "builtinDesc": "Usando CPU local básica. Selecciona Cloud o AI Connector en ajustes para relleno generativo.",
+        "builtinDesc": "Usando la IA integrada básica. Selecciona Cloud o AI Connector en ajustes para relleno generativo.",
         "builtinLabel": "IA integrada:",
         "cloudLabel": "IA en la nube:",
         "connectorConnectedDesc": "Conectado al backend generativo local.",
@@ -1881,8 +1881,11 @@
           "description": "Integradas directamente en RapidRAW, estas funciones se ejecutan completamente en tu computadora. Son rápidas, gratuitas y no requieren configuración, lo que las hace ideales para acelerar el flujo de trabajo diario.",
           "feature1": "Enmascaramiento de IA (Sujeto, Cielo, Primer plano)",
           "feature2": "Etiquetado automático de imágenes",
-          "feature3": "Relleno generativo simple basado en CPU",
-          "title": "IA integrada (CPU)"
+          "feature3": "Relleno generativo simple en el dispositivo",
+          "gpuAcceleration": "Aceleración por GPU",
+          "gpuAccelerationDesc": "Ejecuta las funciones de IA integradas, como la reducción de ruido, las máscaras, los mapas de profundidad y de normales y el etiquetado, en la tarjeta gráfica para obtener resultados mucho más rápidos. Desactívala si experimentas bloqueos o resultados de IA incorrectos.",
+          "gpuAccelerationLabel": "Usar la GPU para los modelos de IA",
+          "title": "IA integrada"
         },
         "aiFree": {
           "description": "Desactiva todas las funciones de IA. Todos los controles relacionados con la IA se ocultan de la interfaz para que RapidRAW funcione como un editor RAW puramente tradicional.",
@@ -1896,7 +1899,7 @@
           "aiConnector": "AI Connector",
           "aiFree": "Sin IA",
           "cloud": "Nube",
-          "cpu": "CPU"
+          "cpu": "Integrada"
         },
         "title": "IA Generativa"
       },

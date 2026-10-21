@@ -398,7 +398,7 @@
       "comingSoon": "Binnenkort beschikbaar",
       "connection": {
         "backendLabel": "AI-backend:",
-        "builtinDesc": "Gebruikt basis lokale CPU. Selecteer Cloud of AI-verbinding in instellingen voor generatieve vervanging.",
+        "builtinDesc": "Gebruikt de ingebouwde basis-AI. Selecteer Cloud of AI-verbinding in instellingen voor generatieve vervanging.",
         "builtinLabel": "Ingebouwde AI:",
         "cloudLabel": "Cloud AI:",
         "connectorConnectedDesc": "Verbonden met lokale generatieve backend.",
@@ -1818,8 +1818,11 @@
           "description": "Rechtstreeks geïntegreerd in RapidRAW, draaien deze functies volledig op uw computer. Ze zijn snel, gratis en vereisen geen installatie, waardoor ze ideaal zijn voor dagelijkse workflowversnelling.",
           "feature1": "AI-maskering (onderwerp, lucht, voorgrond)",
           "feature2": "Automatische afbeeldingstagging",
-          "feature3": "Eenvoudige CPU-gebaseerde generatieve vervanging",
-          "title": "Ingebouwde AI (CPU)"
+          "feature3": "Eenvoudige generatieve vervanging op het apparaat",
+          "gpuAcceleration": "GPU-versnelling",
+          "gpuAccelerationDesc": "Voert ingebouwde AI-functies zoals ruisonderdrukking, maskers, diepte- en normaalkaarten en taggen uit op de grafische kaart voor veel snellere resultaten. Schakel dit uit als je crashes of onjuiste AI-resultaten ervaart.",
+          "gpuAccelerationLabel": "GPU gebruiken voor AI-modellen",
+          "title": "Ingebouwde AI"
         },
         "aiFree": {
           "description": "Schakelt alle AI-functies uit. Alle AI-gerelateerde bedieningselementen worden verborgen, zodat RapidRAW werkt als een puur traditionele RAW-editor.",
@@ -1833,7 +1836,7 @@
           "aiConnector": "AI-verbinding",
           "aiFree": "Zonder AI",
           "cloud": "Cloud",
-          "cpu": "CPU"
+          "cpu": "Ingebouwd"
         },
         "title": "Generatieve AI"
       },

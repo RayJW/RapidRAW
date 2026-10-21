@@ -405,7 +405,7 @@
       "comingSoon": "Již brzy",
       "connection": {
         "backendLabel": "AI Backend:",
-        "builtinDesc": "Použití základního místního CPU. Výběr cloudového, nebo AI konektoru v nastavení pro generativní náhradu.",
+        "builtinDesc": "Použití základní vestavěné AI. Výběr cloudového, nebo AI konektoru v nastavení pro generativní náhradu.",
         "builtinLabel": "Vestavěná AI:",
         "cloudLabel": "Cloud AI:",
         "connectorConnectedDesc": "Připojeno k místnímu generativnímu backendu.",
@@ -1848,8 +1848,11 @@
           "description": "Tyto funkce jsou integrovány přímo do RapidRAW a běží výhradně na vašem počítači. Jsou rychlé, zdarma a nevyžadují žádné nastavení, takže jsou ideální pro každodenní zrychlení práce.",
           "feature1": "Maskování AI (předmět, obloha, popředí)",
           "feature2": "Automatické označování snímků",
-          "feature3": "Jednoduchá generativní výměna založená na CPU",
-          "title": "Vestavěná AI (CPU)"
+          "feature3": "Jednoduchá generativní výměna přímo v zařízení",
+          "gpuAcceleration": "Akcelerace GPU",
+          "gpuAccelerationDesc": "Spouští vestavěné funkce AI, jako je odšumění, masky, hloubkové a normálové mapy a štítkování, na grafické kartě pro výrazně rychlejší výsledky. Vypněte, pokud dochází k pádům nebo nesprávným výsledkům AI.",
+          "gpuAccelerationLabel": "Používat GPU pro modely AI",
+          "title": "Vestavěná AI"
         },
         "aiFree": {
           "description": "Vypne všechny funkce AI. Všechny ovládací prvky související s AI jsou v rozhraní skryty, takže RapidRAW funguje jako čistě tradiční editor RAW.",
@@ -1863,7 +1866,7 @@
           "aiConnector": "AI konektor",
           "aiFree": "Bez AI",
           "cloud": "Cloud",
-          "cpu": "CPU"
+          "cpu": "Vestavěná"
         },
         "title": "Generativní AI"
       },

@@ -438,7 +438,7 @@
       "comingSoon": "Wkrótce",
       "connection": {
         "backendLabel": "Backend AI:",
-        "builtinDesc": "Używanie podstawowego lokalnego procesora. Wybierz Chmurę lub Złącze AI w ustawieniach do zastępowania generatywnego.",
+        "builtinDesc": "Używanie podstawowego wbudowanego AI. Wybierz Chmurę lub Złącze AI w ustawieniach do zastępowania generatywnego.",
         "builtinLabel": "Wbudowane AI:",
         "cloudLabel": "AI w Chmurze:",
         "connectorConnectedDesc": "Połączono z lokalnym backendem generatywnym.",
@@ -1919,8 +1919,11 @@
           "description": "Zintegrowane bezpośrednio z RapidRAW, te funkcje działają całkowicie na Twoim komputerze. Są szybkie, bezpłatne i nie wymagają konfiguracji, stanowiąc idealne usprawnienie dla codziennej pracy.",
           "feature1": "Maskowanie AI (Temat, Niebo, Pierwszy plan)",
           "feature2": "Automatyczne tagowanie obrazów",
-          "feature3": "Proste zastępowanie generatywne oparte na CPU",
-          "title": "Wbudowane AI (CPU)"
+          "feature3": "Proste zastępowanie generatywne na urządzeniu",
+          "gpuAcceleration": "Akceleracja GPU",
+          "gpuAccelerationDesc": "Uruchamia wbudowane funkcje AI, takie jak odszumianie, maski, mapy głębi i normalnych oraz tagowanie, na karcie graficznej, aby uzyskać znacznie szybsze wyniki. Wyłącz, jeśli występują awarie lub nieprawidłowe wyniki AI.",
+          "gpuAccelerationLabel": "Używaj GPU dla modeli AI",
+          "title": "Wbudowane AI"
         },
         "aiFree": {
           "description": "Wyłącza wszystkie funkcje AI. Wszystkie elementy sterujące związane z AI są ukryte w interfejsie, dzięki czemu RapidRAW działa jak czysto tradycyjny edytor RAW.",
@@ -1934,7 +1937,7 @@
           "aiConnector": "Złącze AI",
           "aiFree": "Bez AI",
           "cloud": "Chmura",
-          "cpu": "CPU"
+          "cpu": "Wbudowane"
         },
         "title": "Generatywne AI"
       },

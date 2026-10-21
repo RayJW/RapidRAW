@@ -404,7 +404,7 @@
       "comingSoon": "近日公開",
       "connection": {
         "backendLabel": "AI バックエンド:",
-        "builtinDesc": "ローカルCPUを使用しています。生成塗りつぶしを使用するには、設定でクラウドまたはAI Connectorを選択してください。",
+        "builtinDesc": "基本的な内蔵AIを使用しています。生成塗りつぶしを使用するには、設定でクラウドまたはAI Connectorを選択してください。",
         "builtinLabel": "内蔵AI:",
         "cloudLabel": "クラウドAI:",
         "connectorConnectedDesc": "ローカルの生成バックエンドに接続されました。",
@@ -1842,8 +1842,11 @@
           "description": "RapidRAWに直接内蔵されており、お使いのコンピューター上のみで動作します。高速かつ無料でセットアップも不要です。",
           "feature1": "AIマスク機能 (被写体、空、手前)",
           "feature2": "自動画像タグ付け機能",
-          "feature3": "CPUベースの簡易生成塗りつぶし",
-          "title": "内蔵AI (CPU)"
+          "feature3": "デバイス上での簡易生成塗りつぶし",
+          "gpuAcceleration": "GPUアクセラレーション",
+          "gpuAccelerationDesc": "ノイズ除去、マスク、深度マップや法線マップ、タグ付けなどの内蔵AI機能をグラフィックカードで実行し、大幅に高速化します。クラッシュやAIの結果がおかしい場合は無効にしてください。",
+          "gpuAccelerationLabel": "AIモデルにGPUを使用",
+          "title": "内蔵AI"
         },
         "aiFree": {
           "description": "すべてのAI機能をオフにします。AI関連のコントロールはすべてインターフェースから非表示になり、RapidRAWは純粋な従来型のRAWエディターとして動作します。",
@@ -1857,7 +1860,7 @@
           "aiConnector": "AI Connector",
           "aiFree": "AIなし",
           "cloud": "クラウド",
-          "cpu": "CPU"
+          "cpu": "内蔵"
         },
         "title": "生成AI"
       },

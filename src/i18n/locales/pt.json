@@ -421,7 +421,7 @@
       "comingSoon": "Em Breve",
       "connection": {
         "backendLabel": "Backend de IA:",
-        "builtinDesc": "Usando CPU local básica. Selecione Nuvem ou AI Connector nas configurações para substituição generativa.",
+        "builtinDesc": "Usando a IA integrada básica. Selecione Nuvem ou AI Connector nas configurações para substituição generativa.",
         "builtinLabel": "IA Integrada:",
         "cloudLabel": "IA na Nuvem:",
         "connectorConnectedDesc": "Conectado ao backend generativo local.",
@@ -1882,8 +1882,11 @@
           "description": "Integrados diretamente ao RapidRAW, esses recursos são executados inteiramente em seu computador. Eles são rápidos, gratuitos e não requerem configuração, tornando-os ideais para aceleração do fluxo de trabalho diário.",
           "feature1": "Mascaramento por IA (Motivo, Céu, Primeiro Plano)",
           "feature2": "Tagging Automático de Imagens",
-          "feature3": "Substituição Generativa Simples Baseada em CPU",
-          "title": "IA Integrada (CPU)"
+          "feature3": "Substituição Generativa Simples no Dispositivo",
+          "gpuAcceleration": "Aceleração por GPU",
+          "gpuAccelerationDesc": "Executa os recursos de IA integrados, como redução de ruído, máscaras, mapas de profundidade e de normais e marcação, na placa de vídeo para resultados muito mais rápidos. Desative se ocorrerem travamentos ou resultados de IA incorretos.",
+          "gpuAccelerationLabel": "Usar a GPU para os modelos de IA",
+          "title": "IA Integrada"
         },
         "aiFree": {
           "description": "Desativa todos os recursos de IA. Todos os controles relacionados à IA são ocultados da interface, para que o RapidRAW funcione como um editor RAW puramente tradicional.",
@@ -1897,7 +1900,7 @@
           "aiConnector": "AI Connector",
           "aiFree": "Sem IA",
           "cloud": "Nuvem",
-          "cpu": "CPU"
+          "cpu": "Integrada"
         },
         "title": "IA Generativa"
       },

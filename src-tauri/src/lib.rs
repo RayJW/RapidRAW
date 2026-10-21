@@ -928,17 +928,21 @@ fn start_preview_worker(app_handle: tauri::AppHandle) {
 
             let state = app_handle.state::<AppState>();
             let responder = job.responder;
-            match process_preview_job(
-                &app_handle,
-                state,
-                job.adjustments,
-                job.is_interactive,
-                job.target_resolution,
-                job.roi,
-                job.request_analytics,
-                job.compute_waveform,
-                job.active_waveform_channel.as_deref(),
-            ) {
+            let result = panic::catch_unwind(panic::AssertUnwindSafe(|| {
+                process_preview_job(
+                    &app_handle,
+                    state,
+                    job.adjustments,
+                    job.is_interactive,
+                    job.target_resolution,
+                    job.roi,
+                    job.request_analytics,
+                    job.compute_waveform,
+                    job.active_waveform_channel.as_deref(),
+                )
+            }))
+            .unwrap_or_else(|_| Err("Preview rendering panicked".to_string()));
+            match result {
                 Ok(bytes) => {
                     let _ = responder.send(bytes);
                 }

@@ -421,7 +421,7 @@
       "comingSoon": "Bientôt disponible",
       "connection": {
         "backendLabel": "Moteur IA :",
-        "builtinDesc": "Utilise le CPU local basique. Sélectionnez Cloud ou AI Connector dans les paramètres pour le remplacement génératif.",
+        "builtinDesc": "Utilise l'IA intégrée basique. Sélectionnez Cloud ou AI Connector dans les paramètres pour le remplacement génératif.",
         "builtinLabel": "IA intégrée :",
         "cloudLabel": "IA Cloud :",
         "connectorConnectedDesc": "Connecté au moteur génératif local.",
@@ -1881,8 +1881,11 @@
           "description": "Intégrées directement dans RapidRAW, ces fonctionnalités fonctionnent entièrement sur votre ordinateur. Elles sont rapides, gratuites et ne nécessitent aucune configuration, idéales pour accélérer vos tâches quotidiennes.",
           "feature1": "Masquage IA (Sujet, Ciel, Premier plan)",
           "feature2": "Marquage automatique des images",
-          "feature3": "Remplacement génératif basique par CPU",
-          "title": "IA intégrée (CPU)"
+          "feature3": "Remplacement génératif basique sur l'appareil",
+          "gpuAcceleration": "Accélération GPU",
+          "gpuAccelerationDesc": "Exécute les fonctionnalités d'IA intégrées, comme la réduction du bruit, les masques, les cartes de profondeur et de normales et l'étiquetage, sur la carte graphique pour des résultats bien plus rapides. Désactivez cette option en cas de plantages ou de résultats d'IA incorrects.",
+          "gpuAccelerationLabel": "Utiliser le GPU pour les modèles d'IA",
+          "title": "IA intégrée"
         },
         "aiFree": {
           "description": "Désactive toutes les fonctions d'IA. Toutes les commandes liées à l'IA sont masquées de l'interface afin que RapidRAW fonctionne comme un éditeur RAW purement traditionnel.",
@@ -1896,7 +1899,7 @@
           "aiConnector": "AI Connector",
           "aiFree": "Sans IA",
           "cloud": "Cloud",
-          "cpu": "CPU"
+          "cpu": "Intégrée"
         },
         "title": "IA Générative"
       },
