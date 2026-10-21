@@ -2660,10 +2660,12 @@ pub fn save_metadata_and_update_thumbnail(
     let lens_db = state.lens_db.lock().unwrap().clone();
     let source_id = crate::ai_jobs::source_id(&source_path);
     let mut stripped_ai_results = false;
+    let mut had_ai_work = false;
 
     let metadata =
         crate::exif_processing::update_sidecar(&sidecar_path, &source_path, |metadata| {
             crate::exif_processing::fill_missing_exif(metadata, &source_path);
+            had_ai_work = crate::ai_jobs::needs_generation(&metadata.adjustments, &source_path);
             let mut final_adjustments = adjustments;
             if let Some(source_id) = &source_id {
                 stripped_ai_results = crate::ai_jobs::reconcile_ai_results(
@@ -2684,6 +2686,9 @@ pub fn save_metadata_and_update_thumbnail(
 
     if stripped_ai_results {
         crate::ai_jobs::enqueue(&app_handle, std::slice::from_ref(&path), true);
+    } else if had_ai_work && !crate::ai_jobs::needs_generation(&metadata.adjustments, &source_path)
+    {
+        crate::ai_jobs::resolve(&app_handle, std::slice::from_ref(&path));
     }
 
     if let Ok(settings) = load_settings(app_handle.clone())
@@ -2868,22 +2873,33 @@ fn update_sidecars_and_thumbnails(
         );
     });
 
+    let resolved_ai = std::sync::Mutex::new(Vec::new());
     paths
         .par_iter()
         .for_each_with(updated_tx, |updated_tx, path| {
             let (source_path, sidecar_path) = parse_virtual_path(path);
+            let mut had_ai_work = false;
             match crate::exif_processing::update_sidecar(&sidecar_path, &source_path, |metadata| {
+                had_ai_work = crate::ai_jobs::needs_generation(&metadata.adjustments, &source_path);
                 update(path, &source_path, metadata)
             }) {
-                Ok(metadata) if enable_xmp_sync => {
-                    sync_metadata_to_xmp(&source_path, &metadata, create_xmp_if_missing);
+                Ok(metadata) => {
+                    if had_ai_work
+                        && !crate::ai_jobs::needs_generation(&metadata.adjustments, &source_path)
+                    {
+                        resolved_ai.lock().unwrap().push(path.clone());
+                    }
+                    if enable_xmp_sync {
+                        sync_metadata_to_xmp(&source_path, &metadata, create_xmp_if_missing);
+                    }
                 }
-                Ok(_) => {}
                 Err(e) => log::error!("Failed to update sidecar for {}: {}", path, e),
             }
 
             let _ = updated_tx.send(path.clone());
         });
+
+    crate::ai_jobs::resolve(&app_handle, &resolved_ai.into_inner().unwrap());
 }
 
 const RAM_PER_BATCH_DECODE_BYTES: u64 = 2 * 1024 * 1024 * 1024;

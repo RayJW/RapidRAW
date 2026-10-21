@@ -915,12 +915,24 @@ export function AiJobsMenu() {
       ? t('library.aiJobs.taskWithMask', { task, mask: current.maskName })
       : (task ?? t('library.aiJobs.waiting'));
   const total = completed + queued;
+  const buttonTooltip =
+    queued > 0
+      ? [
+          statusLabel,
+          !paused && current ? fileName(current.path) : null,
+          t('library.aiJobs.progress', { current: completed, total }),
+        ]
+          .filter(Boolean)
+          .join(' · ')
+      : failed.length > 0
+        ? t('library.aiJobs.failed', { failedCount: failed.length })
+        : t('library.aiJobs.unprocessed', { count: unprocessedPaths.length });
   const hiddenJobs = Math.max(0, queuedPaths.length - MAX_LISTED_AI_JOBS);
 
   return (
     <div className="flex items-center bg-surface p-1 rounded-lg border border-border-color/20">
       <DropdownMenu
-        buttonTitle={t('library.aiJobs.title')}
+        buttonTitle={buttonTooltip}
         contentClassName="w-80"
         buttonContent={
           <>

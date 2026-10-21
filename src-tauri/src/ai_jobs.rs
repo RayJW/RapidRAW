@@ -670,6 +670,38 @@ fn finish_path(app_handle: &AppHandle, path: &str, result: Result<Outcome, Strin
     emit_status(app_handle, &mut queue);
 }
 
+pub fn resolve(app_handle: &AppHandle, paths: &[String]) {
+    if paths.is_empty() {
+        return;
+    }
+
+    let resolved: HashSet<&String> = paths.iter().collect();
+    let mut queue = queue();
+    let processing = queue.processing.clone();
+    queue
+        .pending
+        .retain(|path| !resolved.contains(path) || processing.as_ref() == Some(path));
+    queue.deferred.retain(|path| !resolved.contains(path));
+    queue.attempts.retain(|path, _| !resolved.contains(path));
+    queue
+        .status
+        .failed
+        .retain(|job| !resolved.contains(&job.path));
+    if queue.pending.is_empty() {
+        queue.status.completed = 0;
+        queue.status.paused = false;
+    }
+    queue.persist();
+
+    let removed: Vec<String> = paths
+        .iter()
+        .filter(|path| processing.as_ref() != Some(*path))
+        .cloned()
+        .collect();
+    emit_pending_change(app_handle, &[], &removed, true);
+    emit_status(app_handle, &mut queue);
+}
+
 pub fn release_deferred(path: &str) {
     let source = parse_virtual_path(path).0;
     let mut queue = queue();
