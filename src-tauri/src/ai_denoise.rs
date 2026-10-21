@@ -389,6 +389,41 @@ fn run_model(
     Ok(output)
 }
 
+fn denoise_into_cache(
+    base: &DynamicImage,
+    session: &Mutex<ort::session::Session>,
+    key: String,
+    source: String,
+    fingerprint: u64,
+    on_progress: &dyn Fn(f32),
+) -> Result<(), String> {
+    let image = run_model(base, session, on_progress)?;
+
+    let (width, height) = image.dimensions();
+    let mut data = vec![f16::ZERO; image.as_raw().len()];
+    data.par_chunks_mut(BLEND_CHUNK)
+        .zip(image.as_raw().par_chunks(BLEND_CHUNK))
+        .for_each(|(dst, src)| dst.convert_from_f32_slice(src));
+    drop(image);
+
+    let entry = Arc::new(DenoisedBase {
+        key,
+        source,
+        fingerprint,
+        width,
+        height,
+        data,
+    });
+    if let Err(e) = write_to_disk(&entry) {
+        log::warn!("Failed to persist AI denoise cache: {}", e);
+    }
+
+    let mut cache = cache();
+    cache.insert(entry);
+    cache.epoch += 1;
+    Ok(())
+}
+
 async fn generate(
     app_handle: &tauri::AppHandle,
     loaded_image: LoadedImage,
@@ -407,38 +442,20 @@ async fn generate(
 
     let progress_handle = app_handle.clone();
     let loaded_path = loaded_image.path.clone();
-    let path = loaded_path.clone();
-    tokio::task::spawn_blocking(move || -> Result<(), String> {
-        let image = run_model(&loaded_image.image, &session, &|progress| {
-            let _ = progress_handle.emit(
-                "ai-denoise-progress",
-                serde_json::json!({ "path": path, "progress": progress }),
-            );
-        })?;
-
-        let (width, height) = image.dimensions();
-        let mut data = vec![f16::ZERO; image.as_raw().len()];
-        data.par_chunks_mut(BLEND_CHUNK)
-            .zip(image.as_raw().par_chunks(BLEND_CHUNK))
-            .for_each(|(dst, src)| dst.convert_from_f32_slice(src));
-        drop(image);
-
-        let entry = Arc::new(DenoisedBase {
+    tokio::task::spawn_blocking(move || {
+        denoise_into_cache(
+            &loaded_image.image,
+            &session,
             key,
             source,
             fingerprint,
-            width,
-            height,
-            data,
-        });
-        if let Err(e) = write_to_disk(&entry) {
-            log::warn!("Failed to persist AI denoise cache: {}", e);
-        }
-
-        let mut cache = cache();
-        cache.insert(entry);
-        cache.epoch += 1;
-        Ok(())
+            &|progress| {
+                let _ = progress_handle.emit(
+                    "ai-denoise-progress",
+                    serde_json::json!({ "path": loaded_image.path, "progress": progress }),
+                );
+            },
+        )
     })
     .await
     .map_err(|e| format!("AI denoise task failed: {}", e))??;
@@ -510,6 +527,40 @@ pub fn ensure_generated(
             }
         }
     });
+}
+
+pub fn has_cached_entry(path: &str) -> bool {
+    let source = source_string(path);
+    let key = entry_key(&source);
+    cache().get(&key).is_some_and(|e| e.source == source)
+        || read_disk_header(&key).is_some_and(|h| h.source == source)
+}
+
+pub fn generate_for_base(
+    app_handle: &tauri::AppHandle,
+    path: &str,
+    base: &DynamicImage,
+) -> Result<(), String> {
+    let source = source_string(path);
+    let key = entry_key(&source);
+    if !cache().pending.insert(key.clone()) {
+        return Ok(());
+    }
+
+    let state = app_handle.state::<AppState>();
+    let result = tauri::async_runtime::block_on(crate::ai_processing::get_or_init_denoise_model(
+        app_handle,
+        &state.ai_state,
+        &state.ai_init_lock,
+    ))
+    .map_err(|e| e.to_string())
+    .and_then(|session| {
+        let [fingerprint, _] = base_fingerprints(base);
+        denoise_into_cache(base, &session, key.clone(), source, fingerprint, &|_| {})
+    });
+
+    cache().pending.remove(&key);
+    result
 }
 
 fn cache_files() -> Vec<(PathBuf, u64)> {

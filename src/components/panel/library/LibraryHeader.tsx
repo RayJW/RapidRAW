@@ -2,6 +2,11 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
 import {
+  AlertTriangle,
+  CircleDashed,
+  Pause,
+  Play,
+  RotateCcw,
   Search,
   Loader2,
   X,
@@ -14,8 +19,11 @@ import {
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useShallow } from 'zustand/react/shallow';
+import { invoke } from '@tauri-apps/api/core';
 import { useLibraryStore } from '../../../store/useLibraryStore';
+import { useProcessStore } from '../../../store/useProcessStore';
 import {
+  Invokes,
   FilterCriteria,
   RawStatus,
   EditedStatus,
@@ -840,4 +848,100 @@ export function ViewOptionsDropdown({
       </div>
     </DropdownMenu>
   );
+}
+
+const fileName = (path: string) => path.split('?vc=')[0].split(/[\\/]/).pop() ?? path;
+
+const AI_JOB_BUTTON_CLASS = 'shrink-0 p-1 rounded-sm hover:bg-surface hover:text-text-primary transition-colors';
+
+export function AiJobsIndicator() {
+  const { t } = useTranslation();
+  const { current, queued, completed, paused, failed } = useProcessStore((state) => state.aiJobs);
+  const aiPendingPaths = useProcessStore((state) => state.aiPendingPaths);
+  const imageList = useLibraryStore((state) => state.imageList);
+  const unprocessedPaths = useMemo(
+    () => imageList.filter((image) => image.needs_ai && !aiPendingPaths[image.path]).map((image) => image.path),
+    [imageList, aiPendingPaths],
+  );
+
+  if (paused && queued > 0) {
+    return (
+      <Text as="div" color={TextColors.secondary} className="flex items-center gap-2">
+        <button
+          className={AI_JOB_BUTTON_CLASS}
+          onClick={() => invoke(Invokes.ResumeAiJobs)}
+          data-tooltip={t('library.aiJobs.resume')}
+        >
+          <Play size={14} />
+        </button>
+        <span>{t('library.aiJobs.paused', { remaining: queued })}</span>
+        <button
+          className={AI_JOB_BUTTON_CLASS}
+          onClick={() => invoke(Invokes.DiscardAiJobs)}
+          data-tooltip={t('library.aiJobs.discard')}
+        >
+          <X size={14} />
+        </button>
+      </Text>
+    );
+  }
+
+  if (current || queued > 0) {
+    const task = current ? t(`library.aiJobs.kinds.${current.kind}`) : t('library.aiJobs.waiting');
+    const label = current?.maskName ? t('library.aiJobs.taskWithMask', { task, mask: current.maskName }) : task;
+
+    return (
+      <Text as="div" color={TextColors.secondary} className="flex items-center gap-2 min-w-0">
+        <button
+          className={clsx(AI_JOB_BUTTON_CLASS, 'group/pause')}
+          onClick={() => invoke(Invokes.PauseAiJobs)}
+          data-tooltip={t('library.aiJobs.pause')}
+        >
+          <Loader2 size={14} className="animate-spin group-hover/pause:hidden" />
+          <Pause size={14} className="hidden group-hover/pause:block" />
+        </button>
+        <span className="truncate max-w-xs" data-tooltip={current ? current.path : undefined}>
+          {current ? t('library.aiJobs.generating', { task: label, file: fileName(current.path) }) : label}
+        </span>
+        <span className="shrink-0">
+          {t('library.aiJobs.progress', { current: completed + 1, total: completed + queued })}
+        </span>
+      </Text>
+    );
+  }
+
+  if (failed.length > 0) {
+    return (
+      <Text as="div" color={TextColors.error} className="flex items-center gap-2">
+        <AlertTriangle size={16} className="shrink-0" />
+        <span data-tooltip={failed.map((job) => `${fileName(job.path)}: ${job.error}`).join('\n')}>
+          {t('library.aiJobs.failed', { failedCount: failed.length })}
+        </span>
+        <button
+          className={AI_JOB_BUTTON_CLASS}
+          onClick={() => invoke(Invokes.RetryFailedAiJobs)}
+          data-tooltip={t('library.aiJobs.retry')}
+        >
+          <RotateCcw size={14} />
+        </button>
+      </Text>
+    );
+  }
+
+  if (unprocessedPaths.length > 0) {
+    return (
+      <Text as="div" color={TextColors.secondary} className="flex items-center gap-2">
+        <CircleDashed size={16} className="shrink-0" />
+        <span>{t('library.aiJobs.unprocessed', { count: unprocessedPaths.length })}</span>
+        <Button
+          className="h-8 bg-surface text-text-primary shadow-none"
+          onClick={() => invoke(Invokes.QueueAiJobs, { paths: unprocessedPaths })}
+        >
+          {t('library.aiJobs.process')}
+        </Button>
+      </Text>
+    );
+  }
+
+  return null;
 }

@@ -67,6 +67,7 @@ where
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(default)]
 pub struct ImageMetadata {
     pub version: u32,
     pub rating: u8,

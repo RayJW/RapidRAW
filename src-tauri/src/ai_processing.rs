@@ -1849,6 +1849,12 @@ pub struct AiSubjectMaskParameters {
     pub flip_vertical: Option<bool>,
     #[serde(default)]
     pub orientation_steps: Option<u8>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub box_space_width: Option<u32>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub box_space_height: Option<u32>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub ai_source: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
@@ -1864,6 +1870,8 @@ pub struct AiSkyMaskParameters {
     pub flip_vertical: Option<bool>,
     #[serde(default)]
     pub orientation_steps: Option<u8>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub ai_source: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
@@ -1879,6 +1887,8 @@ pub struct AiForegroundMaskParameters {
     pub flip_vertical: Option<bool>,
     #[serde(default)]
     pub orientation_steps: Option<u8>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub ai_source: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
@@ -1904,4 +1914,6 @@ pub struct AiDepthMaskParameters {
     pub flip_vertical: Option<bool>,
     #[serde(default)]
     pub orientation_steps: Option<u8>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub ai_source: Option<String>,
 }
