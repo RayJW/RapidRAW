@@ -509,6 +509,13 @@
       },
       "touchUpTitle": "Retoques"
     },
+    "compare": {
+      "horizontal": "Dividir cima / baixo",
+      "sideBySide": "Lado a lado",
+      "title": "Antes / depois",
+      "toggle": "Original completo",
+      "vertical": "Dividir esquerda / direita"
+    },
     "crop": {
       "aspectRatioHeading": "Proporção de Tela",
       "autoStraightenFailed": "Falha ao endireitar automaticamente: {{error}}",
@@ -862,16 +869,16 @@
       }
     },
     "toolbar": {
+      "history": "Histórico",
       "switchToVariant": "Switch to {{label}}",
       "tooltips": {
         "aperture": "Abertura",
         "backToLibrary": "Voltar para a Biblioteca",
+        "compare": "Antes / depois (B) ou modos (clique direito)",
         "focalLength": "Distância Focal",
         "fullscreen": "Alternar Tela Cheia (F)",
         "iso": "ISO",
         "redo": "Refazer (Ctrl+Y) ou Histórico (Botão Direito)",
-        "showEdited": "Mostrar Editado (B)",
-        "showOriginal": "Mostrar Original (B)",
         "shutterSpeed": "Velocidade do Obturador",
         "undo": "Desfazer (Ctrl+Z) ou Histórico (Botão Direito)"
       },

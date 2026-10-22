@@ -488,6 +488,13 @@
       },
       "touchUpTitle": "Touch Up"
     },
+    "compare": {
+      "horizontal": "Split Top / Bottom",
+      "sideBySide": "Side by Side",
+      "title": "Before / After",
+      "toggle": "Full Original",
+      "vertical": "Split Left / Right"
+    },
     "crop": {
       "aspectRatioHeading": "Aspect Ratio",
       "autoStraightenFailed": "Auto straighten failed: {{error}}",
@@ -840,16 +847,16 @@
       }
     },
     "toolbar": {
+      "history": "History",
       "switchToVariant": "Switch to {{label}}",
       "tooltips": {
         "aperture": "Aperture",
         "backToLibrary": "Back to Library",
+        "compare": "Before / After (B) or Modes (Right-click)",
         "focalLength": "Focal Length",
         "fullscreen": "Toggle Fullscreen (F)",
         "iso": "ISO",
         "redo": "Redo (Ctrl+Y) or History (Right-click)",
-        "showEdited": "Show Edited (B)",
-        "showOriginal": "Show Original (B)",
         "shutterSpeed": "Shutter Speed",
         "undo": "Undo (Ctrl+Z) or History (Right-click)"
       },

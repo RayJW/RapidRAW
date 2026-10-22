@@ -486,6 +486,13 @@
       },
       "touchUpTitle": "潤色"
     },
+    "compare": {
+      "horizontal": "上下分割",
+      "sideBySide": "並排",
+      "title": "前後對比",
+      "toggle": "完整原圖",
+      "vertical": "左右分割"
+    },
     "crop": {
       "aspectRatioHeading": "寬高比",
       "autoStraightenFailed": "自動拉直失敗：{{error}}",
@@ -838,16 +845,16 @@
       }
     },
     "toolbar": {
+      "history": "歷史記錄",
       "switchToVariant": "Switch to {{label}}",
       "tooltips": {
         "aperture": "光圈",
         "backToLibrary": "返回相簿",
+        "compare": "前後對比（B）或模式（右鍵）",
         "focalLength": "焦距",
         "fullscreen": "切換全屏（F）",
         "iso": "ISO",
         "redo": "重做（Ctrl+Y）或歷史記錄（右鍵單擊）",
-        "showEdited": "顯示編輯後（B）",
-        "showOriginal": "顯示原始（B）",
         "shutterSpeed": "快門速度",
         "undo": "復原（Ctrl+Z）或歷史記錄（右鍵單擊）"
       },

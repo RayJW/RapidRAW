@@ -23,7 +23,7 @@ import {
   setToolActive,
 } from '../utils/adjustments';
 import { calculateAutoCropForRotation, calculateCenteredCrop } from '../utils/cropUtils';
-import { Invokes, Option, SelectedImage } from '../components/ui/AppProperties';
+import { CompareMode, Invokes, Option, SelectedImage } from '../components/ui/AppProperties';
 import { globalImageCache } from '../utils/ImageLRUCache';
 
 export const debouncedSetHistory = debounce((newAdj: Adjustments) => {
@@ -79,6 +79,46 @@ export const withRotation = (adjustments: Adjustments, image: SelectedImage | nu
         )
       : adjustments.crop,
 });
+
+const ORIGINAL_PRESERVED_KEYS: Array<keyof Adjustments> = [
+  'baselineExposure',
+  'crop',
+  'rotation',
+  'flipHorizontal',
+  'flipVertical',
+  'orientationSteps',
+  'aspectRatio',
+  'transformDistortion',
+  'transformVertical',
+  'transformHorizontal',
+  'transformRotate',
+  'transformAspect',
+  'transformScale',
+  'transformXOffset',
+  'transformYOffset',
+  'lensDistortionAmount',
+  'lensVignetteAmount',
+  'lensTcaAmount',
+  'lensDistortionParams',
+  'lensMaker',
+  'lensModel',
+  'lensDistortionEnabled',
+  'lensTcaEnabled',
+  'lensVignetteEnabled',
+];
+
+export const getOriginalAdjustments = (adjustments: Adjustments): Adjustments => {
+  const original = { ...INITIAL_ADJUSTMENTS };
+  ORIGINAL_PRESERVED_KEYS.forEach((key) => {
+    (original as any)[key] = adjustments[key];
+  });
+  return original;
+};
+
+const getCompareState = (mode: CompareMode, adjustments: Adjustments) =>
+  mode === 'toggle'
+    ? { showOriginal: true, previewOverride: getOriginalAdjustments(adjustments), compareView: 'off' as const }
+    : { showOriginal: false, previewOverride: null, compareView: mode };
 
 export const reloadAdjustmentsForPaths = async (paths: string[]) => {
   const { selectedImage, setEditor, resetHistory } = useEditorStore.getState();
@@ -186,49 +226,23 @@ export function useEditorActions() {
     }
   }, [setAdjustments, setEditor, t]);
 
-  const toggleShowOriginal = useCallback(() => {
-    setEditor((state) => {
-      const isShowing = !state.showOriginal;
-
-      if (isShowing) {
-        const override = { ...INITIAL_ADJUSTMENTS };
-        const preservedKeys: Array<keyof Adjustments> = [
-          'baselineExposure',
-          'crop',
-          'rotation',
-          'flipHorizontal',
-          'flipVertical',
-          'orientationSteps',
-          'aspectRatio',
-          'transformDistortion',
-          'transformVertical',
-          'transformHorizontal',
-          'transformRotate',
-          'transformAspect',
-          'transformScale',
-          'transformXOffset',
-          'transformYOffset',
-          'lensDistortionAmount',
-          'lensVignetteAmount',
-          'lensTcaAmount',
-          'lensDistortionParams',
-          'lensMaker',
-          'lensModel',
-          'lensDistortionEnabled',
-          'lensTcaEnabled',
-          'lensVignetteEnabled',
-        ];
-
-        preservedKeys.forEach((key) => {
-          (override as any)[key] = state.adjustments[key];
-        });
-
-        return { showOriginal: true, previewOverride: override };
-      } else {
-        return { showOriginal: false, previewOverride: null };
-      }
-    });
+  const toggleCompare = useCallback(() => {
+    const mode = useSettingsStore.getState().appSettings?.compareMode ?? 'toggle';
+    setEditor((state) =>
+      state.showOriginal || state.compareView !== 'off'
+        ? { showOriginal: false, previewOverride: null, compareView: 'off' }
+        : getCompareState(mode, state.adjustments),
+    );
   }, [setEditor]);
+
+  const selectCompareMode = useCallback(
+    (mode: CompareMode) => {
+      const { appSettings, handleSettingsChange } = useSettingsStore.getState();
+      if (appSettings) handleSettingsChange({ ...appSettings, compareMode: mode });
+      setEditor((state) => getCompareState(mode, state.adjustments));
+    },
+    [setEditor],
+  );
 
   const handleLutSelect = useCallback(
     async (path: string, isBuiltIn: boolean = false) => {
@@ -521,6 +535,7 @@ export function useEditorActions() {
     handleCopyAdjustments,
     handlePasteAdjustments,
     handleZoomChange,
-    toggleShowOriginal,
+    toggleCompare,
+    selectCompareMode,
   };
 }

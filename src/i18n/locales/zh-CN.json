@@ -486,6 +486,13 @@
       },
       "touchUpTitle": "润色"
     },
+    "compare": {
+      "horizontal": "上下分割",
+      "sideBySide": "并排",
+      "title": "前后对比",
+      "toggle": "完整原图",
+      "vertical": "左右分割"
+    },
     "crop": {
       "aspectRatioHeading": "宽高比",
       "autoStraightenFailed": "自动拉直失败：{{error}}",
@@ -838,16 +845,16 @@
       }
     },
     "toolbar": {
+      "history": "历史记录",
       "switchToVariant": "Switch to {{label}}",
       "tooltips": {
         "aperture": "光圈",
         "backToLibrary": "返回图库",
+        "compare": "前后对比（B）或模式（右键）",
         "focalLength": "焦距",
         "fullscreen": "切换全屏（F）",
         "iso": "ISO",
         "redo": "重做（Ctrl+Y）或历史记录（右键单击）",
-        "showEdited": "显示编辑后（B）",
-        "showOriginal": "显示原始（B）",
         "shutterSpeed": "快门速度",
         "undo": "撤销（Ctrl+Z）或历史记录（右键单击）"
       },

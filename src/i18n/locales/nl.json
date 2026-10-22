@@ -482,6 +482,13 @@
       },
       "touchUpTitle": "Retoucheren"
     },
+    "compare": {
+      "horizontal": "Boven / onder splitsen",
+      "sideBySide": "Naast elkaar",
+      "title": "Voor / na",
+      "toggle": "Volledig origineel",
+      "vertical": "Links / rechts splitsen"
+    },
     "crop": {
       "aspectRatioHeading": "Beeldverhouding",
       "autoStraightenFailed": "Automatisch rechtzetten mislukt: {{error}}",
@@ -834,16 +841,16 @@
       }
     },
     "toolbar": {
+      "history": "Geschiedenis",
       "switchToVariant": "Overschakelen naar {{label}}",
       "tooltips": {
         "aperture": "Diafragma",
         "backToLibrary": "Terug naar bibliotheek",
+        "compare": "Voor / na (B) of modi (rechtsklik)",
         "focalLength": "Brandpuntsafstand",
         "fullscreen": "Volledig scherm aan/uit (F)",
         "iso": "ISO",
         "redo": "Opnieuw (Ctrl+Y) of geschiedenis (rechtermuisknop)",
-        "showEdited": "Bewerkt weergeven (B)",
-        "showOriginal": "Origineel weergeven (B)",
         "shutterSpeed": "Sluitertijd",
         "undo": "Ongedaan maken (Ctrl+Z) of geschiedenis (rechtermuisknop)"
       },

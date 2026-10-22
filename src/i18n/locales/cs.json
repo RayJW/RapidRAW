@@ -489,6 +489,13 @@
       },
       "touchUpTitle": "Retuše"
     },
+    "compare": {
+      "horizontal": "Rozdělit nahoře / dole",
+      "sideBySide": "Vedle sebe",
+      "title": "Před / po",
+      "toggle": "Celý originál",
+      "vertical": "Rozdělit vlevo / vpravo"
+    },
     "crop": {
       "aspectRatioHeading": "Poměr stran",
       "autoStraightenFailed": "Automatické vyrovnání selhalo: {{error}}",
@@ -841,16 +848,16 @@
       }
     },
     "toolbar": {
+      "history": "Historie",
       "switchToVariant": "Přepnout na {{label}}",
       "tooltips": {
         "aperture": "Clona",
         "backToLibrary": "Zpět do Knihovny",
+        "compare": "Před / po (B) nebo režimy (pravé tlačítko)",
         "focalLength": "Ohnisková vzdálenost",
         "fullscreen": "Přepnout na celou obrazovku (F)",
         "iso": "ISO",
         "redo": "Znovu (Ctrl+Y) nebo Historie (kliknutí pravým tlačítkem)",
-        "showEdited": "Zobrazit upravený (B)",
-        "showOriginal": "Zobrazit originál (B)",
         "shutterSpeed": "Rychlost závěrky",
         "undo": "Zpět (Ctrl+Z) nebo Historie (kliknutí pravým tlačítkem)"
       },

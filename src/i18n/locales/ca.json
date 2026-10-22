@@ -489,6 +489,13 @@
       },
       "touchUpTitle": "Retocs"
     },
+    "compare": {
+      "horizontal": "Dividir dalt / baix",
+      "sideBySide": "Costat a costat",
+      "title": "Abans / després",
+      "toggle": "Original complet",
+      "vertical": "Dividir esquerra / dreta"
+    },
     "crop": {
       "aspectRatioHeading": "Relació d'aspecte",
       "autoStraightenFailed": "No s'ha pogut redreçar automàticament: {{error}}",
@@ -841,16 +848,16 @@
       }
     },
     "toolbar": {
+      "history": "Historial",
       "switchToVariant": "Canviar a {{label}}",
       "tooltips": {
         "aperture": "Obertura",
         "backToLibrary": "Tornar a la Biblioteca",
+        "compare": "Abans / després (B) o modes (clic dret)",
         "focalLength": "Distància focal",
         "fullscreen": "Alternar pantalla completa (F)",
         "iso": "ISO",
         "redo": "Refer (Ctrl+Y) o Historial (Clic dret)",
-        "showEdited": "Mostrar editat (B)",
-        "showOriginal": "Mostrar original (B)",
         "shutterSpeed": "Velocitat d'obturació",
         "undo": "Desfer (Ctrl+Z) o Historial (Clic dret)"
       },

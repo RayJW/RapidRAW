@@ -105,6 +105,7 @@ use crate::cache_utils::{
 };
 use crate::file_management::parse_virtual_path;
 use crate::formats::is_raw_file;
+use crate::gpu_processing::DisplayLayer;
 use crate::hdr_deghosting::{align_hdr_frames, assert_uniform_dimensions, load_hdr_frames};
 use crate::image_loader::prepare_base_image_cow;
 use crate::image_processing::{
@@ -178,6 +179,9 @@ pub struct WgpuTransformPayload {
     pub bg_primary: [f32; 4],
     pub bg_secondary: [f32; 4],
     pub pixelated: bool,
+    pub split_origin: [f32; 2],
+    pub split_normal: [f32; 2],
+    pub split_offset: [f32; 2],
 }
 
 pub fn generate_transformed_preview(
@@ -557,6 +561,9 @@ async fn update_wgpu_transform(
             display.latest_transform.bg_primary = payload.bg_primary;
             display.latest_transform.bg_secondary = payload.bg_secondary;
             display.latest_transform.pixelated = if payload.pixelated { 1.0 } else { 0.0 };
+            display.latest_transform.split_origin = payload.split_origin;
+            display.latest_transform.split_normal = payload.split_normal;
+            display.latest_transform.split_offset = payload.split_offset;
 
             context.queue.write_buffer(
                 &display.transform_buffer,
@@ -572,11 +579,38 @@ async fn update_wgpu_transform(
     Ok(())
 }
 
+#[tauri::command]
+async fn release_original_preview(state: tauri::State<'_, AppState>) -> Result<(), String> {
+    let Some(context) = state
+        .gpu_context
+        .lock()
+        .unwrap_or_else(|e| e.into_inner())
+        .clone()
+    else {
+        return Ok(());
+    };
+
+    tokio::task::spawn_blocking(move || {
+        if let Some(display) = context
+            .display
+            .lock()
+            .unwrap_or_else(|e| e.into_inner())
+            .as_mut()
+        {
+            display.original_texture = None;
+            display.rebind(&context.device);
+        }
+    })
+    .await
+    .map_err(|e| format!("Task panicked: {}", e))
+}
+
 #[allow(clippy::too_many_arguments)]
 fn process_preview_job(
     app_handle: &tauri::AppHandle,
     state: tauri::State<AppState>,
     mut adjustments_json: serde_json::Value,
+    layer: DisplayLayer,
     is_interactive: bool,
     target_resolution: Option<u32>,
     roi: Option<(f32, f32, f32, f32)>,
@@ -785,12 +819,15 @@ fn process_preview_job(
                 roi: pixel_roi,
             },
             "apply_adjustments",
-            use_wgpu_renderer,
+            use_wgpu_renderer.then_some(layer),
             analytics_config,
         );
 
     if let Ok(final_processed_image) = final_processed_image_result {
         if use_wgpu_renderer {
+            if layer == DisplayLayer::Original {
+                return Ok(b"WGPU_RENDER".to_vec());
+            }
             if state
                 .wgpu_presented_generation
                 .swap(image_generation, Ordering::SeqCst)
@@ -941,33 +978,40 @@ fn start_preview_worker(app_handle: tauri::AppHandle) {
     *state.preview_worker_tx.lock().unwrap() = Some(tx);
 
     std::thread::spawn(move || {
-        while let Ok(mut job) = rx.recv() {
-            while let Ok(latest_job) = rx.try_recv() {
-                job = latest_job;
+        while let Ok(job) = rx.recv() {
+            let mut latest: [Option<PreviewJob>; 2] = [None, None];
+            let mut next = Some(job);
+            while let Some(job) = next {
+                let slot = job.layer as usize;
+                latest[slot] = Some(job);
+                next = rx.try_recv().ok();
             }
 
-            let state = app_handle.state::<AppState>();
-            let responder = job.responder;
-            let result = panic::catch_unwind(panic::AssertUnwindSafe(|| {
-                process_preview_job(
-                    &app_handle,
-                    state,
-                    job.adjustments,
-                    job.is_interactive,
-                    job.target_resolution,
-                    job.roi,
-                    job.request_analytics,
-                    job.compute_waveform,
-                    job.active_waveform_channel.as_deref(),
-                )
-            }))
-            .unwrap_or_else(|_| Err("Preview rendering panicked".to_string()));
-            match result {
-                Ok(bytes) => {
-                    let _ = responder.send(bytes);
-                }
-                Err(e) => {
-                    log::error!("Preview worker error: {}", e);
+            for job in latest.into_iter().flatten() {
+                let state = app_handle.state::<AppState>();
+                let responder = job.responder;
+                let result = panic::catch_unwind(panic::AssertUnwindSafe(|| {
+                    process_preview_job(
+                        &app_handle,
+                        state,
+                        job.adjustments,
+                        job.layer,
+                        job.is_interactive,
+                        job.target_resolution,
+                        job.roi,
+                        job.request_analytics,
+                        job.compute_waveform,
+                        job.active_waveform_channel.as_deref(),
+                    )
+                }))
+                .unwrap_or_else(|_| Err("Preview rendering panicked".to_string()));
+                match result {
+                    Ok(bytes) => {
+                        let _ = responder.send(bytes);
+                    }
+                    Err(e) => {
+                        log::error!("Preview worker error: {}", e);
+                    }
                 }
             }
         }
@@ -978,6 +1022,7 @@ fn start_preview_worker(app_handle: tauri::AppHandle) {
 #[tauri::command]
 async fn apply_adjustments(
     js_adjustments: serde_json::Value,
+    original: bool,
     is_interactive: bool,
     target_resolution: Option<u32>,
     roi: Option<(f32, f32, f32, f32)>,
@@ -993,6 +1038,11 @@ async fn apply_adjustments(
         if let Some(worker_tx) = tx_guard.as_ref() {
             let job = PreviewJob {
                 adjustments: js_adjustments,
+                layer: if original {
+                    DisplayLayer::Original
+                } else {
+                    DisplayLayer::Edited
+                },
                 is_interactive,
                 target_resolution,
                 roi,
@@ -2485,6 +2535,7 @@ pub fn run() {
             frontend_ready,
             cancel_thumbnail_generation,
             update_wgpu_transform,
+            release_original_preview,
             android_integration::resolve_android_content_uri_name,
             cache_utils::clear_session_caches,
             cache_utils::clear_image_caches,

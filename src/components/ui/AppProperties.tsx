@@ -116,6 +116,7 @@ export enum Invokes {
   MergeHdr = 'merge_hdr',
   TestAIConnectorConnection = 'test_ai_connector_connection',
   UpdateWgpuTransform = 'update_wgpu_transform',
+  ReleaseOriginalPreview = 'release_original_preview',
   UpdateExifFields = 'update_exif_fields',
   FetchCommunityPresets = 'fetch_community_presets',
   GenerateAllCommunityPreviews = 'generate_all_community_previews',
@@ -205,6 +206,8 @@ export interface CustomAspectRatio {
 
 export type GroupPreference = 'jpeg' | 'raw';
 export type GroupingMode = 'off' | GroupPreference;
+export type CompareView = 'off' | 'vertical' | 'horizontal' | 'sideBySide';
+export type CompareMode = 'toggle' | Exclude<CompareView, 'off'>;
 
 export interface AppSettings {
   aiConnectorAddress?: string;
@@ -253,6 +256,7 @@ export interface AppSettings {
   useWgpuRenderer?: boolean;
   editorNeutralGreyBg?: boolean;
   canvasInputMode?: 'mouse' | 'trackpad';
+  compareMode?: CompareMode;
   whiteBalanceMode?: WhiteBalanceMode;
   zoomSpeedMultiplier?: number;
   zoomPhotoToPixelClick?: boolean;

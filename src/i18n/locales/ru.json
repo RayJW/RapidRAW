@@ -530,6 +530,13 @@
       },
       "touchUpTitle": "Ретушь"
     },
+    "compare": {
+      "horizontal": "Разделить сверху / снизу",
+      "sideBySide": "Рядом",
+      "title": "До / После",
+      "toggle": "Весь оригинал",
+      "vertical": "Разделить слева / справа"
+    },
     "crop": {
       "aspectRatioHeading": "Соотношение сторон",
       "autoStraightenFailed": "Не удалось выровнять автоматически: {{error}}",
@@ -884,16 +891,16 @@
       }
     },
     "toolbar": {
+      "history": "История",
       "switchToVariant": "Switch to {{label}}",
       "tooltips": {
         "aperture": "Диафрагма",
         "backToLibrary": "Назад в библиотеку",
+        "compare": "До / После (B) или режимы (правый клик)",
         "focalLength": "Фокусное расстояние",
         "fullscreen": "Полноэкранный режим (F)",
         "iso": "ISO",
         "redo": "Повторить (Ctrl+Y) или история (правый клик)",
-        "showEdited": "Показать измененное (B)",
-        "showOriginal": "Показать оригинал (B)",
         "shutterSpeed": "Выдержка",
         "undo": "Отменить (Ctrl+Z) или история (правый клик)"
       },

@@ -16,7 +16,7 @@ use crate::ai_processing::AiState;
 use crate::as_shot::AsShot;
 use crate::cache_utils::{DecodeFlights, DecodedImageCache};
 use crate::camera_tethering::CameraSession;
-use crate::gpu_processing::GpuProcessor;
+use crate::gpu_processing::{DisplayLayer, GpuProcessor};
 use crate::image_processing::GpuContext;
 use crate::launch_request::ExternalEditSession;
 use crate::lens_correction::LensDatabase;
@@ -148,6 +148,7 @@ pub struct GpuProcessorState {
 
 pub struct PreviewJob {
     pub adjustments: serde_json::Value,
+    pub layer: DisplayLayer,
     pub is_interactive: bool,
     pub target_resolution: Option<u32>,
     pub roi: Option<(f32, f32, f32, f32)>,

@@ -488,6 +488,13 @@
       },
       "touchUpTitle": "Ausbessern"
     },
+    "compare": {
+      "horizontal": "Oben / unten teilen",
+      "sideBySide": "Nebeneinander",
+      "title": "Vorher / Nachher",
+      "toggle": "Ganzes Original",
+      "vertical": "Links / rechts teilen"
+    },
     "crop": {
       "aspectRatioHeading": "Seitenverhältnis",
       "autoStraightenFailed": "Automatisches Ausrichten fehlgeschlagen: {{error}}",
@@ -840,16 +847,16 @@
       }
     },
     "toolbar": {
+      "history": "Verlauf",
       "switchToVariant": "Switch to {{label}}",
       "tooltips": {
         "aperture": "Blende",
         "backToLibrary": "Zurück zur Bibliothek",
+        "compare": "Vorher / Nachher (B) oder Modi (Rechtsklick)",
         "focalLength": "Brennweite",
         "fullscreen": "Vollbild umschalten (F)",
         "iso": "ISO",
         "redo": "Wiederholen (Strg+Y) oder Verlauf (Rechtsklick)",
-        "showEdited": "Bearbeitet anzeigen (B)",
-        "showOriginal": "Original anzeigen (B)",
         "shutterSpeed": "Verschlusszeit",
         "undo": "Rückgängig (Strg+Z) oder Verlauf (Rechtsklick)"
       },
