@@ -461,9 +461,30 @@ enum SessionKind {
 }
 
 #[cfg(target_os = "windows")]
+fn high_performance_dml_device_id() -> Option<i32> {
+    use windows::Win32::Graphics::Dxgi::{
+        CreateDXGIFactory2, DXGI_CREATE_FACTORY_FLAGS, DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE,
+        IDXGIAdapter1, IDXGIFactory6,
+    };
+
+    unsafe {
+        let factory: IDXGIFactory6 = CreateDXGIFactory2(DXGI_CREATE_FACTORY_FLAGS(0)).ok()?;
+        let preferred: IDXGIAdapter1 = factory
+            .EnumAdapterByGpuPreference(0, DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE)
+            .ok()?;
+        let luid = preferred.GetDesc1().ok()?.AdapterLuid;
+        (0..)
+            .map_while(|i| factory.EnumAdapters1(i).ok())
+            .position(|adapter| adapter.GetDesc1().is_ok_and(|desc| desc.AdapterLuid == luid))
+            .map(|index| index as i32)
+    }
+}
+
+#[cfg(target_os = "windows")]
 fn gpu_execution_provider() -> Option<ExecutionProviderDispatch> {
     Some(
         ort::execution_providers::DirectMLExecutionProvider::default()
+            .with_device_id(high_performance_dml_device_id().unwrap_or(0))
             .build()
             .error_on_failure(),
     )
