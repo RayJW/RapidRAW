@@ -110,6 +110,8 @@ interface DragData {
   parentId?: string;
 }
 
+const FACE_MASK_DELAY_MS = 500;
+
 const SUB_MASK_CONFIG: Record<Mask, any> = {
   [Mask.Radial]: {
     parameters: [{ key: 'feather', min: 0, max: 100, step: 1, multiplier: 100, defaultValue: 50 }],
@@ -1934,6 +1936,7 @@ function SettingsPanel({
   const { showContextMenu } = useContextMenu();
   const isActive = !!container;
   const presetButtonRef = useRef<HTMLButtonElement>(null);
+  const faceMaskTimeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const [textPrompt, setTextPrompt] = useState(activeSubMask?.parameters?.prompt || '');
 
   useEffect(() => {
@@ -2023,34 +2026,21 @@ function SettingsPanel({
   const isComponentMode = !!activeSubMask;
   const isTextMask = activeSubMask?.type === Mask.AiText;
   const isFaceMask = activeSubMask?.type === Mask.AiFace;
-  const isAiTaskRunning = Boolean(activeSubMask && activeAiTasks?.[activeSubMask.id]);
-  const isTextMaskRunning = isTextMask && isAiTaskRunning;
+  const isTextMaskRunning = isTextMask && Boolean(activeAiTasks?.[activeSubMask.id]);
   const faceParts: Array<string> = activeSubMask?.parameters?.parts || [];
 
   const handleToggleFacePart = (part: string) => {
-    if (!isActive || !isFaceMask || isAiTaskRunning) return;
+    if (!isActive || !isFaceMask) return;
+    const subMaskId = activeSubMask.id;
     const parts = FACE_PARTS.filter((p) => (p === part ? !faceParts.includes(p) : faceParts.includes(p)));
-    updateSubMask(activeSubMask.id, {
+    updateSubMask(subMaskId, {
       parameters: { ...activeSubMask.parameters, parts, ...(parts.length === 0 && { maskDataBase64: null }) },
     });
-    if (parts.length > 0) handleGenerateAiFaceMask(activeSubMask.id, parts);
+    clearTimeout(faceMaskTimeoutRef.current);
+    if (parts.length > 0) {
+      faceMaskTimeoutRef.current = setTimeout(() => handleGenerateAiFaceMask(subMaskId, parts), FACE_MASK_DELAY_MS);
+    }
   };
-
-  const cancelAiTaskButton = (
-    <Button
-      className="group w-full bg-red-500/15 hover:bg-red-500/25 text-red-400 border border-red-500/30 transition-colors"
-      onClick={() => handleCancelAiTask(activeSubMask.id)}
-    >
-      <span className="flex items-center justify-center group-hover:hidden">
-        <Loader2 size={16} className="animate-spin mr-2" />
-        {t('editor.ai.settings.generating')}
-      </span>
-      <span className="hidden items-center justify-center group-hover:flex">
-        <X size={16} className="mr-2" />
-        {t('editor.ai.settings.cancelGeneration')}
-      </span>
-    </Button>
-  );
 
   const handleGenerateTextMaskClick = () => {
     if (!isActive || !isTextMask || !textPrompt.trim()) return;
@@ -2229,7 +2219,19 @@ function SettingsPanel({
               </div>
 
               {isTextMaskRunning ? (
-                cancelAiTaskButton
+                <Button
+                  className="group w-full bg-red-500/15 hover:bg-red-500/25 text-red-400 border border-red-500/30 transition-colors"
+                  onClick={() => handleCancelAiTask(activeSubMask.id)}
+                >
+                  <span className="flex items-center justify-center group-hover:hidden">
+                    <Loader2 size={16} className="animate-spin mr-2" />
+                    {t('editor.ai.settings.generating')}
+                  </span>
+                  <span className="hidden items-center justify-center group-hover:flex">
+                    <X size={16} className="mr-2" />
+                    {t('editor.ai.settings.cancelGeneration')}
+                  </span>
+                </Button>
               ) : (
                 <Button className="w-full" disabled={!textPrompt.trim()} onClick={handleGenerateTextMaskClick}>
                   <Send size={16} />
@@ -2241,28 +2243,24 @@ function SettingsPanel({
 
           {isFaceMask && (
             <>
-              <FacePartsIllustration disabled={isAiTaskRunning} onToggle={handleToggleFacePart} selected={faceParts} />
+              <FacePartsIllustration selected={faceParts} />
 
               <div className="grid grid-cols-3 gap-2">
                 {FACE_PARTS.map((part) => (
                   <button
                     key={part}
-                    disabled={isAiTaskRunning}
                     onClick={() => handleToggleFacePart(part)}
                     className={clsx(
-                      'px-1 py-2 text-xs leading-tight rounded-md transition-colors disabled:cursor-not-allowed',
+                      'px-1 py-2 text-xs leading-tight rounded-md transition-colors',
                       faceParts.includes(part)
                         ? 'bg-accent text-button-text'
                         : 'bg-bg-primary text-text-secondary hover:bg-card-active hover:text-text-primary',
-                      isAiTaskRunning && 'opacity-60',
                     )}
                   >
                     {t(`editor.masks.settings.faceParts.${part}`)}
                   </button>
                 ))}
               </div>
-
-              {isAiTaskRunning && cancelAiTaskButton}
             </>
           )}
 

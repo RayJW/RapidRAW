@@ -1,11 +1,7 @@
 import { useId } from 'react';
-import clsx from 'clsx';
-import { useTranslation } from 'react-i18next';
 import { FacePart } from './Masks';
 
 interface FacePartsIllustrationProps {
-  disabled: boolean;
-  onToggle(part: FacePart): void;
   selected: Array<string>;
 }
 
@@ -69,15 +65,11 @@ const LAYERS: Array<{ part: FacePart | null; d: string; shade: number; clip?: bo
   },
 ];
 
-export default function FacePartsIllustration({ disabled, onToggle, selected }: FacePartsIllustrationProps) {
-  const { t } = useTranslation();
+export default function FacePartsIllustration({ selected }: FacePartsIllustrationProps) {
   const clipId = useId();
 
   return (
-    <svg
-      viewBox="22 12 156 168"
-      className={clsx('w-full max-w-[160px] mx-auto block', disabled && 'opacity-60 pointer-events-none')}
-    >
+    <svg viewBox="22 12 156 168" className="w-full max-w-[160px] mx-auto block pointer-events-none">
       <defs>
         <clipPath id={clipId}>
           <path d={EYES} />
@@ -90,18 +82,13 @@ export default function FacePartsIllustration({ disabled, onToggle, selected }: 
           strokeWidth={0.8}
           strokeLinejoin="round"
           clipPath={clip ? `url(#${clipId})` : undefined}
-          onClick={part ? () => onToggle(part) : undefined}
-          data-tooltip={part ? t(`editor.masks.settings.faceParts.${part}`) : undefined}
           style={{
             fill:
               part && selected.includes(part)
                 ? 'var(--color-accent)'
                 : `color-mix(in srgb, var(--color-text-secondary) ${shade}%, var(--color-surface))`,
           }}
-          className={clsx(
-            'transition-colors',
-            part ? 'stroke-surface cursor-pointer hover:opacity-75' : 'pointer-events-none',
-          )}
+          className={part ? 'stroke-surface transition-colors' : undefined}
         />
       ))}
     </svg>
