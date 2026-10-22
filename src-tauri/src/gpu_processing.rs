@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use std::sync::Arc;
-use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::time::Instant;
 
 use half::f16;
@@ -567,7 +567,7 @@ fn to_rgba_f16(img: &DynamicImage) -> Vec<f16> {
 }
 
 #[repr(C)]
-#[derive(Debug, Copy, Clone, bytemuck::Pod, bytemuck::Zeroable)]
+#[derive(Debug, Copy, Clone, PartialEq, bytemuck::Pod, bytemuck::Zeroable)]
 struct BlurParams {
     radius: u32,
     tile_offset_x: u32,
@@ -578,6 +578,8 @@ struct BlurParams {
     _pad2: u32,
     _pad3: u32,
 }
+
+static NEXT_GPU_IMAGE_ID: AtomicU64 = AtomicU64::new(1);
 
 const BLUR_H_GROUP_WIDTH: u32 = 256;
 const BLUR_V_GROUP_SIZE: (u32, u32) = (8, 64);
@@ -662,6 +664,7 @@ pub struct GpuProcessor {
     tonal_blur_view: wgpu::TextureView,
     clarity_blur_view: wgpu::TextureView,
     structure_blur_view: wgpu::TextureView,
+    blur_sources: std::sync::Mutex<[Option<(u64, BlurParams)>; 4]>,
 
     pub tile_output_texture: wgpu::Texture,
     pub tile_output_texture_view: wgpu::TextureView,
@@ -1540,6 +1543,7 @@ impl GpuProcessor {
             tonal_blur_view,
             clarity_blur_view,
             structure_blur_view,
+            blur_sources: std::sync::Mutex::new([None; 4]),
             tile_output_texture,
             tile_output_texture_view,
             full_image_size,
@@ -2046,18 +2050,17 @@ impl GpuProcessor {
         })
     }
 
-    #[allow(clippy::too_many_arguments)]
     fn run(
         &self,
-        input_texture_view: &wgpu::TextureView,
-        gf_coeffs_view: &wgpu::TextureView,
-        gf_dehaze_view: &wgpu::TextureView,
-        width: u32,
-        height: u32,
+        input: &GpuImageEntry,
         request: RenderRequest,
         output_to_display: bool,
         output_precision: RenderOutputPrecision,
     ) -> Result<(RenderedPixels, u32, u32, u32, u32), String> {
+        let input_texture_view = &input.texture_view;
+        let gf_coeffs_view = &input.gf_coeffs_view;
+        let gf_dehaze_view = &input.gf_dehaze_view;
+        let (width, height) = (input.width, input.height);
         let device = &self.context.device;
         let queue = &self.context.queue;
         let scale = (width.min(height) as f32) / 1080.0;
@@ -2253,7 +2256,10 @@ impl GpuProcessor {
                 let input_width = input_x_end - input_x_start;
                 let input_height = input_y_end - input_y_start;
 
-                let run_blur = |base_radius: f32, output_view: &wgpu::TextureView| -> bool {
+                let run_blur = |slot: usize,
+                                base_radius: f32,
+                                output_view: &wgpu::TextureView|
+                 -> bool {
                     let radius = (base_radius * scale).ceil().max(1.0) as u32;
                     if radius == 0 {
                         return false;
@@ -2269,6 +2275,12 @@ impl GpuProcessor {
                         _pad2: 0,
                         _pad3: 0,
                     };
+
+                    let source = Some((input.id, params));
+                    if self.blur_sources.lock().unwrap_or_else(|e| e.into_inner())[slot] == source {
+                        return true;
+                    }
+
                     queue.write_buffer(&self.blur_params_buffer, 0, bytemuck::bytes_of(&params));
 
                     let mut blur_encoder = device.create_command_encoder(&Default::default());
@@ -2345,6 +2357,7 @@ impl GpuProcessor {
                     }
 
                     queue.submit(Some(blur_encoder.finish()));
+                    self.blur_sources.lock().unwrap_or_else(|e| e.into_inner())[slot] = source;
                     true
                 };
 
@@ -2370,12 +2383,12 @@ impl GpuProcessor {
                         || any_neg_dehaze;
 
                 let did_create_sharpness_blur =
-                    need_sharpen && run_blur(1.0, &self.sharpness_blur_view);
-                let did_create_tonal_blur = need_sharpen && run_blur(3.5, &self.tonal_blur_view);
+                    need_sharpen && run_blur(0, 1.0, &self.sharpness_blur_view);
+                let did_create_tonal_blur = need_sharpen && run_blur(1, 3.5, &self.tonal_blur_view);
                 let did_create_clarity_blur =
-                    need_halation && run_blur(8.0, &self.clarity_blur_view);
+                    need_halation && run_blur(2, 8.0, &self.clarity_blur_view);
                 let did_create_structure_blur =
-                    need_structure && run_blur(40.0, &self.structure_blur_view);
+                    need_structure && run_blur(3, 40.0, &self.structure_blur_view);
 
                 let mut main_encoder = device.create_command_encoder(&Default::default());
 
@@ -2779,6 +2792,7 @@ fn process_and_get_dynamic_image_inner(
             processor.build_guided_coeffs(&texture_view, width, height, is_raw);
 
         cache.entries.push(GpuImageEntry {
+            id: NEXT_GPU_IMAGE_ID.fetch_add(1, Ordering::Relaxed),
             texture,
             texture_view,
             gf_coeffs_view,
@@ -2803,16 +2817,8 @@ fn process_and_get_dynamic_image_inner(
 
     let skip_readback = output_to_display;
 
-    let (processed_pixels, out_w, out_h, out_x, out_y) = processor.run(
-        &cache.texture_view,
-        &cache.gf_coeffs_view,
-        &cache.gf_dehaze_view,
-        cache.width,
-        cache.height,
-        request,
-        output_to_display,
-        output_precision,
-    )?;
+    let (processed_pixels, out_w, out_h, out_x, out_y) =
+        processor.run(cache, request, output_to_display, output_precision)?;
 
     let mut final_encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
         label: Some("Final Passes Encoder"),

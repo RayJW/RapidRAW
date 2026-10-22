@@ -22,7 +22,6 @@ pub use crate::gpu_processing::{
     process_and_get_dynamic_image_with_analytics, process_and_get_dynamic_image_with_precision,
 };
 use crate::{AppState, mask_generation::MaskDefinition};
-use base64::{Engine as _, engine::general_purpose::STANDARD as BASE64};
 
 pub trait IntoCowImage<'a> {
     fn into_cow(self) -> Cow<'a, DynamicImage>;
@@ -3189,7 +3188,6 @@ fn apply_gentle_detail_enhance(
         });
 }
 
-#[derive(Serialize, Clone)]
 pub struct HistogramData {
     red: Vec<f32>,
     green: Vec<f32>,
@@ -3349,15 +3347,57 @@ fn normalize_histogram_range(histogram: &mut [f32], percentile_clip: f32) {
     }
 }
 
-#[derive(serde::Serialize, Clone)]
-#[serde(rename_all = "camelCase")]
 pub struct WaveformData {
-    pub rgb: String,
-    pub luma: String,
-    pub parade: String,
-    pub vectorscope: String,
+    pub rgb: Vec<u8>,
+    pub luma: Vec<u8>,
+    pub parade: Vec<u8>,
+    pub vectorscope: Vec<u8>,
     pub width: u32,
     pub height: u32,
+}
+
+pub fn encode_analytics_packet(
+    path: &str,
+    histogram: Option<&HistogramData>,
+    waveform: Option<&WaveformData>,
+) -> Vec<u8> {
+    let put_u32 = |out: &mut Vec<u8>, v: usize| out.extend_from_slice(&(v as u32).to_le_bytes());
+    let wave_len = waveform.map_or(0, |w| {
+        w.rgb.len() + w.luma.len() + w.parade.len() + w.vectorscope.len()
+    });
+    let mut out = Vec::with_capacity(path.len() + 4 * 256 * 4 + wave_len + 40);
+
+    put_u32(&mut out, path.len());
+    out.extend_from_slice(path.as_bytes());
+
+    match histogram {
+        Some(h) => {
+            put_u32(&mut out, h.red.len());
+            for channel in [&h.red, &h.green, &h.blue, &h.luma] {
+                for v in channel.iter() {
+                    out.extend_from_slice(&v.to_le_bytes());
+                }
+            }
+        }
+        None => put_u32(&mut out, 0),
+    }
+
+    match waveform {
+        Some(w) => {
+            put_u32(&mut out, w.width as usize);
+            put_u32(&mut out, w.height as usize);
+            for plane in [&w.rgb, &w.luma, &w.parade, &w.vectorscope] {
+                put_u32(&mut out, plane.len());
+                out.extend_from_slice(plane);
+            }
+        }
+        None => {
+            put_u32(&mut out, 0);
+            put_u32(&mut out, 0);
+        }
+    }
+
+    out
 }
 
 const WAVEFORM_W: usize = 256;
@@ -3633,26 +3673,10 @@ pub fn calculate_waveform(
     }
 
     Ok(WaveformData {
-        rgb: if do_rgb {
-            BASE64.encode(&rgba_rgb)
-        } else {
-            String::new()
-        },
-        luma: if do_luma {
-            BASE64.encode(&rgba_luma)
-        } else {
-            String::new()
-        },
-        parade: if do_parade {
-            BASE64.encode(&rgba_parade)
-        } else {
-            String::new()
-        },
-        vectorscope: if do_vectorscope {
-            BASE64.encode(&rgba_vector)
-        } else {
-            String::new()
-        },
+        rgb: rgba_rgb,
+        luma: rgba_luma,
+        parade: rgba_parade,
+        vectorscope: rgba_vector,
         width: W as u32,
         height: H as u32,
     })

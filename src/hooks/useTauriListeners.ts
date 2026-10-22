@@ -1,14 +1,58 @@
 import { useEffect, useRef } from 'react';
 import { listen } from '@tauri-apps/api/event';
-import { convertFileSrc, invoke } from '@tauri-apps/api/core';
+import { Channel, convertFileSrc, invoke } from '@tauri-apps/api/core';
 import { toast } from 'react-toastify';
 import { Status } from '../components/ui/ExportImportProperties';
-import { Invokes } from '../components/ui/AppProperties';
+import { Invokes, WaveformData } from '../components/ui/AppProperties';
 import { MaskContainer } from '../utils/adjustments';
 import { AiJobsStatus, useProcessStore } from '../store/useProcessStore';
 import { useEditorStore } from '../store/useEditorStore';
 import { useUIStore } from '../store/useUIStore';
 import { useLibraryStore } from '../store/useLibraryStore';
+
+const parseAnalyticsPacket = async (buffer: ArrayBuffer) => {
+  const view = new DataView(buffer);
+  let offset = 0;
+  const readU32 = () => {
+    const value = view.getUint32(offset, true);
+    offset += 4;
+    return value;
+  };
+
+  const pathLength = readU32();
+  const path = new TextDecoder().decode(new Uint8Array(buffer, offset, pathLength));
+  offset += pathLength;
+
+  const bins = readU32();
+  let histogram: { red: number[]; green: number[]; blue: number[]; luma: number[] } | null = null;
+  if (bins > 0) {
+    const readChannel = () => {
+      const channel = new Array<number>(bins);
+      for (let i = 0; i < bins; i++) {
+        channel[i] = view.getFloat32(offset, true);
+        offset += 4;
+      }
+      return channel;
+    };
+    histogram = { red: readChannel(), green: readChannel(), blue: readChannel(), luma: readChannel() };
+  }
+
+  const width = readU32();
+  const height = readU32();
+  let waveform: WaveformData | null = null;
+  if (width > 0 && height > 0) {
+    const readPlane = () => {
+      const length = readU32();
+      const plane = new Uint8ClampedArray(buffer, offset, length);
+      offset += length;
+      return length === width * height * 4 ? createImageBitmap(new ImageData(plane, width, height)) : null;
+    };
+    const [rgb, luma, parade, vectorscope] = await Promise.all([readPlane(), readPlane(), readPlane(), readPlane()]);
+    waveform = { width, height, rgb, luma, parade, vectorscope };
+  }
+
+  return { path, histogram, waveform };
+};
 
 interface TauriListenerProps {
   refreshAllFolderTrees: () => void;
@@ -130,14 +174,6 @@ export function useTauriListeners({
     const listeners = [
       listen('preview-update-uncropped', (event: any) => {
         if (isEffectActive) useEditorStore.getState().setEditor({ uncroppedAdjustedPreviewUrl: event.payload });
-      }),
-      listen('analytics-update', (event: any) => {
-        if (isEffectActive && event.payload.path === useEditorStore.getState().selectedImage?.path) {
-          const update: { histogram?: any; waveform?: any } = {};
-          if (event.payload.histogram != null) update.histogram = event.payload.histogram;
-          if (event.payload.waveform != null) update.waveform = event.payload.waveform;
-          useEditorStore.getState().setEditor(update);
-        }
       }),
       listen('open-with-file', (event: any) => {
         if (isEffectActive) useProcessStore.getState().setProcess({ initialFileToOpen: event.payload as string });
@@ -497,6 +533,24 @@ export function useTauriListeners({
         if (isEffectActive) useProcessStore.getState().setProcess({ aiJobs });
       })
       .catch((err) => console.error('Failed to load AI job status:', err));
+    let analyticsSequence = 0;
+    let latestAppliedAnalytics = 0;
+    const analyticsChannel = new Channel<ArrayBuffer>();
+    analyticsChannel.onmessage = async (buffer) => {
+      const sequence = ++analyticsSequence;
+      const { path, histogram, waveform } = await parseAnalyticsPacket(buffer);
+      if (!isEffectActive || sequence < latestAppliedAnalytics) return;
+      if (path !== useEditorStore.getState().selectedImage?.path) return;
+      latestAppliedAnalytics = sequence;
+      const update: { histogram?: any; waveform?: WaveformData } = {};
+      if (histogram) update.histogram = histogram;
+      if (waveform) update.waveform = waveform;
+      useEditorStore.getState().setEditor(update);
+    };
+    invoke(Invokes.SubscribeAnalytics, { channel: analyticsChannel }).catch((err) =>
+      console.error('Failed to subscribe to analytics:', err),
+    );
+
     invoke<string[]>(Invokes.GetPendingAiPaths)
       .then((paths) => {
         if (isEffectActive) {

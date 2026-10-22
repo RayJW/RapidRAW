@@ -128,6 +128,7 @@ pub struct GpuImageCache {
 }
 
 pub struct GpuImageEntry {
+    pub id: u64,
     pub texture: Texture,
     pub texture_view: TextureView,
     pub gf_coeffs_view: TextureView,
@@ -244,6 +245,7 @@ pub struct AppState {
     pub thumbnail_progress: Mutex<ThumbnailProgressTracker>,
     pub preview_worker_tx: Mutex<Option<Sender<PreviewJob>>>,
     pub analytics_worker_tx: Mutex<Option<Sender<AnalyticsJob>>>,
+    pub analytics_channel: Mutex<Option<tauri::ipc::Channel>>,
     pub mask_cache: Mutex<HashMap<u64, GrayImage>>,
     pub patch_cache: Mutex<HashMap<String, serde_json::Value>>,
     pub geometry_cache: Mutex<HashMap<u64, DynamicImage>>,

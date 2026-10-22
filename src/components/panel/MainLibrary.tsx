@@ -41,6 +41,7 @@ import { ImportState, Status } from '../ui/ExportImportProperties';
 import Text from '../ui/Text';
 import { TextColors, TextVariants, TextWeights } from '../../types/typography';
 import { useLibraryStore } from '../../store/useLibraryStore';
+import { useProcessStore } from '../../store/useProcessStore';
 import { useUIStore } from '../../store/useUIStore';
 import SettingsPanel from './SettingsPanel';
 
@@ -93,7 +94,6 @@ interface MainLibraryProps {
   setLibraryViewMode(mode: LibraryViewMode): void;
   theme: string;
   thumbnailAspectRatio: ThumbnailAspectRatio;
-  thumbnailProgress: Progress;
   thumbnailSize: ThumbnailSize;
   onNavigateToCommunity(): void;
 }
@@ -160,6 +160,16 @@ function DisplayModeSwitch({ displayMode, setDisplayMode, t }: DisplayModeSwitch
         })}
       </div>
     </div>
+  );
+}
+
+function ThumbnailProgressCount() {
+  const current = useProcessStore((state) => state.thumbnailProgress?.current ?? 0);
+  const total = useProcessStore((state) => state.thumbnailProgress?.total ?? 0);
+  return (
+    <Text variant={TextVariants.small} color={TextColors.secondary} className="whitespace-nowrap">
+      ({current}/{total})
+    </Text>
   );
 }
 
@@ -263,10 +273,13 @@ export default function MainLibrary(props: MainLibraryProps) {
     [t],
   );
 
-  const isBusy =
-    props.isLoading ||
-    ((props.thumbnailProgress?.total ?? 0) > 0 &&
-      (props.thumbnailProgress?.current ?? 0) < (props.thumbnailProgress?.total ?? 0));
+  const hasThumbnailWork = useProcessStore((state) => (state.thumbnailProgress?.total ?? 0) > 0);
+  const isGeneratingThumbnails = useProcessStore(
+    (state) =>
+      (state.thumbnailProgress?.total ?? 0) > 0 &&
+      (state.thumbnailProgress?.current ?? 0) < (state.thumbnailProgress?.total ?? 0),
+  );
+  const isBusy = props.isLoading || isGeneratingThumbnails;
 
   useEffect(() => {
     let timer: number | undefined;
@@ -581,14 +594,12 @@ export default function MainLibrary(props: MainLibraryProps) {
                     {isBusyLoaderMounted && <Loader2 size={14} className="animate-spin text-text-secondary shrink-0" />}
                     <div
                       className={`flex items-center transition-all duration-300 ease-out overflow-hidden ${
-                        isProgressHovered && isBusyDelayed && (props.thumbnailProgress?.total ?? 0) > 0
+                        isProgressHovered && isBusyDelayed && hasThumbnailWork
                           ? 'max-w-xs opacity-100'
                           : 'max-w-0 opacity-0'
                       }`}
                     >
-                      <Text variant={TextVariants.small} color={TextColors.secondary} className="whitespace-nowrap">
-                        ({props.thumbnailProgress?.current ?? 0}/{props.thumbnailProgress?.total ?? 0})
-                      </Text>
+                      <ThumbnailProgressCount />
                     </div>
                   </div>
                 </div>

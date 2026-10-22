@@ -149,7 +149,7 @@ export default function Editor({ onBackToLibrary, onContextMenu, onImageSelect, 
   const [isLoaderVisible, setIsLoaderVisible] = useState(false);
   const [showExifDateView, setShowExifDateView] = useState(false);
   const [maskOverlayUrl, setMaskOverlayUrl] = useState<string | null>(null);
-  const [transformState, setTransformState] = useState<TransformState>({ scale: 1, positionX: 0, positionY: 0 });
+  const [transformScale, setTransformScale] = useState(1);
 
   const [isShiftPressed, setIsShiftPressed] = useState(false);
   const [straightenDragLine, setStraightenDragLine] = useState<{
@@ -162,8 +162,7 @@ export default function Editor({ onBackToLibrary, onContextMenu, onImageSelect, 
 
   const imageContainerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-  const transformStateRef = useRef<TransformState>(transformState);
-  transformStateRef.current = transformState;
+  const transformStateRef = useRef<TransformState>({ scale: 1, positionX: 0, positionY: 0 });
   const [isPanningState, setIsPanningState] = useState(false);
   const isClickAnimating = useRef(false);
   const clickAnimationTime = 250;
@@ -456,11 +455,12 @@ export default function Editor({ onBackToLibrary, onContextMenu, onImageSelect, 
   const applyTransform = useCallback(
     (x: number, y: number, scale: number) => {
       transformStateRef.current = { positionX: x, positionY: y, scale };
-      setTransformState({ scale, positionX: x, positionY: y });
+      setTransformScale(scale);
 
       if (contentRef.current) {
         contentRef.current.style.transform = `translate(${x}px, ${y}px) scale(${scale})`;
       }
+      syncWgpuRef.current();
 
       if (!isTransitioningRef.current) {
         if (scale > 1.01) {
@@ -1256,9 +1256,9 @@ export default function Editor({ onBackToLibrary, onContextMenu, onImageSelect, 
     const timer = setTimeout(() => {
       if (handleDisplaySizeChange && imageRenderSize.width > 0) {
         const currentDisplaySize = {
-          width: imageRenderSize.width * transformState.scale,
-          height: imageRenderSize.height * transformState.scale,
-          scale: transformState.scale,
+          width: imageRenderSize.width * transformScale,
+          height: imageRenderSize.height * transformScale,
+          scale: transformScale,
           offsetX: imageRenderSize.offsetX,
           offsetY: imageRenderSize.offsetY,
           containerWidth: imageContainerRef.current?.clientWidth || 0,
@@ -1268,7 +1268,7 @@ export default function Editor({ onBackToLibrary, onContextMenu, onImageSelect, 
       }
     }, 100);
     return () => clearTimeout(timer);
-  }, [imageRenderSize, transformState.scale, handleDisplaySizeChange]);
+  }, [imageRenderSize, transformScale, handleDisplaySizeChange]);
 
   const processOverlayQueue = useCallback(async () => {
     if (isGeneratingOverlayRef.current || !pendingOverlayRequestRef.current) return;
@@ -1426,7 +1426,6 @@ export default function Editor({ onBackToLibrary, onContextMenu, onImageSelect, 
     showOriginal,
     appSettings?.theme,
     finalPreviewUrl,
-    transformState,
     imageRenderSize,
   ]);
 
@@ -2241,7 +2240,7 @@ export default function Editor({ onBackToLibrary, onContextMenu, onImageSelect, 
   }
 
   const isZoomActionActive = !isPanningDisabled;
-  const isMaxZoom = transformState.scale >= maxScaleRef.current - 0.5;
+  const isMaxZoom = transformScale >= maxScaleRef.current - 0.5;
 
   let cursorStyle = 'default';
   if ((isShiftPressed && !isCropping) || straightenDragLine) {
@@ -2253,7 +2252,7 @@ export default function Editor({ onBackToLibrary, onContextMenu, onImageSelect, 
   } else if (isZoomActionActive) {
     if (isPanningState) {
       cursorStyle = 'grabbing';
-    } else if (transformState.scale > 1.01) {
+    } else if (transformScale > 1.01) {
       cursorStyle = 'zoom-out';
     } else {
       cursorStyle = 'zoom-in';
@@ -2334,7 +2333,7 @@ export default function Editor({ onBackToLibrary, onContextMenu, onImageSelect, 
           ref={contentRef}
           className="w-full h-full flex items-center justify-center origin-top-left"
           style={{
-            transform: `translate(${transformState.positionX}px, ${transformState.positionY}px) scale(${transformState.scale})`,
+            transform: `translate(${transformStateRef.current.positionX}px, ${transformStateRef.current.positionY}px) scale(${transformStateRef.current.scale})`,
           }}
         >
           <ImageCanvas
@@ -2381,7 +2380,7 @@ export default function Editor({ onBackToLibrary, onContextMenu, onImageSelect, 
             cursorStyle={cursorStyle}
             isMaxZoom={isMaxZoom}
             liveRotation={liveRotation}
-            transformState={transformState}
+            transformScale={transformScale}
             hasRenderedFirstFrame={hasRenderedFirstFrame}
           />
         </div>

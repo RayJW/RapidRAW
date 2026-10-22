@@ -111,6 +111,7 @@ export enum Invokes {
   StartBackgroundIndexing = 'start_background_indexing',
   StitchPanorama = 'stitch_panorama',
   StitchFocusStack = 'stitch_focus_stack',
+  SubscribeAnalytics = 'subscribe_analytics',
   SaveFocusStack = 'save_focus_stack',
   MergeHdr = 'merge_hdr',
   TestAIConnectorConnection = 'test_ai_connector_connection',
@@ -471,14 +472,11 @@ export interface AdjustmentLayout {
 }
 
 export interface WaveformData {
-  blue: string;
-  green: string;
   height: number;
-  luma: string;
-  red: string;
-  rgb: string;
-  parade: string;
-  vectorscope: string;
+  luma: ImageBitmap | null;
+  rgb: ImageBitmap | null;
+  parade: ImageBitmap | null;
+  vectorscope: ImageBitmap | null;
   width: number;
 }
 

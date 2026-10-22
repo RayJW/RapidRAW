@@ -50,13 +50,13 @@ const ThumbnailComponent = ({
   tags,
   aspectRatio: thumbnailAspectRatio,
   isEdited,
-  exif,
   isCloudPlaceholder,
   groupBadgeLabel,
   onAspectRatioLoaded,
 }: any) => {
   const { t } = useTranslation();
   const data = useProcessStore((s) => s.thumbnails[path]);
+  const exif = useLibraryStore((s) => s.exifByPath[path]);
   const isAiPending = useProcessStore((s) => !!s.aiPendingPaths[path]);
   const isAiPaused = useProcessStore((s) => s.aiJobs.paused);
   const exifOverlay = useSettingsStore((s) => s.appSettings?.exifOverlay || ExifOverlay.Off);
@@ -545,13 +545,13 @@ const ListItemComponent = ({
   modified,
   aspectRatio: thumbnailAspectRatio,
   columnWidths,
-  exif,
   isCloudPlaceholder,
   isPrevSelected,
   isNextSelected,
 }: any) => {
   const { t } = useTranslation();
   const data = useProcessStore((s) => s.thumbnails[path]);
+  const exif = useLibraryStore((s) => s.exifByPath[path]);
   const exifOverlay = useSettingsStore((s) => s.appSettings?.exifOverlay || ExifOverlay.Off);
 
   const [showPlaceholder, setShowPlaceholder] = useState(false);
@@ -1048,7 +1048,6 @@ const RowComponent = ({
                 rating={imageRatings?.[imageFile.path] || 0}
                 flag={imageFile.flag}
                 tags={imageFile.tags}
-                exif={imageFile.exif}
                 aspectRatio={thumbnailAspectRatio}
                 modified={imageFile.modified}
                 columnWidths={columnWidths}
@@ -1069,7 +1068,6 @@ const RowComponent = ({
                 rating={imageRatings?.[imageFile.path] || 0}
                 flag={imageFile.flag}
                 tags={imageFile.tags}
-                exif={imageFile.exif}
                 isEdited={imageFile.is_edited}
                 aspectRatio={thumbnailAspectRatio}
                 isCloudPlaceholder={imageFile.is_cloud_placeholder}

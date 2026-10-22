@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 
 import CommunityPage from '../panel/CommunityPage';
@@ -107,18 +108,22 @@ export default function LibraryView({
     })),
   );
 
-  const { aiModelDownloadStatus, importState, indexingProgress, isIndexing, thumbnailProgress, isCopied, isPasted } =
-    useProcessStore(
-      useShallow((state) => ({
-        aiModelDownloadStatus: state.aiModelDownloadStatus,
-        importState: state.importState,
-        indexingProgress: state.indexingProgress,
-        isIndexing: state.isIndexing,
-        thumbnailProgress: state.thumbnailProgress,
-        isCopied: state.isCopied,
-        isPasted: state.isPasted,
-      })),
-    );
+  const { aiModelDownloadStatus, importState, indexingProgress, isIndexing, isCopied, isPasted } = useProcessStore(
+    useShallow((state) => ({
+      aiModelDownloadStatus: state.aiModelDownloadStatus,
+      importState: state.importState,
+      indexingProgress: state.indexingProgress,
+      isIndexing: state.isIndexing,
+      isCopied: state.isCopied,
+      isPasted: state.isPasted,
+    })),
+  );
+
+  const handleMainLibraryImportClick = useCallback(
+    () => handleImportClick(currentFolderPath as string),
+    [handleImportClick, currentFolderPath],
+  );
+  const handleNavigateToCommunity = useCallback(() => setUI({ activeView: 'community' }), [setUI]);
 
   return (
     <div className="flex flex-row grow h-full min-h-0">
@@ -154,7 +159,7 @@ export default function LibraryView({
             onGoHome={handleGoHome}
             onImageClick={handleLibraryImageSingleClick}
             onImageDoubleClick={handleImageSelect}
-            onImportClick={() => handleImportClick(currentFolderPath as string)}
+            onImportClick={handleMainLibraryImportClick}
             onLibraryRefresh={handleLibraryRefresh}
             onOpenFolder={handleOpenFolder}
             onSettingsChange={handleSettingsChange}
@@ -165,9 +170,8 @@ export default function LibraryView({
             setLibraryViewMode={setLibraryViewMode}
             theme={theme}
             thumbnailAspectRatio={thumbnailAspectRatio}
-            thumbnailProgress={thumbnailProgress}
             thumbnailSize={thumbnailSize}
-            onNavigateToCommunity={() => setUI({ activeView: 'community' })}
+            onNavigateToCommunity={handleNavigateToCommunity}
           />
         )}
         {rootPaths && rootPaths.length > 0 && (

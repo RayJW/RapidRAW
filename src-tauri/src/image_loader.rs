@@ -348,10 +348,8 @@ fn largest_tiff_jpeg_preview(buf: &[u8]) -> Option<DynamicImage> {
     None
 }
 
-fn embedded_preview_fallback(bytes: &[u8]) -> Option<DynamicImage> {
-    let Some(img) = largest_tiff_jpeg_preview(bytes) else {
-        return crate::raw_processing::extract_embedded_preview(bytes);
-    };
+pub fn tiff_embedded_preview(bytes: &[u8]) -> Option<DynamicImage> {
+    let img = largest_tiff_jpeg_preview(bytes)?;
 
     let orientation = ExifReader::new()
         .read_from_container(&mut Cursor::new(bytes))
@@ -366,6 +364,10 @@ fn embedded_preview_fallback(bytes: &[u8]) -> Option<DynamicImage> {
         Some(o) if o > 1 => apply_orientation(img, Orientation::from_u16(o as u16)),
         _ => img,
     })
+}
+
+fn embedded_preview_fallback(bytes: &[u8]) -> Option<DynamicImage> {
+    tiff_embedded_preview(bytes).or_else(|| crate::raw_processing::extract_embedded_preview(bytes))
 }
 
 pub fn safe_embedded_preview_fallback(bytes: &[u8], path: &str) -> Option<DynamicImage> {
