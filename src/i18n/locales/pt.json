@@ -1209,11 +1209,6 @@
         "title": "Opções de Visualização"
       }
     },
-    "import": {
-      "complete": "Importação Concluída!",
-      "failed": "Falha na Importação!",
-      "progress": "Importando... ({{current}}/{{total}})"
-    },
     "items": {
       "cloudPlaceholder": "Armazenado no iCloud — não baixado",
       "collapseFolder": "Recolher Pasta",
@@ -1228,6 +1223,30 @@
       "tooltipIso": "ISO",
       "tooltipShutterSpeed": "Velocidade do Obturador",
       "tooltipVirtualCopy": "Cópia Virtual"
+    },
+    "jobs": {
+      "active": "Em andamento",
+      "cancel": "Cancelar exportação",
+      "cancelling": "Cancelando…",
+      "clear": "Limpar",
+      "copyError": "Clique para copiar",
+      "empty": "Nenhuma tarefa ativa",
+      "emptyHint": "Exportações, importações, transferências de arquivos e tarefas de IA aparecem aqui.",
+      "errorCopied": "Erro copiado para a área de transferência",
+      "images_many": "{{count}} imagens",
+      "images_one": "{{count}} imagem",
+      "images_other": "{{count}} imagens",
+      "kinds": {
+        "aiTagging": "Marcação por IA",
+        "copy": "Copiar arquivos",
+        "export": "Exportação",
+        "import": "Importação",
+        "modelDownload": "Download do modelo de IA",
+        "move": "Mover arquivos"
+      },
+      "openInLibrary": "Abrir na biblioteca",
+      "recent": "Recentes",
+      "title": "Tarefas"
     },
     "reject": {
       "deleteConfirm": "Excluir Rejeitadas",

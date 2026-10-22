@@ -8,7 +8,7 @@ import BottomBar from '../panel/BottomBar';
 import { useUIStore } from '../../store/useUIStore';
 import { useLibraryStore } from '../../store/useLibraryStore';
 import { useEditorStore } from '../../store/useEditorStore';
-import { useProcessStore } from '../../store/useProcessStore';
+import { selectAiModelDownloadStatus, selectAiTaggingJob, useProcessStore } from '../../store/useProcessStore';
 import { useSettingsStore } from '../../store/useSettingsStore';
 
 import { ImageFile, LibraryViewMode, ThumbnailAspectRatio, ThumbnailSize } from '../ui/AppProperties';
@@ -35,6 +35,7 @@ interface LibraryViewProps {
   handleContinueSession: (...args: any) => void;
   handleGoHome: (...args: any) => void;
   handleOpenFolder: (...args: any) => void;
+  handleNavigateToFolder: (path: string) => void;
   handleImportClick: (path: string) => void;
   handleLibraryRefresh: () => Promise<void>;
   handleCopyAdjustments: () => void;
@@ -63,6 +64,7 @@ export default function LibraryView({
   handleContinueSession,
   handleGoHome,
   handleOpenFolder,
+  handleNavigateToFolder,
   handleImportClick,
   handleLibraryRefresh,
   handleCopyAdjustments,
@@ -108,12 +110,11 @@ export default function LibraryView({
     })),
   );
 
-  const { aiModelDownloadStatus, importState, indexingProgress, isIndexing, isCopied, isPasted } = useProcessStore(
+  const { aiModelDownloadStatus, aiTaggingJob, importState, isCopied, isPasted } = useProcessStore(
     useShallow((state) => ({
-      aiModelDownloadStatus: state.aiModelDownloadStatus,
+      aiModelDownloadStatus: selectAiModelDownloadStatus(state),
+      aiTaggingJob: selectAiTaggingJob(state),
       importState: state.importState,
-      indexingProgress: state.indexingProgress,
-      isIndexing: state.isIndexing,
       isCopied: state.isCopied,
       isPasted: state.isPasted,
     })),
@@ -139,14 +140,13 @@ export default function LibraryView({
           <MainLibrary
             activePath={libraryActivePath}
             aiModelDownloadStatus={aiModelDownloadStatus}
+            aiTaggingJob={aiTaggingJob}
             appSettings={appSettings}
             currentFolderPath={currentFolderPath}
             groupBadgeInfo={groupBadgeInfo}
             imageList={sortedImageList}
             imageRatings={imageRatings}
             importState={importState}
-            indexingProgress={indexingProgress}
-            isIndexing={isIndexing}
             isLoading={isViewLoading}
             isTreeLoading={isTreeLoading}
             isAndroid={isAndroid}
@@ -154,6 +154,7 @@ export default function LibraryView({
             multiSelectedPaths={multiSelectedPaths}
             onClearSelection={handleClearSelection}
             onContextMenu={handleThumbnailContextMenu}
+            onNavigateToFolder={handleNavigateToFolder}
             onContinueSession={handleContinueSession}
             onEmptyAreaContextMenu={handleMainLibraryContextMenu}
             onGoHome={handleGoHome}

@@ -1184,11 +1184,6 @@
         "title": "View Options"
       }
     },
-    "import": {
-      "complete": "Import Complete!",
-      "failed": "Import Failed!",
-      "progress": "Importing... ({{current}}/{{total}})"
-    },
     "items": {
       "cloudPlaceholder": "Stored in iCloud — not downloaded",
       "collapseFolder": "Collapse Folder",
@@ -1202,6 +1197,29 @@
       "tooltipIso": "ISO",
       "tooltipShutterSpeed": "Shutter Speed",
       "tooltipVirtualCopy": "Virtual Copy"
+    },
+    "jobs": {
+      "active": "Running",
+      "cancel": "Cancel export",
+      "cancelling": "Cancelling…",
+      "clear": "Clear",
+      "copyError": "Click to copy",
+      "empty": "No active jobs",
+      "emptyHint": "Exports, imports, file transfers and AI work show up here.",
+      "errorCopied": "Error copied to clipboard",
+      "images_one": "{{count}} image",
+      "images_other": "{{count}} images",
+      "kinds": {
+        "aiTagging": "AI tagging",
+        "copy": "Copy files",
+        "export": "Export",
+        "import": "Import",
+        "modelDownload": "AI model download",
+        "move": "Move files"
+      },
+      "openInLibrary": "Open in library",
+      "recent": "Recent",
+      "title": "Jobs"
     },
     "reject": {
       "deleteConfirm": "Delete Rejected",

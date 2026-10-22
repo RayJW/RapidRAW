@@ -97,7 +97,7 @@ import Text from '../../ui/Text';
 import { TEXT_COLOR_KEYS, TextColors, TextVariants, TextWeights } from '../../../types/typography';
 import { useEditorStore } from '../../../store/useEditorStore';
 import { useSettingsStore } from '../../../store/useSettingsStore';
-import { useProcessStore } from '../../../store/useProcessStore';
+import { selectAiModelDownloadStatus, useProcessStore } from '../../../store/useProcessStore';
 import { useAiMasking } from '../../../hooks/useAiMasking';
 import { useEditorActions } from '../../../hooks/useEditorActions';
 import { isPanelVisible, useUIStore } from '../../../store/useUIStore';
@@ -303,7 +303,7 @@ export default function MasksPanel() {
 
   const { aiModelDownloadStatus, activeAiTasks } = useProcessStore(
     useShallow((state) => ({
-      aiModelDownloadStatus: state.aiModelDownloadStatus,
+      aiModelDownloadStatus: selectAiModelDownloadStatus(state),
       activeAiTasks: state.activeAiTasks,
     })),
   );

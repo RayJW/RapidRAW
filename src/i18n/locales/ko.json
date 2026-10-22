@@ -1181,11 +1181,6 @@
         "title": "보기 옵션"
       }
     },
-    "import": {
-      "complete": "가져오기 완료!",
-      "failed": "가져오기 실패!",
-      "progress": "가져오는 중... ({{current}}/{{total}})"
-    },
     "items": {
       "cloudPlaceholder": "iCloud에 저장됨 — 다운로드되지 않음",
       "collapseFolder": "폴더 접기",
@@ -1199,6 +1194,28 @@
       "tooltipIso": "ISO",
       "tooltipShutterSpeed": "셔터 속도",
       "tooltipVirtualCopy": "가상 복사본"
+    },
+    "jobs": {
+      "active": "진행 중",
+      "cancel": "내보내기 취소",
+      "cancelling": "취소 중…",
+      "clear": "지우기",
+      "copyError": "클릭하여 복사",
+      "empty": "진행 중인 작업 없음",
+      "emptyHint": "내보내기, 가져오기, 파일 전송 및 AI 작업이 여기에 표시됩니다.",
+      "errorCopied": "오류를 클립보드에 복사했습니다",
+      "images_other": "이미지 {{count}}개",
+      "kinds": {
+        "aiTagging": "AI 태그 지정",
+        "copy": "파일 복사",
+        "export": "내보내기",
+        "import": "가져오기",
+        "modelDownload": "AI 모델 다운로드",
+        "move": "파일 이동"
+      },
+      "openInLibrary": "라이브러리에서 열기",
+      "recent": "최근",
+      "title": "작업"
     },
     "reject": {
       "deleteConfirm": "거부된 항목 삭제",

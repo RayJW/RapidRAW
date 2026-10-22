@@ -2,8 +2,6 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { getVersion } from '@tauri-apps/api/app';
 import { open } from '@tauri-apps/plugin-shell';
 import {
-  AlertTriangle,
-  Check,
   CheckCheck,
   Folder,
   FolderInput,
@@ -28,7 +26,6 @@ import {
   AppSettings,
   ImageFile,
   LibraryViewMode,
-  Progress,
   ThumbnailSize,
   ThumbnailAspectRatio,
   RawStatus,
@@ -41,12 +38,12 @@ import { ImportState, Status } from '../ui/ExportImportProperties';
 import Text from '../ui/Text';
 import { TextColors, TextVariants, TextWeights } from '../../types/typography';
 import { useLibraryStore } from '../../store/useLibraryStore';
-import { useProcessStore } from '../../store/useProcessStore';
+import { Job, useProcessStore } from '../../store/useProcessStore';
 import { useUIStore } from '../../store/useUIStore';
 import SettingsPanel from './SettingsPanel';
 
 import LibraryGrid from './library/LibraryGrid';
-import { AiJobsMenu, SearchInput, ViewOptionsDropdown } from './library/LibraryHeader';
+import { JobsMenu, SearchInput, ViewOptionsDropdown } from './library/LibraryHeader';
 
 export interface ColumnWidths {
   thumbnail: number;
@@ -63,21 +60,21 @@ export interface ColumnWidths {
 interface MainLibraryProps {
   activePath: string | null;
   aiModelDownloadStatus: string | null;
+  aiTaggingJob: Job | null;
   appSettings: AppSettings | null;
   currentFolderPath: string | null;
   groupBadgeInfo: Map<GroupId, GroupBadgeInfo> | null;
   imageList: Array<ImageFile>;
   imageRatings: Record<string, number>;
   importState: ImportState;
-  indexingProgress: Progress;
   isLoading: boolean;
-  isIndexing: boolean;
   isAndroid: boolean;
   isTreeLoading: boolean;
   libraryViewMode: LibraryViewMode;
   multiSelectedPaths: Array<string>;
   onClearSelection(): void;
   onContextMenu(event: any, path: string): void;
+  onNavigateToFolder(path: string): void;
   onContinueSession(): void;
   onEmptyAreaContextMenu(event: any): void;
   onGoHome(): void;
@@ -606,34 +603,10 @@ export default function MainLibrary(props: MainLibraryProps) {
               )}
             </div>
             <div className="flex items-center gap-4 shrink-0">
-              {props.importState.status === Status.Importing && (
-                <Text as="div" color={TextColors.accent} className="flex items-center gap-2 animate-pulse">
-                  <FolderInput size={16} />
-                  <span>
-                    {t('library.import.progress', {
-                      current: props.importState.progress?.current,
-                      total: props.importState.progress?.total,
-                    })}
-                  </span>
-                </Text>
-              )}
-              {props.importState.status === Status.Success && (
-                <Text as="div" color={TextColors.success} className="flex items-center gap-2">
-                  <Check size={16} />
-                  <span>{t('library.import.complete')}</span>
-                </Text>
-              )}
-              {props.importState.status === Status.Error && (
-                <Text as="div" color={TextColors.error} className="flex items-center gap-2">
-                  <AlertTriangle size={16} />
-                  <span>{t('library.import.failed')}</span>
-                </Text>
-              )}
-              <AiJobsMenu />
               <DisplayModeSwitch displayMode={libraryDisplayMode} setDisplayMode={setLibraryDisplayMode} t={t} />
 
               <div className="flex items-center bg-surface p-1 rounded-lg gap-1 border border-border-color/20">
-                <SearchInput indexingProgress={props.indexingProgress} isIndexing={props.isIndexing} />
+                <SearchInput indexingProgress={props.aiTaggingJob?.progress} isIndexing={!!props.aiTaggingJob} />
                 <ViewOptionsDropdown
                   libraryViewMode={props.libraryViewMode}
                   onSelectSize={props.onThumbnailSizeChange}
@@ -650,6 +623,7 @@ export default function MainLibrary(props: MainLibraryProps) {
                   flagStatusOptions={translatedFlagStatusOptions}
                   sortOptions={translatedSortOptions}
                 />
+                <JobsMenu onNavigateToFolder={props.onNavigateToFolder} />
                 {props.isAndroid && (
                   <Button
                     className="h-12 w-12 bg-accent text-button-text shadow-none p-0 flex items-center justify-center"
@@ -692,16 +666,16 @@ export default function MainLibrary(props: MainLibraryProps) {
             thumbnailSizeOptions={translatedThumbnailSizeOptions}
           />
         )
-      ) : props.isIndexing || props.aiModelDownloadStatus || props.importState.status === Status.Importing ? (
+      ) : props.aiTaggingJob || props.aiModelDownloadStatus || props.importState.status === Status.Importing ? (
         <div className="flex-1 flex flex-col items-center justify-center" onContextMenu={props.onEmptyAreaContextMenu}>
           <Loader2 className="h-12 w-12 text-secondary animate-spin mb-4" />
           <Text variant={TextVariants.heading} color={TextColors.secondary}>
             {props.aiModelDownloadStatus
               ? t('library.status.downloading', { status: props.aiModelDownloadStatus })
-              : props.isIndexing && props.indexingProgress.total > 0
+              : props.aiTaggingJob
                 ? t('library.status.indexing', {
-                    current: props.indexingProgress.current,
-                    total: props.indexingProgress.total,
+                    current: props.aiTaggingJob.progress.current,
+                    total: props.aiTaggingJob.progress.total,
                   })
                 : props.importState.status === Status.Importing &&
                     props.importState?.progress?.total &&

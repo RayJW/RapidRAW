@@ -1171,11 +1171,6 @@
         "title": "Weergaveopties"
       }
     },
-    "import": {
-      "complete": "Import voltooid!",
-      "failed": "Import mislukt!",
-      "progress": "Importeren... ({{current}}/{{total}})"
-    },
     "items": {
       "cloudPlaceholder": "Opgeslagen in iCloud — niet gedownload",
       "collapseFolder": "Map inklappen",
@@ -1188,6 +1183,29 @@
       "tooltipIso": "ISO",
       "tooltipShutterSpeed": "Sluitertijd",
       "tooltipVirtualCopy": "Virtuele kopie"
+    },
+    "jobs": {
+      "active": "Bezig",
+      "cancel": "Export annuleren",
+      "cancelling": "Annuleren…",
+      "clear": "Wissen",
+      "copyError": "Klik om te kopiëren",
+      "empty": "Geen actieve taken",
+      "emptyHint": "Exports, imports, bestandsoverdrachten en AI-taken verschijnen hier.",
+      "errorCopied": "Fout naar klembord gekopieerd",
+      "images_one": "{{count}} afbeelding",
+      "images_other": "{{count}} afbeeldingen",
+      "kinds": {
+        "aiTagging": "AI-tagging",
+        "copy": "Bestanden kopiëren",
+        "export": "Export",
+        "import": "Import",
+        "modelDownload": "AI-model downloaden",
+        "move": "Bestanden verplaatsen"
+      },
+      "openInLibrary": "Openen in bibliotheek",
+      "recent": "Recent",
+      "title": "Taken"
     },
     "search": {
       "noResults": "Geen resultaten gevonden",

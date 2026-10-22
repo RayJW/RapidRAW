@@ -1181,11 +1181,6 @@
         "title": "表示オプション"
       }
     },
-    "import": {
-      "complete": "インポート完了！",
-      "failed": "インポートに失敗しました！",
-      "progress": "インポート中... ({{current}}/{{total}})"
-    },
     "items": {
       "cloudPlaceholder": "iCloudに保存されています — 未ダウンロード",
       "collapseFolder": "フォルダを折りたたむ",
@@ -1199,6 +1194,28 @@
       "tooltipIso": "ISO感度",
       "tooltipShutterSpeed": "シャッタースピード",
       "tooltipVirtualCopy": "仮想コピー"
+    },
+    "jobs": {
+      "active": "実行中",
+      "cancel": "書き出しをキャンセル",
+      "cancelling": "キャンセル中…",
+      "clear": "クリア",
+      "copyError": "クリックしてコピー",
+      "empty": "実行中のジョブはありません",
+      "emptyHint": "書き出し、読み込み、ファイル転送、AI 処理がここに表示されます。",
+      "errorCopied": "エラーをクリップボードにコピーしました",
+      "images_other": "{{count}} 枚",
+      "kinds": {
+        "aiTagging": "AI タグ付け",
+        "copy": "ファイルのコピー",
+        "export": "書き出し",
+        "import": "読み込み",
+        "modelDownload": "AI モデルのダウンロード",
+        "move": "ファイルの移動"
+      },
+      "openInLibrary": "ライブラリで開く",
+      "recent": "最近",
+      "title": "ジョブ"
     },
     "reject": {
       "deleteConfirm": "除外した画像を削除",

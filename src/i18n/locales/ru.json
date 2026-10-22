@@ -1234,11 +1234,6 @@
         "title": "Вид"
       }
     },
-    "import": {
-      "complete": "Импорт завершен!",
-      "failed": "Импорт не удался!",
-      "progress": "Импорт... ({{current}}/{{total}})"
-    },
     "items": {
       "cloudPlaceholder": "Хранится в iCloud — не загружено",
       "collapseFolder": "Свернуть папку",
@@ -1254,6 +1249,31 @@
       "tooltipIso": "ISO",
       "tooltipShutterSpeed": "Выдержка",
       "tooltipVirtualCopy": "Виртуальная копия"
+    },
+    "jobs": {
+      "active": "Выполняется",
+      "cancel": "Отменить экспорт",
+      "cancelling": "Отмена…",
+      "clear": "Очистить",
+      "copyError": "Нажмите, чтобы скопировать",
+      "empty": "Нет активных задач",
+      "emptyHint": "Здесь отображаются экспорт, импорт, перенос файлов и задачи ИИ.",
+      "errorCopied": "Ошибка скопирована в буфер обмена",
+      "images_few": "{{count}} изображения",
+      "images_many": "{{count}} изображений",
+      "images_one": "{{count}} изображение",
+      "images_other": "{{count}} изображения",
+      "kinds": {
+        "aiTagging": "ИИ-теги",
+        "copy": "Копирование файлов",
+        "export": "Экспорт",
+        "import": "Импорт",
+        "modelDownload": "Загрузка модели ИИ",
+        "move": "Перемещение файлов"
+      },
+      "openInLibrary": "Открыть в библиотеке",
+      "recent": "Недавние",
+      "title": "Задачи"
     },
     "reject": {
       "deleteConfirm": "Удалить отклоненные",

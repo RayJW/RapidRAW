@@ -3,9 +3,9 @@ import { listen } from '@tauri-apps/api/event';
 import { Channel, convertFileSrc, invoke } from '@tauri-apps/api/core';
 import { toast } from 'react-toastify';
 import { Status } from '../components/ui/ExportImportProperties';
-import { Invokes, WaveformData } from '../components/ui/AppProperties';
+import { Invokes, Progress, WaveformData } from '../components/ui/AppProperties';
 import { MaskContainer } from '../utils/adjustments';
-import { AiJobsStatus, useProcessStore } from '../store/useProcessStore';
+import { AiJobsStatus, JobKind, JobStatus, useProcessStore } from '../store/useProcessStore';
 import { useEditorStore } from '../store/useEditorStore';
 import { useUIStore } from '../store/useUIStore';
 import { useLibraryStore } from '../store/useLibraryStore';
@@ -83,6 +83,8 @@ export function useTauriListeners({
 
   useEffect(() => {
     let isEffectActive = true;
+    let aiTaggingJobId: string | null = null;
+    const modelDownloadJobIds: Record<string, string> = {};
 
     const flushThumbnailBatch = () => {
       flushHandle.current = null;
@@ -223,22 +225,45 @@ export function useTauriListeners({
         metadataBuffer.current[path] = { flag, tags, needs_ai };
         scheduleFlush();
       }),
-      listen('ai-model-download-start', (event: any) => {
-        if (isEffectActive) useProcessStore.getState().setProcess({ aiModelDownloadStatus: event.payload });
-      }),
-      listen('ai-model-download-finish', () => {
-        if (isEffectActive) useProcessStore.getState().setProcess({ aiModelDownloadStatus: null });
-      }),
-      listen('indexing-started', () => {
+      listen<string>('ai-model-download-start', (event) => {
         if (isEffectActive)
-          useProcessStore.getState().setProcess({ isIndexing: true, indexingProgress: { current: 0, total: 0 } });
+          modelDownloadJobIds[event.payload] = useProcessStore
+            .getState()
+            .startJob(JobKind.ModelDownload, { detail: event.payload });
       }),
-      listen('indexing-progress', (event: any) => {
-        if (isEffectActive) useProcessStore.getState().setProcess({ indexingProgress: event.payload });
+      listen<{ name: string; current: number; total: number }>('ai-model-download-progress', (event) => {
+        const { name, current, total } = event.payload;
+        const jobId = modelDownloadJobIds[name];
+        if (isEffectActive && jobId) useProcessStore.getState().updateJob(jobId, { progress: { current, total } });
+      }),
+      listen<{ name: string; error: string | null }>('ai-model-download-finish', (event) => {
+        if (!isEffectActive) return;
+        const { name, error } = event.payload;
+        const jobId = modelDownloadJobIds[name];
+        delete modelDownloadJobIds[name];
+        if (jobId)
+          useProcessStore
+            .getState()
+            .updateJob(jobId, error ? { status: JobStatus.Error, error } : { status: JobStatus.Success });
+      }),
+      listen<Progress>('indexing-started', (event) => {
+        if (!isEffectActive) return;
+        const { removeJob, startJob } = useProcessStore.getState();
+        if (aiTaggingJobId) removeJob(aiTaggingJobId);
+        aiTaggingJobId = startJob(JobKind.AiTagging, { progress: event.payload });
+      }),
+      listen<Progress>('indexing-progress', (event) => {
+        if (isEffectActive && aiTaggingJobId)
+          useProcessStore.getState().updateJob(aiTaggingJobId, { progress: event.payload });
+      }),
+      listen('indexing-cancelled', () => {
+        if (isEffectActive && aiTaggingJobId) useProcessStore.getState().removeJob(aiTaggingJobId);
+        aiTaggingJobId = null;
       }),
       listen('indexing-finished', () => {
         if (isEffectActive) {
-          useProcessStore.getState().setProcess({ isIndexing: false, indexingProgress: { current: 0, total: 0 } });
+          if (aiTaggingJobId) useProcessStore.getState().updateJob(aiTaggingJobId, { status: JobStatus.Success });
+          aiTaggingJobId = null;
           const currentPath = useLibraryStore.getState().currentFolderPath;
           if (currentPath) {
             refs.current.refreshImageList();

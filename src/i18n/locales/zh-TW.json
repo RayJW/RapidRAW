@@ -1181,11 +1181,6 @@
         "title": "檢視選項"
       }
     },
-    "import": {
-      "complete": "匯入完成！",
-      "failed": "匯入失敗！",
-      "progress": "匯入中...（{{current}}/{{total}}）"
-    },
     "items": {
       "cloudPlaceholder": "儲存在 iCloud 中 — 未下載",
       "collapseFolder": "摺疊資料夾",
@@ -1199,6 +1194,28 @@
       "tooltipIso": "ISO",
       "tooltipShutterSpeed": "快門速度",
       "tooltipVirtualCopy": "虛擬副本"
+    },
+    "jobs": {
+      "active": "進行中",
+      "cancel": "取消匯出",
+      "cancelling": "正在取消…",
+      "clear": "清除",
+      "copyError": "點擊複製",
+      "empty": "沒有進行中的工作",
+      "emptyHint": "匯出、匯入、檔案傳輸和 AI 工作會顯示在這裡。",
+      "errorCopied": "錯誤已複製到剪貼簿",
+      "images_other": "{{count}} 張圖片",
+      "kinds": {
+        "aiTagging": "AI 標籤",
+        "copy": "複製檔案",
+        "export": "匯出",
+        "import": "匯入",
+        "modelDownload": "AI 模型下載",
+        "move": "移動檔案"
+      },
+      "openInLibrary": "在圖庫中開啟",
+      "recent": "最近",
+      "title": "工作"
     },
     "reject": {
       "deleteConfirm": "刪除已拒絕",

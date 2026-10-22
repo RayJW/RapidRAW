@@ -16,7 +16,7 @@ import {
 import { AppSettings } from '../ui/AppProperties';
 import AdjustmentSubSection from './AdjustmentSubSection';
 import { useEditorStore } from '../../store/useEditorStore';
-import { useProcessStore } from '../../store/useProcessStore';
+import { selectAiModelDownloadStatus, useProcessStore } from '../../store/useProcessStore';
 import { areSectionPropsEqual } from '../../utils/adjustments';
 
 interface DetailsPanelProps {
@@ -39,7 +39,7 @@ function DetailsPanel({
   const aiDenoiseProgress = useEditorStore((state) =>
     state.selectedImage ? state.aiDenoiseProgress[state.selectedImage.path] : undefined,
   );
-  const aiModelDownloadStatus = useProcessStore((state) => state.aiModelDownloadStatus);
+  const aiModelDownloadStatus = useProcessStore(selectAiModelDownloadStatus);
 
   const handleAdjustmentChange = (key: string, value: string) => {
     const numericValue = parseInt(value, 10);

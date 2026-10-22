@@ -4,6 +4,7 @@ use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicU8, Ordering};
 use std::sync::{Arc, Mutex};
+use std::time::{Duration, Instant};
 
 use anyhow::Result;
 use image::imageops::{self, FilterType};
@@ -943,9 +944,25 @@ fn persist_downloaded_asset(dest: &Path, bytes: &[u8]) -> Result<()> {
     Ok(())
 }
 
-async fn download_model(url: &str, dest: &Path) -> Result<()> {
-    let response = reqwest::get(url).await?.error_for_status()?;
-    let bytes = response.bytes().await?;
+async fn download_model(
+    app_handle: &tauri::AppHandle,
+    asset: &ModelAsset,
+    dest: &Path,
+) -> Result<()> {
+    let mut response = reqwest::get(asset.url).await?.error_for_status()?;
+    let total = response.content_length().unwrap_or(0);
+    let mut bytes = Vec::with_capacity(total as usize);
+    let mut last_progress = Instant::now();
+    while let Some(chunk) = response.chunk().await? {
+        bytes.extend_from_slice(&chunk);
+        if total > 0 && last_progress.elapsed() >= Duration::from_millis(200) {
+            last_progress = Instant::now();
+            let _ = app_handle.emit(
+                "ai-model-download-progress",
+                serde_json::json!({ "name": asset.name, "current": bytes.len(), "total": total }),
+            );
+        }
+    }
     persist_downloaded_asset(dest, &bytes)
 }
 
@@ -985,18 +1002,27 @@ async fn download_and_verify_model(
             fs::remove_file(&dest_path)?;
         }
         let _ = app_handle.emit("ai-model-download-start", asset.name);
-        let download_result = download_model(asset.url, &dest_path).await;
-        let _ = app_handle.emit("ai-model-download-finish", asset.name);
-        download_result?;
-
-        if let Some(expected_hash) = asset.sha256
-            && !verify_sha256(&dest_path, expected_hash)?
-        {
-            return Err(anyhow::anyhow!(
-                "Failed to verify model {} after download. Hash mismatch.",
-                asset.name
-            ));
+        let download_result = async {
+            download_model(app_handle, asset, &dest_path).await?;
+            if let Some(expected_hash) = asset.sha256
+                && !verify_sha256(&dest_path, expected_hash)?
+            {
+                return Err(anyhow::anyhow!(
+                    "Failed to verify model {} after download. Hash mismatch.",
+                    asset.name
+                ));
+            }
+            Ok(())
         }
+        .await;
+        let _ = app_handle.emit(
+            "ai-model-download-finish",
+            serde_json::json!({
+                "name": asset.name,
+                "error": download_result.as_ref().err().map(|e| e.to_string()),
+            }),
+        );
+        download_result?;
     }
     Ok(())
 }

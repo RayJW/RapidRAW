@@ -1184,11 +1184,6 @@
         "title": "Ansichtsoptionen"
       }
     },
-    "import": {
-      "complete": "Import abgeschlossen!",
-      "failed": "Import fehlgeschlagen!",
-      "progress": "Wird importiert... ({{current}}/{{total}})"
-    },
     "items": {
       "cloudPlaceholder": "In iCloud gespeichert — nicht heruntergeladen",
       "collapseFolder": "Ordner zuklappen",
@@ -1202,6 +1197,29 @@
       "tooltipIso": "ISO",
       "tooltipShutterSpeed": "Verschlusszeit",
       "tooltipVirtualCopy": "Virtuelle Kopie"
+    },
+    "jobs": {
+      "active": "Läuft",
+      "cancel": "Export abbrechen",
+      "cancelling": "Wird abgebrochen…",
+      "clear": "Leeren",
+      "copyError": "Zum Kopieren klicken",
+      "empty": "Keine aktiven Aufgaben",
+      "emptyHint": "Exporte, Importe, Dateiübertragungen und KI-Aufgaben erscheinen hier.",
+      "errorCopied": "Fehler in die Zwischenablage kopiert",
+      "images_one": "{{count}} Bild",
+      "images_other": "{{count}} Bilder",
+      "kinds": {
+        "aiTagging": "KI-Verschlagwortung",
+        "copy": "Dateien kopieren",
+        "export": "Export",
+        "import": "Import",
+        "modelDownload": "KI-Modell-Download",
+        "move": "Dateien verschieben"
+      },
+      "openInLibrary": "In der Bibliothek öffnen",
+      "recent": "Zuletzt",
+      "title": "Aufgaben"
     },
     "reject": {
       "deleteConfirm": "Abgelehnte löschen",

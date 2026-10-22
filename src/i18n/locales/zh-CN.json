@@ -1181,11 +1181,6 @@
         "title": "视图选项"
       }
     },
-    "import": {
-      "complete": "导入完成！",
-      "failed": "导入失败！",
-      "progress": "导入中...（{{current}}/{{total}}）"
-    },
     "items": {
       "cloudPlaceholder": "存储在 iCloud 中 — 未下载",
       "collapseFolder": "折叠文件夹",
@@ -1199,6 +1194,28 @@
       "tooltipIso": "ISO",
       "tooltipShutterSpeed": "快门速度",
       "tooltipVirtualCopy": "虚拟副本"
+    },
+    "jobs": {
+      "active": "进行中",
+      "cancel": "取消导出",
+      "cancelling": "正在取消…",
+      "clear": "清除",
+      "copyError": "点击复制",
+      "empty": "没有进行中的任务",
+      "emptyHint": "导出、导入、文件传输和 AI 任务会显示在这里。",
+      "errorCopied": "错误已复制到剪贴板",
+      "images_other": "{{count}} 张图片",
+      "kinds": {
+        "aiTagging": "AI 标签",
+        "copy": "复制文件",
+        "export": "导出",
+        "import": "导入",
+        "modelDownload": "AI 模型下载",
+        "move": "移动文件"
+      },
+      "openInLibrary": "在图库中打开",
+      "recent": "最近",
+      "title": "任务"
     },
     "reject": {
       "deleteConfirm": "删除已拒绝",

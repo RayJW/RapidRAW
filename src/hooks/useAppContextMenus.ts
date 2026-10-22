@@ -54,7 +54,7 @@ import { useTranslation } from 'react-i18next';
 import { useContextMenu } from '../context/ContextMenuContext';
 import { useEditorStore } from '../store/useEditorStore';
 import { useLibraryStore } from '../store/useLibraryStore';
-import { useProcessStore } from '../store/useProcessStore';
+import { JobKind, useProcessStore } from '../store/useProcessStore';
 import { useUIStore } from '../store/useUIStore';
 import { useSettingsStore } from '../store/useSettingsStore';
 import {
@@ -77,6 +77,7 @@ import {
 import TaggingSubMenu from '../context/TaggingSubMenu';
 import { buildAutoAdjustModeOptions, reloadAdjustmentsForPaths, useEditorActions } from './useEditorActions';
 import { useLibraryActions } from './useLibraryActions';
+import { transferFiles } from './useFileOperations';
 import { globalImageCache } from '../utils/ImageLRUCache';
 
 export interface UseAppContextMenusProps {
@@ -1011,7 +1012,7 @@ export function useAppContextMenus(latestProps: UseAppContextMenusProps) {
               label: copyPastedLabel,
               onClick: async () => {
                 try {
-                  await invoke(Invokes.CopyFiles, { sourcePaths: copiedFilePaths, destinationFolder: targetPath });
+                  await transferFiles(JobKind.Copy, copiedFilePaths, targetPath);
                   if (targetPath === currentFolderPath) props.handleLibraryRefresh();
                 } catch (err) {
                   toast.error(t('contextMenus.toasts.failedCopy', { err }));
@@ -1022,7 +1023,7 @@ export function useAppContextMenus(latestProps: UseAppContextMenusProps) {
               label: movePastedLabel,
               onClick: async () => {
                 try {
-                  await invoke(Invokes.MoveFiles, { sourcePaths: copiedFilePaths, destinationFolder: targetPath });
+                  await transferFiles(JobKind.Move, copiedFilePaths, targetPath);
                   setProcess({ copiedFilePaths: [] });
                   setLibrary({ multiSelectedPaths: [] });
                   props.refreshAllFolderTrees();
@@ -1371,10 +1372,7 @@ export function useAppContextMenus(latestProps: UseAppContextMenusProps) {
                 label: copyPastedLabel,
                 onClick: async () => {
                   try {
-                    await invoke(Invokes.CopyFiles, {
-                      sourcePaths: copiedFilePaths,
-                      destinationFolder: currentFolderPath,
-                    });
+                    await transferFiles(JobKind.Copy, copiedFilePaths, currentFolderPath as string);
                     props.handleLibraryRefresh();
                   } catch (err) {
                     toast.error(t('contextMenus.toasts.failedCopy', { err }));
@@ -1385,10 +1383,7 @@ export function useAppContextMenus(latestProps: UseAppContextMenusProps) {
                 label: movePastedLabel,
                 onClick: async () => {
                   try {
-                    await invoke(Invokes.MoveFiles, {
-                      sourcePaths: copiedFilePaths,
-                      destinationFolder: currentFolderPath,
-                    });
+                    await transferFiles(JobKind.Move, copiedFilePaths, currentFolderPath as string);
                     setProcess({ copiedFilePaths: [] });
                     setLibrary({ multiSelectedPaths: [] });
                     props.refreshAllFolderTrees();

@@ -1187,11 +1187,6 @@
         "title": "Možnosti zobrazení"
       }
     },
-    "import": {
-      "complete": "Import dokončen!",
-      "failed": "Import se nezdařil!",
-      "progress": "Probíhá import... ({{current}}/{{total}})"
-    },
     "items": {
       "cloudPlaceholder": "Uloženo na iCloudu — nestaženo",
       "collapseFolder": "Sbalit složku",
@@ -1205,6 +1200,31 @@
       "tooltipIso": "ISO",
       "tooltipShutterSpeed": "Rychlost závěrky",
       "tooltipVirtualCopy": "Virtuální kopie"
+    },
+    "jobs": {
+      "active": "Probíhá",
+      "cancel": "Zrušit export",
+      "cancelling": "Ruší se…",
+      "clear": "Vymazat",
+      "copyError": "Kliknutím zkopírujete",
+      "empty": "Žádné aktivní úlohy",
+      "emptyHint": "Zde se zobrazí exporty, importy, přenosy souborů a úlohy AI.",
+      "errorCopied": "Chyba zkopírována do schránky",
+      "images_few": "{{count}} obrázky",
+      "images_many": "{{count}} obrázku",
+      "images_one": "{{count}} obrázek",
+      "images_other": "{{count}} obrázků",
+      "kinds": {
+        "aiTagging": "AI štítkování",
+        "copy": "Kopírování souborů",
+        "export": "Export",
+        "import": "Import",
+        "modelDownload": "Stahování AI modelu",
+        "move": "Přesun souborů"
+      },
+      "openInLibrary": "Otevřít v knihovně",
+      "recent": "Nedávné",
+      "title": "Úlohy"
     },
     "reject": {
       "deleteConfirm": "Smazat odmítnuté",

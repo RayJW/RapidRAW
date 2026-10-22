@@ -1186,11 +1186,6 @@
         "title": "Opcions de visualització"
       }
     },
-    "import": {
-      "complete": "Importació completada!",
-      "failed": "Importació fallida!",
-      "progress": "S'està important... ({{current}}/{{total}})"
-    },
     "items": {
       "cloudPlaceholder": "Emmagatzemat a iCloud — no baixat",
       "collapseFolder": "Contraure carpeta",
@@ -1204,6 +1199,30 @@
       "tooltipIso": "ISO",
       "tooltipShutterSpeed": "Velocitat d'obturació",
       "tooltipVirtualCopy": "Còpia virtual"
+    },
+    "jobs": {
+      "active": "En curs",
+      "cancel": "Cancel·la l'exportació",
+      "cancelling": "Cancel·lant…",
+      "clear": "Esborra",
+      "copyError": "Fes clic per copiar",
+      "empty": "No hi ha tasques actives",
+      "emptyHint": "Les exportacions, importacions, transferències de fitxers i tasques d'IA apareixen aquí.",
+      "errorCopied": "Error copiat al porta-retalls",
+      "images_many": "{{count}} imatges",
+      "images_one": "{{count}} imatge",
+      "images_other": "{{count}} imatges",
+      "kinds": {
+        "aiTagging": "Etiquetatge amb IA",
+        "copy": "Copia de fitxers",
+        "export": "Exportació",
+        "import": "Importació",
+        "modelDownload": "Baixada del model d'IA",
+        "move": "Moure fitxers"
+      },
+      "openInLibrary": "Obre a la biblioteca",
+      "recent": "Recents",
+      "title": "Tasques"
     },
     "reject": {
       "deleteConfirm": "Eliminar les rebutjades",
