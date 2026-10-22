@@ -15,7 +15,7 @@ export interface AiTask {
 }
 
 export type AiJobKind =
-  'denoise' | 'depthMap' | 'normalMap' | 'foregroundMask' | 'skyMask' | 'depthMask' | 'subjectMask';
+  'denoise' | 'depthMap' | 'normalMap' | 'foregroundMask' | 'skyMask' | 'textMask' | 'depthMask' | 'subjectMask';
 
 export interface AiJobsStatus {
   current: { path: string; kind: AiJobKind; maskName: string | null } | null;

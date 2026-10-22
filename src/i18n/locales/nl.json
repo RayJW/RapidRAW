@@ -688,6 +688,7 @@
         "applyPreset": "Voorinstelling toepassen",
         "componentPropertiesTitle": "{{name}} eigenschappen",
         "copySectionSettings": "{{section}} instellingen kopiëren",
+        "generateTextMask": "Masker maken",
         "invertComponent": "Component omkeren",
         "invertMask": "Masker omkeren",
         "maskPropertiesTitle": "Maskereigenschappen",
@@ -697,7 +698,8 @@
         "pasteSettings": "Instellingen plakken",
         "resetSectionSettings": "{{section}} instellingen herstellen",
         "select": "Selecteren",
-        "selectPresetTooltip": "Selecteer een voorinstelling om toe te passen"
+        "selectPresetTooltip": "Selecteer een voorinstelling om toe te passen",
+        "textPromptPlaceholder": "bijv. persoon, auto, water"
       },
       "toggleAnalyticsInAdjustments": "Analyse in aanpassingspaneel aan/uit",
       "toggleAnalyticsTooltip": "Analytische weergave aan/uit",
@@ -975,7 +977,8 @@
         "foregroundMask": "Voorgrondmasker maken",
         "normalMap": "Oppervlakken analyseren",
         "skyMask": "Luchtmasker maken",
-        "subjectMask": "Onderwerpmasker maken"
+        "subjectMask": "Onderwerpmasker maken",
+        "textMask": "Tekstmasker maken"
       },
       "more": "+{{moreCount}} meer",
       "pause": "AI-verwerking pauzeren",
@@ -1253,7 +1256,8 @@
       "radial": "Radiaal",
       "retouch": "Retoucheren",
       "sky": "Lucht",
-      "subject": "Onderwerp"
+      "subject": "Onderwerp",
+      "text": "Tekst"
     }
   },
   "menus": {
@@ -1980,8 +1984,10 @@
     "thanks": {
       "description": "Veel dank aan de volgende projecten die zeer belangrijk waren bij de ontwikkeling van RapidRAW:",
       "list": {
+        "birefnet": "Voor het segmentatiemodel met hoge resolutie dat de AI-voorgronddetectie aandrijft.",
         "darktable": "Voor enkele referentie-implementaties die delen van dit werk hebben geleid.",
         "depth": "Voor het krachtige monoculaire diepteschattingsmodel dat de AI-dieptemaskering mogelijk maakt.",
+        "efficientsam3": "Voor het efficiënte, uit SAM 3 gedistilleerde segmentatiemodel met tekstprompts dat de AI-lucht- en tekstmaskers aandrijft.",
         "lama": "Voor het krachtige en eenvoudige afbeeldingsinpainting-model dat inhoudsgebaseerde opvulling en objectverwijdering mogelijk maakt.",
         "lensfun": "Voor de onschatbare open-source bibliotheek en uitgebreide database voor automatische lenscorrectie.",
         "libgphoto2": "Voor de uitgebreide cameracommuicatiebibliotheek die het tethering- en afstandsbedieningssysteem van RapidRAW aandrijft.",
@@ -1990,7 +1996,6 @@
         "rawler": "Voor de uitstekende Rust-crate die de basis vormt voor RAW-bestandsverwerking in dit project.",
         "sam2": "Voor het leveren van het basismodel dat wordt gebruikt voor de AI-onderwerpdetectiemogelijkheden.",
         "spektrafilm": "Voor de spectraalgebaseerde filmemulatie-LUT's door Andrea Volpato, gebruikt voor de ingebouwde filmemulaties van RapidRAW. Gelicenseerd onder CC BY-SA 4.0.",
-        "u2net": "Voor het leveren van de robuuste architectuur die wordt gebruikt voor de AI-lucht- en voorgronddetectiemogelijkheden.",
         "you": "Voor het gebruiken en ondersteunen van RapidRAW. Uw interesse houdt dit project levend en evoluerend.",
         "youLabel": "U"
       },

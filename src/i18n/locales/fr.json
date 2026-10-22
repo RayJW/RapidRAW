@@ -716,6 +716,7 @@
         "applyPreset": "Appliquer le paramètre prédéfini",
         "componentPropertiesTitle": "Propriétés de {{name}}",
         "copySectionSettings": "Copier les paramètres de la section {{section}}",
+        "generateTextMask": "Générer le masque",
         "invertComponent": "Inverser le composant",
         "invertMask": "Inverser le masque",
         "maskPropertiesTitle": "Propriétés du masque",
@@ -725,7 +726,8 @@
         "pasteSettings": "Coller les paramètres",
         "resetSectionSettings": "Réinitialiser les paramètres de la section {{section}}",
         "select": "Sélectionner",
-        "selectPresetTooltip": "Sélectionner un paramètre prédéfini à appliquer"
+        "selectPresetTooltip": "Sélectionner un paramètre prédéfini à appliquer",
+        "textPromptPlaceholder": "ex. : personne, voiture, eau"
       },
       "toggleAnalyticsInAdjustments": "Afficher/Masquer l'analyse dans le panneau Réglages",
       "toggleAnalyticsTooltip": "Basculer l'affichage des analyses",
@@ -1005,7 +1007,8 @@
         "foregroundMask": "Génération du masque de premier plan",
         "normalMap": "Analyse des surfaces",
         "skyMask": "Génération du masque du ciel",
-        "subjectMask": "Génération du masque du sujet"
+        "subjectMask": "Génération du masque du sujet",
+        "textMask": "Génération du masque de texte"
       },
       "more": "+{{moreCount}} de plus",
       "pause": "Mettre en pause le traitement IA",
@@ -1304,7 +1307,8 @@
       "radial": "Radial",
       "retouch": "Retouche",
       "sky": "Ciel",
-      "subject": "Sujet"
+      "subject": "Sujet",
+      "text": "Texte"
     }
   },
   "menus": {
@@ -2043,8 +2047,10 @@
     "thanks": {
       "description": "Un grand merci aux projets suivants qui ont été très importants dans le développement de RapidRAW :",
       "list": {
+        "birefnet": "Pour le modèle de segmentation haute résolution qui alimente la détection du premier plan par l'IA.",
         "darktable": "Pour certaines implémentations de référence qui ont guidé une partie de ce travail.",
         "depth": "Pour le puissant modèle d'estimation de profondeur monoculaire qui permet les capacités de masquage de profondeur par l'IA.",
+        "efficientsam3": "Pour le modèle de segmentation efficace guidé par texte, distillé de SAM 3, qui alimente les masques de ciel et de texte par l'IA.",
         "lama": "Pour le modèle d'inpainting d'image puissant & simple, qui permet le remplissage génératif et la suppression d'objets.",
         "lensfun": "Pour son inestimable bibliothèque open-source et sa base de données complète pour la correction automatique de l'objectif.",
         "libgphoto2": "Pour la bibliothèque complète de communication avec les appareils photo qui alimente le tethering et la capture à distance de RapidRAW.",
@@ -2053,7 +2059,6 @@
         "rawler": "Pour l'excellente crate Rust qui fournit la base du traitement des fichiers RAW dans ce projet.",
         "sam2": "Pour avoir fourni le modèle de base utilisé pour les capacités de détection de sujet par IA.",
         "spektrafilm": "Pour les LUTs d'émulation de film à base spectrale d'Andrea Volpato, qui alimentent les émulations intégrées de RapidRAW. Sous licence CC BY-SA 4.0.",
-        "u2net": "Pour avoir fourni l'architecture robuste utilisée pour les capacités de détection du ciel et du premier plan par l'IA.",
         "you": "À vous, pour l'utilisation et le soutien de RapidRAW. Votre intérêt maintient ce projet vivant et en évolution.",
         "youLabel": "Vous"
       },

@@ -694,6 +694,7 @@
         "applyPreset": "Vorgabe anwenden",
         "componentPropertiesTitle": "{{name}}-Eigenschaften",
         "copySectionSettings": "{{section}}-Einstellungen kopieren",
+        "generateTextMask": "Maske erstellen",
         "invertComponent": "Komponente umkehren",
         "invertMask": "Maske umkehren",
         "maskPropertiesTitle": "Maskeneigenschaften",
@@ -703,7 +704,8 @@
         "pasteSettings": "Einstellungen einfügen",
         "resetSectionSettings": "{{section}}-Einstellungen zurücksetzen",
         "select": "Auswählen",
-        "selectPresetTooltip": "Eine Vorgabe zum Anwenden auswählen"
+        "selectPresetTooltip": "Eine Vorgabe zum Anwenden auswählen",
+        "textPromptPlaceholder": "z. B. Person, Auto, Wasser"
       },
       "toggleAnalyticsInAdjustments": "Analyseanzeige im Anpassungen-Panel umschalten",
       "toggleAnalyticsTooltip": "Analyseanzeige umschalten",
@@ -981,7 +983,8 @@
         "foregroundMask": "Vordergrundmaske wird erstellt",
         "normalMap": "Oberflächen werden analysiert",
         "skyMask": "Himmelsmaske wird erstellt",
-        "subjectMask": "Motivmaske wird erstellt"
+        "subjectMask": "Motivmaske wird erstellt",
+        "textMask": "Textmaske wird erstellt"
       },
       "more": "+{{moreCount}} weitere",
       "pause": "KI-Verarbeitung pausieren",
@@ -1276,7 +1279,8 @@
       "radial": "Radial",
       "retouch": "Retuschieren",
       "sky": "Himmel",
-      "subject": "Motiv"
+      "subject": "Motiv",
+      "text": "Text"
     }
   },
   "menus": {
@@ -2007,8 +2011,10 @@
     "thanks": {
       "description": "Ein großes Dankeschön an die folgenden Projekte, die für die Entwicklung von RapidRAW sehr wichtig waren:",
       "list": {
+        "birefnet": "Für das hochauflösende Segmentierungsmodell der KI-Vordergrunderkennung.",
         "darktable": "Für Referenzimplementierungen, die Teile dieser Arbeit leiteten.",
         "depth": "Für das Modell zur monokularen Tiefenschätzung (Tiefenmasken).",
+        "efficientsam3": "Für das effiziente, aus SAM 3 destillierte Segmentierungsmodell der KI-Himmel- und Textmasken.",
         "lama": "Für das leistungsstarke Bild-Inpainting-Modell.",
         "lensfun": "Für die unschätzbare Open-Source-Bibliothek für Objektivkorrektur.",
         "libgphoto2": "Für die umfassende Kamera-Kommunikationsbibliothek, die RapidRAWs Tethering und Fernauslösung ermöglicht.",
@@ -2017,7 +2023,6 @@
         "rawler": "Für die hervorragende Rust-Crate zur RAW-Bildverarbeitung.",
         "sam2": "Für das grundlegende Modell der KI-Motiverkennung.",
         "spektrafilm": "Für die spektralbasierten Filmemulations-LUTs von Andrea Volpato, die RapidRAWs integrierte Filmemulationen ermöglichen. Lizenziert unter CC BY-SA 4.0.",
-        "u2net": "Für die Architektur zur Erkennung von Himmel und Vordergrund.",
         "you": "Dafür, dass Sie RapidRAW nutzen. Ihr Interesse hält dieses Projekt am Leben.",
         "youLabel": "Ihnen"
       },

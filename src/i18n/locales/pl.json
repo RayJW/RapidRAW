@@ -738,6 +738,7 @@
         "applyPreset": "Zastosuj preset",
         "componentPropertiesTitle": "Właściwości dla {{name}}",
         "copySectionSettings": "Kopiuj ustawienia sekcji {{section}}",
+        "generateTextMask": "Generuj maskę",
         "invertComponent": "Odwróć komponent",
         "invertMask": "Odwróć maskę",
         "maskPropertiesTitle": "Właściwości maski",
@@ -747,7 +748,8 @@
         "pasteSettings": "Wklej ustawienia",
         "resetSectionSettings": "Resetuj ustawienia sekcji {{section}}",
         "select": "Wybierz",
-        "selectPresetTooltip": "Wybierz preset do zastosowania"
+        "selectPresetTooltip": "Wybierz preset do zastosowania",
+        "textPromptPlaceholder": "np. osoba, samochód, woda"
       },
       "toggleAnalyticsInAdjustments": "Przełącz analizę w panelu Dopasowania",
       "toggleAnalyticsTooltip": "Przełącz widok analityki",
@@ -1029,7 +1031,8 @@
         "foregroundMask": "Generowanie maski pierwszego planu",
         "normalMap": "Analiza powierzchni",
         "skyMask": "Generowanie maski nieba",
-        "subjectMask": "Generowanie maski obiektu"
+        "subjectMask": "Generowanie maski obiektu",
+        "textMask": "Generowanie maski tekstowej"
       },
       "more": "+{{moreCount}} więcej",
       "pause": "Wstrzymaj przetwarzanie AI",
@@ -1332,7 +1335,8 @@
       "radial": "Radialny",
       "retouch": "Retusz",
       "sky": "Niebo",
-      "subject": "Temat"
+      "subject": "Temat",
+      "text": "Tekst"
     }
   },
   "menus": {
@@ -2081,8 +2085,10 @@
     "thanks": {
       "description": "Ogromne podziękowania dla następujących projektów, które były niezwykle ważne przy tworzeniu RapidRAW:",
       "list": {
+        "birefnet": "Za model segmentacji w wysokiej rozdzielczości, który napędza wykrywanie pierwszego planu przez AI.",
         "darktable": "Za kilka referencyjnych implementacji, które posłużyły za wskazówki.",
         "depth": "Za zaawansowany model szacowania głębi, który włącza maskowanie oparte na głębi za pomocą AI.",
+        "efficientsam3": "Za wydajny model segmentacji sterowany tekstem, wydestylowany z SAM 3, który napędza maski nieba i tekstu AI.",
         "lama": "Za niesamowity model do inpaintingu obrazu, umożliwiający usuwanie obiektów z uwzględnieniem kontekstu.",
         "lensfun": "Za nieocenioną bibliotekę open-source z bogatą bazą obiektywów do automatycznej korekcji.",
         "libgphoto2": "Za kompleksową bibliotekę komunikacji z aparatami, napędzającą tethering i zdalne wyzwalanie w RapidRAW.",
@@ -2091,7 +2097,6 @@
         "rawler": "Za świetną bibliotekę w Rust, dostarczającą fundament dla przetwarzania plików RAW w tym projekcie.",
         "sam2": "Za dostarczenie bazowego modelu do wykrywania i wycinania obiektów za pomocą AI.",
         "spektrafilm": "Za oparte na danych spektralnych LUT-y emulacji filmu autorstwa Andrei Volpato, napędzające wbudowane emulacje filmowe RapidRAW. Licencja CC BY-SA 4.0.",
-        "u2net": "Za świetną architekturę używaną przez nasze modele wykrywania nieba i pierwszego planu.",
         "you": "Za to, że używasz i wspierasz RapidRAW. Twoje zainteresowanie sprawia, że ten projekt nadal ewoluuje.",
         "youLabel": "Ty"
       },

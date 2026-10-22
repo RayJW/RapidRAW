@@ -692,6 +692,7 @@
         "applyPreset": "应用预设",
         "componentPropertiesTitle": "{{name}} 属性",
         "copySectionSettings": "复制 {{section}} 设置",
+        "generateTextMask": "生成蒙版",
         "invertComponent": "反转组件",
         "invertMask": "反转蒙版",
         "maskPropertiesTitle": "蒙版属性",
@@ -701,7 +702,8 @@
         "pasteSettings": "粘贴设置",
         "resetSectionSettings": "重置 {{section}} 设置",
         "select": "选择",
-        "selectPresetTooltip": "选择一个预设以应用"
+        "selectPresetTooltip": "选择一个预设以应用",
+        "textPromptPlaceholder": "例如，人物、汽车、水面"
       },
       "toggleAnalyticsInAdjustments": "在调整面板中切换分析",
       "toggleAnalyticsTooltip": "切换分析显示",
@@ -979,7 +981,8 @@
         "foregroundMask": "正在生成前景蒙版",
         "normalMap": "正在分析表面",
         "skyMask": "正在生成天空蒙版",
-        "subjectMask": "正在生成主体蒙版"
+        "subjectMask": "正在生成主体蒙版",
+        "textMask": "正在生成文本蒙版"
       },
       "more": "另外 {{moreCount}} 项",
       "pause": "暂停 AI 处理",
@@ -1273,7 +1276,8 @@
       "radial": "径向",
       "retouch": "修饰",
       "sky": "天空",
-      "subject": "主体"
+      "subject": "主体",
+      "text": "文本"
     }
   },
   "menus": {
@@ -2004,8 +2008,10 @@
     "thanks": {
       "description": "衷心感谢以下项目，它们在 RapidRAW 的开发过程中非常重要：",
       "list": {
+        "birefnet": "为提供高分辨率分割模型，用于 AI 前景检测功能。",
         "darktable": "为部分参考实现提供了指导。",
         "depth": "为强大的单目深度估计模型提供支持，实现了 AI 深度蒙版功能。",
+        "efficientsam3": "为提供从 SAM 3 蒸馏而来的高效提示式分割模型，用于 AI 天空和文本蒙版。",
         "lama": "为强大且简单的图像修复模型提供支持，实现了内容感知填充和对象移除。",
         "lensfun": "为无价的开源库和全面的数据库提供支持，实现了自动镜头校正。",
         "libgphoto2": "感谢提供全面的相机通信库，为 RapidRAW 的联机拍摄与远程控制子系统提供支持。",
@@ -2014,7 +2020,6 @@
         "rawler": "为优秀的 Rust 库提供支持，构成了本项目 RAW 文件处理的基础。",
         "sam2": "为提供基础模型，用于 AI 主体检测功能。",
         "spektrafilm": "感谢 Andrea Volpato 提供基于光谱的胶片模拟 LUT，为 RapidRAW 的内置胶片模拟提供支持。采用 CC BY-SA 4.0 许可。",
-        "u2net": "为提供稳健的架构，用于 AI 天空和前景检测功能。",
         "you": "感谢您使用和支持 RapidRAW。您的关注使本项目持续发展。",
         "youLabel": "您"
       },

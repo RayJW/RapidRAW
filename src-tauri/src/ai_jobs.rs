@@ -12,7 +12,7 @@ use serde_json::{Value, json};
 use tauri::{AppHandle, Emitter, Manager};
 
 use crate::ai_commands::{self, MaskTransform};
-use crate::ai_processing::{AiDepthMaskParameters, get_or_init_ai_models};
+use crate::ai_processing::{AiDepthMaskParameters, AiMaskModel, get_or_init_ai_models};
 use crate::app_state::AppState;
 use crate::cache_utils::GEOMETRY_KEYS;
 use crate::effect_maps::{EffectMapKind, is_map_reference, is_map_valid_for};
@@ -24,6 +24,7 @@ const MAX_ATTEMPTS: u32 = 3;
 const SOURCE_ID_SAMPLE_BYTES: u64 = 64 * 1024;
 const MASK_DATA_KEYS: [&str; 2] = ["maskDataBase64", "mask_data_base64"];
 const AI_SOURCE_KEY: &str = "aiSource";
+const TEXT_PROMPT_KEY: &str = "prompt";
 const SUBJECT_BOX_KEYS: [&str; 4] = ["startX", "startY", "endX", "endY"];
 const MASK_RESULT_KEYS: [&str; 6] = [
     "maskDataBase64",
@@ -97,6 +98,7 @@ pub fn source_id_for(path: &str) -> Option<String> {
 enum MaskKind {
     Foreground,
     Sky,
+    Text,
     Depth,
     Subject,
 }
@@ -106,6 +108,7 @@ impl MaskKind {
         match mask_type {
             "ai-foreground" => Some(MaskKind::Foreground),
             "ai-sky" => Some(MaskKind::Sky),
+            "ai-text" => Some(MaskKind::Text),
             "ai-depth" => Some(MaskKind::Depth),
             "ai-subject" => Some(MaskKind::Subject),
             _ => None,
@@ -132,6 +135,7 @@ impl Job {
             Job::Mask { kind, .. } => match kind {
                 MaskKind::Foreground => "foregroundMask",
                 MaskKind::Sky => "skyMask",
+                MaskKind::Text => "textMask",
                 MaskKind::Depth => "depthMask",
                 MaskKind::Subject => "subjectMask",
             },
@@ -144,6 +148,14 @@ fn mask_data(params: &Value) -> Option<&str> {
         .iter()
         .find_map(|key| params.get(*key).and_then(Value::as_str))
         .filter(|data| !data.is_empty())
+}
+
+fn text_prompt(params: &Value) -> Option<&str> {
+    params
+        .get(TEXT_PROMPT_KEY)
+        .and_then(Value::as_str)
+        .map(str::trim)
+        .filter(|prompt| !prompt.is_empty())
 }
 
 fn has_subject_box(params: &Value) -> bool {
@@ -164,7 +176,11 @@ fn is_mask_valid_for(params: &Value, source_id: &str, trust_unstamped: bool) -> 
 
 fn needs_mask_generation(kind: MaskKind, params: &Value, source_id: &str) -> bool {
     !is_mask_valid_for(params, source_id, true)
-        && (kind != MaskKind::Subject || has_subject_box(params))
+        && match kind {
+            MaskKind::Subject => has_subject_box(params),
+            MaskKind::Text => text_prompt(params).is_some(),
+            _ => true,
+        }
 }
 
 fn ai_sub_masks_mut(adjustments: &mut Value) -> impl Iterator<Item = (MaskKind, &mut Value)> {
@@ -332,7 +348,11 @@ pub fn reconcile_ai_results(
         let carried_over = existing.filter(|(existing_kind, existing)| {
             *existing_kind == kind
                 && is_mask_valid_for(existing, source_id, true)
-                && (kind != MaskKind::Subject || same_subject_box(params, existing))
+                && match kind {
+                    MaskKind::Subject => same_subject_box(params, existing),
+                    MaskKind::Text => text_prompt(params) == text_prompt(existing),
+                    _ => true,
+                }
         });
         match carried_over {
             Some((_, existing)) => {
@@ -917,10 +937,18 @@ fn generate_mask(
         .map(|(_, sub_mask)| sub_mask["parameters"].clone())
         .ok_or("Sub-mask disappeared before it was generated")?;
 
+    let model = match kind {
+        MaskKind::Foreground => AiMaskModel::Foreground,
+        MaskKind::Sky => AiMaskModel::Sky,
+        MaskKind::Text => AiMaskModel::Text,
+        MaskKind::Depth => AiMaskModel::Depth,
+        MaskKind::Subject => AiMaskModel::Subject,
+    };
     let models = tauri::async_runtime::block_on(get_or_init_ai_models(
         app_handle,
         &state.ai_state,
         &state.ai_init_lock,
+        model,
     ))
     .map_err(|e| e.to_string())?;
     let transform = MaskTransform::from_adjustments(adjustments);
@@ -938,8 +966,19 @@ fn generate_mask(
             ai_source,
         )?),
         MaskKind::Sky => serde_json::to_value(ai_commands::generate_sky_mask(
+            &state.ai_state,
             &models,
+            &cache_key,
             warped_image,
+            transform,
+            ai_source,
+        )?),
+        MaskKind::Text => serde_json::to_value(ai_commands::generate_text_mask(
+            &state.ai_state,
+            &models,
+            &cache_key,
+            warped_image,
+            text_prompt(&original).ok_or("Text prompt missing")?,
             transform,
             ai_source,
         )?),

@@ -694,6 +694,7 @@
         "applyPreset": "Apply Preset",
         "componentPropertiesTitle": "{{name}} Properties",
         "copySectionSettings": "Copy {{section}} Settings",
+        "generateTextMask": "Generate Mask",
         "invertComponent": "Invert Component",
         "invertMask": "Invert Mask",
         "maskPropertiesTitle": "Mask Properties",
@@ -703,7 +704,8 @@
         "pasteSettings": "Paste Settings",
         "resetSectionSettings": "Reset {{section}} Settings",
         "select": "Select",
-        "selectPresetTooltip": "Select a preset to apply"
+        "selectPresetTooltip": "Select a preset to apply",
+        "textPromptPlaceholder": "e.g., person, car, water"
       },
       "toggleAnalyticsInAdjustments": "Toggle analytics in Adjustments panel",
       "toggleAnalyticsTooltip": "Toggle Analytics Display",
@@ -981,7 +983,8 @@
         "foregroundMask": "Generating foreground mask",
         "normalMap": "Analyzing surfaces",
         "skyMask": "Generating sky mask",
-        "subjectMask": "Generating subject mask"
+        "subjectMask": "Generating subject mask",
+        "textMask": "Generating text mask"
       },
       "more": "+{{moreCount}} more",
       "pause": "Pause AI processing",
@@ -1276,7 +1279,8 @@
       "radial": "Radial",
       "retouch": "Retouch",
       "sky": "Sky",
-      "subject": "Subject"
+      "subject": "Subject",
+      "text": "Text"
     }
   },
   "menus": {
@@ -2007,8 +2011,10 @@
     "thanks": {
       "description": "A huge thank you to the following projects that were very important in the development of RapidRAW:",
       "list": {
+        "birefnet": "For the high-resolution segmentation model that powers the AI foreground detection.",
         "darktable": "For some reference implementations that guided parts of this work.",
         "depth": "For the powerful monocular depth estimation model that enables the AI depth masking capabilities.",
+        "efficientsam3": "For the efficient promptable segmentation model distilled from SAM 3 that powers the AI sky and text masks.",
         "lama": "For the powerful & simple image inpainting model, which enables content-aware fill and object removal.",
         "lensfun": "For its invaluable open-source library and comprehensive database for automatic lens correction.",
         "libgphoto2": "For the comprehensive camera communication library powering RapidRAW's tethering and remote capture subsystem.",
@@ -2017,7 +2023,6 @@
         "rawler": "For the excellent Rust crate that provides the foundation for RAW file processing in this project.",
         "sam2": "For providing the foundation model used for the AI subject detection capabilities.",
         "spektrafilm": "For the spectrally-based film emulation LUTs by Andrea Volpato, used to power RapidRAW's built-in film emulations. Licensed CC BY-SA 4.0.",
-        "u2net": "For providing the robust architecture used for the AI sky and foreground detection capabilities.",
         "you": "For using and supporting RapidRAW. Your interest keeps this project alive and evolving.",
         "youLabel": "You"
       },

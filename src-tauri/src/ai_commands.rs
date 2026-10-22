@@ -1,17 +1,18 @@
 use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
 use std::io::Cursor;
-use std::sync::Mutex;
+use std::sync::{Arc, Mutex};
 
 use base64::{Engine as _, engine::general_purpose};
 use image::{DynamicImage, GenericImageView, GrayImage, ImageFormat};
 
 use crate::ai_connector;
 use crate::ai_processing::{
-    AiDepthMaskParameters, AiForegroundMaskParameters, AiModels, AiSkyMaskParameters, AiState,
-    AiSubjectMaskParameters, CachedDepthMap, ImageEmbeddings, generate_image_embeddings,
-    get_or_init_ai_models, run_depth_anything_model, run_sam_decoder, run_sky_seg_model,
-    run_u2netp_model,
+    AiDepthMaskParameters, AiForegroundMaskParameters, AiMaskModel, AiModels, AiSkyMaskParameters,
+    AiState, AiSubjectMaskParameters, AiTextMaskParameters, CachedDepthMap,
+    ESAM3_SKY_SCORE_THRESHOLD, ESAM3_TEXT_SCORE_THRESHOLD, Esam3Features, ImageEmbeddings,
+    generate_image_embeddings, get_or_init_ai_models, run_birefnet_model, run_depth_anything_model,
+    run_esam3_decoder, run_esam3_image_encoder, run_sam_decoder,
 };
 use crate::app_settings::load_settings;
 use crate::app_state::{AiTaskGuard, AppState};
@@ -96,8 +97,11 @@ pub fn generate_foreground_mask(
     transform: MaskTransform,
     ai_source: Option<String>,
 ) -> Result<AiForegroundMaskParameters, String> {
-    let mask = run_u2netp_model(warped_image, &*models.u2netp().map_err(|e| e.to_string())?)
-        .map_err(|e| e.to_string())?;
+    let mask = run_birefnet_model(
+        warped_image,
+        &*models.birefnet().map_err(|e| e.to_string())?,
+    )
+    .map_err(|e| e.to_string())?;
 
     Ok(AiForegroundMaskParameters {
         mask_data_base64: Some(encode_to_base64_png(&mask)?),
@@ -109,16 +113,91 @@ pub fn generate_foreground_mask(
     })
 }
 
-pub fn generate_sky_mask(
+fn cached_esam3_features(
+    ai_state: &Mutex<Option<AiState>>,
     models: &AiModels,
+    cache_key: &str,
+    warped_image: &DynamicImage,
+) -> Result<Arc<Esam3Features>, String> {
+    if let Some(cached) = ai_state
+        .lock()
+        .unwrap()
+        .as_ref()
+        .and_then(|s| s.esam3_features.clone())
+        .filter(|cached| cached.path_hash == cache_key)
+    {
+        return Ok(cached);
+    }
+
+    let mut features = run_esam3_image_encoder(
+        warped_image,
+        &*models.esam3_image_encoder().map_err(|e| e.to_string())?,
+    )
+    .map_err(|e| e.to_string())?;
+    features.path_hash = cache_key.to_string();
+    let features = Arc::new(features);
+
+    if let Some(state) = ai_state.lock().unwrap().as_mut() {
+        state.esam3_features = Some(features.clone());
+    }
+    Ok(features)
+}
+
+pub fn generate_sky_mask(
+    ai_state: &Mutex<Option<AiState>>,
+    models: &AiModels,
+    cache_key: &str,
     warped_image: &DynamicImage,
     transform: MaskTransform,
     ai_source: Option<String>,
 ) -> Result<AiSkyMaskParameters, String> {
-    let mask = run_sky_seg_model(warped_image, &*models.sky_seg().map_err(|e| e.to_string())?)
-        .map_err(|e| e.to_string())?;
+    let features = cached_esam3_features(ai_state, models, cache_key, warped_image)?;
+    let prompt = models.esam3_sky_prompt().map_err(|e| e.to_string())?;
+    let mask = run_esam3_decoder(
+        &*models.esam3_decoder().map_err(|e| e.to_string())?,
+        &features,
+        &prompt,
+        warped_image,
+        ESAM3_SKY_SCORE_THRESHOLD,
+    )
+    .map_err(|e| e.to_string())?
+    .unwrap_or_else(|| GrayImage::new(warped_image.width(), warped_image.height()));
 
     Ok(AiSkyMaskParameters {
+        mask_data_base64: Some(encode_to_base64_png(&mask)?),
+        rotation: Some(transform.rotation),
+        flip_horizontal: Some(transform.flip_horizontal),
+        flip_vertical: Some(transform.flip_vertical),
+        orientation_steps: Some(transform.orientation_steps),
+        ai_source,
+    })
+}
+
+pub fn generate_text_mask(
+    ai_state: &Mutex<Option<AiState>>,
+    models: &AiModels,
+    cache_key: &str,
+    warped_image: &DynamicImage,
+    prompt: &str,
+    transform: MaskTransform,
+    ai_source: Option<String>,
+) -> Result<AiTextMaskParameters, String> {
+    let features = cached_esam3_features(ai_state, models, cache_key, warped_image)?;
+    let text_prompt = models
+        .esam3_text_prompt(prompt)
+        .map_err(|e| e.to_string())?;
+    let mask = run_esam3_decoder(
+        &*models.esam3_decoder().map_err(|e| e.to_string())?,
+        &features,
+        &text_prompt,
+        warped_image,
+        ESAM3_TEXT_SCORE_THRESHOLD,
+    )
+    .map_err(|e| e.to_string())?
+    .ok_or_else(|| format!("No match found for \"{}\"", prompt.trim()))?;
+
+    Ok(AiTextMaskParameters {
+        prompt: prompt.to_string(),
         mask_data_base64: Some(encode_to_base64_png(&mask)?),
         rotation: Some(transform.rotation),
         flip_horizontal: Some(transform.flip_horizontal),
@@ -345,9 +424,14 @@ pub async fn generate_ai_foreground_mask(
     let guard = task_id.map(|id| AiTaskGuard::new(&state.active_ai_tasks, id));
     check_cancelled(&guard)?;
 
-    let models = get_or_init_ai_models(&app_handle, &state.ai_state, &state.ai_init_lock)
-        .await
-        .map_err(|e| e.to_string())?;
+    let models = get_or_init_ai_models(
+        &app_handle,
+        &state.ai_state,
+        &state.ai_init_lock,
+        AiMaskModel::Foreground,
+    )
+    .await
+    .map_err(|e| e.to_string())?;
     check_cancelled(&guard)?;
 
     let warped_image = get_cached_full_warped_image(&state, &js_adjustments)?;
@@ -369,6 +453,7 @@ pub async fn generate_ai_foreground_mask(
 #[tauri::command]
 pub async fn generate_ai_sky_mask(
     js_adjustments: serde_json::Value,
+    path: String,
     rotation: f32,
     flip_horizontal: bool,
     flip_vertical: bool,
@@ -380,9 +465,14 @@ pub async fn generate_ai_sky_mask(
     let guard = task_id.map(|id| AiTaskGuard::new(&state.active_ai_tasks, id));
     check_cancelled(&guard)?;
 
-    let models = get_or_init_ai_models(&app_handle, &state.ai_state, &state.ai_init_lock)
-        .await
-        .map_err(|e| e.to_string())?;
+    let models = get_or_init_ai_models(
+        &app_handle,
+        &state.ai_state,
+        &state.ai_init_lock,
+        AiMaskModel::Sky,
+    )
+    .await
+    .map_err(|e| e.to_string())?;
     check_cancelled(&guard)?;
 
     let warped_image = get_cached_full_warped_image(&state, &js_adjustments)?;
@@ -394,7 +484,63 @@ pub async fn generate_ai_sky_mask(
         flip_vertical,
         orientation_steps,
     };
-    let params = generate_sky_mask(&models, &warped_image, transform, loaded_source_id(&state))?;
+    let params = generate_sky_mask(
+        &state.ai_state,
+        &models,
+        &ai_cache_key(&path, &js_adjustments),
+        &warped_image,
+        transform,
+        loaded_source_id(&state),
+    )?;
+    check_cancelled(&guard)?;
+    Ok(params)
+}
+
+#[allow(clippy::too_many_arguments)]
+#[tauri::command]
+pub async fn generate_ai_text_mask(
+    js_adjustments: serde_json::Value,
+    path: String,
+    prompt: String,
+    rotation: f32,
+    flip_horizontal: bool,
+    flip_vertical: bool,
+    orientation_steps: u8,
+    task_id: Option<String>,
+    state: tauri::State<'_, AppState>,
+    app_handle: tauri::AppHandle,
+) -> Result<AiTextMaskParameters, String> {
+    let guard = task_id.map(|id| AiTaskGuard::new(&state.active_ai_tasks, id));
+    check_cancelled(&guard)?;
+
+    let models = get_or_init_ai_models(
+        &app_handle,
+        &state.ai_state,
+        &state.ai_init_lock,
+        AiMaskModel::Text,
+    )
+    .await
+    .map_err(|e| e.to_string())?;
+    check_cancelled(&guard)?;
+
+    let warped_image = get_cached_full_warped_image(&state, &js_adjustments)?;
+    check_cancelled(&guard)?;
+
+    let transform = MaskTransform {
+        rotation,
+        flip_horizontal,
+        flip_vertical,
+        orientation_steps,
+    };
+    let params = generate_text_mask(
+        &state.ai_state,
+        &models,
+        &ai_cache_key(&path, &js_adjustments),
+        &warped_image,
+        &prompt,
+        transform,
+        loaded_source_id(&state),
+    )?;
     check_cancelled(&guard)?;
     Ok(params)
 }
@@ -420,9 +566,14 @@ pub async fn generate_ai_depth_mask(
     let guard = task_id.map(|id| AiTaskGuard::new(&state.active_ai_tasks, id));
     check_cancelled(&guard)?;
 
-    let models = get_or_init_ai_models(&app_handle, &state.ai_state, &state.ai_init_lock)
-        .await
-        .map_err(|e| e.to_string())?;
+    let models = get_or_init_ai_models(
+        &app_handle,
+        &state.ai_state,
+        &state.ai_init_lock,
+        AiMaskModel::Depth,
+    )
+    .await
+    .map_err(|e| e.to_string())?;
     check_cancelled(&guard)?;
 
     let warped_image = get_cached_full_warped_image(&state, &js_adjustments)?;
@@ -474,9 +625,14 @@ pub async fn generate_ai_subject_mask(
     let guard = task_id.map(|id| AiTaskGuard::new(&state.active_ai_tasks, id));
     check_cancelled(&guard)?;
 
-    let models = get_or_init_ai_models(&app_handle, &state.ai_state, &state.ai_init_lock)
-        .await
-        .map_err(|e| e.to_string())?;
+    let models = get_or_init_ai_models(
+        &app_handle,
+        &state.ai_state,
+        &state.ai_init_lock,
+        AiMaskModel::Subject,
+    )
+    .await
+    .map_err(|e| e.to_string())?;
     check_cancelled(&guard)?;
 
     let warped_image = get_cached_full_warped_image(&state, &js_adjustments)?;
@@ -510,9 +666,14 @@ pub async fn precompute_ai_subject_mask(
     state: tauri::State<'_, AppState>,
     app_handle: tauri::AppHandle,
 ) -> Result<(), String> {
-    let models = get_or_init_ai_models(&app_handle, &state.ai_state, &state.ai_init_lock)
-        .await
-        .map_err(|e| e.to_string())?;
+    let models = get_or_init_ai_models(
+        &app_handle,
+        &state.ai_state,
+        &state.ai_init_lock,
+        AiMaskModel::Subject,
+    )
+    .await
+    .map_err(|e| e.to_string())?;
 
     let cache_key = ai_cache_key(&path, &js_adjustments);
     let is_cached = state
@@ -540,9 +701,14 @@ pub async fn generate_effect_map(
     let state = tauri::Manager::state::<AppState>(app_handle);
     let map = match kind {
         EffectMapKind::Depth => {
-            let models = get_or_init_ai_models(app_handle, &state.ai_state, &state.ai_init_lock)
-                .await
-                .map_err(|e| e.to_string())?;
+            let models = get_or_init_ai_models(
+                app_handle,
+                &state.ai_state,
+                &state.ai_init_lock,
+                AiMaskModel::Depth,
+            )
+            .await
+            .map_err(|e| e.to_string())?;
             let session = models.depth_anything().map_err(|e| e.to_string())?;
             DynamicImage::ImageLuma8(
                 run_depth_anything_model(source_image, &session).map_err(|e| e.to_string())?,

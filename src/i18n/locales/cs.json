@@ -695,6 +695,7 @@
         "applyPreset": "Použít předvolbu",
         "componentPropertiesTitle": "{{name}} vlastnosti",
         "copySectionSettings": "Kopírovat {{section}} nastavení",
+        "generateTextMask": "Vytvořit masku",
         "invertComponent": "Invertovat komponentu",
         "invertMask": "Invertovat masku",
         "maskPropertiesTitle": "Vlastnosti masky",
@@ -704,7 +705,8 @@
         "pasteSettings": "Vložit nastavení",
         "resetSectionSettings": "Resetovat {{section}} nastavení",
         "select": "Vybrat",
-        "selectPresetTooltip": "Vyberte předvolbu, kterou chcete použít"
+        "selectPresetTooltip": "Vyberte předvolbu, kterou chcete použít",
+        "textPromptPlaceholder": "např. osoba, auto, voda"
       },
       "toggleAnalyticsInAdjustments": "Přepnout analytiku v panelu Úpravy",
       "toggleAnalyticsTooltip": "Přepnout zobrazení Analytics",
@@ -982,7 +984,8 @@
         "foregroundMask": "Vytváření masky popředí",
         "normalMap": "Analýza povrchů",
         "skyMask": "Vytváření masky oblohy",
-        "subjectMask": "Vytváření masky objektu"
+        "subjectMask": "Vytváření masky objektu",
+        "textMask": "Vytváření textové masky"
       },
       "more": "+{{moreCount}} další",
       "pause": "Pozastavit AI zpracování",
@@ -1279,7 +1282,8 @@
       "radial": "Radiální",
       "retouch": "Retuš",
       "sky": "Obloha",
-      "subject": "Objekt"
+      "subject": "Objekt",
+      "text": "Text"
     }
   },
   "menus": {
@@ -2010,8 +2014,10 @@
     "thanks": {
       "description": "Velké poděkování patří následujícím projektům, které byly velmi důležité při vývoji RapidRAW:",
       "list": {
+        "birefnet": "Za segmentační model s vysokým rozlišením, který pohání detekci popředí pomocí AI.",
         "darktable": "Pro některé referenční implementace, které vedly části této práce.",
         "depth": "Pro výkonný monokulární model odhadu hloubky, který umožňuje AI hloubkové maskování.",
+        "efficientsam3": "Za efektivní segmentační model ovládaný textem, odvozený od SAM 3, který pohání AI masky oblohy a textu.",
         "lama": "Pro výkonný a jednoduchý model malování snímků, který umožňuje výplň a odstraňování objektů s ohledem na obsah.",
         "lensfun": "Pro svou neocenitelnou open-source knihovnu a komplexní databázi pro automatickou korekci objektivů.",
         "libgphoto2": "Pro komplexní knihovnu pro komunikaci s fotoaparátem, která pohání tethering a vzdálené snímání v RapidRAW.",
@@ -2020,7 +2026,6 @@
         "rawler": "Za vynikající přepravku Rust, která poskytuje základ pro zpracování souborů RAW v tomto projektu.",
         "sam2": "Za poskytnutí základního modelu používaného pro schopnosti detekce předmětů AI.",
         "spektrafilm": "Pro spektrálně založené filmové emulační LUT od Andrey Volpata, použité pro vestavěné filmové emulace v RapidRAW. Licence CC BY-SA 4.0.",
-        "u2net": "Pro zajištění robustní architektury používané pro schopnosti detekce oblohy a popředí AI.",
         "you": "Za používání a podporu RapidRAW. Váš zájem udržuje tento projekt živý a rozvíjející se.",
         "youLabel": "Vy"
       },
