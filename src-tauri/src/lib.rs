@@ -39,6 +39,7 @@ mod denoising;
 mod effect_maps;
 mod exif_processing;
 mod export_processing;
+mod face_masking;
 mod file_management;
 mod focus_stacking;
 mod fog;
@@ -1163,6 +1164,16 @@ fn generate_preset_preview(
         .clone()
         .ok_or("No original image loaded for preset preview")?;
     let is_raw = loaded_image.is_raw;
+
+    let mut js_adjustments = js_adjustments;
+    if ai_jobs::has_ai_results(&js_adjustments) {
+        let (source_path, sidecar_path) = file_management::parse_virtual_path(&loaded_image.path);
+        if let Some(source_id) = ai_jobs::source_id(&source_path) {
+            let existing = exif_processing::load_sidecar(&sidecar_path).adjustments;
+            ai_jobs::reconcile_ai_results(&mut js_adjustments, &existing, &source_id, false);
+        }
+    }
+
     let unique_hash = calculate_full_job_hash(&loaded_image.path, &js_adjustments);
 
     const PRESET_PREVIEW_DIM: u32 = 400;
@@ -2445,6 +2456,7 @@ pub fn run() {
             ai_commands::generate_ai_foreground_mask,
             ai_commands::generate_ai_sky_mask,
             ai_commands::generate_ai_text_mask,
+            ai_commands::generate_ai_face_mask,
             ai_commands::generate_ai_depth_mask,
             ai_commands::check_ai_connector_status,
             ai_commands::test_ai_connector_connection,

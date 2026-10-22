@@ -25,6 +25,7 @@ const SOURCE_ID_SAMPLE_BYTES: u64 = 64 * 1024;
 const MASK_DATA_KEYS: [&str; 2] = ["maskDataBase64", "mask_data_base64"];
 const AI_SOURCE_KEY: &str = "aiSource";
 const TEXT_PROMPT_KEY: &str = "prompt";
+const FACE_PARTS_KEY: &str = "parts";
 const SUBJECT_BOX_KEYS: [&str; 4] = ["startX", "startY", "endX", "endY"];
 const MASK_RESULT_KEYS: [&str; 6] = [
     "maskDataBase64",
@@ -99,6 +100,7 @@ enum MaskKind {
     Foreground,
     Sky,
     Text,
+    Face,
     Depth,
     Subject,
 }
@@ -109,6 +111,7 @@ impl MaskKind {
             "ai-foreground" => Some(MaskKind::Foreground),
             "ai-sky" => Some(MaskKind::Sky),
             "ai-text" => Some(MaskKind::Text),
+            "ai-face" => Some(MaskKind::Face),
             "ai-depth" => Some(MaskKind::Depth),
             "ai-subject" => Some(MaskKind::Subject),
             _ => None,
@@ -136,6 +139,7 @@ impl Job {
                 MaskKind::Foreground => "foregroundMask",
                 MaskKind::Sky => "skyMask",
                 MaskKind::Text => "textMask",
+                MaskKind::Face => "faceMask",
                 MaskKind::Depth => "depthMask",
                 MaskKind::Subject => "subjectMask",
             },
@@ -156,6 +160,16 @@ fn text_prompt(params: &Value) -> Option<&str> {
         .and_then(Value::as_str)
         .map(str::trim)
         .filter(|prompt| !prompt.is_empty())
+}
+
+fn face_parts(params: &Value) -> Vec<String> {
+    params
+        .get(FACE_PARTS_KEY)
+        .and_then(Value::as_array)
+        .into_iter()
+        .flatten()
+        .filter_map(|part| part.as_str().map(str::to_string))
+        .collect()
 }
 
 fn has_subject_box(params: &Value) -> bool {
@@ -179,6 +193,7 @@ fn needs_mask_generation(kind: MaskKind, params: &Value, source_id: &str) -> boo
         && match kind {
             MaskKind::Subject => has_subject_box(params),
             MaskKind::Text => text_prompt(params).is_some(),
+            MaskKind::Face => !face_parts(params).is_empty(),
             _ => true,
         }
 }
@@ -351,6 +366,7 @@ pub fn reconcile_ai_results(
                 && match kind {
                     MaskKind::Subject => same_subject_box(params, existing),
                     MaskKind::Text => text_prompt(params) == text_prompt(existing),
+                    MaskKind::Face => face_parts(params) == face_parts(existing),
                     _ => true,
                 }
         });
@@ -941,6 +957,7 @@ fn generate_mask(
         MaskKind::Foreground => AiMaskModel::Foreground,
         MaskKind::Sky => AiMaskModel::Sky,
         MaskKind::Text => AiMaskModel::Text,
+        MaskKind::Face => AiMaskModel::Face,
         MaskKind::Depth => AiMaskModel::Depth,
         MaskKind::Subject => AiMaskModel::Subject,
     };
@@ -979,6 +996,15 @@ fn generate_mask(
             &cache_key,
             warped_image,
             text_prompt(&original).ok_or("Text prompt missing")?,
+            transform,
+            ai_source,
+        )?),
+        MaskKind::Face => serde_json::to_value(ai_commands::generate_face_mask(
+            &state.ai_state,
+            &models,
+            &cache_key,
+            warped_image,
+            &face_parts(&original),
             transform,
             ai_source,
         )?),

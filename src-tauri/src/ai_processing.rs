@@ -10,7 +10,7 @@ use image::imageops::{self, FilterType};
 use image::{
     DynamicImage, GenericImageView, GrayImage, ImageBuffer, Luma, Rgb32FImage, Rgba, RgbaImage,
 };
-use ndarray::{Array, Array4, IxDyn, s};
+use ndarray::{Array, Array4, ArrayViewD, IxDyn, s};
 use ort::editor::{Graph, Model, Node, ONNX_DOMAIN, Opset, Outlet};
 use ort::execution_providers::{CPUExecutionProvider, ExecutionProviderDispatch};
 use ort::memory::Allocator;
@@ -24,6 +24,8 @@ use tauri::Emitter;
 use tauri::Manager;
 use tokenizers::Tokenizer;
 use tokio::sync::Mutex as TokioMutex;
+
+use crate::face_masking::FaceAnalysis;
 
 const ENCODER_URL: &str = "https://huggingface.co/CyberTimon/RapidRAW-Models/resolve/main/sam_vit_b_01ec64_encoder.onnx?download=true";
 const DECODER_URL: &str = "https://huggingface.co/CyberTimon/RapidRAW-Models/resolve/main/sam_vit_b_01ec64_decoder.onnx?download=true";
@@ -59,17 +61,31 @@ const ESAM3_SKY_PROMPT_URL: &str = "https://huggingface.co/CyberTimon/RapidRAW-M
 const ESAM3_SKY_PROMPT_FILENAME: &str = "efficientsam3_sky_prompt.bin";
 const ESAM3_SKY_PROMPT_SHA256: &str =
     "b8dc43661db640f2e3881466252d154906d90896eb3ed9dbc747bec87a97d180";
+const ESAM3_FACE_PROMPT_URL: &str = "https://huggingface.co/CyberTimon/RapidRAW-Models/resolve/main/efficientsam3_face_prompt.bin?download=true";
+const ESAM3_FACE_PROMPT_FILENAME: &str = "efficientsam3_face_prompt.bin";
+const ESAM3_FACE_PROMPT_SHA256: &str =
+    "8fdbe63ef853756b1da9cdc642c277a6e422452f3feaf35f4297e6aea3a1ffb9";
 const ESAM3_INPUT_SIZE: u32 = 1008;
 const ESAM3_PROMPT_TOKENS: usize = 16;
 const ESAM3_EMBED_DIM: usize = 256;
 const ESAM3_EXEMPLAR_SLOTS: usize = 8;
 pub const ESAM3_SKY_SCORE_THRESHOLD: f32 = 0.6;
 pub const ESAM3_TEXT_SCORE_THRESHOLD: f32 = 0.5;
+pub const ESAM3_FACE_SCORE_THRESHOLD: f32 = 0.3;
 const ESAM3_MASK_LOW: f32 = 0.3;
 const ESAM3_MASK_HIGH: f32 = 0.7;
 const ESAM3_REFINE_SIZE: u32 = 1024;
 const ESAM3_REFINE_RADIUS: usize = 4;
 const ESAM3_REFINE_EPS: f32 = 0.0001;
+
+const FACE_LANDMARKS_URL: &str = "https://huggingface.co/CyberTimon/RapidRAW-Models/resolve/main/mediapipe_face_landmarks.onnx?download=true";
+const FACE_LANDMARKS_FILENAME: &str = "mediapipe_face_landmarks.onnx";
+const FACE_LANDMARKS_SHA256: &str =
+    "6524d596b4d9151b0d8d590844566261f21de5186ac38125bdcd1de6974b0bb4";
+const FACE_SEGMENTER_URL: &str = "https://huggingface.co/CyberTimon/RapidRAW-Models/resolve/main/mediapipe_selfie_multiclass.onnx?download=true";
+const FACE_SEGMENTER_FILENAME: &str = "mediapipe_selfie_multiclass.onnx";
+const FACE_SEGMENTER_SHA256: &str =
+    "a198470a4edec350a33b8182c149e417effc5e61c0506b947f226e7a81b9a08e";
 
 const CLIP_MODEL_URL: &str =
     "https://huggingface.co/CyberTimon/RapidRAW-Models/resolve/main/clip_model.onnx?download=true";
@@ -162,6 +178,24 @@ const ESAM3_SKY_PROMPT_ASSET: ModelAsset = ModelAsset {
     sha256: Some(ESAM3_SKY_PROMPT_SHA256),
     name: "Sky Prompt",
 };
+const ESAM3_FACE_PROMPT_ASSET: ModelAsset = ModelAsset {
+    filename: ESAM3_FACE_PROMPT_FILENAME,
+    url: ESAM3_FACE_PROMPT_URL,
+    sha256: Some(ESAM3_FACE_PROMPT_SHA256),
+    name: "Face Prompt",
+};
+const FACE_LANDMARKS_ASSET: ModelAsset = ModelAsset {
+    filename: FACE_LANDMARKS_FILENAME,
+    url: FACE_LANDMARKS_URL,
+    sha256: Some(FACE_LANDMARKS_SHA256),
+    name: "Face Landmarks Model",
+};
+const FACE_SEGMENTER_ASSET: ModelAsset = ModelAsset {
+    filename: FACE_SEGMENTER_FILENAME,
+    url: FACE_SEGMENTER_URL,
+    sha256: Some(FACE_SEGMENTER_SHA256),
+    name: "Face Segmentation Model",
+};
 const DEPTH_ASSET: ModelAsset = ModelAsset {
     filename: DEPTH_FILENAME,
     url: DEPTH_URL,
@@ -205,6 +239,7 @@ pub enum AiMaskModel {
     Foreground,
     Sky,
     Text,
+    Face,
     Depth,
 }
 
@@ -224,6 +259,13 @@ impl AiMaskModel {
                 ESAM3_DECODER_ASSET,
                 ESAM3_TEXT_ENCODER_ASSET,
                 CLIP_TOKENIZER_ASSET,
+            ],
+            AiMaskModel::Face => &[
+                ESAM3_IMAGE_ENCODER_ASSET,
+                ESAM3_DECODER_ASSET,
+                ESAM3_FACE_PROMPT_ASSET,
+                FACE_LANDMARKS_ASSET,
+                FACE_SEGMENTER_ASSET,
             ],
             AiMaskModel::Depth => &[DEPTH_ASSET],
         }
@@ -252,7 +294,10 @@ pub struct AiModels {
     esam3_decoder: Mutex<Option<SharedSession>>,
     esam3_text_encoder: Mutex<Option<SharedSession>>,
     esam3_sky_prompt: Mutex<Option<Arc<Esam3Prompt>>>,
+    esam3_face_prompt: Mutex<Option<Arc<Esam3Prompt>>>,
     clip_tokenizer: Mutex<Option<Arc<Tokenizer>>>,
+    face_landmarks: Mutex<Option<SharedSession>>,
+    face_segmenter: Mutex<Option<SharedSession>>,
     depth_anything: Mutex<Option<SharedSession>>,
 }
 
@@ -314,19 +359,41 @@ impl AiModels {
         self.session(&self.depth_anything, DEPTH_FILENAME, true)
     }
 
+    pub fn face_landmarks(&self) -> Result<SharedSession> {
+        self.session(&self.face_landmarks, FACE_LANDMARKS_FILENAME, false)
+    }
+
+    pub fn face_segmenter(&self) -> Result<SharedSession> {
+        self.session(&self.face_segmenter, FACE_SEGMENTER_FILENAME, false)
+    }
+
     pub fn esam3_sky_prompt(&self) -> Result<Arc<Esam3Prompt>> {
-        let mut slot = self.esam3_sky_prompt.lock().unwrap();
+        self.stored_prompt(&self.esam3_sky_prompt, ESAM3_SKY_PROMPT_FILENAME)
+    }
+
+    pub fn esam3_face_prompt(&self) -> Result<Arc<Esam3Prompt>> {
+        self.stored_prompt(&self.esam3_face_prompt, ESAM3_FACE_PROMPT_FILENAME)
+    }
+
+    fn stored_prompt(
+        &self,
+        slot: &Mutex<Option<Arc<Esam3Prompt>>>,
+        filename: &str,
+    ) -> Result<Arc<Esam3Prompt>> {
+        let mut slot = slot.lock().unwrap();
         if let Some(prompt) = slot.as_ref() {
             return Ok(Arc::clone(prompt));
         }
-        let bytes = fs::read(self.models_dir.join(ESAM3_SKY_PROMPT_FILENAME))?;
+        let bytes = fs::read(self.models_dir.join(filename))?;
         let values: Vec<f32> = bytes
-            .chunks_exact(4)
-            .map(|chunk| f32::from_le_bytes([chunk[0], chunk[1], chunk[2], chunk[3]]))
+            .as_chunks::<4>()
+            .0
+            .iter()
+            .map(|&chunk| f32::from_le_bytes(chunk))
             .collect();
         let feature_len = ESAM3_PROMPT_TOKENS * ESAM3_EMBED_DIM;
         if values.len() != feature_len + ESAM3_PROMPT_TOKENS {
-            return Err(anyhow::anyhow!("Invalid sky prompt embedding"));
+            return Err(anyhow::anyhow!("Invalid prompt embedding {}", filename));
         }
         let prompt = Arc::new(Esam3Prompt {
             features: Array::from_shape_vec(
@@ -579,6 +646,7 @@ pub struct AiState {
     pub normal_model: Option<Arc<Mutex<Session>>>,
     pub embeddings: Option<ImageEmbeddings>,
     pub esam3_features: Option<Arc<Esam3Features>>,
+    pub face_analysis: Option<Arc<FaceAnalysis>>,
     pub depth_map: Option<CachedDepthMap>,
 }
 
@@ -966,7 +1034,10 @@ pub async fn get_or_init_ai_models(
                 esam3_decoder: Mutex::new(None),
                 esam3_text_encoder: Mutex::new(None),
                 esam3_sky_prompt: Mutex::new(None),
+                esam3_face_prompt: Mutex::new(None),
                 clip_tokenizer: Mutex::new(None),
+                face_landmarks: Mutex::new(None),
+                face_segmenter: Mutex::new(None),
                 depth_anything: Mutex::new(None),
             });
             ai_state_mutex
@@ -1792,6 +1863,71 @@ pub fn run_esam3_image_encoder(
     })
 }
 
+fn run_esam3_queries<T>(
+    decoder_session: &Mutex<Session>,
+    features: &Esam3Features,
+    prompt: &Esam3Prompt,
+    read: impl FnOnce(Vec<f32>, ArrayViewD<f32>, ArrayViewD<f32>) -> T,
+) -> Result<T> {
+    let exemplar_boxes = Array::<f32, _>::zeros((ESAM3_EXEMPLAR_SLOTS, 1, 4));
+    let exemplar_labels = Array::<i64, _>::zeros((ESAM3_EXEMPLAR_SLOTS, 1));
+    let exemplar_mask = Array::<f32, _>::ones((1, ESAM3_EXEMPLAR_SLOTS));
+
+    let mut session = decoder_session.lock().unwrap();
+    let outputs = gpu_inference(session.run(ort::inputs![
+        "fpn_0" => TensorRef::from_array_view(&features.fpn[0])?,
+        "fpn_1" => TensorRef::from_array_view(&features.fpn[1])?,
+        "fpn_2" => TensorRef::from_array_view(&features.fpn[2])?,
+        "pos_2" => TensorRef::from_array_view(&features.pos)?,
+        "language_features" => TensorRef::from_array_view(&prompt.features)?,
+        "language_padding" => TensorRef::from_array_view(&prompt.padding)?,
+        "exemplar_boxes" => Tensor::from_array(exemplar_boxes)?,
+        "exemplar_labels" => Tensor::from_array(exemplar_labels)?,
+        "exemplar_mask" => Tensor::from_array(exemplar_mask)?,
+    ]))?;
+
+    let presence = outputs["presence_logit"]
+        .try_extract_array::<f32>()?
+        .iter()
+        .next()
+        .map_or(0.0, |&v| sigmoid(v));
+    let scores = outputs["pred_logits"]
+        .try_extract_array::<f32>()?
+        .iter()
+        .map(|&logit| sigmoid(logit) * presence)
+        .collect();
+    Ok(read(
+        scores,
+        outputs["pred_boxes"].try_extract_array::<f32>()?,
+        outputs["pred_masks"].try_extract_array::<f32>()?,
+    ))
+}
+
+pub fn run_esam3_boxes(
+    decoder_session: &Mutex<Session>,
+    features: &Esam3Features,
+    prompt: &Esam3Prompt,
+    score_threshold: f32,
+) -> Result<Vec<(f32, [f32; 4])>> {
+    let mut detections =
+        run_esam3_queries(decoder_session, features, prompt, |scores, boxes, _| {
+            scores
+                .iter()
+                .enumerate()
+                .filter(|&(_, &score)| score > score_threshold)
+                .map(|(query, &score)| {
+                    let [cx, cy, w, h]: [f32; 4] = std::array::from_fn(|i| boxes[[0, query, i]]);
+                    (
+                        score,
+                        [cx - w / 2.0, cy - h / 2.0, cx + w / 2.0, cy + h / 2.0],
+                    )
+                })
+                .collect::<Vec<_>>()
+        })?;
+    detections.sort_by(|a, b| b.0.total_cmp(&a.0));
+    Ok(detections)
+}
+
 pub fn run_esam3_decoder(
     decoder_session: &Mutex<Session>,
     features: &Esam3Features,
@@ -1799,46 +1935,22 @@ pub fn run_esam3_decoder(
     image: &DynamicImage,
     score_threshold: f32,
 ) -> Result<Option<GrayImage>> {
-    let exemplar_boxes = Array::<f32, _>::zeros((ESAM3_EXEMPLAR_SLOTS, 1, 4));
-    let exemplar_labels = Array::<i64, _>::zeros((ESAM3_EXEMPLAR_SLOTS, 1));
-    let exemplar_mask = Array::<f32, _>::ones((1, ESAM3_EXEMPLAR_SLOTS));
-
-    let (coarse_mask, mask_w, mask_h) = {
-        let mut session = decoder_session.lock().unwrap();
-        let outputs = gpu_inference(session.run(ort::inputs![
-            "fpn_0" => TensorRef::from_array_view(&features.fpn[0])?,
-            "fpn_1" => TensorRef::from_array_view(&features.fpn[1])?,
-            "fpn_2" => TensorRef::from_array_view(&features.fpn[2])?,
-            "pos_2" => TensorRef::from_array_view(&features.pos)?,
-            "language_features" => TensorRef::from_array_view(&prompt.features)?,
-            "language_padding" => TensorRef::from_array_view(&prompt.padding)?,
-            "exemplar_boxes" => Tensor::from_array(exemplar_boxes)?,
-            "exemplar_labels" => Tensor::from_array(exemplar_labels)?,
-            "exemplar_mask" => Tensor::from_array(exemplar_mask)?,
-        ]))?;
-
-        let logits = outputs["pred_logits"].try_extract_array::<f32>()?;
-        let presence = outputs["presence_logit"]
-            .try_extract_array::<f32>()?
-            .iter()
-            .next()
-            .map_or(0.0, |&v| sigmoid(v));
-        let masks = outputs["pred_masks"].try_extract_array::<f32>()?;
-        let (mask_h, mask_w) = (masks.shape()[2], masks.shape()[3]);
-
-        let mut coarse_mask: Option<Vec<f32>> = None;
-        for (query, &logit) in logits.iter().enumerate() {
-            if sigmoid(logit) * presence <= score_threshold {
-                continue;
+    let (coarse_mask, mask_w, mask_h) =
+        run_esam3_queries(decoder_session, features, prompt, |scores, _, masks| {
+            let (mask_h, mask_w) = (masks.shape()[2], masks.shape()[3]);
+            let mut coarse_mask: Option<Vec<f32>> = None;
+            for (query, &score) in scores.iter().enumerate() {
+                if score <= score_threshold {
+                    continue;
+                }
+                let combined = coarse_mask.get_or_insert_with(|| vec![0.0; mask_h * mask_w]);
+                let query_mask = masks.slice(s![0, query, .., ..]);
+                for (out, &value) in combined.iter_mut().zip(query_mask.iter()) {
+                    *out = out.max(sigmoid(value));
+                }
             }
-            let combined = coarse_mask.get_or_insert_with(|| vec![0.0; mask_h * mask_w]);
-            let query_mask = masks.slice(s![0, query, .., ..]);
-            for (out, &value) in combined.iter_mut().zip(query_mask.iter()) {
-                *out = out.max(sigmoid(value));
-            }
-        }
-        (coarse_mask, mask_w, mask_h)
-    };
+            (coarse_mask, mask_w, mask_h)
+        })?;
 
     let Some(coarse_mask) = coarse_mask else {
         return Ok(None);
@@ -2159,6 +2271,25 @@ pub struct AiSkyMaskParameters {
 pub struct AiTextMaskParameters {
     #[serde(default)]
     pub prompt: String,
+    #[serde(default)]
+    pub mask_data_base64: Option<String>,
+    #[serde(default)]
+    pub rotation: Option<f32>,
+    #[serde(default)]
+    pub flip_horizontal: Option<bool>,
+    #[serde(default)]
+    pub flip_vertical: Option<bool>,
+    #[serde(default)]
+    pub orientation_steps: Option<u8>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub ai_source: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct AiFaceMaskParameters {
+    #[serde(default)]
+    pub parts: Vec<String>,
     #[serde(default)]
     pub mask_data_base64: Option<String>,
     #[serde(default)]

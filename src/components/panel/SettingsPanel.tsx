@@ -1970,6 +1970,17 @@ export default function SettingsPanel({
                       </li>
                       <li>
                         <a
+                          href="https://github.com/google-ai-edge/mediapipe"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="font-semibold text-accent hover:underline"
+                        >
+                          MediaPipe
+                        </a>
+                        : {t('settings.thanks.list.mediapipe')}
+                      </li>
+                      <li>
+                        <a
                           href="https://github.com/DepthAnything/Depth-Anything-V2"
                           target="_blank"
                           rel="noopener noreferrer"

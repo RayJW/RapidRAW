@@ -16,6 +16,7 @@ import {
   Spline,
   MopSparkles,
   TextSearch,
+  ScanFace,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
@@ -29,6 +30,7 @@ export enum Mask {
   AiSky = 'ai-sky',
   AiSubject = 'ai-subject',
   AiText = 'ai-text',
+  AiFace = 'ai-face',
   All = 'all',
   Brush = 'brush',
   Flow = 'flow',
@@ -82,6 +84,7 @@ export function formatMaskTypeName(type: string) {
   if (type === Mask.AiForeground) return i18n.t('masks.types.foreground');
   if (type === Mask.AiSky) return i18n.t('masks.types.sky');
   if (type === Mask.AiText) return i18n.t('masks.types.text');
+  if (type === Mask.AiFace) return i18n.t('masks.types.face');
   if (type === Mask.All) return i18n.t('masks.types.all');
   if (type === Mask.QuickEraser) return i18n.t('masks.types.quickEraser');
   if (type === Mask.Brush) return i18n.t('masks.types.brush');
@@ -120,6 +123,7 @@ export const MASK_ICON_MAP: Record<Mask, any> = {
   [Mask.AiSky]: Cloud,
   [Mask.AiSubject]: SquareMousePointer,
   [Mask.AiText]: TextSearch,
+  [Mask.AiFace]: ScanFace,
   [Mask.All]: RectangleHorizontal,
   [Mask.Brush]: Brush,
   [Mask.Flow]: Droplets,
@@ -140,7 +144,21 @@ export const MASK_AI_TYPES: Array<MaskType> = [
   { disabled: false, icon: User, name: 'Foreground', type: Mask.AiForeground },
   { disabled: false, icon: BringToFront, name: 'Depth', type: Mask.AiDepth },
   { disabled: false, icon: TextSearch, name: 'Text', type: Mask.AiText },
+  { disabled: false, icon: ScanFace, name: 'Face', type: Mask.AiFace },
 ];
+
+export const FACE_PARTS = [
+  'faceSkin',
+  'bodySkin',
+  'eyebrows',
+  'eyeWhites',
+  'iris',
+  'lips',
+  'teeth',
+  'nose',
+  'hair',
+] as const;
+export type FacePart = (typeof FACE_PARTS)[number];
 
 export const MASK_BASIC_TYPES: Array<MaskType> = [
   { disabled: false, icon: Brush, name: 'Brush', type: Mask.Brush },

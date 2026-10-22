@@ -8,16 +8,18 @@ use image::{DynamicImage, GenericImageView, GrayImage, ImageFormat};
 
 use crate::ai_connector;
 use crate::ai_processing::{
-    AiDepthMaskParameters, AiForegroundMaskParameters, AiMaskModel, AiModels, AiSkyMaskParameters,
-    AiState, AiSubjectMaskParameters, AiTextMaskParameters, CachedDepthMap,
-    ESAM3_SKY_SCORE_THRESHOLD, ESAM3_TEXT_SCORE_THRESHOLD, Esam3Features, ImageEmbeddings,
-    generate_image_embeddings, get_or_init_ai_models, run_birefnet_model, run_depth_anything_model,
-    run_esam3_decoder, run_esam3_image_encoder, run_sam_decoder,
+    AiDepthMaskParameters, AiFaceMaskParameters, AiForegroundMaskParameters, AiMaskModel, AiModels,
+    AiSkyMaskParameters, AiState, AiSubjectMaskParameters, AiTextMaskParameters, CachedDepthMap,
+    ESAM3_FACE_SCORE_THRESHOLD, ESAM3_SKY_SCORE_THRESHOLD, ESAM3_TEXT_SCORE_THRESHOLD,
+    Esam3Features, ImageEmbeddings, generate_image_embeddings, get_or_init_ai_models,
+    run_birefnet_model, run_depth_anything_model, run_esam3_boxes, run_esam3_decoder,
+    run_esam3_image_encoder, run_sam_decoder,
 };
 use crate::app_settings::load_settings;
 use crate::app_state::{AiTaskGuard, AppState};
 use crate::cache_utils::GEOMETRY_KEYS;
 use crate::effect_maps::EffectMapKind;
+use crate::face_masking::{FaceAnalysis, FacePart, analyze_faces, compose_face_mask};
 use crate::get_cached_full_warped_image;
 
 #[tauri::command]
@@ -198,6 +200,76 @@ pub fn generate_text_mask(
 
     Ok(AiTextMaskParameters {
         prompt: prompt.to_string(),
+        mask_data_base64: Some(encode_to_base64_png(&mask)?),
+        rotation: Some(transform.rotation),
+        flip_horizontal: Some(transform.flip_horizontal),
+        flip_vertical: Some(transform.flip_vertical),
+        orientation_steps: Some(transform.orientation_steps),
+        ai_source,
+    })
+}
+
+fn cached_face_analysis(
+    ai_state: &Mutex<Option<AiState>>,
+    models: &AiModels,
+    cache_key: &str,
+    warped_image: &DynamicImage,
+    transform: MaskTransform,
+) -> Result<Arc<FaceAnalysis>, String> {
+    if let Some(cached) = ai_state
+        .lock()
+        .unwrap()
+        .as_ref()
+        .and_then(|s| s.face_analysis.clone())
+        .filter(|cached| cached.path_hash == cache_key)
+    {
+        return Ok(cached);
+    }
+
+    let features = cached_esam3_features(ai_state, models, cache_key, warped_image)?;
+    let detections = run_esam3_boxes(
+        &*models.esam3_decoder().map_err(|e| e.to_string())?,
+        &features,
+        &*models.esam3_face_prompt().map_err(|e| e.to_string())?,
+        ESAM3_FACE_SCORE_THRESHOLD,
+    )
+    .map_err(|e| e.to_string())?;
+    let analysis = Arc::new(
+        analyze_faces(
+            warped_image,
+            &detections,
+            &*models.face_landmarks().map_err(|e| e.to_string())?,
+            &*models.face_segmenter().map_err(|e| e.to_string())?,
+            -(transform.orientation_steps as f32) * std::f32::consts::FRAC_PI_2,
+            cache_key.to_string(),
+        )
+        .map_err(|e| e.to_string())?,
+    );
+
+    if let Some(state) = ai_state.lock().unwrap().as_mut() {
+        state.face_analysis = Some(analysis.clone());
+    }
+    Ok(analysis)
+}
+
+pub fn generate_face_mask(
+    ai_state: &Mutex<Option<AiState>>,
+    models: &AiModels,
+    cache_key: &str,
+    warped_image: &DynamicImage,
+    parts: &[String],
+    transform: MaskTransform,
+    ai_source: Option<String>,
+) -> Result<AiFaceMaskParameters, String> {
+    let analysis = cached_face_analysis(ai_state, models, cache_key, warped_image, transform)?;
+    if analysis.faces.is_empty() {
+        return Err("No faces found".to_string());
+    }
+    let face_parts: Vec<FacePart> = parts.iter().filter_map(|p| FacePart::from_id(p)).collect();
+    let mask = compose_face_mask(warped_image, &analysis, &face_parts);
+
+    Ok(AiFaceMaskParameters {
+        parts: parts.to_vec(),
         mask_data_base64: Some(encode_to_base64_png(&mask)?),
         rotation: Some(transform.rotation),
         flip_horizontal: Some(transform.flip_horizontal),
@@ -538,6 +610,55 @@ pub async fn generate_ai_text_mask(
         &ai_cache_key(&path, &js_adjustments),
         &warped_image,
         &prompt,
+        transform,
+        loaded_source_id(&state),
+    )?;
+    check_cancelled(&guard)?;
+    Ok(params)
+}
+
+#[allow(clippy::too_many_arguments)]
+#[tauri::command]
+pub async fn generate_ai_face_mask(
+    js_adjustments: serde_json::Value,
+    path: String,
+    parts: Vec<String>,
+    rotation: f32,
+    flip_horizontal: bool,
+    flip_vertical: bool,
+    orientation_steps: u8,
+    task_id: Option<String>,
+    state: tauri::State<'_, AppState>,
+    app_handle: tauri::AppHandle,
+) -> Result<AiFaceMaskParameters, String> {
+    let guard = task_id.map(|id| AiTaskGuard::new(&state.active_ai_tasks, id));
+    check_cancelled(&guard)?;
+
+    let models = get_or_init_ai_models(
+        &app_handle,
+        &state.ai_state,
+        &state.ai_init_lock,
+        AiMaskModel::Face,
+    )
+    .await
+    .map_err(|e| e.to_string())?;
+    check_cancelled(&guard)?;
+
+    let warped_image = get_cached_full_warped_image(&state, &js_adjustments)?;
+    check_cancelled(&guard)?;
+
+    let transform = MaskTransform {
+        rotation,
+        flip_horizontal,
+        flip_vertical,
+        orientation_steps,
+    };
+    let params = generate_face_mask(
+        &state.ai_state,
+        &models,
+        &ai_cache_key(&path, &js_adjustments),
+        &warped_image,
+        &parts,
         transform,
         loaded_source_id(&state),
     )?;
