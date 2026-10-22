@@ -475,7 +475,11 @@ fn high_performance_dml_device_id() -> Option<i32> {
         let luid = preferred.GetDesc1().ok()?.AdapterLuid;
         (0..)
             .map_while(|i| factory.EnumAdapters1(i).ok())
-            .position(|adapter| adapter.GetDesc1().is_ok_and(|desc| desc.AdapterLuid == luid))
+            .position(|adapter| {
+                adapter
+                    .GetDesc1()
+                    .is_ok_and(|desc| desc.AdapterLuid == luid)
+            })
             .map(|index| index as i32)
     }
 }
