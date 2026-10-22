@@ -32,10 +32,10 @@ mod apple_raw;
 mod as_shot;
 mod auto_straighten;
 mod baseline_exposure;
+mod bm3d;
 mod cache_utils;
 mod camera_tethering;
 mod culling;
-mod denoising;
 mod effect_maps;
 mod exif_processing;
 mod export_processing;
@@ -2392,7 +2392,6 @@ pub fn run() {
             hdr_result: Arc::new(Mutex::new(None)),
             panorama_result: Arc::new(Mutex::new(None)),
             focus_stack_result: Arc::new(Mutex::new(None)),
-            denoise_result: Arc::new(Mutex::new(None)),
             indexing_task_handle: Mutex::new(None),
             lut_cache: Mutex::new(HashMap::new()),
             initial_file_path: Mutex::new(None),
@@ -2472,14 +2471,10 @@ pub fn run() {
             ai_jobs::queue_ai_jobs,
             ai_jobs::retry_failed_ai_jobs,
             ai_commands::cancel_ai_task,
-            apple_raw::is_raw9_available,
             inpainting::invoke_generative_replace_with_mask_def,
             inpainting::generate_manual_cleanup_patch,
             inpainting::generate_liquify_patch,
             inpainting::generate_retouch_patch,
-            denoising::apply_denoising,
-            denoising::batch_denoise_images,
-            denoising::save_denoised_image,
             focus_stacking::stitch_focus_stack,
             focus_stacking::save_focus_stack,
             image_loader::load_image,

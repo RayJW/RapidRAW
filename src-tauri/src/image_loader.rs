@@ -138,11 +138,7 @@ pub fn load_base_image_from_bytes(
             return Err(anyhow!("Load cancelled"));
         }
 
-        match crate::apple_raw::develop_raw9(
-            bytes,
-            path_for_ext_check,
-            &crate::apple_raw::Raw9Options::for_loading(),
-        ) {
+        match crate::apple_raw::develop_raw9(bytes, path_for_ext_check) {
             Ok(image) => return Ok(image),
             Err(e) => log::warn!(
                 "Apple RAW 9 unavailable for '{}', falling back to rawler: {}",
@@ -919,10 +915,6 @@ pub async fn load_image(
             .unwrap_or_else(|e| e.into_inner())
             .clear();
 
-        *state
-            .denoise_result
-            .lock()
-            .unwrap_or_else(|e| e.into_inner()) = None;
         *state.hdr_result.lock().unwrap_or_else(|e| e.into_inner()) = None;
         *state
             .panorama_result

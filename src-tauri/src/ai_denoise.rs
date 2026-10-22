@@ -15,6 +15,8 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use tauri::{Emitter, Manager};
 
 const MODEL_TAG: &str = "nind-v3";
+const BM3D_TAG: &str = "bm3d-v1";
+const BM3D_INTENSITY: f32 = 0.15;
 const FILE_MAGIC: &[u8; 8] = b"RRDN0002";
 const DISK_CACHE_LIMIT_BYTES: u64 = 4 * 1024 * 1024 * 1024;
 const MEMORY_CACHE_CAPACITY: usize = 2;
@@ -53,6 +55,32 @@ pub fn is_enabled(adjustments: &serde_json::Value) -> bool {
     crate::image_processing::is_effect_enabled(adjustments, "noiseReduction", "aiDenoiseEnabled")
 }
 
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub enum DenoiseMethod {
+    Nind,
+    Bm3d,
+}
+
+impl DenoiseMethod {
+    const ALL: [Self; 2] = [Self::Nind, Self::Bm3d];
+
+    pub fn from_adjustments(adjustments: &serde_json::Value) -> Self {
+        match adjustments["aiDenoiseMethod"].as_str() {
+            Some("bm3d") => Self::Bm3d,
+            _ => Self::Nind,
+        }
+    }
+
+    fn tag(self) -> &'static str {
+        match self {
+            Self::Nind => MODEL_TAG,
+            Self::Bm3d => BM3D_TAG,
+        }
+    }
+}
+
+type Session = Arc<Mutex<ort::session::Session>>;
+
 pub fn cache_epoch() -> u64 {
     cache().epoch
 }
@@ -78,9 +106,9 @@ fn source_string(path: &str) -> String {
     parse_virtual_path(path).0.to_string_lossy().to_string()
 }
 
-fn entry_key(source: &str) -> String {
+fn entry_key(source: &str, method: DenoiseMethod) -> String {
     let mut hasher = blake3::Hasher::new();
-    hasher.update(MODEL_TAG.as_bytes());
+    hasher.update(method.tag().as_bytes());
     hasher.update(source.as_bytes());
     if let Ok(meta) = fs::metadata(source) {
         hasher.update(&meta.len().to_le_bytes());
@@ -271,7 +299,8 @@ pub fn apply_ai_denoise<'a>(
     }
 
     let source = source_string(path);
-    let Some(entry) = load_entry(&entry_key(&source), &source) else {
+    let method = DenoiseMethod::from_adjustments(adjustments);
+    let Some(entry) = load_entry(&entry_key(&source, method), &source) else {
         return Cow::Borrowed(base);
     };
 
@@ -370,15 +399,18 @@ fn restore_low_frequencies(denoised: &mut Rgb32FImage, source: &Rgb32FImage) {
         });
 }
 
-fn run_model(
+fn run_denoiser(
     base: &DynamicImage,
-    session: &Mutex<ort::session::Session>,
-    on_progress: &dyn Fn(f32),
+    session: Option<&Session>,
+    on_progress: &(dyn Fn(f32) + Sync),
 ) -> Result<Rgb32FImage, String> {
     let source = base.to_rgb32f();
-    let mut output = crate::ai_processing::run_ai_denoise(&source, 0.5, session, on_progress)
-        .map_err(|e| e.to_string())?
-        .into_rgb32f();
+    let mut output = match session {
+        Some(session) => crate::ai_processing::run_ai_denoise(&source, session, on_progress)
+            .map_err(|e| e.to_string())?
+            .into_rgb32f(),
+        None => crate::bm3d::denoise(&source, BM3D_INTENSITY, on_progress),
+    };
 
     output
         .par_iter_mut()
@@ -391,13 +423,13 @@ fn run_model(
 
 fn denoise_into_cache(
     base: &DynamicImage,
-    session: &Mutex<ort::session::Session>,
+    session: Option<&Session>,
     key: String,
     source: String,
     fingerprint: u64,
-    on_progress: &dyn Fn(f32),
+    on_progress: &(dyn Fn(f32) + Sync),
 ) -> Result<(), String> {
-    let image = run_model(base, session, on_progress)?;
+    let image = run_denoiser(base, session, on_progress)?;
 
     let (width, height) = image.dimensions();
     let mut data = vec![f16::ZERO; image.as_raw().len()];
@@ -424,28 +456,41 @@ fn denoise_into_cache(
     Ok(())
 }
 
-async fn generate(
+async fn load_session(
     app_handle: &tauri::AppHandle,
-    loaded_image: LoadedImage,
-    key: String,
-    source: String,
-    fingerprint: u64,
-) -> Result<(), String> {
+    method: DenoiseMethod,
+) -> Result<Option<Session>, String> {
+    if method != DenoiseMethod::Nind {
+        return Ok(None);
+    }
     let state = app_handle.state::<AppState>();
-    let session = crate::ai_processing::get_or_init_denoise_model(
+    crate::ai_processing::get_or_init_denoise_model(
         app_handle,
         &state.ai_state,
         &state.ai_init_lock,
     )
     .await
-    .map_err(|e| e.to_string())?;
+    .map(Some)
+    .map_err(|e| e.to_string())
+}
+
+async fn generate(
+    app_handle: &tauri::AppHandle,
+    loaded_image: LoadedImage,
+    method: DenoiseMethod,
+    key: String,
+    source: String,
+    fingerprint: u64,
+) -> Result<(), String> {
+    let state = app_handle.state::<AppState>();
+    let session = load_session(app_handle, method).await?;
 
     let progress_handle = app_handle.clone();
     let loaded_path = loaded_image.path.clone();
     tokio::task::spawn_blocking(move || {
         denoise_into_cache(
             &loaded_image.image,
-            &session,
+            session.as_ref(),
             key,
             source,
             fingerprint,
@@ -494,7 +539,8 @@ pub fn ensure_generated(
     }
 
     let source = source_string(&loaded_image.path);
-    let key = entry_key(&source);
+    let method = DenoiseMethod::from_adjustments(adjustments);
+    let key = entry_key(&source, method);
     if cache().pending.contains(&key)
         || is_ready(&key, &source, base_fingerprints(&loaded_image.image))
         || !cache().pending.insert(key.clone())
@@ -512,7 +558,15 @@ pub fn ensure_generated(
     );
 
     tauri::async_runtime::spawn(async move {
-        let result = generate(&app_handle, loaded_image, key.clone(), source, fingerprint).await;
+        let result = generate(
+            &app_handle,
+            loaded_image,
+            method,
+            key.clone(),
+            source,
+            fingerprint,
+        )
+        .await;
         cache().pending.remove(&key);
         crate::ai_jobs::release_deferred(&path);
         match result {
@@ -530,24 +584,28 @@ pub fn ensure_generated(
     });
 }
 
-pub fn has_cached_entry(path: &str) -> bool {
+pub fn has_cached_entry(path: &str, method: DenoiseMethod) -> bool {
     let source = source_string(path);
-    let key = entry_key(&source);
+    let key = entry_key(&source, method);
     cache().get(&key).is_some_and(|e| e.source == source)
         || read_disk_header(&key).is_some_and(|h| h.source == source)
 }
 
 pub fn is_generating(path: &str) -> bool {
-    cache().pending.contains(&entry_key(&source_string(path)))
+    let source = source_string(path);
+    DenoiseMethod::ALL
+        .iter()
+        .any(|&method| cache().pending.contains(&entry_key(&source, method)))
 }
 
 pub fn generate_for_base(
     app_handle: &tauri::AppHandle,
     path: &str,
     base: &DynamicImage,
+    method: DenoiseMethod,
 ) -> Result<bool, String> {
     let source = source_string(path);
-    let key = entry_key(&source);
+    let key = entry_key(&source, method);
     if !cache().pending.insert(key.clone()) {
         return Ok(false);
     }
@@ -562,28 +620,22 @@ pub fn generate_for_base(
         "ai-denoise-progress",
         serde_json::json!({ "path": path, "progress": 0.0 }),
     );
-    let state = app_handle.state::<AppState>();
-    let result = tauri::async_runtime::block_on(crate::ai_processing::get_or_init_denoise_model(
-        app_handle,
-        &state.ai_state,
-        &state.ai_init_lock,
-    ))
-    .map_err(|e| e.to_string())
-    .and_then(|session| {
-        denoise_into_cache(
-            base,
-            &session,
-            key.clone(),
-            source,
-            fingerprints[0],
-            &|progress| {
-                let _ = app_handle.emit(
-                    "ai-denoise-progress",
-                    serde_json::json!({ "path": path, "progress": progress }),
-                );
-            },
-        )
-    });
+    let result =
+        tauri::async_runtime::block_on(load_session(app_handle, method)).and_then(|session| {
+            denoise_into_cache(
+                base,
+                session.as_ref(),
+                key.clone(),
+                source,
+                fingerprints[0],
+                &|progress| {
+                    let _ = app_handle.emit(
+                        "ai-denoise-progress",
+                        serde_json::json!({ "path": path, "progress": progress }),
+                    );
+                },
+            )
+        });
 
     cache().pending.remove(&key);
     match &result {

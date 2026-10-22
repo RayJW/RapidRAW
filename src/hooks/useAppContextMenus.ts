@@ -67,7 +67,13 @@ import {
   Album,
   AlbumGroup,
 } from '../components/ui/AppProperties';
-import { AutoAdjustMode, Color, COLOR_LABELS, INITIAL_ADJUSTMENTS } from '../utils/adjustments';
+import {
+  AutoAdjustMode,
+  Color,
+  COLOR_LABELS,
+  getAiDenoiseEnablePatch,
+  INITIAL_ADJUSTMENTS,
+} from '../utils/adjustments';
 import TaggingSubMenu from '../context/TaggingSubMenu';
 import { buildAutoAdjustModeOptions, reloadAdjustmentsForPaths, useEditorActions } from './useEditorActions';
 import { useLibraryActions } from './useLibraryActions';
@@ -112,7 +118,7 @@ export function useAppContextMenus(latestProps: UseAppContextMenusProps) {
     handleAutoLensCorrection,
     handleAutoStraighten,
     handleAutoStraightenPaths,
-    handleConvertNegatives,
+    handleEnableAdjustments,
     handleResetAdjustments,
     handleCopyAdjustments,
     handlePasteAdjustments,
@@ -277,24 +283,17 @@ export function useAppContextMenus(latestProps: UseAppContextMenusProps) {
             {
               label: t('contextMenus.editor.denoise'),
               icon: Grip,
-              onClick: () => {
-                setUI({
-                  denoiseModalState: {
-                    isOpen: true,
-                    isProcessing: false,
-                    previewBase64: null,
-                    error: null,
-                    targetPaths: [selectedImage.path],
-                    progressMessage: null,
-                    isRaw: selectedImage?.isRaw || false,
-                  },
-                });
-              },
+              onClick: () =>
+                handleEnableAdjustments(
+                  [selectedImage.path],
+                  getAiDenoiseEnablePatch(useSettingsStore.getState().appSettings?.aiProvider),
+                ),
+              disabled: !selectedImage?.isReady,
             },
             {
               label: t('contextMenus.editor.convertNegative'),
               icon: Film,
-              onClick: () => handleConvertNegatives([selectedImage.path]),
+              onClick: () => handleEnableAdjustments([selectedImage.path], { negativeConversionEnabled: true }),
               disabled: !selectedImage?.isReady,
             },
             {
@@ -629,25 +628,17 @@ export function useAppContextMenus(latestProps: UseAppContextMenusProps) {
               label: denoiseLabel,
               icon: Grip,
               disabled: finalSelection.length === 0,
-              onClick: () => {
-                setUI({
-                  denoiseModalState: {
-                    isOpen: true,
-                    isProcessing: false,
-                    previewBase64: null,
-                    error: null,
-                    targetPaths: finalSelection,
-                    progressMessage: null,
-                    isRaw: selectedImage?.isRaw || false,
-                  },
-                });
-              },
+              onClick: () =>
+                handleEnableAdjustments(
+                  finalSelection,
+                  getAiDenoiseEnablePatch(useSettingsStore.getState().appSettings?.aiProvider),
+                ),
             },
             {
               label: conversionLabel,
               icon: Film,
               disabled: selectionCount === 0,
-              onClick: () => handleConvertNegatives(finalSelection),
+              onClick: () => handleEnableAdjustments(finalSelection, { negativeConversionEnabled: true }),
             },
             {
               icon: LayoutTemplate,

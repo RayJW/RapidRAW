@@ -1229,32 +1229,11 @@ struct TileParams {
     overlap: usize,
 }
 
-const TILE_FASTER: TileParams = TileParams {
-    cs: 504,
-    margin: 8,
-    overlap: 32,
-};
-const TILE_BALANCED: TileParams = TileParams {
+const DENOISE_TILE: TileParams = TileParams {
     cs: 504,
     margin: 12,
     overlap: 64,
 };
-const TILE_HIGHER_QUALITY: TileParams = TileParams {
-    cs: 504,
-    margin: 16,
-    overlap: 128,
-};
-
-fn select_tile_params(quality_0_1: f32) -> TileParams {
-    let q = quality_0_1.clamp(0.0, 1.0);
-    if q <= 0.25 {
-        TILE_FASTER
-    } else if q >= 0.75 {
-        TILE_HIGHER_QUALITY
-    } else {
-        TILE_BALANCED
-    }
-}
 
 #[inline]
 fn mirror_coord(c: i32, size: i32) -> i32 {
@@ -1381,12 +1360,10 @@ fn run_native_denoise(
 
 pub fn run_ai_denoise(
     rgb_img: &Rgb32FImage,
-    intensity: f32,
     session: &Mutex<Session>,
     on_progress: &dyn Fn(f32),
 ) -> Result<DynamicImage> {
-    let params = select_tile_params(intensity);
-    let out = run_native_denoise(rgb_img, session, params, on_progress)?;
+    let out = run_native_denoise(rgb_img, session, DENOISE_TILE, on_progress)?;
     Ok(DynamicImage::ImageRgb32F(out))
 }
 

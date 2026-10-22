@@ -432,9 +432,6 @@ function App() {
     handleSavePanorama,
     handleStartHdr,
     handleSaveHdr,
-    handleApplyDenoise,
-    handleBatchDenoise,
-    handleSaveDenoisedImage,
     handleSaveCollage,
     handleStartFocusStack,
     handleSaveFocusStack,
@@ -1031,9 +1028,6 @@ function App() {
           handleSaveFocusStack={handleSaveFocusStack}
           handleSaveHdr={handleSaveHdr}
           handleStartHdr={handleStartHdr}
-          handleApplyDenoise={handleApplyDenoise}
-          handleBatchDenoise={handleBatchDenoise}
-          handleSaveDenoisedImage={handleSaveDenoisedImage}
           handleCreateFolder={handleCreateFolder}
           handleRenameFolder={handleRenameFolder}
           handleSaveRename={handleSaveRename}

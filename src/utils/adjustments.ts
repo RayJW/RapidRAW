@@ -69,10 +69,21 @@ export enum ColorGrading {
   Shadows = 'shadows',
 }
 
+export enum DenoiseMethod {
+  Ai = 'ai',
+  Bm3d = 'bm3d',
+}
+
+export const getAiDenoiseEnablePatch = (aiProvider?: string): Partial<Adjustments> => ({
+  aiDenoiseEnabled: true,
+  aiDenoiseMethod: aiProvider === 'ai-free' ? DenoiseMethod.Bm3d : DenoiseMethod.Ai,
+});
+
 export enum DetailsAdjustment {
   AiDenoiseAmount = 'aiDenoiseAmount',
   AiDenoiseDetail = 'aiDenoiseDetail',
   AiDenoiseEnabled = 'aiDenoiseEnabled',
+  AiDenoiseMethod = 'aiDenoiseMethod',
   Clarity = 'clarity',
   Dehaze = 'dehaze',
   Structure = 'structure',
@@ -265,6 +276,7 @@ export interface Adjustments {
   aiDenoiseAmount: number;
   aiDenoiseDetail: number;
   aiDenoiseEnabled: boolean;
+  aiDenoiseMethod: DenoiseMethod;
   aiPatches: Array<AiPatch>;
   aspectRatio: number | null;
   baselineExposure: boolean;
@@ -848,7 +860,12 @@ export const ADJUSTMENT_GROUPS: Record<string, AdjustmentGroup[]> = {
     },
     {
       label: 'modals.copyPaste.groups.aiDenoise',
-      keys: [DetailsAdjustment.AiDenoiseEnabled, DetailsAdjustment.AiDenoiseAmount, DetailsAdjustment.AiDenoiseDetail],
+      keys: [
+        DetailsAdjustment.AiDenoiseEnabled,
+        DetailsAdjustment.AiDenoiseMethod,
+        DetailsAdjustment.AiDenoiseAmount,
+        DetailsAdjustment.AiDenoiseDetail,
+      ],
     },
     {
       label: 'modals.copyPaste.groups.chromaticAberration',
@@ -1014,6 +1031,7 @@ export const ADJUSTMENT_SECTIONS: Sections = {
     DetailsAdjustment.LumaNoiseReduction,
     DetailsAdjustment.ColorNoiseReduction,
     DetailsAdjustment.AiDenoiseEnabled,
+    DetailsAdjustment.AiDenoiseMethod,
     DetailsAdjustment.AiDenoiseAmount,
     DetailsAdjustment.AiDenoiseDetail,
     DetailsAdjustment.ChromaticAberrationRedCyan,

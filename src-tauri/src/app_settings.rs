@@ -126,6 +126,7 @@ pub fn all_available_adjustments() -> HashSet<String> {
         "lumaNoiseReduction",
         "colorNoiseReduction",
         "aiDenoiseEnabled",
+        "aiDenoiseMethod",
         "aiDenoiseAmount",
         "aiDenoiseDetail",
         "chromaticAberrationRedCyan",

@@ -261,39 +261,6 @@ export function useTauriListeners({
             errorMessage: typeof event.payload === 'string' ? event.payload : 'Unknown error',
           });
       }),
-      listen('denoise-progress', (event: any) => {
-        if (isEffectActive)
-          useUIStore.getState().setUI((state) => ({
-            denoiseModalState: { ...state.denoiseModalState, progressMessage: event.payload as string },
-          }));
-      }),
-      listen('denoise-complete', (event: any) => {
-        if (isEffectActive) {
-          const payload = event.payload;
-          const isObject = typeof payload === 'object' && payload !== null;
-          useUIStore.getState().setUI((state) => ({
-            denoiseModalState: {
-              ...state.denoiseModalState,
-              isProcessing: false,
-              previewBase64: isObject ? payload.denoised : payload,
-              originalBase64: isObject ? payload.original : null,
-              progressMessage: null,
-            },
-          }));
-        }
-      }),
-      listen('denoise-error', (event: any) => {
-        if (isEffectActive) {
-          useUIStore.getState().setUI((state) => ({
-            denoiseModalState: {
-              ...state.denoiseModalState,
-              isProcessing: false,
-              error: String(event.payload),
-              progressMessage: null,
-            },
-          }));
-        }
-      }),
       listen<{ path: string; progress: number }>('ai-denoise-progress', (event) => {
         if (!isEffectActive) return;
         const { path, progress } = event.payload;

@@ -89,7 +89,11 @@ fn hash_ai_denoise(adjustments: &serde_json::Value, hasher: &mut DefaultHasher) 
     let enabled = crate::ai_denoise::is_enabled(adjustments);
     enabled.hash(hasher);
     if enabled {
-        hash_effect_keys(adjustments, &["aiDenoiseAmount", "aiDenoiseDetail"], hasher);
+        hash_effect_keys(
+            adjustments,
+            &["aiDenoiseMethod", "aiDenoiseAmount", "aiDenoiseDetail"],
+            hasher,
+        );
         crate::ai_denoise::cache_epoch().hash(hasher);
     }
 }

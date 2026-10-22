@@ -12,6 +12,7 @@ use serde_json::{Value, json};
 use tauri::{AppHandle, Emitter, Manager};
 
 use crate::ai_commands::{self, MaskTransform};
+use crate::ai_denoise::DenoiseMethod;
 use crate::ai_processing::{AiDepthMaskParameters, AiMaskModel, get_or_init_ai_models};
 use crate::app_state::AppState;
 use crate::cache_utils::GEOMETRY_KEYS;
@@ -120,7 +121,7 @@ impl MaskKind {
 }
 
 enum Job {
-    Denoise,
+    Denoise(DenoiseMethod),
     EffectMap(EffectMapKind),
     Mask {
         sub_mask_id: String,
@@ -132,7 +133,7 @@ enum Job {
 impl Job {
     fn kind_label(&self) -> &'static str {
         match self {
-            Job::Denoise => "denoise",
+            Job::Denoise(_) => "denoise",
             Job::EffectMap(EffectMapKind::Depth) => "depthMap",
             Job::EffectMap(EffectMapKind::Normal) => "normalMap",
             Job::Mask { kind, .. } => match kind {
@@ -237,8 +238,11 @@ fn sub_mask_id(sub_mask: &Value) -> Option<&str> {
 fn plan(adjustments: &Value, path: &str, source_id: &str) -> Vec<Job> {
     let mut jobs = Vec::new();
 
-    if crate::ai_denoise::is_enabled(adjustments) && !crate::ai_denoise::has_cached_entry(path) {
-        jobs.push(Job::Denoise);
+    let denoise_method = DenoiseMethod::from_adjustments(adjustments);
+    if crate::ai_denoise::is_enabled(adjustments)
+        && !crate::ai_denoise::has_cached_entry(path, denoise_method)
+    {
+        jobs.push(Job::Denoise(denoise_method));
     }
 
     for map in EffectMapKind::ALL {
@@ -865,13 +869,15 @@ fn process_path(
         }
 
         let job_result = match &job {
-            Job::Denoise => match crate::ai_denoise::generate_for_base(app_handle, path, &base) {
-                Ok(false) => {
-                    outcome = Outcome::Deferred;
-                    continue;
+            Job::Denoise(method) => {
+                match crate::ai_denoise::generate_for_base(app_handle, path, &base, *method) {
+                    Ok(false) => {
+                        outcome = Outcome::Deferred;
+                        continue;
+                    }
+                    result => result.map(|_| ()),
                 }
-                result => result.map(|_| ()),
-            },
+            }
             Job::EffectMap(map) => {
                 let source_image = crate::mask_generation::build_converted_source_image(
                     &base,
