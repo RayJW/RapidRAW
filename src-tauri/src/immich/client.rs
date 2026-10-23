@@ -1,6 +1,6 @@
 use reqwest::multipart::{Form, Part};
 use reqwest::{Client, Method, RequestBuilder, Response};
-use serde::de::DeserializeOwned;
+use serde::de::{DeserializeOwned, Deserializer, Error as _};
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 use std::path::Path;
@@ -10,6 +10,7 @@ use tokio::io::AsyncWriteExt;
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Asset {
+    #[serde(deserialize_with = "asset_id")]
     pub id: String,
     #[serde(rename = "type")]
     pub kind: String,
@@ -48,6 +49,7 @@ pub struct TimelineMonth {
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct UploadResult {
+    #[serde(deserialize_with = "asset_id")]
     pub id: String,
 }
 
@@ -85,6 +87,19 @@ struct SearchResponse {
     assets: SearchPage,
 }
 
+pub fn is_asset_id(id: &str) -> bool {
+    uuid::Uuid::parse_str(id).is_ok()
+}
+
+fn asset_id<'de, D: Deserializer<'de>>(deserializer: D) -> Result<String, D::Error> {
+    let id = String::deserialize(deserializer)?;
+    if is_asset_id(&id) {
+        Ok(id)
+    } else {
+        Err(D::Error::custom(format!("invalid asset id '{id}'")))
+    }
+}
+
 const PAGE_SIZE: u32 = 1000;
 const PARALLEL_PAGES: u32 = 4;
 
@@ -102,6 +117,7 @@ impl ImmichClient {
         }
         let http = Client::builder()
             .connect_timeout(Duration::from_secs(10))
+            .read_timeout(Duration::from_secs(30))
             .build()
             .map_err(|e| e.to_string())?;
         Ok(Self {

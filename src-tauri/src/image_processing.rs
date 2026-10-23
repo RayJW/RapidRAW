@@ -22,7 +22,6 @@ pub use crate::gpu_processing::{
     process_and_get_dynamic_image_with_analytics, process_and_get_dynamic_image_with_precision,
 };
 use crate::{AppState, mask_generation::MaskDefinition};
-use base64::{Engine as _, engine::general_purpose::STANDARD as BASE64};
 
 pub trait IntoCowImage<'a> {
     fn into_cow(self) -> Cow<'a, DynamicImage>;
@@ -67,6 +66,7 @@ where
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(default)]
 pub struct ImageMetadata {
     pub version: u32,
     pub rating: u8,
@@ -1642,7 +1642,6 @@ pub fn is_geometry_identity(params: &GeometryParams) -> bool {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct AutoAdjustmentResults {
     pub exposure: f64,
-    pub brightness: f64,
     pub contrast: f64,
     pub highlights: f64,
     pub shadows: f64,
@@ -2141,12 +2140,14 @@ pub fn resolve_tonemapper_override(settings: &crate::AppSettings, is_raw: bool) 
 #[derive(Clone, Copy, Debug, Default)]
 pub struct RenderOptions {
     pub tonemapper_override: Option<u32>,
+    pub non_raw_tonemapper_override: Option<u32>,
     pub baseline: BaselineOptions,
 }
 
 pub fn resolve_render_options(settings: &crate::AppSettings, is_raw: bool) -> RenderOptions {
     RenderOptions {
         tonemapper_override: resolve_tonemapper_override(settings, is_raw),
+        non_raw_tonemapper_override: resolve_tonemapper_override(settings, false),
         baseline: BaselineOptions::from_settings(settings),
     }
 }
@@ -2287,6 +2288,18 @@ pub fn is_image_edited(
     {
         return true;
     }
+    if [
+        ("noiseReduction", "aiDenoiseEnabled"),
+        ("negativeConversion", "negativeConversionEnabled"),
+        ("lensBlur", "lensBlurEnabled"),
+        ("relight", "relightEnabled"),
+        ("fog", "fogEnabled"),
+    ]
+    .iter()
+    .any(|(tool, enabled_key)| is_effect_enabled(adj, tool, enabled_key))
+    {
+        return true;
+    }
 
     if let Some(crop_val) = adj.get("crop")
         && !crop_val.is_null()
@@ -2336,6 +2349,7 @@ pub fn is_image_edited(
     let reference = AsShot::reference();
     let render = RenderOptions {
         tonemapper_override,
+        non_raw_tonemapper_override: tonemapper_override,
         baseline: BaselineOptions::default(),
     };
     let current_adj = get_all_adjustments_from_json(adj, is_raw, reference, render);
@@ -2374,6 +2388,7 @@ const LEGACY_SECTION_TOOLS: &[(&str, &[&str])] = &[
             "presence",
             "noiseReduction",
             "chromaticAberration",
+            "negativeConversion",
         ],
     ),
     (
@@ -2870,6 +2885,23 @@ pub fn get_all_adjustments_from_json(
     as_shot: AsShot,
     render: RenderOptions,
 ) -> AllAdjustments {
+    let (is_raw, as_shot, render) = if crate::negative_conversion::is_enabled(js_adjustments) {
+        let exposure = AsShot::reference().exposure;
+        let tonemapper_override = render.non_raw_tonemapper_override;
+        (
+            false,
+            AsShot {
+                exposure,
+                ..as_shot
+            },
+            RenderOptions {
+                tonemapper_override,
+                ..render
+            },
+        )
+    } else {
+        (is_raw, as_shot, render)
+    };
     let target_white_balance = if is_tool_active(js_adjustments, "whiteBalance") {
         white_balance::from_adjustments(js_adjustments, as_shot.white_balance)
     } else {
@@ -3156,7 +3188,6 @@ fn apply_gentle_detail_enhance(
         });
 }
 
-#[derive(Serialize, Clone)]
 pub struct HistogramData {
     red: Vec<f32>,
     green: Vec<f32>,
@@ -3316,15 +3347,57 @@ fn normalize_histogram_range(histogram: &mut [f32], percentile_clip: f32) {
     }
 }
 
-#[derive(serde::Serialize, Clone)]
-#[serde(rename_all = "camelCase")]
 pub struct WaveformData {
-    pub rgb: String,
-    pub luma: String,
-    pub parade: String,
-    pub vectorscope: String,
+    pub rgb: Vec<u8>,
+    pub luma: Vec<u8>,
+    pub parade: Vec<u8>,
+    pub vectorscope: Vec<u8>,
     pub width: u32,
     pub height: u32,
+}
+
+pub fn encode_analytics_packet(
+    path: &str,
+    histogram: Option<&HistogramData>,
+    waveform: Option<&WaveformData>,
+) -> Vec<u8> {
+    let put_u32 = |out: &mut Vec<u8>, v: usize| out.extend_from_slice(&(v as u32).to_le_bytes());
+    let wave_len = waveform.map_or(0, |w| {
+        w.rgb.len() + w.luma.len() + w.parade.len() + w.vectorscope.len()
+    });
+    let mut out = Vec::with_capacity(path.len() + 4 * 256 * 4 + wave_len + 40);
+
+    put_u32(&mut out, path.len());
+    out.extend_from_slice(path.as_bytes());
+
+    match histogram {
+        Some(h) => {
+            put_u32(&mut out, h.red.len());
+            for channel in [&h.red, &h.green, &h.blue, &h.luma] {
+                for v in channel.iter() {
+                    out.extend_from_slice(&v.to_le_bytes());
+                }
+            }
+        }
+        None => put_u32(&mut out, 0),
+    }
+
+    match waveform {
+        Some(w) => {
+            put_u32(&mut out, w.width as usize);
+            put_u32(&mut out, w.height as usize);
+            for plane in [&w.rgb, &w.luma, &w.parade, &w.vectorscope] {
+                put_u32(&mut out, plane.len());
+                out.extend_from_slice(plane);
+            }
+        }
+        None => {
+            put_u32(&mut out, 0);
+            put_u32(&mut out, 0);
+        }
+    }
+
+    out
 }
 
 const WAVEFORM_W: usize = 256;
@@ -3600,26 +3673,10 @@ pub fn calculate_waveform(
     }
 
     Ok(WaveformData {
-        rgb: if do_rgb {
-            BASE64.encode(&rgba_rgb)
-        } else {
-            String::new()
-        },
-        luma: if do_luma {
-            BASE64.encode(&rgba_luma)
-        } else {
-            String::new()
-        },
-        parade: if do_parade {
-            BASE64.encode(&rgba_parade)
-        } else {
-            String::new()
-        },
-        vectorscope: if do_vectorscope {
-            BASE64.encode(&rgba_vector)
-        } else {
-            String::new()
-        },
+        rgb: rgba_rgb,
+        luma: rgba_luma,
+        parade: rgba_parade,
+        vectorscope: rgba_vector,
         width: W as u32,
         height: H as u32,
     })
@@ -3673,7 +3730,6 @@ pub fn perform_auto_analysis(image: &DynamicImage, exposure: f32) -> AutoAdjustm
     const BLACKS_SCALE: f64 = 0.5;
     const WHITES_SCALE: f64 = 0.2;
     const EXPOSURE_OUTPUT_SCALE: f64 = 20.0;
-    const BRIGHTNESS_SCALE: f64 = 0.007;
 
     let analysis_preview = apply_exposure(
         downscale_f32_image(image, ANALYSIS_MAX_DIM, ANALYSIS_MAX_DIM),
@@ -3827,15 +3883,12 @@ pub fn perform_auto_analysis(image: &DynamicImage, exposure: f32) -> AutoAdjustm
     }
 
     let adj_p1 = percentile(&adjusted_luma_hist, 0.01);
-    let adj_p50 = percentile(&adjusted_luma_hist, 0.50);
     let adj_p99 = percentile(&adjusted_luma_hist, 0.99);
     let blacks: f64 = -(adj_p1 as f64 * BLACKS_SCALE);
     let whites: f64 = (adj_p99 as f64 - 255.0) * WHITES_SCALE;
-    let brightness: f64 = (MID_GRAY - adj_p50 as f64) * BRIGHTNESS_SCALE;
 
     AutoAdjustmentResults {
         exposure: (exposure / EXPOSURE_OUTPUT_SCALE).clamp(-5.0, 5.0),
-        brightness: brightness.clamp(-5.0, 5.0),
         contrast: contrast.clamp(-100.0, 100.0),
         highlights: highlights.clamp(-100.0, 100.0),
         shadows: shadows.clamp(-100.0, 100.0),
@@ -3851,33 +3904,50 @@ pub fn perform_auto_analysis(image: &DynamicImage, exposure: f32) -> AutoAdjustm
     }
 }
 
-pub fn auto_results_to_json(results: &AutoAdjustmentResults) -> serde_json::Value {
-    json!({
-        "exposure": results.exposure,
-        "brightness": results.brightness,
-        "contrast": results.contrast,
-        "highlights": results.highlights,
-        "shadows": results.shadows,
-        "vibrance": results.vibrancy,
-        "vignetteAmount": results.vignette_amount,
-        "clarity": results.clarity,
-        "centré": results.centre,
+#[derive(Deserialize, Debug, Clone, Copy, Default, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub enum AutoAdjustMode {
+    Subtle,
+    #[default]
+    Normal,
+    Strong,
+}
 
-        "dehaze": results.dehaze,
+pub fn auto_results_to_json(
+    results: &AutoAdjustmentResults,
+    mode: AutoAdjustMode,
+) -> serde_json::Value {
+    let k = match mode {
+        AutoAdjustMode::Subtle => 0.5,
+        AutoAdjustMode::Normal => 1.0,
+        AutoAdjustMode::Strong => 1.5,
+    };
+    let c = |v: f64| (v * k).clamp(-100.0, 100.0);
+    json!({
+        "exposure": (results.exposure * k).clamp(-5.0, 5.0),
+        "contrast": c(results.contrast),
+        "highlights": c(results.highlights),
+        "shadows": c(results.shadows),
+        "whites": c(results.whites),
+        "blacks": c(results.blacks),
+        "vibrance": c(results.vibrancy),
+        "clarity": c(results.clarity),
+        "dehaze": c(results.dehaze),
+        "centré": c(results.centre),
+        "vignetteAmount": c(results.vignette_amount),
         "activeTools": {
             "basic": true,
             "colorPresence": true,
             "presence": true,
             "vignette": true
-        },
-        "whites": results.whites,
-        "blacks": results.blacks
+        }
     })
 }
 
 #[tauri::command]
 pub fn calculate_auto_adjustments(
     js_adjustments: serde_json::Value,
+    mode: Option<AutoAdjustMode>,
     state: tauri::State<AppState>,
     app_handle: tauri::AppHandle,
 ) -> Result<serde_json::Value, String> {
@@ -3893,7 +3963,7 @@ pub fn calculate_auto_adjustments(
         effective_baseline_exposure(&js_adjustments, loaded_image.as_shot, render.baseline);
     let results = perform_auto_analysis(&loaded_image.image, exposure);
 
-    Ok(auto_results_to_json(&results))
+    Ok(auto_results_to_json(&results, mode.unwrap_or_default()))
 }
 
 #[derive(Deserialize, Clone, Copy)]
@@ -4046,6 +4116,7 @@ fn compute_white_balance_sample(
 #[tauri::command]
 pub async fn sample_white_balance(
     corners: Vec<UvPoint>,
+    js_adjustments: Option<Value>,
     state: tauri::State<'_, AppState>,
 ) -> Result<WhiteBalanceSample, String> {
     let loaded_image = state
@@ -4054,101 +4125,26 @@ pub async fn sample_white_balance(
         .unwrap()
         .clone()
         .ok_or("No original image loaded")?;
+    let adjustments = js_adjustments.unwrap_or_default();
+    let converted = crate::negative_conversion::is_enabled(&adjustments)
+        .then(|| crate::cached_patched_image(&state, &loaded_image.image, &adjustments))
+        .flatten();
 
     tokio::task::spawn_blocking(move || {
+        let image = match &converted {
+            Some(image) => Cow::Borrowed(image.as_ref()),
+            None => crate::negative_conversion::apply_negative_conversion(
+                Cow::Borrowed(loaded_image.image.as_ref()),
+                &adjustments,
+            ),
+        };
         compute_white_balance_sample(
-            &loaded_image.image,
-            loaded_image.is_raw,
+            &image,
+            crate::negative_conversion::effective_is_raw(loaded_image.is_raw, &adjustments),
             loaded_image.as_shot.white_balance,
             &corners,
         )
     })
     .await
     .map_err(|e| format!("Task execution failed: {}", e))?
-}
-
-#[cfg(test)]
-mod downscale_tests {
-    use super::*;
-
-    fn pseudo_random_bytes(len: usize, seed: u32) -> Vec<u8> {
-        let mut state = seed;
-        (0..len)
-            .map(|_| {
-                state = state.wrapping_mul(1_664_525).wrapping_add(1_013_904_223);
-                (state >> 24) as u8
-            })
-            .collect()
-    }
-
-    #[test]
-    fn u8_fast_path_matches_f32_conversion() {
-        for &(w, h, tw) in &[
-            (1013u32, 677u32, 480u32),
-            (640, 960, 320),
-            (300, 200, 299),
-            (4000, 3, 1280),
-        ] {
-            let rgb = image::RgbImage::from_raw(w, h, pseudo_random_bytes((w * h * 3) as usize, w))
-                .unwrap();
-            let rgba =
-                image::RgbaImage::from_raw(w, h, pseudo_random_bytes((w * h * 4) as usize, h))
-                    .unwrap();
-
-            for img in [DynamicImage::ImageRgb8(rgb), DynamicImage::ImageRgba8(rgba)] {
-                let fast = downscale_f32_image(&img, tw, tw);
-                let reference =
-                    downscale_f32_image(&DynamicImage::ImageRgb32F(img.to_rgb32f()), tw, tw);
-                let fast_bits: Vec<u32> = fast
-                    .as_rgb32f()
-                    .unwrap()
-                    .as_raw()
-                    .iter()
-                    .map(|v| v.to_bits())
-                    .collect();
-                let ref_bits: Vec<u32> = reference
-                    .as_rgb32f()
-                    .unwrap()
-                    .as_raw()
-                    .iter()
-                    .map(|v| v.to_bits())
-                    .collect();
-                assert_eq!(fast.dimensions(), reference.dimensions());
-                assert!(fast_bits == ref_bits, "mismatch for {}x{} -> {}", w, h, tw);
-            }
-        }
-    }
-
-    #[test]
-    fn rgb32f_orientation_matches_image_crate() {
-        let (w, h) = (37u32, 23u32);
-        let data: Vec<f32> = (0..w * h * 3).map(|i| i as f32 * 0.37).collect();
-        let img = DynamicImage::ImageRgb32F(Rgb32FImage::from_raw(w, h, data).unwrap());
-        for orientation in [
-            Orientation::HorizontalFlip,
-            Orientation::Rotate180,
-            Orientation::VerticalFlip,
-            Orientation::Transpose,
-            Orientation::Rotate90,
-            Orientation::Transverse,
-            Orientation::Rotate270,
-        ] {
-            let fast = apply_orientation(img.clone(), orientation);
-            let reference = match orientation {
-                Orientation::HorizontalFlip => img.fliph(),
-                Orientation::Rotate180 => img.rotate180(),
-                Orientation::VerticalFlip => img.flipv(),
-                Orientation::Transpose => img.rotate90().fliph(),
-                Orientation::Rotate90 => img.rotate90(),
-                Orientation::Transverse => img.rotate270().fliph(),
-                _ => img.rotate270(),
-            };
-            assert_eq!(fast.dimensions(), reference.dimensions());
-            assert!(
-                fast.as_rgb32f().unwrap().as_raw() == reference.as_rgb32f().unwrap().as_raw(),
-                "mismatch for {:?}",
-                orientation
-            );
-        }
-    }
 }

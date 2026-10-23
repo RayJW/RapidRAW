@@ -8,6 +8,16 @@ const SAMPLE_BAND_PX: usize = 24;
 const ITERATIONS: usize = 3;
 const FULL_CLIP_CHROMA: f32 = 0.35;
 const HEADROOM_FADE: f32 = 0.3;
+const FILL_SUPPORT_DIVISOR: f32 = 28.0;
+const FILL_SPREAD_START: f32 = 0.25;
+const FILL_SPREAD_END: f32 = 0.6;
+const FILL_STRENGTH: f32 = 0.5;
+const FILL_SAMPLE_SPREAD: f32 = 0.25;
+const LEVEL_BINS: usize = 2048;
+const LEVEL_LOW: f32 = 0.75;
+const LEVEL_HIGH: f32 = 1.25;
+const PLATEAU_RATIO: f32 = 8.0;
+const PLATEAU_SHARE: usize = 5000;
 
 #[derive(Clone, Copy)]
 pub struct Region {
@@ -78,6 +88,60 @@ fn opposed(roots: &[f32; 3], c: usize) -> f32 {
     m * m * m
 }
 
+pub fn detect_clip_levels(data: &[[f32; 3]], region: Region, scale: f32) -> [f32; 3] {
+    let bins_per_unit = LEVEL_BINS as f32 / (LEVEL_HIGH - LEVEL_LOW);
+    let histogram = (0..region.height)
+        .into_par_iter()
+        .fold(
+            || vec![[0u32; 3]; LEVEL_BINS],
+            |mut histogram, y| {
+                for p in region.row(data, y) {
+                    for c in 0..3 {
+                        let bin = (p[c] * scale - LEVEL_LOW) * bins_per_unit;
+                        if bin >= 0.0 && bin < LEVEL_BINS as f32 {
+                            histogram[bin as usize][c] += 1;
+                        }
+                    }
+                }
+                histogram
+            },
+        )
+        .reduce(
+            || vec![[0u32; 3]; LEVEL_BINS],
+            |mut a, b| {
+                for (x, y) in a.iter_mut().zip(&b) {
+                    for c in 0..3 {
+                        x[c] += y[c];
+                    }
+                }
+                a
+            },
+        );
+
+    let min_count = (region.width * region.height / PLATEAU_SHARE).max(64) as u32;
+    let plateaus: [Option<f32>; 3] = std::array::from_fn(|c| {
+        let counts: Vec<u32> = histogram.iter().map(|bin| bin[c]).collect();
+        let (peak, &count) = counts.iter().enumerate().max_by_key(|&(_, &n)| n)?;
+        if count < min_count || peak < 80 {
+            return None;
+        }
+        let mut below = counts[peak - 80..peak - 20].to_vec();
+        below.sort_unstable();
+        let baseline = below[below.len() / 2] as f32;
+        let above: u32 = counts[(peak + 4).min(LEVEL_BINS)..].iter().sum();
+        (count as f32 >= PLATEAU_RATIO * (baseline + 1.0) && above < count)
+            .then(|| LEVEL_LOW + (peak as f32 + 0.5) / bins_per_unit)
+    });
+
+    let fallback = plateaus
+        .iter()
+        .flatten()
+        .copied()
+        .reduce(f32::min)
+        .unwrap_or(1.0);
+    plateaus.map(|level| level.unwrap_or(fallback))
+}
+
 pub fn reconstruct_highlights(data: &mut [[f32; 3]], region: Region, clips: [f32; 3]) {
     let Region { width, height, .. } = region;
     if width < 4
@@ -108,12 +172,14 @@ pub fn reconstruct_highlights(data: &mut [[f32; 3]], region: Region, clips: [f32
     let offsets = inpaint_offsets(data, region, &mask, cell, clips, thresholds);
 
     let inv_cell = 1.0 / cell as f32;
-    data.par_chunks_exact_mut(region.stride)
+    let blown: Vec<Vec<(usize, [f32; 3], f32)>> = data
+        .par_chunks_exact_mut(region.stride)
         .skip(region.y)
         .take(height)
         .zip(mask.par_chunks_exact(width))
         .enumerate()
-        .for_each(|(y, (row, mask_row))| {
+        .map(|(y, (row, mask_row))| {
+            let mut blown = Vec::new();
             let row = &mut row[region.x..region.x + width];
             let gy = (y as f32 + 0.5) * inv_cell - 0.5;
             for (x, (pixel, &bits)) in row.iter_mut().zip(mask_row).enumerate() {
@@ -122,6 +188,10 @@ pub fn reconstruct_highlights(data: &mut [[f32; 3]], region: Region, clips: [f32
                     std::array::from_fn(|c| smoothstep(soft_starts[c], thresholds[c], observed[c]));
                 if blend.iter().all(|&b| b == 0.0) {
                     continue;
+                }
+                let full = blend[0].min(blend[1]).min(blend[2]);
+                if full > 0.0 {
+                    blown.push((x, observed, full));
                 }
 
                 let gx = (x as f32 + 0.5) * inv_cell - 0.5;
@@ -155,6 +225,113 @@ pub fn reconstruct_highlights(data: &mut [[f32; 3]], region: Region, clips: [f32
                         let faded = observed[c].max(mean + (pixel[c] - mean) * keep);
                         pixel[c] = observed[c] + (faded - observed[c]) * blend[c];
                     }
+                }
+            }
+            blown
+        })
+        .collect();
+
+    if blown.iter().any(|row| !row.is_empty()) {
+        fill_blown(data, region, &mask, &blown, cell);
+    }
+}
+
+fn fill_blown(
+    data: &mut [[f32; 3]],
+    region: Region,
+    mask: &[u8],
+    blown: &[Vec<(usize, [f32; 3], f32)>],
+    cell: usize,
+) {
+    let Region { width, height, .. } = region;
+    let mut blown_mask = vec![0u8; width * height];
+    blown_mask
+        .par_chunks_exact_mut(width)
+        .zip(blown.par_iter())
+        .for_each(|(row, pixels)| {
+            for &(x, _, _) in pixels {
+                row[x] = 1;
+            }
+        });
+    let near_blown = dilate(&blown_mask, width, height, BORDER_EXCLUSION);
+
+    let gw = width.div_ceil(cell);
+    let gh = height.div_ceil(cell);
+    let mut blown_cells = vec![0u8; gw * gh];
+    blown_cells
+        .par_chunks_exact_mut(gw)
+        .enumerate()
+        .for_each(|(gy, cells)| {
+            for y in gy * cell..((gy + 1) * cell).min(height) {
+                for (x, &m) in blown_mask[y * width..(y + 1) * width].iter().enumerate() {
+                    cells[x / cell] |= m;
+                }
+            }
+        });
+    let band = dilate(&blown_cells, gw, gh, SAMPLE_BAND_PX.div_ceil(cell));
+
+    let samples: &[[f32; 3]] = data;
+    let mut base = vec![Cell::default(); gw * gh];
+    base.par_chunks_exact_mut(gw)
+        .zip(band.par_chunks_exact(gw))
+        .enumerate()
+        .for_each(|(gy, (cells, band_row))| {
+            if band_row.iter().all(|&b| b == 0) {
+                return;
+            }
+            for y in gy * cell..((gy + 1) * cell).min(height) {
+                let start = y * width;
+                let pixels = region.row(samples, y);
+                for x in 0..width {
+                    let i = start + x;
+                    let p = &pixels[x];
+                    if band_row[x / cell] == 0
+                        || mask[i].count_ones() != 1
+                        || near_blown[i] != 0
+                        || p[0] <= 0.0
+                        || p[1] <= 0.0
+                        || p[2] <= 0.0
+                    {
+                        continue;
+                    }
+                    let rg = (p[0] / p[1]).ln();
+                    let bg = (p[2] / p[1]).ln();
+                    let spread = (rg.max(bg).max(0.0) - rg.min(bg).min(0.0)) / FILL_SAMPLE_SPREAD;
+                    let w = 1.0 / (1.0 + spread * spread);
+                    let target = &mut cells[x / cell];
+                    target.weight[0] += w;
+                    target.weight[1] += w;
+                    target.offset[0] += w * rg;
+                    target.offset[1] += w * bg;
+                }
+            }
+        });
+    let support = width.max(height) as f32 / FILL_SUPPORT_DIVISOR;
+    let chroma = push_pull(base, gw, gh, 0.5 * support * support);
+
+    let inv_cell = 1.0 / cell as f32;
+    data.par_chunks_exact_mut(region.stride)
+        .skip(region.y)
+        .take(height)
+        .zip(blown.par_iter())
+        .enumerate()
+        .for_each(|(y, (row, pixels))| {
+            let row = &mut row[region.x..region.x + width];
+            let gy = (y as f32 + 0.5) * inv_cell - 0.5;
+            for &(x, observed, full) in pixels {
+                let gx = (x as f32 + 0.5) * inv_cell - 0.5;
+                let [rg, bg, _] = chroma.sample(gx, gy);
+                let spread = rg.max(bg).max(0.0) - rg.min(bg).min(0.0);
+                let strength =
+                    FILL_STRENGTH * (1.0 - smoothstep(FILL_SPREAD_START, FILL_SPREAD_END, spread));
+                let tint = [(rg * strength).exp(), 1.0, (bg * strength).exp()];
+                let pixel = &mut row[x];
+                let brightness = (pixel[0] + pixel[1] + pixel[2]) / (tint[0] + tint[1] + tint[2]);
+                let scale = (0..3)
+                    .map(|c| observed[c] / tint[c])
+                    .fold(brightness, f32::max);
+                for c in 0..3 {
+                    pixel[c] += (scale * tint[c] - pixel[c]) * full;
                 }
             }
         });

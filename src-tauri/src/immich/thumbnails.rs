@@ -4,11 +4,13 @@ use std::collections::HashSet;
 use std::path::Path;
 use std::sync::Mutex;
 use tauri::{AppHandle, Emitter};
+use tokio::sync::Semaphore;
 
 use super::{is_placeholder, registry, session};
 
 const SMALL: u32 = 480;
 const MEDIUM: u32 = 1280;
+const MAX_DOWNLOADS: usize = 6;
 
 pub fn placeholder_thumbnail(
     app_handle: &AppHandle,
@@ -45,14 +47,18 @@ pub fn placeholder_thumbnail(
         match result {
             Ok(()) => {
                 let (small, medium) = as_strings(&small, &medium);
+                let settings =
+                    crate::app_settings::load_settings(app_handle.clone()).unwrap_or_default();
+                let (rating, is_edited) =
+                    crate::file_management::rating_and_edited(&path_str, &settings);
                 let _ = app_handle.emit(
                     "thumbnail-generated",
                     json!({
                         "path": path_str,
                         "thumbnailPath": small,
                         "previewPath": medium,
-                        "rating": 0,
-                        "is_edited": false,
+                        "rating": rating,
+                        "is_edited": is_edited,
                     }),
                 );
             }
@@ -68,6 +74,8 @@ async fn fetch(
     small: &Path,
     medium: &Path,
 ) -> Result<(), String> {
+    static DOWNLOADS: Lazy<Semaphore> = Lazy::new(|| Semaphore::new(MAX_DOWNLOADS));
+    let _permit = DOWNLOADS.acquire().await.map_err(|e| e.to_string())?;
     let session = session(app_handle)?;
     let bytes = session.client.thumbnail(asset_id, "preview").await?;
     let small = small.to_path_buf();
@@ -84,7 +92,8 @@ async fn fetch(
             image::codecs::jpeg::JpegEncoder::new_with_quality(&mut encoded, 85)
                 .encode_image(&resized.to_rgb8())
                 .map_err(|e| e.to_string())?;
-            std::fs::write(target, encoded).map_err(|e| e.to_string())?;
+            crate::file_management::write_file_atomic(target, &encoded)
+                .map_err(|e| e.to_string())?;
         }
         Ok::<(), String>(())
     })

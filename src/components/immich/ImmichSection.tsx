@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useMemo } from 'react';
+import { ReactNode, useMemo } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import clsx from 'clsx';
 import { Album as AlbumIcon, CloudOff, CloudUpload, RefreshCw, Users } from 'lucide-react';
@@ -10,7 +10,6 @@ import { toImmichAlbumId } from './immichApi';
 import ImmichRow from './ImmichRow';
 import ImmichTimeline from './ImmichTimeline';
 import { useImmichStore } from './useImmichStore';
-import { useSettingsStore } from '../../store/useSettingsStore';
 
 interface ImmichSectionProps {
   header: ReactNode;
@@ -30,23 +29,16 @@ export default function ImmichSection({
   showImageCounts,
 }: ImmichSectionProps) {
   const { t } = useTranslation();
-  const { isConfigured, albums, isLoading, error, syncStatus, refresh, loadAlbums } = useImmichStore(
+  const { isConfigured, albums, isLoading, error, syncStatus, loadAlbums } = useImmichStore(
     useShallow((state) => ({
       isConfigured: state.isConfigured,
       syncStatus: state.syncStatus,
       albums: state.albums,
       isLoading: state.isLoading,
       error: state.error,
-      refresh: state.refresh,
       loadAlbums: state.loadAlbums,
     })),
   );
-  const serverUrl = useSettingsStore((state) => state.appSettings?.immich?.serverUrl);
-
-  useEffect(() => {
-    refresh();
-  }, [refresh, serverUrl]);
-
   const query = searchQuery.trim().toLowerCase();
   const visibleAlbums = useMemo(
     () => (query ? albums.filter((a) => a.albumName.toLowerCase().includes(query)) : albums),

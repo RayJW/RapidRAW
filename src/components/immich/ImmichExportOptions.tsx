@@ -9,13 +9,16 @@ import { DEFAULT_IMMICH_SETTINGS, ImmichSettings } from './immichApi';
 import { useImmichStore } from './useImmichStore';
 
 export function useImmichExportAvailable() {
-  return useSettingsStore((state) => !!state.appSettings?.immich?.serverUrl?.trim());
+  return useImmichStore((state) => state.isConfigured);
 }
 
 export function useImmichExportChoice() {
   const immich = useSettingsStore((state) => state.appSettings?.immich);
+  const albums = useImmichStore((state) => state.albums);
   const settings: ImmichSettings = { ...DEFAULT_IMMICH_SETTINGS, ...immich };
-  return { album: settings.exportAlbum, withOriginal: settings.exportWithOriginal };
+  const album = settings.exportAlbum;
+  const isKnown = album === 'source' || album === 'none' || albums.some((a) => a.id === album);
+  return { album: isKnown ? album : 'source', withOriginal: settings.exportWithOriginal };
 }
 
 export default function ImmichExportOptions({ disabled }: { disabled?: boolean }) {
@@ -52,7 +55,7 @@ export default function ImmichExportOptions({ disabled }: { disabled?: boolean }
         </Text>
         <Dropdown
           options={options}
-          value={options.some((o) => o.value === album) ? album : 'source'}
+          value={album}
           onChange={(value) => change({ exportAlbum: value as string })}
           disabled={disabled}
           className="w-full"

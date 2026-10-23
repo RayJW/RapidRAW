@@ -387,6 +387,7 @@ export default function ExportPanel({
   const osPlatform = useOsPlatform();
   const isAndroid = osPlatform === 'android';
   const canExportToImmich = useImmichExportAvailable() && !isAndroid;
+  const destination = destinationType === 'immich' && !canExportToImmich ? 'customFolder' : destinationType;
   const immichExport = useImmichExportChoice();
   const activePanels = useUIStore((state) => state.activePanels);
   const isPanelReallyActive = Object.values(activePanels).includes(Panel.Export);
@@ -494,7 +495,7 @@ export default function ExportPanel({
       keepMetadata,
       preserveTimestamps,
       preserveFolders,
-      destinationType,
+      destinationType: destination,
       subfolder,
       resize: enableResize ? { mode: resizeMode, value: resizeValue, dontEnlarge } : null,
       border: borderSettings,
@@ -591,7 +592,7 @@ export default function ExportPanel({
       keepMetadata,
       preserveTimestamps,
       preserveFolders,
-      destinationType,
+      destinationType: destination,
       subfolder,
       resize: enableResize ? { mode: resizeMode, value: resizeValue, dontEnlarge } : null,
       border: borderSettings,
@@ -617,8 +618,8 @@ export default function ExportPanel({
       const selectedFormat: any = FILE_FORMATS.find((f) => f.id === fileFormat);
 
       let outputFolderOrFile = '';
-      const isOriginalFolder = destinationType === 'originalFolder';
-      const isImmich = destinationType === 'immich';
+      const isOriginalFolder = destination === 'originalFolder';
+      const isImmich = destination === 'immich';
       const shouldChooseOutputFile = numImages === 1 && !preserveFolders && !isOriginalFolder && !isImmich;
 
       if (isImmich) {
@@ -670,7 +671,12 @@ export default function ExportPanel({
           }
         }
 
-        setExportState({ status: Status.Exporting, progress: { current: 0, total: numImages }, errorMessage: '' });
+        setExportState({
+          destination: isOriginalFolder || isImmich || isAndroid ? null : outputFolderOrFile,
+          errorMessage: '',
+          progress: { current: 0, total: numImages },
+          status: Status.Exporting,
+        });
         await invoke(Invokes.ExportImages, {
           paths: pathsToExport,
           outputFolderOrFile: outputFolderOrFile,
@@ -784,15 +790,15 @@ export default function ExportPanel({
                     { label: t('export.destination.originalFolder'), value: 'originalFolder' },
                     ...(canExportToImmich ? [{ label: t('immich.export.destination'), value: 'immich' }] : []),
                   ]}
-                  value={destinationType || 'customFolder'}
+                  value={destination || 'customFolder'}
                   onChange={(val) => setDestinationType(val as string)}
                   disabled={isExporting}
                   className="w-full"
                 />
 
-                {destinationType === 'immich' && canExportToImmich && <ImmichExportOptions disabled={isExporting} />}
+                {destination === 'immich' && <ImmichExportOptions disabled={isExporting} />}
 
-                {destinationType === 'originalFolder' && (
+                {destination === 'originalFolder' && (
                   <div className="flex items-center gap-3 pl-2 border-l-2 border-surface">
                     <Text variant={TextVariants.label} className="whitespace-nowrap min-w-[70px]">
                       {t('export.destination.subfolder')}

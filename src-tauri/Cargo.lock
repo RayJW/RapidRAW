@@ -88,6 +88,7 @@ dependencies = [
  "webkit2gtk",
  "webp",
  "wgpu",
+ "windows 0.62.2",
  "windows-native-keyring-store",
  "zbus-secret-service-keyring-store",
 ]

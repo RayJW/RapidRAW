@@ -77,7 +77,10 @@ export default function ImmichSettings() {
         setKeyInfo(info);
         setApiKey(info.apiKey);
       })
-      .catch((err) => setStatus({ kind: 'error', message: String(err) }));
+      .catch((err) => {
+        setKeyInfo({ apiKey: '', inCredentialStore: false });
+        setStatus({ kind: 'error', message: String(err) });
+      });
   }, [savedServerUrl]);
 
   useEffect(() => {
@@ -88,6 +91,8 @@ export default function ImmichSettings() {
 
   const saveOption = (changes: Partial<ImmichSettingsValues>) => {
     setDraft({});
+    const keys = Object.keys(changes) as (keyof ImmichSettingsValues)[];
+    if (keys.every((key) => changes[key] === saved[key])) return;
     handleSettingsChange({ ...appSettings, immich: { ...saved, ...changes } })
       .then(refreshImmich)
       .catch((err) => setStatus({ kind: 'error', message: String(err) }));

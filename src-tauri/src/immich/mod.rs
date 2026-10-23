@@ -18,7 +18,7 @@ use tauri::AppHandle;
 use client::ImmichClient;
 
 pub use config::ImmichSettings;
-pub use files::{ensure_local, ensure_local_all};
+pub use files::ensure_local;
 pub use thumbnails::placeholder_thumbnail;
 pub use trash::trash_remote;
 pub use uploads::on_exported;
@@ -74,6 +74,7 @@ pub async fn fetch_edits(app_handle: &AppHandle, path: &Path) {
             "Could not fetch the edits of {} from Immich: {e}",
             path.display()
         );
+        sync::mark_offline(app_handle);
     }
 }
 
@@ -105,10 +106,17 @@ pub fn apply_settings(settings: &ImmichSettings) {
 }
 
 fn cache_dir(app_handle: &AppHandle, settings: &ImmichSettings) -> Result<PathBuf, String> {
-    match settings.cache_dir.as_deref().map(str::trim) {
-        Some(dir) if !dir.is_empty() => Ok(PathBuf::from(dir)),
-        _ => config::default_cache_dir(app_handle),
-    }
+    let root = match settings.cache_dir.as_deref().map(str::trim) {
+        Some(dir) if !dir.is_empty() => PathBuf::from(dir),
+        _ => config::default_cache_dir(app_handle)?,
+    };
+    let server = settings
+        .server_url
+        .trim()
+        .trim_end_matches('/')
+        .to_lowercase();
+    let server_id = blake3::hash(server.as_bytes()).to_hex();
+    Ok(root.join(&server_id[..16]))
 }
 
 pub fn is_placeholder(path: &Path) -> bool {

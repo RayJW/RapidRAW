@@ -6,7 +6,10 @@ use std::sync::{Arc, Mutex};
 use std::time::{SystemTime, UNIX_EPOCH};
 use tauri::{AppHandle, Emitter};
 
+use super::client::is_asset_id;
 use super::{Session, registry, session};
+
+const LAST_USED: &str = ".last-used";
 
 pub async fn ensure_local(app_handle: &AppHandle, path: &Path) -> Result<(), String> {
     let Some(entry) = registry::get(path) else {
@@ -18,15 +21,10 @@ pub async fn ensure_local(app_handle: &AppHandle, path: &Path) -> Result<(), Str
         download(app_handle, &session, &entry.asset_id, path).await?;
         prune_cache_later(&session);
     }
-    super::fetch_edits(app_handle, path).await;
-    Ok(())
-}
-
-pub async fn ensure_local_all(app_handle: &AppHandle, paths: &[String]) -> Result<(), String> {
-    for path in paths {
-        let (source, _) = crate::file_management::parse_virtual_path(path);
-        ensure_local(app_handle, &source).await?;
+    if let Some(folder) = path.parent() {
+        let _ = std::fs::write(folder.join(LAST_USED), []);
     }
+    super::fetch_edits(app_handle, path).await;
     Ok(())
 }
 
@@ -98,9 +96,13 @@ fn prune_cache(cache_dir: &Path, limit_bytes: u64) {
     let mut originals = Vec::new();
     let mut total = 0u64;
     for folder in folders.filter_map(Result::ok) {
+        if !folder.file_name().to_str().is_some_and(is_asset_id) {
+            continue;
+        }
         let Ok(files) = std::fs::read_dir(folder.path()) else {
             continue;
         };
+        let last_used = modified_ms(&folder.path().join(LAST_USED));
         for file in files.filter_map(Result::ok) {
             let path = file.path();
             let name = file.file_name().to_string_lossy().into_owned();
@@ -109,7 +111,8 @@ fn prune_cache(cache_dir: &Path, limit_bytes: u64) {
             }
             let Ok(meta) = file.metadata() else { continue };
             total += meta.len();
-            originals.push((modified_ms(&path).unwrap_or(0), meta.len(), path));
+            let used = last_used.max(modified_ms(&path)).unwrap_or(0);
+            originals.push((used, meta.len(), path));
         }
     }
     if total <= limit_bytes {
@@ -121,12 +124,12 @@ fn prune_cache(cache_dir: &Path, limit_bytes: u64) {
         .map(|d| d.as_millis() as u64)
         .unwrap_or(0)
         .saturating_sub(3_600_000);
-    originals.sort_by_key(|(modified, ..)| *modified);
-    for (modified, size, path) in originals {
+    originals.sort_by_key(|(used, ..)| *used);
+    for (used, size, path) in originals {
         if total <= limit_bytes {
             break;
         }
-        if modified > an_hour_ago {
+        if used > an_hour_ago {
             continue;
         }
         if std::fs::remove_file(&path).is_ok() {

@@ -8,7 +8,7 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::{Duration, UNIX_EPOCH};
 use tauri::{AppHandle, Emitter};
 
-use super::client::ImmichClient;
+use super::client::{ImmichClient, MetadataEntry, is_asset_id};
 use super::{Session, current_session};
 
 const EDITS_KEY: &str = "rapidraw";
@@ -34,6 +34,17 @@ static STATUS: Lazy<Mutex<SyncStatus>> = Lazy::new(Default::default);
 
 pub fn status() -> SyncStatus {
     *STATUS.lock().unwrap()
+}
+
+pub fn mark_offline(app_handle: &AppHandle) {
+    let pending = status().pending;
+    report(
+        app_handle,
+        SyncStatus {
+            offline: true,
+            pending,
+        },
+    );
 }
 
 fn report(app_handle: &AppHandle, status: SyncStatus) {
@@ -142,7 +153,8 @@ fn write_sidecar(source: &Path, value: &Value) -> Result<(), String> {
     }
     let json = serde_json::to_string_pretty(&value).map_err(|e| e.to_string())?;
     let _layout = crate::exif_processing::SIDECAR_LAYOUT_LOCK.lock().unwrap();
-    fs::write(sidecar_of(source), json).map_err(|e| e.to_string())
+    crate::file_management::write_file_atomic(&sidecar_of(source), json.as_bytes())
+        .map_err(|e| e.to_string())
 }
 
 fn keep_as_virtual_copy(
@@ -164,9 +176,9 @@ fn keep_as_virtual_copy(
     let json = serde_json::to_string_pretty(value).map_err(|e| e.to_string())?;
     {
         let _layout = crate::exif_processing::SIDECAR_LAYOUT_LOCK.lock().unwrap();
-        fs::write(
-            source.with_file_name(format!("{file_name}.{copy_id}.rrdata")),
-            json,
+        crate::file_management::write_file_atomic(
+            &source.with_file_name(format!("{file_name}.{copy_id}.rrdata")),
+            json.as_bytes(),
         )
         .map_err(|e| e.to_string())?;
     }
@@ -186,15 +198,46 @@ pub async fn pull(
     let Some(remote) = client.metadata(asset_id, EDITS_KEY).await? else {
         return Ok(());
     };
+    if !apply_remote(app_handle, source, &remote)? {
+        return Ok(());
+    }
+    let app = app_handle.clone();
+    let path = source.to_string_lossy().into_owned();
+    tauri::async_runtime::spawn_blocking(move || {
+        let settings = crate::app_settings::load_settings(app.clone()).unwrap_or_default();
+        crate::file_management::regenerate_thumbnails(
+            std::iter::once(path),
+            &app,
+            &settings,
+            false,
+        );
+    });
+    let _ = app_handle.emit(
+        "immich-edits-fetched",
+        json!({
+            "path": source,
+            "rating": remote.value.get("rating").and_then(Value::as_u64).unwrap_or(0),
+        }),
+    );
+    Ok(())
+}
+
+fn apply_remote(
+    app_handle: &AppHandle,
+    source: &Path,
+    remote: &MetadataEntry,
+) -> Result<bool, String> {
+    let _guard = crate::exif_processing::lock_sidecar(&sidecar_of(source));
     let mut state = load_state(source);
     if state.remote_updated_at.as_deref() == Some(remote.updated_at.as_str()) {
-        return Ok(());
+        return Ok(false);
     }
     match local_changes(source, &state) {
         Some(local) if local != remote.value => {
             keep_as_virtual_copy(app_handle, source, &remote.value)?;
-            state.remote_updated_at = Some(remote.updated_at);
+            state.remote_updated_at = Some(remote.updated_at.clone());
             save_state(source, &state);
+            Ok(false)
         }
         _ => {
             if let Some(parent) = source.parent() {
@@ -205,29 +248,11 @@ pub async fn pull(
                 source,
                 modified_ms(&sidecar_of(source)),
                 &remote.value,
-                Some(remote.updated_at),
+                Some(remote.updated_at.clone()),
             );
-            let app = app_handle.clone();
-            let path = source.to_string_lossy().into_owned();
-            tauri::async_runtime::spawn_blocking(move || {
-                let settings = crate::app_settings::load_settings(app.clone()).unwrap_or_default();
-                crate::file_management::regenerate_thumbnails(
-                    std::iter::once(path),
-                    &app,
-                    &settings,
-                    false,
-                );
-            });
-            let _ = app_handle.emit(
-                "immich-edits-fetched",
-                json!({
-                    "path": source,
-                    "rating": remote.value.get("rating").and_then(Value::as_u64).unwrap_or(0),
-                }),
-            );
+            Ok(true)
         }
     }
-    Ok(())
 }
 
 pub async fn push(
@@ -265,7 +290,9 @@ fn unsent_edits(cache_dir: &Path) -> Vec<(String, PathBuf)> {
         .flatten()
         .filter_map(|folder| {
             let asset_id = folder.file_name().to_str()?.to_string();
-            uuid::Uuid::parse_str(&asset_id).ok()?;
+            if !is_asset_id(&asset_id) {
+                return None;
+            }
             let source = fs::read_dir(folder.path())
                 .ok()?
                 .flatten()
@@ -284,9 +311,13 @@ fn unsent_edits(cache_dir: &Path) -> Vec<(String, PathBuf)> {
 }
 
 pub async fn send_unsent(app_handle: &AppHandle, session: &Session) {
-    let unsent = unsent_edits(&session.cache_dir);
+    let cache_dir = session.cache_dir.clone();
+    let unsent = tauri::async_runtime::spawn_blocking(move || unsent_edits(&cache_dir))
+        .await
+        .unwrap_or_default();
     let mut pending = unsent.len();
-    let mut offline = false;
+    let mut offline =
+        unsent.is_empty() && status().offline && session.client.version_numbers().await.is_err();
     for (asset_id, source) in unsent {
         match push(app_handle, &session.client, &asset_id, &source).await {
             Ok(_) => pending -= 1,

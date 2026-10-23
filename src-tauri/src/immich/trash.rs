@@ -1,6 +1,7 @@
 use serde_json::json;
 use tauri::{AppHandle, Emitter};
 
+use super::client::ImmichClient;
 use super::{registry, session};
 
 pub fn trash_remote(
@@ -15,7 +16,13 @@ pub fn trash_remote(
     if remote.is_empty() {
         return Ok(local);
     }
-    let session = session(app_handle)?;
+    let session = match session(app_handle) {
+        Ok(session) => session,
+        Err(e) => {
+            let _ = app_handle.emit("immich-trash", json!({ "error": e }));
+            return Ok(local);
+        }
+    };
 
     let mut ids = Vec::new();
     let mut sources = Vec::new();
@@ -37,18 +44,7 @@ pub fn trash_remote(
     let app_handle = app_handle.clone();
     tauri::async_runtime::spawn(async move {
         let mut ids = ids;
-        if whole_stack {
-            for stack in session.client.stacks().await.unwrap_or_default() {
-                if stack.assets.iter().any(|a| ids.contains(&a.id)) {
-                    for asset in stack.assets {
-                        if !ids.contains(&asset.id) {
-                            ids.push(asset.id);
-                        }
-                    }
-                }
-            }
-        }
-        let result = session.client.trash(&ids).await;
+        let result = trash_assets(&session.client, &mut ids, whole_stack).await;
         registry::done_trashing(&ids);
         match &result {
             Ok(()) => {
@@ -68,4 +64,23 @@ pub fn trash_remote(
         let _ = app_handle.emit("immich-library-changed", json!({}));
     });
     Ok(local)
+}
+
+async fn trash_assets(
+    client: &ImmichClient,
+    ids: &mut Vec<String>,
+    whole_stack: bool,
+) -> Result<(), String> {
+    if whole_stack {
+        for stack in client.stacks().await? {
+            if stack.assets.iter().any(|a| ids.contains(&a.id)) {
+                for asset in stack.assets {
+                    if !ids.contains(&asset.id) {
+                        ids.push(asset.id);
+                    }
+                }
+            }
+        }
+    }
+    client.trash(ids).await
 }

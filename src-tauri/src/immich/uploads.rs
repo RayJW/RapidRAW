@@ -59,39 +59,37 @@ pub fn prepare_export(
     Ok(folder)
 }
 
-pub fn on_exported(app_handle: &AppHandle, source_path: &str, output_path: &Path) {
+pub fn on_exported(
+    app_handle: &AppHandle,
+    source_path: &str,
+    output_path: &Path,
+) -> Result<(), String> {
     let Some(target) = output_path
         .parent()
         .and_then(|folder| EXPORT_TARGETS.lock().unwrap().get(folder).cloned())
     else {
-        return;
+        return Ok(());
     };
-    let Ok(session) = session(app_handle) else {
-        return;
-    };
+    let session = session(app_handle)?;
 
-    let app_handle = app_handle.clone();
     let (source, _) = crate::file_management::parse_virtual_path(source_path);
-    let output = output_path.to_path_buf();
-    tauri::async_runtime::spawn(async move {
-        let file_name = output
-            .file_name()
-            .map(|n| n.to_string_lossy().into_owned())
-            .unwrap_or_default();
-        let result = upload_export(&app_handle, &session, &source, &target, &output).await;
-        let _ = std::fs::remove_file(&output);
-        let _ = app_handle.emit(
-            "immich-upload",
-            match &result {
-                Ok(()) => json!({ "state": "done", "fileName": file_name }),
-                Err(e) => json!({ "state": "error", "fileName": file_name, "error": e }),
-            },
-        );
-        if let Err(e) = result {
-            log::error!("Immich upload of {} failed: {e}", output.display());
-        }
-        let _ = app_handle.emit("immich-library-changed", json!({}));
-    });
+    let file_name = output_path
+        .file_name()
+        .map(|n| n.to_string_lossy().into_owned())
+        .unwrap_or_default();
+    let result = tauri::async_runtime::block_on(upload_export(
+        app_handle,
+        &session,
+        &source,
+        &target,
+        output_path,
+    ));
+    let _ = std::fs::remove_file(output_path);
+    if result.is_ok() {
+        let _ = app_handle.emit("immich-upload", json!({ "fileName": file_name }));
+    }
+    let _ = app_handle.emit("immich-library-changed", json!({}));
+    result.map_err(|e| format!("Immich upload of {file_name} failed: {e}"))
 }
 
 async fn upload_export(

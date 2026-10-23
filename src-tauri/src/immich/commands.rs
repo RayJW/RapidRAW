@@ -131,12 +131,8 @@ pub async fn immich_get_images(
         registry::insert(item.path, item.image);
     }
 
-    let app = app_handle.clone();
-    let mut files = tauri::async_runtime::spawn_blocking(move || {
-        crate::file_management::get_album_images(local_paths, app)
-    })
-    .await
-    .map_err(|e| e.to_string())??;
+    let mut files =
+        crate::file_management::get_album_images(local_paths, app_handle.clone()).await?;
     files.extend(placeholders);
     Ok(files)
 }
