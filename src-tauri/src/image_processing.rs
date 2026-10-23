@@ -3390,6 +3390,8 @@ fn reduce_raw_chroma_noise(buffer: &mut Rgb32FImage, amount: f32) -> Vec<f32> {
     let eps = half.upsample_eps(amount);
     let edge_scale = 0.5 / eps.sqrt();
     let inv_core = 1.0 / ((2.0 + 2.0 * amount) * noise_c_full);
+    let retain = 0.6 * (1.0 - amount);
+    let retain_limit = 4.0 * noise_c_full;
     let (hw, hh) = (half.w, half.h);
 
     let mut luma = vec![0.0f32; w * h];
@@ -3438,8 +3440,18 @@ fn reduce_raw_chroma_noise(buffer: &mut Rgb32FImage, amount: f32) -> Vec<f32> {
                     let edge = up.q_range[k] * edge_scale;
                     let keep = ((er * er + eb * eb).sqrt() * inv_core - 1.0).clamp(0.0, 1.0)
                         / (1.0 + edge * edge);
-                    let nr = (up.r[k] + er * keep).max(up.r_min[k]).min(up.r_max[k]);
-                    let nb = (up.b[k] + eb * keep).max(up.b_min[k]).min(up.b_max[k]);
+                    let fr = (up.r[k] + er * keep).max(up.r_min[k]).min(up.r_max[k]);
+                    let fb = (up.b[k] + eb * keep).max(up.b_min[k]).min(up.b_max[k]);
+                    let (rr, rb) = (cr[k] - fr, cb[k] - fb);
+                    let residual = (rr * rr + rb * rb).sqrt().max(1e-6);
+                    let texture = ((edge - 0.75) * 0.8).clamp(0.0, 1.0);
+                    let back = retain
+                        * texture
+                        * texture
+                        * (3.0 - 2.0 * texture)
+                        * (retain_limit / residual).min(1.0);
+                    let nr = fr + rr * back;
+                    let nb = fb + rb * back;
                     let vr = (qc[k] + nr).max(0.0);
                     let vb = (qc[k] + nb).max(0.0);
                     let lk = l[k];
@@ -3561,7 +3573,13 @@ fn apply_gentle_detail_enhance(buffer: &mut Rgb32FImage, q: &[f32], amount: f32)
                 let d = d / (1.0 + d.abs() * taper);
                 let min = lo[x].min(lo[x + 1]).min(lo[x + 2]);
                 let max = hi[x].max(hi[x + 1]).max(hi[x + 2]);
-                let qn = (qc + strength * d).clamp(min, max);
+                let delta = strength * d;
+                let range = max - min;
+                let up_room = max - qc + range * 0.15 + 0.004;
+                let down_room = qc - min + range * 0.05 + 0.002;
+                let up = delta.max(0.0);
+                let down = (-delta).max(0.0) * 0.7;
+                let qn = qc + up * up_room / (up_room + up) - down * down_room / (down_room + down);
                 let l = qc * qc - floor;
                 let ln = (qn * qn - floor).max(0.0);
                 if l > 1e-6 {

@@ -218,8 +218,6 @@ const HSL_RANGES: array<HslRange, 8> = array<HslRange, 8>(
 
 const GF_LUMA_FLOOR: f32 = 1.0e-4;
 const GF_DETAIL_SIGMA: f32 = 1.5;
-const SHARPEN_EDGE_SIGMA: f32 = 0.12;
-const SHARPEN_DARK_SCALE: f32 = 0.55;
 const GF_REINJECT_SIGMA: f32 = 0.8;
 const DEHAZE_STRENGTH: f32 = 1.5;
 const GF_CLARITY_GAIN: f32 = 1.8;
@@ -952,28 +950,8 @@ fn sharpen_tap(coords: vec2<i32>, max_idx: vec2<i32>, is_raw: u32) -> f32 {
     return sharpen_perc(textureLoad(input_texture, vec2<u32>(c), 0).rgb, is_raw);
 }
 
-fn sharpen_tap_bilinear(p: vec2<f32>, max_idx: vec2<i32>, is_raw: u32) -> f32 {
-    let fl = floor(p);
-    let w = p - fl;
-    let b = vec2<i32>(fl);
-    let s00 = sharpen_tap(b, max_idx, is_raw);
-    let s10 = sharpen_tap(b + vec2<i32>(1, 0), max_idx, is_raw);
-    let s01 = sharpen_tap(b + vec2<i32>(0, 1), max_idx, is_raw);
-    let s11 = sharpen_tap(b + vec2<i32>(1, 1), max_idx, is_raw);
-    return mix(mix(s00, s10, w.x), mix(s01, s11, w.x), w.y);
-}
-
-fn sharpen_soft_limit(v: f32, lo: f32, hi: f32, margin: f32) -> f32 {
-    let m = max(margin, 1e-5);
-    if (v > hi) {
-        let e = v - hi;
-        return hi + e / (1.0 + e / m);
-    }
-    if (v < lo) {
-        let e = lo - v;
-        return lo - e / (1.0 + e / m);
-    }
-    return v;
+fn sharpen_core(d: f32, t: f32) -> f32 {
+    return d * d * d / (d * d + t * t);
 }
 
 fn apply_sharpen(
@@ -1003,94 +981,31 @@ fn apply_sharpen(
     let l1 = sharpen_perc(b1_in, is_raw);
     let l2 = sharpen_perc(b2_in, is_raw);
 
-    let d0 = l  - l1;
-    let d1 = l1 - l2;
-
-    let t = max(threshold * 0.15, 1e-4);
-    let g0 = smoothstep(t * 0.20, t * 0.85, abs(d0));
-    let g1 = smoothstep(t * 0.12, t * 0.55, abs(d1));
-
-    let d0_s = shape_detail(d0, SHARPEN_EDGE_SIGMA);
-    let d1_s = shape_detail(d1, SHARPEN_EDGE_SIGMA * 0.8);
-    let boost = (d0_s * 1.25 * g0 + d1_s * 0.25 * g1) * amount;
-
-    let dims = vec2<i32>(textureDimensions(input_texture));
-    let max_idx = dims - vec2<i32>(1);
-    let kw = array<f32, 5>(0.01853, -0.21023, 1.38348, -0.21023, 0.01853);
-
-    var acc = 0.0;
-    var center_tap = 0.0;
-    var lo = 1.0e9;
-    var hi = -1.0e9;
-    var gx = 0.0;
-    var gy = 0.0;
-
-    for (var iy = 0; iy < 5; iy = iy + 1) {
-        let oy = iy - 2;
-        let ky = kw[iy];
-        let cy = clamp(coords_i.y + oy, 0, max_idx.y);
-        for (var ix = 0; ix < 5; ix = ix + 1) {
-            let ox = ix - 2;
-            let cx = clamp(coords_i.x + ox, 0, max_idx.x);
-            let sl = sharpen_perc(textureLoad(input_texture, vec2<u32>(vec2<i32>(cx, cy)), 0).rgb, is_raw);
-
-            acc += sl * kw[ix] * ky;
-            lo = min(lo, sl);
-            hi = max(hi, sl);
-
-            if (ox == 0 && oy == 0) { center_tap = sl; }
-
-            if (abs(ox) <= 1 && abs(oy) <= 1) {
-                gx += sl * f32(ox) * (2.0 - abs(f32(oy)));
-                gy += sl * f32(oy) * (2.0 - abs(f32(ox)));
-            }
+    let max_idx = vec2<i32>(textureDimensions(input_texture)) - vec2<i32>(1);
+    var lo = l;
+    var hi = l;
+    for (var dy = -1; dy <= 1; dy = dy + 1) {
+        for (var dx = -1; dx <= 1; dx = dx + 1) {
+            let s = sharpen_tap(coords_i + vec2<i32>(dx, dy), max_idx, is_raw);
+            lo = min(lo, s);
+            hi = max(hi, s);
         }
     }
 
-    let deconv_delta = shape_detail(acc - center_tap, SHARPEN_EDGE_SIGMA) * clamp(amount * 0.60, 0.0, 1.0);
-    let range = max(hi - lo, 1e-5);
-    let edge_ratio = smoothstep(0.06, 0.28, range);
-    let dark_scale = mix(SHARPEN_DARK_SCALE, 0.1, edge_ratio);
-    let sharpen_delta = boost + deconv_delta;
-    var l_new = l + select(sharpen_delta, sharpen_delta * dark_scale, sharpen_delta < 0.0);
-
-    l_new = sharpen_soft_limit(
-        l_new,
-        lo - range * 0.01,
-        hi + range * 0.10,
-        range * 0.12
-    );
-
-    let g2 = gx * gx + gy * gy;
-    if (g2 > 1e-6) {
-        let diagonality = clamp(2.0 * abs(gx * gy) / g2, 0.0, 1.0);
-        let edge_present = smoothstep(t * 0.5, t * 2.5, sqrt(g2) * 0.25);
-        let aa = 0.90 * diagonality * edge_present;
-
-        if (aa > 0.002) {
-            let inv_g = inverseSqrt(g2);
-
-            let tang = vec2<f32>(-gy, gx) * inv_g * 0.75;
-            let p = vec2<f32>(coords_i) + vec2<f32>(0.5);
-
-            let tp = sharpen_tap_bilinear(p + tang - vec2<f32>(0.5), max_idx, is_raw);
-            let tn = sharpen_tap_bilinear(p - tang - vec2<f32>(0.5), max_idx, is_raw);
-
-            let safe_tp = max(tp, l * 0.6);
-            let safe_tn = max(tn, l * 0.6);
-
-            let l_tan = (safe_tp + safe_tn + l * 2.0) * 0.25;
-
-            let l_aa = l_tan + (l_new - l);
-
-            l_new = mix(l_new, l_aa, min(aa, 0.5));
-        }
-    }
+    let t = max(threshold * 0.07, 1e-4);
+    let detail = sharpen_core(l - l1, t) + 0.5 * sharpen_core(l1 - l2, t);
+    let tapered = detail / (1.0 + abs(detail) * 12.0);
+    let delta = tapered * amount * 5.2 / (1.0 + 0.4 * max(amount - 1.0, 0.0));
+    let range = hi - lo;
+    let up_room = (hi - l + range * 0.15 + 0.004) * 0.7;
+    let down_room = (l - lo + range * 0.05 + 0.002) * 0.7;
+    let up = max(delta, 0.0);
+    let down = max(-delta, 0.0) * 0.7;
+    var l_new = l + up * up_room / (up_room + up) - down * down_room / (down_room + down);
 
     let shadow_floor = select(0.03, 0.10, is_raw == 1u);
     let prot = smoothstep(0.0, shadow_floor, l) * (1.0 - smoothstep(0.92, 1.0, l));
     l_new = max(mix(l, l_new, prot), 0.0);
-    l_new = max(l_new, l * 0.70);
 
     let ratio = l_new / max(l, 1e-4);
     if (is_raw == 1u) {
