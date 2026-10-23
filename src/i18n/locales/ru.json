@@ -1492,7 +1492,6 @@
         "colorMixer": "Цветовой микшер",
         "cropAspectRatio": "Обрезка и формат",
         "curves": "Кривые",
-        "exposureToneMapper": "Экспозиция и тональное отображение",
         "fog": "Туман",
         "grain": "Зернистость",
         "guidedPerspective": "Направляемая перспектива",
@@ -1507,7 +1506,6 @@
         "presence": "Присутствие",
         "relight": "Переосвещение",
         "sharpness": "Резкость",
-        "tone": "Тональность",
         "transformRotation": "Трансформация и поворот",
         "vignette": "Виньетка",
         "whiteBalance": "Баланс белого"

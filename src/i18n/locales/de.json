@@ -1434,7 +1434,6 @@
         "colorMixer": "Farbmischer",
         "cropAspectRatio": "Zuschnitt & Seitenverhältnis",
         "curves": "Kurven",
-        "exposureToneMapper": "Belichtung & Tonemapper",
         "fog": "Nebel",
         "grain": "Körnung",
         "guidedPerspective": "Geführte Perspektive",
@@ -1449,7 +1448,6 @@
         "presence": "Präsenz",
         "relight": "Neu beleuchten",
         "sharpness": "Schärfe",
-        "tone": "Tonwerte",
         "transformRotation": "Transformieren & Drehen",
         "vignette": "Vignettierung",
         "whiteBalance": "Weißabgleich"

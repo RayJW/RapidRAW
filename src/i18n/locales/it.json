@@ -1465,7 +1465,6 @@
         "colorMixer": "Mixer Colori",
         "cropAspectRatio": "Ritaglio e Proporzioni",
         "curves": "Curve",
-        "exposureToneMapper": "Esposizione e Tone Mapper",
         "fog": "Nebbia",
         "grain": "Grana",
         "guidedPerspective": "Prospettiva guidata",
@@ -1480,7 +1479,6 @@
         "presence": "Presenza",
         "relight": "Reilluminazione",
         "sharpness": "Nitidezza",
-        "tone": "Tono",
         "transformRotation": "Trasformazione e Rotazione",
         "vignette": "Vignettatura",
         "whiteBalance": "Bilanciamento del Bianco"

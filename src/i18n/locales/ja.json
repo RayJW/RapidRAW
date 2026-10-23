@@ -1430,7 +1430,6 @@
         "colorMixer": "カラーミキサー",
         "cropAspectRatio": "切り抜きとアスペクト比",
         "curves": "トーンカーブ",
-        "exposureToneMapper": "露光量とトーンマッパー",
         "fog": "フォグ",
         "grain": "粒子",
         "guidedPerspective": "ガイド付きパースペクティブ",
@@ -1445,7 +1444,6 @@
         "presence": "外観",
         "relight": "リライト",
         "sharpness": "シャープネス",
-        "tone": "トーン",
         "transformRotation": "変形と回転",
         "vignette": "周辺光量補正",
         "whiteBalance": "ホワイトバランス"

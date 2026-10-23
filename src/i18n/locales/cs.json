@@ -1439,7 +1439,6 @@
         "colorMixer": "Míchání barev",
         "cropAspectRatio": "Oříznutí a poměr stran",
         "curves": "Křivky",
-        "exposureToneMapper": "Expozice a mapování tónů",
         "fog": "Mlha",
         "grain": "Zrno",
         "guidedPerspective": "Naváděná perspektiva",
@@ -1454,7 +1453,6 @@
         "presence": "Prezence",
         "relight": "Přesvětlení",
         "sharpness": "Ostrost",
-        "tone": "Tón",
         "transformRotation": "Transformace a rotace",
         "vignette": "Viněta",
         "whiteBalance": "Vyvážení bílé"

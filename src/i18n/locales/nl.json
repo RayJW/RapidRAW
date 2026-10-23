@@ -1411,7 +1411,6 @@
         "colorMixer": "Kleurenmixer",
         "cropAspectRatio": "Bijsnijden & beeldverhouding",
         "curves": "Curven",
-        "exposureToneMapper": "Belichting & toonmapping",
         "fog": "Mist",
         "grain": "Korrel",
         "guidedPerspective": "Geleid perspectief",
@@ -1426,7 +1425,6 @@
         "presence": "Presentie",
         "relight": "Herbelichten",
         "sharpness": "Scherpte",
-        "tone": "Toon",
         "transformRotation": "Transformeren & rotatie",
         "vignette": "Vignet",
         "whiteBalance": "Witbalans"

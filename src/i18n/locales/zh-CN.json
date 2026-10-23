@@ -1430,7 +1430,6 @@
         "colorMixer": "颜色混合器",
         "cropAspectRatio": "裁剪与宽高比",
         "curves": "曲线",
-        "exposureToneMapper": "曝光与色调映射",
         "fog": "雾",
         "grain": "颗粒",
         "guidedPerspective": "引导透视",
@@ -1445,7 +1444,6 @@
         "presence": "质感",
         "relight": "重新打光",
         "sharpness": "锐度",
-        "tone": "色调",
         "transformRotation": "变换与旋转",
         "vignette": "暗角",
         "whiteBalance": "白平衡"

@@ -1430,7 +1430,6 @@
         "colorMixer": "컬러 믹서",
         "cropAspectRatio": "자르기 및 종횡비",
         "curves": "커브",
-        "exposureToneMapper": "노출 및 톤 매퍼",
         "fog": "안개",
         "grain": "그레인",
         "guidedPerspective": "유도된 원근 보정",
@@ -1445,7 +1444,6 @@
         "presence": "외관",
         "relight": "리라이트",
         "sharpness": "선명도",
-        "tone": "톤",
         "transformRotation": "변형 및 회전",
         "vignette": "비네트",
         "whiteBalance": "화이트 밸런스"

@@ -5,6 +5,8 @@ use std::sync::{Arc, Mutex};
 
 use base64::{Engine as _, engine::general_purpose};
 use image::{DynamicImage, GenericImageView, GrayImage, ImageFormat};
+use serde::Serialize;
+use serde_json::{Value, json};
 
 use crate::ai_connector;
 use crate::ai_processing::{
@@ -21,6 +23,23 @@ use crate::cache_utils::GEOMETRY_KEYS;
 use crate::effect_maps::EffectMapKind;
 use crate::face_masking::{FaceAnalysis, FacePart, analyze_faces, compose_face_mask};
 use crate::get_cached_full_warped_image;
+
+const NO_FOREGROUND_FOUND: &str = "No foreground found";
+const NO_SKY_FOUND: &str = "No sky found";
+const NO_MATCH_FOUND: &str = "No match found for";
+const NO_FACES_FOUND: &str = "No faces found";
+const NO_RESULT_ERRORS: [&str; 4] = [
+    NO_FOREGROUND_FOUND,
+    NO_SKY_FOUND,
+    NO_MATCH_FOUND,
+    NO_FACES_FOUND,
+];
+
+fn is_no_result_error(error: &str) -> bool {
+    NO_RESULT_ERRORS
+        .iter()
+        .any(|prefix| error.starts_with(prefix))
+}
 
 #[tauri::command]
 pub fn cancel_ai_task(task_id: String, state: tauri::State<'_, AppState>) -> Result<(), String> {
@@ -67,6 +86,45 @@ impl MaskTransform {
     }
 }
 
+pub fn to_json<T: Serialize>(params: T) -> Result<Value, String> {
+    serde_json::to_value(params).map_err(|e| e.to_string())
+}
+
+pub fn or_empty_mask(
+    result: Result<Value, String>,
+    transform: MaskTransform,
+    ai_source: Option<String>,
+) -> Result<(Value, Option<String>), String> {
+    match result {
+        Err(error) if is_no_result_error(&error) => {
+            let mut params = json!({
+                "maskDataBase64": encode_to_base64_png(&GrayImage::new(1, 1))?,
+                "rotation": transform.rotation,
+                "flipHorizontal": transform.flip_horizontal,
+                "flipVertical": transform.flip_vertical,
+                "orientationSteps": transform.orientation_steps,
+            });
+            if let Some(ai_source) = ai_source {
+                params["aiSource"] = json!(ai_source);
+            }
+            Ok((params, Some(error)))
+        }
+        result => result.map(|params| (params, None)),
+    }
+}
+
+fn mask_command_result(
+    result: Result<Value, String>,
+    transform: MaskTransform,
+    ai_source: Option<String>,
+) -> Result<Value, String> {
+    let (mut params, no_result) = or_empty_mask(result, transform, ai_source)?;
+    if let Some(error) = no_result {
+        params["noResult"] = json!(error);
+    }
+    Ok(params)
+}
+
 pub fn ai_cache_key(path: &str, adjustments: &serde_json::Value) -> String {
     let mut hasher = blake3::Hasher::new();
     hasher.update(path.as_bytes());
@@ -104,6 +162,9 @@ pub fn generate_foreground_mask(
         &*models.birefnet().map_err(|e| e.to_string())?,
     )
     .map_err(|e| e.to_string())?;
+    if mask.iter().all(|&v| v < 128) {
+        return Err(NO_FOREGROUND_FOUND.to_string());
+    }
 
     Ok(AiForegroundMaskParameters {
         mask_data_base64: Some(encode_to_base64_png(&mask)?),
@@ -163,7 +224,7 @@ pub fn generate_sky_mask(
         ESAM3_SKY_SCORE_THRESHOLD,
     )
     .map_err(|e| e.to_string())?
-    .unwrap_or_else(|| GrayImage::new(warped_image.width(), warped_image.height()));
+    .ok_or_else(|| NO_SKY_FOUND.to_string())?;
 
     Ok(AiSkyMaskParameters {
         mask_data_base64: Some(encode_to_base64_png(&mask)?),
@@ -196,7 +257,7 @@ pub fn generate_text_mask(
         ESAM3_TEXT_SCORE_THRESHOLD,
     )
     .map_err(|e| e.to_string())?
-    .ok_or_else(|| format!("No match found for \"{}\"", prompt.trim()))?;
+    .ok_or_else(|| format!("{} \"{}\"", NO_MATCH_FOUND, prompt.trim()))?;
 
     Ok(AiTextMaskParameters {
         prompt: prompt.to_string(),
@@ -263,7 +324,7 @@ pub fn generate_face_mask(
 ) -> Result<AiFaceMaskParameters, String> {
     let analysis = cached_face_analysis(ai_state, models, cache_key, warped_image, transform)?;
     if analysis.faces.is_empty() {
-        return Err("No faces found".to_string());
+        return Err(NO_FACES_FOUND.to_string());
     }
     let face_parts: Vec<FacePart> = parts.iter().filter_map(|p| FacePart::from_id(p)).collect();
     let mask = compose_face_mask(warped_image, &analysis, &face_parts);
@@ -492,7 +553,7 @@ pub async fn generate_ai_foreground_mask(
     task_id: Option<String>,
     state: tauri::State<'_, AppState>,
     app_handle: tauri::AppHandle,
-) -> Result<AiForegroundMaskParameters, String> {
+) -> Result<Value, String> {
     let guard = task_id.map(|id| AiTaskGuard::new(&state.active_ai_tasks, id));
     check_cancelled(&guard)?;
 
@@ -515,8 +576,13 @@ pub async fn generate_ai_foreground_mask(
         flip_vertical,
         orientation_steps,
     };
-    let params =
-        generate_foreground_mask(&models, &warped_image, transform, loaded_source_id(&state))?;
+    let ai_source = loaded_source_id(&state);
+    let params = mask_command_result(
+        generate_foreground_mask(&models, &warped_image, transform, ai_source.clone())
+            .and_then(to_json),
+        transform,
+        ai_source,
+    )?;
     check_cancelled(&guard)?;
     Ok(params)
 }
@@ -533,7 +599,7 @@ pub async fn generate_ai_sky_mask(
     task_id: Option<String>,
     state: tauri::State<'_, AppState>,
     app_handle: tauri::AppHandle,
-) -> Result<AiSkyMaskParameters, String> {
+) -> Result<Value, String> {
     let guard = task_id.map(|id| AiTaskGuard::new(&state.active_ai_tasks, id));
     check_cancelled(&guard)?;
 
@@ -556,13 +622,19 @@ pub async fn generate_ai_sky_mask(
         flip_vertical,
         orientation_steps,
     };
-    let params = generate_sky_mask(
-        &state.ai_state,
-        &models,
-        &ai_cache_key(&path, &js_adjustments),
-        &warped_image,
+    let ai_source = loaded_source_id(&state);
+    let params = mask_command_result(
+        generate_sky_mask(
+            &state.ai_state,
+            &models,
+            &ai_cache_key(&path, &js_adjustments),
+            &warped_image,
+            transform,
+            ai_source.clone(),
+        )
+        .and_then(to_json),
         transform,
-        loaded_source_id(&state),
+        ai_source,
     )?;
     check_cancelled(&guard)?;
     Ok(params)
@@ -581,7 +653,7 @@ pub async fn generate_ai_text_mask(
     task_id: Option<String>,
     state: tauri::State<'_, AppState>,
     app_handle: tauri::AppHandle,
-) -> Result<AiTextMaskParameters, String> {
+) -> Result<Value, String> {
     let guard = task_id.map(|id| AiTaskGuard::new(&state.active_ai_tasks, id));
     check_cancelled(&guard)?;
 
@@ -604,14 +676,20 @@ pub async fn generate_ai_text_mask(
         flip_vertical,
         orientation_steps,
     };
-    let params = generate_text_mask(
-        &state.ai_state,
-        &models,
-        &ai_cache_key(&path, &js_adjustments),
-        &warped_image,
-        &prompt,
+    let ai_source = loaded_source_id(&state);
+    let params = mask_command_result(
+        generate_text_mask(
+            &state.ai_state,
+            &models,
+            &ai_cache_key(&path, &js_adjustments),
+            &warped_image,
+            &prompt,
+            transform,
+            ai_source.clone(),
+        )
+        .and_then(to_json),
         transform,
-        loaded_source_id(&state),
+        ai_source,
     )?;
     check_cancelled(&guard)?;
     Ok(params)
@@ -630,7 +708,7 @@ pub async fn generate_ai_face_mask(
     task_id: Option<String>,
     state: tauri::State<'_, AppState>,
     app_handle: tauri::AppHandle,
-) -> Result<AiFaceMaskParameters, String> {
+) -> Result<Value, String> {
     let guard = task_id.map(|id| AiTaskGuard::new(&state.active_ai_tasks, id));
     check_cancelled(&guard)?;
 
@@ -653,14 +731,20 @@ pub async fn generate_ai_face_mask(
         flip_vertical,
         orientation_steps,
     };
-    let params = generate_face_mask(
-        &state.ai_state,
-        &models,
-        &ai_cache_key(&path, &js_adjustments),
-        &warped_image,
-        &parts,
+    let ai_source = loaded_source_id(&state);
+    let params = mask_command_result(
+        generate_face_mask(
+            &state.ai_state,
+            &models,
+            &ai_cache_key(&path, &js_adjustments),
+            &warped_image,
+            &parts,
+            transform,
+            ai_source.clone(),
+        )
+        .and_then(to_json),
         transform,
-        loaded_source_id(&state),
+        ai_source,
     )?;
     check_cancelled(&guard)?;
     Ok(params)

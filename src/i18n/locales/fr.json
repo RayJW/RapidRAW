@@ -1463,7 +1463,6 @@
         "colorMixer": "Mélangeur de couleurs",
         "cropAspectRatio": "Recadrage & Rapport d'aspect",
         "curves": "Courbes",
-        "exposureToneMapper": "Exposition & Mappeur de tons",
         "fog": "Brouillard",
         "grain": "Grain",
         "guidedPerspective": "Perspective guidée",
@@ -1478,7 +1477,6 @@
         "presence": "Présence",
         "relight": "Rééclairage",
         "sharpness": "Netteté",
-        "tone": "Tonalité",
         "transformRotation": "Transformation & Rotation",
         "vignette": "Vignettage",
         "whiteBalance": "Balance des blancs"

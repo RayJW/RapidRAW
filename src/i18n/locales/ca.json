@@ -1439,7 +1439,6 @@
         "colorMixer": "Mesclador de colors",
         "cropAspectRatio": "Retall i Relació d'aspecte",
         "curves": "Corbes",
-        "exposureToneMapper": "Exposició i Mapejador de tons",
         "fog": "Boira",
         "grain": "Gra",
         "guidedPerspective": "Perspectiva guiada",
@@ -1454,7 +1453,6 @@
         "presence": "Presència",
         "relight": "Reil·luminació",
         "sharpness": "Nitidesa",
-        "tone": "Tons",
         "transformRotation": "Transformació i Rotació",
         "vignette": "Vinyetatge",
         "whiteBalance": "Balanç de blancs"
