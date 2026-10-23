@@ -129,15 +129,18 @@ fn remember(
 }
 
 fn local_changes(source: &Path, state: &SyncState) -> Option<Value> {
-    let modified = modified_ms(&sidecar_of(source))?;
-    if state.local_modified_ms == Some(modified) {
+    let modified = modified_ms(&sidecar_of(source));
+    if state.local_modified_ms == modified {
         return None;
     }
-    let local = shared(read_sidecar(source)?);
+    let local = match modified {
+        Some(_) => shared(read_sidecar(source)?),
+        None => json!({}),
+    };
     let unchanged = state.local_hash.as_deref() == Some(fingerprint(&local).as_str());
     let never_edited = state.local_hash.is_none() && is_blank(&local);
     if unchanged || never_edited {
-        remember(source, Some(modified), &local, None);
+        remember(source, modified, &local, None);
         return None;
     }
     Some(local)
@@ -296,13 +299,8 @@ fn unsent_edits(cache_dir: &Path) -> Vec<(String, PathBuf)> {
             let source = fs::read_dir(folder.path())
                 .ok()?
                 .flatten()
-                .find_map(|file| {
-                    let name = file.file_name().to_string_lossy().into_owned();
-                    match crate::file_management::parse_sidecar_name(&name) {
-                        Some((base, None)) => Some(folder.path().join(base)),
-                        _ => None,
-                    }
-                })?;
+                .map(|file| file.path())
+                .find(|path| crate::formats::is_supported_image_file(path))?;
             let changed =
                 modified_ms(&sidecar_of(&source)) != load_state(&source).local_modified_ms;
             changed.then_some((asset_id, source))
