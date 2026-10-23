@@ -1084,6 +1084,10 @@ export default function Editor({ onBackToLibrary, onContextMenu, onImageSelect, 
 
   const handlePointerMove = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {
+      if (useEditorStore.getState().isMaskControlHovered) {
+        setEditor({ isMaskControlHovered: false });
+      }
+
       if (straightenDragStartRef.current && e.pointerType === 'mouse') {
         const rect = imageContainerRef.current!.getBoundingClientRect();
         const x = e.clientX - rect.left;
@@ -1187,6 +1191,7 @@ export default function Editor({ onBackToLibrary, onContextMenu, onImageSelect, 
       liveRotation,
       imageRenderSize.scale,
       setAdjustments,
+      setEditor,
     ],
   );
 
