@@ -53,7 +53,7 @@ import { TextColors, TextVariants, TextWeights } from '../../types/typography';
 import { useOsPlatform } from '../../hooks/useOsPlatform';
 import { useCloudUsage } from '../../hooks/useCloudUsage';
 import { open } from '@tauri-apps/plugin-shell';
-import { Images, RotateCcw } from 'lucide-react';
+import { RotateCcw } from 'lucide-react';
 import { useUIStore } from '../../store/useUIStore';
 import { formatBytes } from '../../utils/formatBytes';
 import ImmichSettings from '../immich/ImmichSettings';
@@ -627,7 +627,6 @@ export default function SettingsPanel({
       { id: 'general', label: t('settings.categories.general'), icon: SlidersHorizontal },
       { id: 'processing', label: t('settings.categories.processing'), icon: Cpu },
       { id: 'shortcuts', label: t('settings.categories.shortcuts'), icon: Keyboard },
-      { id: 'immich', label: t('immich.settings.category'), icon: Images },
     ],
     [t],
   );
@@ -1163,7 +1162,7 @@ export default function SettingsPanel({
               </Text>
             </div>
 
-            <div className="relative flex w-full min-[1200px]:w-150 p-2 bg-surface rounded-md">
+            <div className="relative flex w-full min-[1200px]:w-112.5 p-2 bg-surface rounded-md">
               {settingCategories.map((category) => (
                 <button
                   key={category.id}
@@ -1206,7 +1205,7 @@ export default function SettingsPanel({
                   className="space-y-10"
                 >
                   <div className="p-6 bg-surface rounded-xl shadow-md">
-                    <Text variant={TextVariants.title} color={TextColors.accent} className="mb-8">
+                    <Text variant={TextVariants.title} color={TextColors.accent} className="mb-5">
                       {t('settings.general.title')}
                     </Text>
                     <div className="space-y-8">
@@ -1384,7 +1383,7 @@ export default function SettingsPanel({
                   </div>
 
                   <div className="p-6 bg-surface rounded-xl shadow-md">
-                    <Text variant={TextVariants.title} color={TextColors.accent} className="mb-8">
+                    <Text variant={TextVariants.title} color={TextColors.accent} className="mb-5">
                       {t('settings.processing.ai.title')}
                     </Text>
                     <Text className="mb-4">{t('settings.processing.ai.description')}</Text>
@@ -1579,7 +1578,7 @@ export default function SettingsPanel({
                   </div>
 
                   <div className="p-6 bg-surface rounded-xl shadow-md">
-                    <Text variant={TextVariants.title} color={TextColors.accent} className="mb-8">
+                    <Text variant={TextVariants.title} color={TextColors.accent} className="mb-5">
                       {t('settings.lenses.title')}
                     </Text>
                     <Text className="mb-6">{t('settings.lenses.description')}</Text>
@@ -1652,8 +1651,10 @@ export default function SettingsPanel({
                     </div>
                   </div>
 
+                  <ImmichSettings />
+
                   <div className="p-6 bg-surface rounded-xl shadow-md">
-                    <Text variant={TextVariants.title} color={TextColors.accent} className="mb-8">
+                    <Text variant={TextVariants.title} color={TextColors.accent} className="mb-5">
                       {t('settings.tagging.title')}
                     </Text>
                     <div className="space-y-8">
@@ -1877,7 +1878,7 @@ export default function SettingsPanel({
                   </div>
 
                   <div className="p-6 bg-surface rounded-xl shadow-md">
-                    <Text variant={TextVariants.title} color={TextColors.accent} className="mb-6">
+                    <Text variant={TextVariants.title} color={TextColors.accent} className="mb-4">
                       {t('settings.thanks.title')}
                     </Text>
                     <Text className="mb-4">{t('settings.thanks.description')}</Text>
@@ -2043,7 +2044,7 @@ export default function SettingsPanel({
                   className="space-y-10"
                 >
                   <div className="p-6 bg-surface rounded-xl shadow-md">
-                    <Text variant={TextVariants.title} color={TextColors.accent} className="mb-8">
+                    <Text variant={TextVariants.title} color={TextColors.accent} className="mb-5">
                       {t('settings.processing.title')}
                     </Text>
                     <div className="space-y-8">
@@ -2406,7 +2407,7 @@ export default function SettingsPanel({
                   </div>
 
                   <div className="p-6 bg-surface rounded-xl shadow-md">
-                    <Text variant={TextVariants.title} color={TextColors.accent} className="mb-8">
+                    <Text variant={TextVariants.title} color={TextColors.accent} className="mb-5">
                       {t('settings.processing.preprocessing.title')}
                     </Text>
                     <div className="space-y-8">
@@ -2626,7 +2627,7 @@ export default function SettingsPanel({
                   </div>
 
                   <div className="p-6 bg-surface rounded-xl shadow-md">
-                    <Text variant={TextVariants.title} color={TextColors.accent} className="mb-8">
+                    <Text variant={TextVariants.title} color={TextColors.accent} className="mb-5">
                       {t('settings.data.title')}
                     </Text>
                     <div className="space-y-8">
@@ -2715,18 +2716,6 @@ export default function SettingsPanel({
                 </motion.div>
               )}
 
-              {activeCategory === 'immich' && (
-                <motion.div
-                  key="immich"
-                  initial={{ opacity: 0, x: 10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -10 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <ImmichSettings />
-                </motion.div>
-              )}
-
               {activeCategory === 'shortcuts' && (
                 <motion.div
                   key="shortcuts"
@@ -2737,7 +2726,7 @@ export default function SettingsPanel({
                   className="space-y-10"
                 >
                   <div className="p-6 bg-surface rounded-xl shadow-md">
-                    <Text variant={TextVariants.title} color={TextColors.accent} className="mb-8">
+                    <Text variant={TextVariants.title} color={TextColors.accent} className="mb-5">
                       {t('settings.controls.title')}
                     </Text>
                     <div className="space-y-8">
@@ -2785,7 +2774,7 @@ export default function SettingsPanel({
                   </div>
 
                   <div className="p-6 bg-surface rounded-xl shadow-md">
-                    <Text variant={TextVariants.title} color={TextColors.accent} className="mb-8">
+                    <Text variant={TextVariants.title} color={TextColors.accent} className="mb-5">
                       {t('settings.controls.keyboardTitle')}
                     </Text>
                     <div className="space-y-8">

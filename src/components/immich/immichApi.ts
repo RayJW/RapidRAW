@@ -24,7 +24,6 @@ export const ImmichInvokes = {
 
 export interface ImmichSettings {
   serverUrl: string;
-  cacheDir: string | null;
   cacheLimitGb: number;
   exportAlbum: string;
   exportWithOriginal: boolean;
@@ -32,7 +31,6 @@ export interface ImmichSettings {
 
 export const DEFAULT_IMMICH_SETTINGS: ImmichSettings = {
   serverUrl: '',
-  cacheDir: null,
   cacheLimitGb: 20,
   exportAlbum: 'source',
   exportWithOriginal: true,

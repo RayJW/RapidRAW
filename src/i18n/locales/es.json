@@ -1041,15 +1041,9 @@
     "settings": {
       "apiKey": "Clave de API",
       "apiKeyDesc": "Crea una en Immich en Configuración de la cuenta → Claves de API con estos permisos: album.read, albumAsset.create, albumAsset.delete, asset.read, asset.view, asset.download, asset.upload, asset.update, asset.delete, stack.read, stack.create y user.read.",
-      "cacheDir": "Carpeta de caché",
-      "cacheDirDefault": "Predeterminada",
-      "cacheDirDesc": "Dónde se guardan los originales descargados. Las ediciones que aún no han llegado a Immich solo se guardan aquí, así que elige un lugar que no se limpie automáticamente.",
       "cacheLimit": "Tamaño de la caché (GB)",
       "cacheLimitDesc": "Los originales descargados que superen este tamaño se eliminan, empezando por los más antiguos. Las ediciones no se ven afectadas.",
-      "cacheTitle": "Caché",
-      "category": "Immich",
       "connected": "Conectado como {{user}} (Immich {{version}})",
-      "connectionTitle": "Immich",
       "description": "Explora las fotos de tu servidor Immich en la biblioteca y edítalas directamente. Los originales se descargan al abrirlos y tus ediciones se guardan en Immich, así que se ven igual en todos los equipos.",
       "keyInFile": "Guardada en un archivo que solo tú puedes leer: no hay ningún almacén de credenciales disponible. En KDE, activa la interfaz Secret Service en la configuración de KDE Wallet y vuelve a guardar.",
       "keyInStore": "Guardada en el almacén de credenciales del sistema.",
@@ -1058,6 +1052,7 @@
       "serverUrl": "Dirección del servidor",
       "serverUrlDesc": "La dirección con la que abres Immich en el navegador.",
       "test": "Probar conexión",
+      "title": "Immich",
       "working": "Procesando…"
     },
     "sync": {

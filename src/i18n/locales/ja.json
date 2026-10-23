@@ -1015,15 +1015,9 @@
     "settings": {
       "apiKey": "API キー",
       "apiKeyDesc": "Immich の「アカウント設定 → API キー」で、次の権限を付けて作成してください: album.read, albumAsset.create, albumAsset.delete, asset.read, asset.view, asset.download, asset.upload, asset.update, asset.delete, stack.read, stack.create, user.read",
-      "cacheDir": "キャッシュフォルダー",
-      "cacheDirDefault": "デフォルト",
-      "cacheDirDesc": "ダウンロードしたオリジナルの保存先です。まだ Immich に届いていない編集内容はここにしか保存されないため、自動的に削除されない場所を選んでください。",
       "cacheLimit": "キャッシュサイズ (GB)",
       "cacheLimitDesc": "このサイズを超えると、ダウンロードしたオリジナルが古いものから削除されます。編集内容には影響しません。",
-      "cacheTitle": "キャッシュ",
-      "category": "Immich",
       "connected": "{{user}} として接続しました (Immich {{version}})",
-      "connectionTitle": "Immich",
       "description": "Immich サーバーの写真をライブラリで閲覧し、そのまま編集できます。オリジナルは開いたときにダウンロードされ、編集内容は Immich に保存されるので、どのコンピューターでも同じに見えます。",
       "keyInFile": "本人だけが読めるファイルに保存されています。利用できる資格情報ストアがありません。KDE の場合は、KDE ウォレットの設定で Secret Service インターフェースを有効にしてから、もう一度保存してください。",
       "keyInStore": "システムの資格情報ストアに保存されています。",
@@ -1032,6 +1026,7 @@
       "serverUrl": "サーバーアドレス",
       "serverUrlDesc": "ブラウザーで Immich を開くときのアドレスです。",
       "test": "接続をテスト",
+      "title": "Immich",
       "working": "処理中…"
     },
     "sync": {

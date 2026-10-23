@@ -1018,15 +1018,9 @@
     "settings": {
       "apiKey": "API klíč",
       "apiKeyDesc": "Vytvořte jej v Immichi v Nastavení účtu → API klíče s těmito oprávněními: album.read, albumAsset.create, albumAsset.delete, asset.read, asset.view, asset.download, asset.upload, asset.update, asset.delete, stack.read, stack.create a user.read.",
-      "cacheDir": "Složka mezipaměti",
-      "cacheDirDefault": "Výchozí",
-      "cacheDirDesc": "Kde se ukládají stažené originály. Úpravy, které se ještě nedostaly do Immiche, jsou uložené jen zde, proto zvolte místo, které se automaticky nečistí.",
       "cacheLimit": "Velikost mezipaměti (GB)",
       "cacheLimitDesc": "Stažené originály nad tuto velikost se odstraňují, nejstarší jako první. Úpravy tím nejsou dotčeny.",
-      "cacheTitle": "Mezipaměť",
-      "category": "Immich",
       "connected": "Připojeno jako {{user}} (Immich {{version}})",
-      "connectionTitle": "Immich",
       "description": "Procházejte fotky ze svého serveru Immich v knihovně a upravujte je přímo. Originály se stahují při otevření a úpravy se ukládají do Immiche, takže vypadají stejně na každém počítači.",
       "keyInFile": "Uloženo v souboru, který můžete číst jen vy: není k dispozici žádné úložiště přihlašovacích údajů. V KDE zapněte rozhraní Secret Service v nastavení KDE Wallet a uložte znovu.",
       "keyInStore": "Uloženo v systémovém úložišti přihlašovacích údajů.",
@@ -1035,6 +1029,7 @@
       "serverUrl": "Adresa serveru",
       "serverUrlDesc": "Adresa, pod kterou otevíráte Immich v prohlížeči.",
       "test": "Otestovat připojení",
+      "title": "Immich",
       "working": "Pracuji…"
     },
     "sync": {

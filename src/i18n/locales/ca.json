@@ -1018,15 +1018,9 @@
     "settings": {
       "apiKey": "Clau d'API",
       "apiKeyDesc": "Crea'n una a Immich a Configuració del compte → Claus d'API amb aquests permisos: album.read, albumAsset.create, albumAsset.delete, asset.read, asset.view, asset.download, asset.upload, asset.update, asset.delete, stack.read, stack.create i user.read.",
-      "cacheDir": "Carpeta de memòria cau",
-      "cacheDirDefault": "Per defecte",
-      "cacheDirDesc": "On es guarden els originals descarregats. Les edicions que encara no han arribat a Immich només es desen aquí, així que tria un lloc que no es netegi automàticament.",
       "cacheLimit": "Mida de la memòria cau (GB)",
       "cacheLimitDesc": "Els originals descarregats que superin aquesta mida s'eliminen, començant pels més antics. Les edicions no es veuen afectades.",
-      "cacheTitle": "Memòria cau",
-      "category": "Immich",
       "connected": "Connectat com a {{user}} (Immich {{version}})",
-      "connectionTitle": "Immich",
       "description": "Explora les fotos del teu servidor Immich a la biblioteca i edita-les directament. Els originals es descarreguen quan els obres, i les edicions es desen a Immich, de manera que es veuen igual a tots els ordinadors.",
       "keyInFile": "Desada en un fitxer que només tu pots llegir: no hi ha cap magatzem de credencials disponible. A KDE, activa la interfície Secret Service a la configuració de KDE Wallet i torna a desar.",
       "keyInStore": "Desada al magatzem de credencials del sistema.",
@@ -1035,6 +1029,7 @@
       "serverUrl": "Adreça del servidor",
       "serverUrlDesc": "L'adreça amb què obres Immich al navegador.",
       "test": "Prova la connexió",
+      "title": "Immich",
       "working": "Treballant…"
     },
     "sync": {

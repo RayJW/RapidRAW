@@ -1015,15 +1015,9 @@
     "settings": {
       "apiKey": "API 키",
       "apiKeyDesc": "Immich의 계정 설정 → API 키에서 다음 권한으로 만드세요: album.read, albumAsset.create, albumAsset.delete, asset.read, asset.view, asset.download, asset.upload, asset.update, asset.delete, stack.read, stack.create, user.read",
-      "cacheDir": "캐시 폴더",
-      "cacheDirDefault": "기본값",
-      "cacheDirDesc": "다운로드한 원본이 저장되는 위치입니다. 아직 Immich에 전송되지 않은 편집 내용은 여기에만 저장되므로, 자동으로 정리되지 않는 위치를 선택하세요.",
       "cacheLimit": "캐시 크기 (GB)",
       "cacheLimitDesc": "이 크기를 넘는 다운로드된 원본은 오래된 것부터 삭제됩니다. 편집 내용에는 영향이 없습니다.",
-      "cacheTitle": "캐시",
-      "category": "Immich",
       "connected": "{{user}}(으)로 연결됨 (Immich {{version}})",
-      "connectionTitle": "Immich",
       "description": "Immich 서버의 사진을 라이브러리에서 둘러보고 바로 편집하세요. 원본은 열 때 다운로드되며, 편집 내용은 Immich에 저장되어 모든 컴퓨터에서 똑같이 보입니다.",
       "keyInFile": "본인만 읽을 수 있는 파일에 저장됨: 사용 가능한 자격 증명 저장소가 없습니다. KDE에서는 KDE 지갑 설정에서 Secret Service 인터페이스를 켠 뒤 다시 저장하세요.",
       "keyInStore": "시스템 자격 증명 저장소에 저장됨.",
@@ -1032,6 +1026,7 @@
       "serverUrl": "서버 주소",
       "serverUrlDesc": "브라우저에서 Immich를 여는 주소입니다.",
       "test": "연결 테스트",
+      "title": "Immich",
       "working": "처리 중…"
     },
     "sync": {

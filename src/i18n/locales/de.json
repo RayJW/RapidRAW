@@ -1017,15 +1017,9 @@
     "settings": {
       "apiKey": "API-Schlüssel",
       "apiKeyDesc": "In Immich unter Kontoeinstellungen → API-Schlüssel anlegen, mit diesen Berechtigungen: album.read, albumAsset.create, albumAsset.delete, asset.read, asset.view, asset.download, asset.upload, asset.update, asset.delete, stack.read, stack.create und user.read.",
-      "cacheDir": "Cache-Ordner",
-      "cacheDirDefault": "Standard",
-      "cacheDirDesc": "Hier liegen heruntergeladene Originale. Bearbeitungen, die noch nicht in Immich angekommen sind, gibt es nur hier – wähle also einen Ort, der nicht automatisch aufgeräumt wird.",
       "cacheLimit": "Cache-Größe (GB)",
       "cacheLimitDesc": "Heruntergeladene Originale über dieser Größe werden entfernt, älteste zuerst. Bearbeitungen bleiben erhalten.",
-      "cacheTitle": "Cache",
-      "category": "Immich",
       "connected": "Verbunden als {{user}} (Immich {{version}})",
-      "connectionTitle": "Immich",
       "description": "Zeigt die Fotos deines Immich-Servers in der Bibliothek, damit du sie direkt bearbeiten kannst. Originale werden beim Öffnen heruntergeladen, und deine Bearbeitungen werden in Immich gespeichert – so sehen sie auf jedem Rechner gleich aus.",
       "keyInFile": "In einer Datei gespeichert, die nur du lesen kannst: Es ist kein Schlüsselbund erreichbar. Unter KDE in den Einstellungen der KDE-Brieftasche die Secret-Service-Schnittstelle einschalten und erneut speichern.",
       "keyInStore": "Im Schlüsselbund des Systems gespeichert.",
@@ -1034,6 +1028,7 @@
       "serverUrl": "Serveradresse",
       "serverUrlDesc": "Die Adresse, unter der du Immich im Browser öffnest.",
       "test": "Verbindung testen",
+      "title": "Immich",
       "working": "Einen Moment…"
     },
     "sync": {

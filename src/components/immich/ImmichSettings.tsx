@@ -40,17 +40,6 @@ function Item({ label, description, children }: { label: string; description?: s
   );
 }
 
-function Card({ title, children }: { title: string; children: ReactNode }) {
-  return (
-    <div className="p-6 bg-surface rounded-xl shadow-md">
-      <Text variant={TextVariants.title} color={TextColors.accent} className="mb-8">
-        {title}
-      </Text>
-      <div className="space-y-8">{children}</div>
-    </div>
-  );
-}
-
 export default function ImmichSettings() {
   const { t } = useTranslation();
   const refreshImmich = useImmichStore((state) => state.refresh);
@@ -124,12 +113,13 @@ export default function ImmichSettings() {
   const connectionChanged = serverUrl.trim() !== saved.serverUrl || apiKey.trim() !== keyInfo.apiKey;
 
   return (
-    <div className="space-y-10">
-      <Card title={t('immich.settings.connectionTitle')}>
-        <Text variant={TextVariants.small} className="-mt-4">
-          {t('immich.settings.description')}
-        </Text>
+    <div className="p-6 bg-surface rounded-xl shadow-md">
+      <Text variant={TextVariants.title} color={TextColors.accent} className="mb-5">
+        {t('immich.settings.title')}
+      </Text>
+      <Text className="mb-6">{t('immich.settings.description')}</Text>
 
+      <div className="space-y-8">
         <Item label={t('immich.settings.serverUrl')} description={t('immich.settings.serverUrlDesc')}>
           <Input
             value={serverUrl}
@@ -171,9 +161,7 @@ export default function ImmichSettings() {
           </div>
           <StatusLine status={status} />
         </div>
-      </Card>
 
-      <Card title={t('immich.settings.cacheTitle')}>
         <Item label={t('immich.settings.cacheLimit')} description={t('immich.settings.cacheLimitDesc')}>
           <Input
             type="number"
@@ -184,16 +172,7 @@ export default function ImmichSettings() {
             bgClassName="bg-bg-primary"
           />
         </Item>
-        <Item label={t('immich.settings.cacheDir')} description={t('immich.settings.cacheDirDesc')}>
-          <Input
-            value={shown.cacheDir ?? ''}
-            placeholder={t('immich.settings.cacheDirDefault')}
-            onChange={(e) => setDraft({ ...draft, cacheDir: e.target.value })}
-            onBlur={() => saveOption({ cacheDir: shown.cacheDir?.trim() || null })}
-            bgClassName="bg-bg-primary"
-          />
-        </Item>
-      </Card>
+      </div>
     </div>
   );
 }
