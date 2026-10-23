@@ -128,17 +128,31 @@ pub use launch_request::*;
 use tagging_utils::{candidates, hierarchy};
 
 #[cfg(target_os = "macos")]
+static SHUTTING_DOWN: AtomicBool = AtomicBool::new(false);
+
+#[cfg(target_os = "macos")]
+extern "C" fn mark_shutting_down() {
+    SHUTTING_DOWN.store(true, Ordering::SeqCst);
+}
+
+#[cfg(target_os = "macos")]
 extern "C" fn force_exit(_signal: libc::c_int) {
-    unsafe {
-        libc::_exit(process_exit_code());
+    if SHUTTING_DOWN.load(Ordering::SeqCst) {
+        unsafe {
+            libc::_exit(process_exit_code());
+        }
     }
 }
 
 #[cfg(target_os = "macos")]
 pub fn register_exit_handler() {
+    static ATEXIT: std::sync::Once = std::sync::Once::new();
     unsafe {
         libc::signal(libc::SIGABRT, force_exit as *const () as libc::sighandler_t);
     }
+    ATEXIT.call_once(|| unsafe {
+        libc::atexit(mark_shutting_down);
+    });
 }
 
 #[cfg(not(target_os = "macos"))]
@@ -2462,7 +2476,6 @@ pub fn run() {
                 });
             }
 
-            crate::register_exit_handler();
             Ok(())
         })
         .manage(AppState {
