@@ -230,7 +230,7 @@ fn sidecar_lock_stripe(sidecar_path: &Path) -> &'static Mutex<()> {
     &SIDECAR_LOCKS[hasher.finish() as usize % SIDECAR_LOCK_STRIPES]
 }
 
-fn lock_sidecar(sidecar_path: &Path) -> MutexGuard<'static, ()> {
+pub fn lock_sidecar(sidecar_path: &Path) -> MutexGuard<'static, ()> {
     sidecar_lock_stripe(sidecar_path)
         .lock()
         .unwrap_or_else(PoisonError::into_inner)
@@ -360,6 +360,11 @@ pub fn update_sidecar(
     let _guard = lock_sidecar(sidecar_path);
     let (mut metadata, _) = read_sidecar(sidecar_path)?;
     update(&mut metadata);
+    if crate::immich::is_placeholder(source_path)
+        && let Some(parent) = sidecar_path.parent()
+    {
+        fs::create_dir_all(parent)?;
+    }
     write_sidecar(sidecar_path, source_path, &metadata)?;
     Ok(metadata)
 }

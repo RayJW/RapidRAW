@@ -991,6 +991,64 @@
       "watermarkImage": "Wasserzeichen-Bild"
     }
   },
+  "immich": {
+    "close": {
+      "cancel": "Abbrechen",
+      "closeAnyway": "Trotzdem schließen",
+      "message": "Bearbeitungen, die auf Immich warten: {{number}}. Sie bleiben auf diesem Rechner und werden gesendet, sobald RapidRAW das nächste Mal läuft und Immich erreichbar ist.",
+      "title": "Bearbeitungen noch nicht in Immich"
+    },
+    "export": {
+      "album": "Album",
+      "destination": "Immich",
+      "noAlbum": "Kein Album",
+      "sourceAlbum": "Album, aus dem das Bild geöffnet wurde",
+      "withOriginal": "Original mit hochladen",
+      "withOriginalDesc": "Für Bilder aus einem lokalen Ordner: Das Original wird mit seinen Bearbeitungen hochgeladen und der Export oben darauf gestapelt. Bilder aus Immich werden immer auf ihr Original gestapelt."
+    },
+    "section": {
+      "empty": "Keine Alben auf dem Server.",
+      "error": "Immich ist nicht erreichbar.",
+      "loading": "Alben werden geladen…",
+      "refresh": "Alben aktualisieren",
+      "timeline": "Zeitleiste",
+      "title": "Immich"
+    },
+    "settings": {
+      "apiKey": "API-Schlüssel",
+      "apiKeyDesc": "In Immich unter Kontoeinstellungen → API-Schlüssel anlegen, mit diesen Berechtigungen: album.read, albumAsset.create, albumAsset.delete, asset.read, asset.view, asset.download, asset.upload, asset.update, asset.delete, stack.read, stack.create und user.read.",
+      "cacheDir": "Cache-Ordner",
+      "cacheDirDefault": "Standard",
+      "cacheDirDesc": "Hier liegen heruntergeladene Originale. Bearbeitungen, die noch nicht in Immich angekommen sind, gibt es nur hier – wähle also einen Ort, der nicht automatisch aufgeräumt wird.",
+      "cacheLimit": "Cache-Größe (GB)",
+      "cacheLimitDesc": "Heruntergeladene Originale über dieser Größe werden entfernt, älteste zuerst. Bearbeitungen bleiben erhalten.",
+      "cacheTitle": "Cache",
+      "category": "Immich",
+      "connected": "Verbunden als {{user}} (Immich {{version}})",
+      "connectionTitle": "Immich",
+      "description": "Zeigt die Fotos deines Immich-Servers in der Bibliothek, damit du sie direkt bearbeiten kannst. Originale werden beim Öffnen heruntergeladen, und deine Bearbeitungen werden in Immich gespeichert – so sehen sie auf jedem Rechner gleich aus.",
+      "keyInFile": "In einer Datei gespeichert, die nur du lesen kannst: Es ist kein Schlüsselbund erreichbar. Unter KDE in den Einstellungen der KDE-Brieftasche die Secret-Service-Schnittstelle einschalten und erneut speichern.",
+      "keyInStore": "Im Schlüsselbund des Systems gespeichert.",
+      "save": "Speichern",
+      "saved": "Gespeichert.",
+      "serverUrl": "Serveradresse",
+      "serverUrlDesc": "Die Adresse, unter der du Immich im Browser öffnest.",
+      "test": "Verbindung testen",
+      "working": "Einen Moment…"
+    },
+    "sync": {
+      "offline": "Offline",
+      "pending": "Bearbeitungen, die auf Immich warten: {{number}}"
+    },
+    "toasts": {
+      "backOnline": "Immich ist wieder erreichbar, alle Bearbeitungen sind dort gespeichert.",
+      "downloadFailed": "Download aus Immich fehlgeschlagen: {{error}}",
+      "editsConflict": "{{fileName}} wurde auch auf einem anderen Rechner bearbeitet. Deine Bearbeitung bleibt, die andere Fassung liegt als virtuelle Kopie daneben.",
+      "offline": "Immich ist nicht erreichbar. Deine Bearbeitungen bleiben hier und werden gesendet, sobald es wieder da ist.",
+      "trashFailed": "Verschieben in den Immich-Papierkorb fehlgeschlagen: {{error}}",
+      "uploaded": "Zu Immich hochgeladen: {{number}}"
+    }
+  },
   "library": {
     "aiJobs": {
       "discard": "Verbleibende KI-Verarbeitung verwerfen",

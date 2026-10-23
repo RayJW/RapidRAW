@@ -1015,6 +1015,64 @@
       "watermarkImage": "Imagen de la marca de agua"
     }
   },
+  "immich": {
+    "close": {
+      "cancel": "Cancelar",
+      "closeAnyway": "Cerrar de todos modos",
+      "message": "Ediciones pendientes de enviar a Immich: {{number}}. Se quedan en este equipo y se enviarán la próxima vez que RapidRAW se ejecute e Immich esté disponible.",
+      "title": "Ediciones aún no en Immich"
+    },
+    "export": {
+      "album": "Álbum",
+      "destination": "Immich",
+      "noAlbum": "Sin álbum",
+      "sourceAlbum": "Álbum desde el que se abrió la imagen",
+      "withOriginal": "Subir también el original",
+      "withOriginalDesc": "Para imágenes de una carpeta local: el original se sube con sus ediciones y la exportación se apila encima. Las imágenes de Immich siempre se apilan sobre su original."
+    },
+    "section": {
+      "empty": "No hay álbumes en el servidor.",
+      "error": "No se puede acceder a Immich.",
+      "loading": "Cargando álbumes…",
+      "refresh": "Actualizar álbumes",
+      "timeline": "Cronología",
+      "title": "Immich"
+    },
+    "settings": {
+      "apiKey": "Clave de API",
+      "apiKeyDesc": "Crea una en Immich en Configuración de la cuenta → Claves de API con estos permisos: album.read, albumAsset.create, albumAsset.delete, asset.read, asset.view, asset.download, asset.upload, asset.update, asset.delete, stack.read, stack.create y user.read.",
+      "cacheDir": "Carpeta de caché",
+      "cacheDirDefault": "Predeterminada",
+      "cacheDirDesc": "Dónde se guardan los originales descargados. Las ediciones que aún no han llegado a Immich solo se guardan aquí, así que elige un lugar que no se limpie automáticamente.",
+      "cacheLimit": "Tamaño de la caché (GB)",
+      "cacheLimitDesc": "Los originales descargados que superen este tamaño se eliminan, empezando por los más antiguos. Las ediciones no se ven afectadas.",
+      "cacheTitle": "Caché",
+      "category": "Immich",
+      "connected": "Conectado como {{user}} (Immich {{version}})",
+      "connectionTitle": "Immich",
+      "description": "Explora las fotos de tu servidor Immich en la biblioteca y edítalas directamente. Los originales se descargan al abrirlos y tus ediciones se guardan en Immich, así que se ven igual en todos los equipos.",
+      "keyInFile": "Guardada en un archivo que solo tú puedes leer: no hay ningún almacén de credenciales disponible. En KDE, activa la interfaz Secret Service en la configuración de KDE Wallet y vuelve a guardar.",
+      "keyInStore": "Guardada en el almacén de credenciales del sistema.",
+      "save": "Guardar",
+      "saved": "Guardado.",
+      "serverUrl": "Dirección del servidor",
+      "serverUrlDesc": "La dirección con la que abres Immich en el navegador.",
+      "test": "Probar conexión",
+      "working": "Procesando…"
+    },
+    "sync": {
+      "offline": "Sin conexión",
+      "pending": "Ediciones pendientes de enviar a Immich: {{number}}"
+    },
+    "toasts": {
+      "backOnline": "Immich vuelve a estar disponible y todas las ediciones están guardadas allí.",
+      "downloadFailed": "No se pudo descargar de Immich: {{error}}",
+      "editsConflict": "{{fileName}} también se editó en otro equipo. Tus ediciones se mantienen y la otra versión se conserva como copia virtual.",
+      "offline": "No se puede acceder a Immich. Tus ediciones se guardan aquí y se enviarán en cuanto vuelva a estar disponible.",
+      "trashFailed": "No se pudo mover a la papelera de Immich: {{error}}",
+      "uploaded": "Subidas a Immich: {{number}}"
+    }
+  },
   "library": {
     "aiJobs": {
       "discard": "Descartar el procesamiento con IA restante",

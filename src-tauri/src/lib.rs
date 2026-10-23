@@ -50,6 +50,7 @@ mod hdr_deghosting;
 mod highlight_reconstruction;
 mod image_loader;
 mod image_processing;
+mod immich;
 mod inpainting;
 mod launch_request;
 mod lens_blur;
@@ -2151,6 +2152,10 @@ pub fn run() {
 
             let app_handle = app.handle().clone();
 
+            if !is_headless {
+                crate::immich::start(&app_handle);
+            }
+
             if let Ok(cache_dir) = app_handle.path().app_cache_dir() {
                 crate::ai_denoise::initialize_cache_dir(cache_dir.clone());
                 crate::effect_maps::initialize_cache_dir(cache_dir.clone());
@@ -2656,6 +2661,16 @@ pub fn run() {
             camera_tethering::tether_get_preview,
             camera_tethering::tether_autofocus,
             guided_perspective::calculate_guided_perspective,
+            immich::commands::immich_get_api_key,
+            immich::commands::immich_set_api_key,
+            immich::commands::immich_test_connection,
+            immich::commands::immich_list_albums,
+            immich::commands::immich_get_images,
+            immich::commands::immich_sync_status,
+            immich::commands::immich_flush,
+            immich::commands::immich_prepare_export,
+            immich::commands::immich_remove_from_album,
+            immich::commands::immich_timeline,
         ])
         .build(tauri::generate_context!())
         .expect("error while building tauri application")

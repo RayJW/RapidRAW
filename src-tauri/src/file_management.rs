@@ -93,6 +93,18 @@ struct ImageFileMetadata {
     needs_ai: bool,
 }
 
+pub fn rating_and_edited(path_str: &str, settings: &AppSettings) -> (u8, bool) {
+    let (source_path, sidecar_path) = parse_virtual_path(path_str);
+    let metadata = resolve_image_metadata(
+        &source_path,
+        &sidecar_path,
+        sidecar_path.exists(),
+        false,
+        settings,
+    );
+    (metadata.rating, metadata.is_edited)
+}
+
 fn resolve_image_metadata(
     image_path: &Path,
     sidecar_path: &Path,
@@ -301,6 +313,26 @@ pub struct ImageFile {
     group_id: Option<String>,
     #[serde(default)]
     needs_ai: bool,
+}
+
+impl ImageFile {
+    pub fn placeholder(path: String, modified: u64) -> Self {
+        let is_raw = crate::formats::is_raw_file(&path);
+        Self {
+            path,
+            modified,
+            is_edited: false,
+            rating: 0,
+            flag: None,
+            tags: None,
+            exif: None,
+            is_virtual_copy: false,
+            is_cloud_placeholder: true,
+            is_raw,
+            group_id: None,
+            needs_ai: false,
+        }
+    }
 }
 
 fn make_group_key(source_path: &Path) -> String {
@@ -1303,6 +1335,10 @@ pub fn is_cloud_placeholder(path: &Path) -> bool {
     use std::os::unix::ffi::OsStrExt;
     const SF_DATALESS: u32 = 0x4000_0000;
 
+    if crate::immich::is_placeholder(path) {
+        return true;
+    }
+
     let c_path = match std::ffi::CString::new(path.as_os_str().as_bytes()) {
         Ok(p) => p,
         Err(_) => return false,
@@ -1313,8 +1349,8 @@ pub fn is_cloud_placeholder(path: &Path) -> bool {
 }
 
 #[cfg(not(target_os = "macos"))]
-pub fn is_cloud_placeholder(_path: &Path) -> bool {
-    false
+pub fn is_cloud_placeholder(path: &Path) -> bool {
+    crate::immich::is_placeholder(path)
 }
 
 pub fn read_file_mapped(path: &Path) -> Result<Mmap, ReadFileError> {
@@ -1878,6 +1914,12 @@ fn generate_single_thumbnail_and_cache(
     } else {
         (0, false, Vec::new())
     };
+
+    if let Some(remote) =
+        crate::immich::placeholder_thumbnail(app_handle, path_str, thumb_cache_dir)
+    {
+        return remote.map(|(small, medium)| (small, medium, rating, is_edited));
+    }
 
     let cache_hash = compute_thumbnail_cache_hash(path_str, &adjustments_bytes)?;
 
@@ -3226,6 +3268,9 @@ pub fn set_flag_for_paths(
 
 #[tauri::command]
 pub async fn load_metadata(path: String, app_handle: AppHandle) -> Result<ImageMetadata, String> {
+    let (source_path, _) = parse_virtual_path(&path);
+    crate::immich::fetch_edits(&app_handle, &source_path).await;
+
     tauri::async_runtime::spawn_blocking(move || {
         let settings = load_settings(app_handle).unwrap_or_default();
         let enable_xmp_sync = settings.enable_xmp_sync.unwrap_or(false);
@@ -3628,6 +3673,7 @@ pub fn show_in_finder(path: String) -> Result<(), String> {
 
 #[tauri::command]
 pub fn delete_files_from_disk(paths: Vec<String>, app_handle: AppHandle) -> Result<(), String> {
+    let paths = crate::immich::trash_remote(&app_handle, paths, false)?;
     let mut files_to_trash = HashSet::new();
     let mut deletions = HashSet::new();
 
@@ -3732,6 +3778,7 @@ pub fn delete_files_with_associated(
     paths: Vec<String>,
     app_handle: AppHandle,
 ) -> Result<(), String> {
+    let paths = crate::immich::trash_remote(&app_handle, paths, true)?;
     if paths.is_empty() {
         return Ok(());
     }

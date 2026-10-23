@@ -985,6 +985,64 @@
       "watermarkImage": "Watermarkafbeelding"
     }
   },
+  "immich": {
+    "close": {
+      "cancel": "Annuleren",
+      "closeAnyway": "Toch sluiten",
+      "message": "Bewerkingen die op Immich wachten: {{number}}. Ze blijven op deze computer en worden verstuurd zodra RapidRAW weer draait en Immich bereikbaar is.",
+      "title": "Bewerkingen nog niet in Immich"
+    },
+    "export": {
+      "album": "Album",
+      "destination": "Immich",
+      "noAlbum": "Geen album",
+      "sourceAlbum": "Album waaruit de afbeelding is geopend",
+      "withOriginal": "Origineel ook uploaden",
+      "withOriginalDesc": "Voor afbeeldingen uit een lokale map: het origineel wordt met zijn bewerkingen geüpload en de export wordt erbovenop gestapeld. Afbeeldingen uit Immich worden altijd op hun origineel gestapeld."
+    },
+    "section": {
+      "empty": "Geen albums op de server.",
+      "error": "Immich is niet bereikbaar.",
+      "loading": "Albums laden…",
+      "refresh": "Albums vernieuwen",
+      "timeline": "Tijdlijn",
+      "title": "Immich"
+    },
+    "settings": {
+      "apiKey": "API-sleutel",
+      "apiKeyDesc": "Maak er een aan in Immich onder Accountinstellingen → API-sleutels met deze rechten: album.read, albumAsset.create, albumAsset.delete, asset.read, asset.view, asset.download, asset.upload, asset.update, asset.delete, stack.read, stack.create en user.read.",
+      "cacheDir": "Cachemap",
+      "cacheDirDefault": "Standaard",
+      "cacheDirDesc": "Waar gedownloade originelen worden bewaard. Bewerkingen die Immich nog niet hebben bereikt, staan alleen hier, dus kies een plek die niet automatisch wordt opgeschoond.",
+      "cacheLimit": "Cachegrootte (GB)",
+      "cacheLimitDesc": "Gedownloade originelen boven deze grootte worden verwijderd, oudste eerst. Bewerkingen blijven behouden.",
+      "cacheTitle": "Cache",
+      "category": "Immich",
+      "connected": "Verbonden als {{user}} (Immich {{version}})",
+      "connectionTitle": "Immich",
+      "description": "Blader door de foto's van je Immich-server in de bibliotheek en bewerk ze direct. Originelen worden gedownload als je ze opent, en je bewerkingen worden in Immich opgeslagen, zodat ze op elke computer hetzelfde zijn.",
+      "keyInFile": "Opgeslagen in een bestand dat alleen jij kunt lezen: er is geen sleutelopslag beschikbaar. Zet in KDE de Secret Service-interface aan in de instellingen van KDE Wallet en sla opnieuw op.",
+      "keyInStore": "Opgeslagen in de sleutelopslag van het systeem.",
+      "save": "Opslaan",
+      "saved": "Opgeslagen.",
+      "serverUrl": "Serveradres",
+      "serverUrlDesc": "Het adres waarmee je Immich in de browser opent.",
+      "test": "Verbinding testen",
+      "working": "Bezig…"
+    },
+    "sync": {
+      "offline": "Offline",
+      "pending": "Bewerkingen die op Immich wachten: {{number}}"
+    },
+    "toasts": {
+      "backOnline": "Immich is weer bereikbaar en alle bewerkingen zijn daar opgeslagen.",
+      "downloadFailed": "Downloaden van Immich mislukt: {{error}}",
+      "editsConflict": "{{fileName}} is ook op een andere computer bewerkt. Je bewerkingen blijven en de andere versie wordt bewaard als virtuele kopie.",
+      "offline": "Immich is niet bereikbaar. Je bewerkingen blijven hier en worden verstuurd zodra het weer bereikbaar is.",
+      "trashFailed": "Verplaatsen naar de prullenbak van Immich mislukt: {{error}}",
+      "uploaded": "Geüpload naar Immich: {{number}}"
+    }
+  },
   "library": {
     "aiJobs": {
       "discard": "Resterende AI-verwerking verwijderen",

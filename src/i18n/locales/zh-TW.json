@@ -989,6 +989,64 @@
       "watermarkImage": "水印影像"
     }
   },
+  "immich": {
+    "close": {
+      "cancel": "取消",
+      "closeAnyway": "仍然關閉",
+      "message": "等待同步到 Immich 的編輯：{{number}}。它們會保留在這台電腦上，並在下次執行 RapidRAW 且 Immich 可用時傳送。",
+      "title": "編輯尚未同步到 Immich"
+    },
+    "export": {
+      "album": "相簿",
+      "destination": "Immich",
+      "noAlbum": "不加入相簿",
+      "sourceAlbum": "開啟該影像時所在的相簿",
+      "withOriginal": "同時上傳原始檔",
+      "withOriginalDesc": "對於本機資料夾中的影像：原始檔會連同編輯內容一起上傳，匯出的影像會堆疊在其上方。來自 Immich 的影像一律堆疊在其原始檔上。"
+    },
+    "section": {
+      "empty": "伺服器上沒有相簿。",
+      "error": "無法連線到 Immich。",
+      "loading": "正在載入相簿…",
+      "refresh": "重新整理相簿",
+      "timeline": "時間軸",
+      "title": "Immich"
+    },
+    "settings": {
+      "apiKey": "API 金鑰",
+      "apiKeyDesc": "請在 Immich 的「帳戶設定 → API 金鑰」中建立，並授予以下權限：album.read, albumAsset.create, albumAsset.delete, asset.read, asset.view, asset.download, asset.upload, asset.update, asset.delete, stack.read, stack.create、user.read。",
+      "cacheDir": "快取資料夾",
+      "cacheDirDefault": "預設",
+      "cacheDirDesc": "已下載原始檔的存放位置。尚未同步到 Immich 的編輯內容只會儲存在這裡，因此請選擇不會被自動清理的位置。",
+      "cacheLimit": "快取大小 (GB)",
+      "cacheLimitDesc": "超過此大小時，會從最舊的開始刪除已下載的原始檔。編輯內容不受影響。",
+      "cacheTitle": "快取",
+      "category": "Immich",
+      "connected": "已以 {{user}} 身分連線 (Immich {{version}})",
+      "connectionTitle": "Immich",
+      "description": "在圖庫中瀏覽 Immich 伺服器上的照片並直接編輯。原始檔會在開啟時下載，編輯內容會儲存到 Immich，因此在每台電腦上看起來都一樣。",
+      "keyInFile": "已儲存在只有你能讀取的檔案中：沒有可用的認證資訊儲存區。在 KDE 中，請在 KDE 錢包設定裡啟用 Secret Service 介面，然後重新儲存。",
+      "keyInStore": "已儲存在系統的認證資訊儲存區。",
+      "save": "儲存",
+      "saved": "已儲存。",
+      "serverUrl": "伺服器位址",
+      "serverUrlDesc": "你在瀏覽器中開啟 Immich 時使用的位址。",
+      "test": "測試連線",
+      "working": "處理中…"
+    },
+    "sync": {
+      "offline": "離線",
+      "pending": "等待同步到 Immich 的編輯：{{number}}"
+    },
+    "toasts": {
+      "backOnline": "Immich 已重新連線，所有編輯內容都已儲存。",
+      "downloadFailed": "無法從 Immich 下載：{{error}}",
+      "editsConflict": "{{fileName}} 也在另一台電腦上被編輯過。你的編輯內容會保留，另一個版本已儲存為虛擬副本。",
+      "offline": "無法連線到 Immich。你的編輯內容會保留在這裡，並在恢復連線後傳送。",
+      "trashFailed": "無法移至 Immich 垃圾桶：{{error}}",
+      "uploaded": "已上傳到 Immich：{{number}}"
+    }
+  },
   "library": {
     "aiJobs": {
       "discard": "放棄剩餘的 AI 處理",
