@@ -45,7 +45,7 @@ const storageItems: StorageItem[] = [
     key: 'aiDenoise',
     color: 'bg-[#9d93ad]',
     limit: {
-      get: (settings) => settings?.aiCacheLimitGb ?? 4,
+      get: (settings) => settings?.aiCacheLimitGb ?? 10,
       set: (settings, gb) => ({ ...settings, aiCacheLimitGb: gb }),
     },
   },

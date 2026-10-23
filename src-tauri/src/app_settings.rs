@@ -493,6 +493,10 @@ pub fn default_ai_gpu_acceleration() -> bool {
 }
 
 pub fn default_ai_cache_limit_gb() -> u32 {
+    10
+}
+
+pub fn default_ai_maps_cache_limit_gb() -> u32 {
     4
 }
 
@@ -764,7 +768,7 @@ impl Default for AppSettings {
             image_cache_size: Some(5),
             ai_cache_limit_gb: Some(default_ai_cache_limit_gb()),
             thumbnail_cache_limit_gb: Some(default_thumbnail_cache_limit_gb()),
-            ai_maps_cache_limit_gb: Some(default_ai_cache_limit_gb()),
+            ai_maps_cache_limit_gb: Some(default_ai_maps_cache_limit_gb()),
             export_worker_threads: None,
             export_memory_limit: None,
             enable_baseline_exposure: false,

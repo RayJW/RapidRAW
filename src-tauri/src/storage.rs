@@ -9,7 +9,8 @@ use tauri::{AppHandle, Manager};
 use walkdir::WalkDir;
 
 use crate::app_settings::{
-    AppSettings, default_ai_cache_limit_gb, default_thumbnail_cache_limit_gb,
+    AppSettings, default_ai_cache_limit_gb, default_ai_maps_cache_limit_gb,
+    default_thumbnail_cache_limit_gb,
 };
 use crate::app_state::AppState;
 
@@ -51,7 +52,7 @@ pub fn apply_cache_limits(settings: &AppSettings) {
     crate::effect_maps::set_disk_cache_limit_gb(
         settings
             .ai_maps_cache_limit_gb
-            .unwrap_or_else(default_ai_cache_limit_gb),
+            .unwrap_or_else(default_ai_maps_cache_limit_gb),
     );
 }
 
