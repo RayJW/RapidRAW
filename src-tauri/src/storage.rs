@@ -8,7 +8,9 @@ use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use tauri::{AppHandle, Manager};
 use walkdir::WalkDir;
 
-use crate::app_settings::AppSettings;
+use crate::app_settings::{
+    AppSettings, default_ai_cache_limit_gb, default_thumbnail_cache_limit_gb,
+};
 use crate::app_state::AppState;
 
 struct ThumbnailCache {
@@ -36,9 +38,21 @@ fn mark_used_interval() -> Duration {
 }
 
 pub fn apply_cache_limits(settings: &AppSettings) {
-    set_thumbnail_limit_gb(settings.thumbnail_cache_limit_gb);
-    crate::ai_denoise::set_disk_cache_limit_gb(settings.ai_cache_limit_gb);
-    crate::effect_maps::set_disk_cache_limit_gb(settings.ai_maps_cache_limit_gb);
+    set_thumbnail_limit_gb(
+        settings
+            .thumbnail_cache_limit_gb
+            .unwrap_or_else(default_thumbnail_cache_limit_gb),
+    );
+    crate::ai_denoise::set_disk_cache_limit_gb(
+        settings
+            .ai_cache_limit_gb
+            .unwrap_or_else(default_ai_cache_limit_gb),
+    );
+    crate::effect_maps::set_disk_cache_limit_gb(
+        settings
+            .ai_maps_cache_limit_gb
+            .unwrap_or_else(default_ai_cache_limit_gb),
+    );
 }
 
 pub fn mark_used(path: &Path) {

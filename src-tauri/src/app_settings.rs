@@ -492,11 +492,11 @@ pub fn default_ai_gpu_acceleration() -> bool {
     true
 }
 
-fn default_ai_cache_limit_gb() -> u32 {
+pub fn default_ai_cache_limit_gb() -> u32 {
     4
 }
 
-fn default_thumbnail_cache_limit_gb() -> u32 {
+pub fn default_thumbnail_cache_limit_gb() -> u32 {
     10
 }
 
@@ -618,12 +618,12 @@ pub struct AppSettings {
     pub thumbnail_worker_threads: Option<u32>,
     #[serde(default)]
     pub image_cache_size: Option<u32>,
-    #[serde(default = "default_ai_cache_limit_gb")]
-    pub ai_cache_limit_gb: u32,
-    #[serde(default = "default_thumbnail_cache_limit_gb")]
-    pub thumbnail_cache_limit_gb: u32,
-    #[serde(default = "default_ai_cache_limit_gb")]
-    pub ai_maps_cache_limit_gb: u32,
+    #[serde(default)]
+    pub ai_cache_limit_gb: Option<u32>,
+    #[serde(default)]
+    pub thumbnail_cache_limit_gb: Option<u32>,
+    #[serde(default)]
+    pub ai_maps_cache_limit_gb: Option<u32>,
     #[serde(default)]
     pub export_worker_threads: Option<u32>,
     #[serde(default)]
@@ -762,9 +762,9 @@ impl Default for AppSettings {
             image_cache_size: Some(2),
             #[cfg(not(target_os = "android"))]
             image_cache_size: Some(5),
-            ai_cache_limit_gb: default_ai_cache_limit_gb(),
-            thumbnail_cache_limit_gb: default_thumbnail_cache_limit_gb(),
-            ai_maps_cache_limit_gb: default_ai_cache_limit_gb(),
+            ai_cache_limit_gb: Some(default_ai_cache_limit_gb()),
+            thumbnail_cache_limit_gb: Some(default_thumbnail_cache_limit_gb()),
+            ai_maps_cache_limit_gb: Some(default_ai_cache_limit_gb()),
             export_worker_threads: None,
             export_memory_limit: None,
             enable_baseline_exposure: false,
