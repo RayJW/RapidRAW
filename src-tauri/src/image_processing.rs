@@ -3221,8 +3221,8 @@ impl ChromaPlanes {
         (out_r, out_b)
     }
 
-    fn upsample_gate(&self, amount: f32) -> f32 {
-        1.0 / (4.0 * ((1.5 + 2.0 * amount) * self.noise_q).powi(2))
+    fn upsample_eps(&self, amount: f32) -> f32 {
+        ((1.5 + 2.0 * amount) * self.noise_q).powi(2)
     }
 
     fn upsample(
@@ -3231,7 +3231,7 @@ impl ChromaPlanes {
         (cr, cb): &(Vec<f32>, Vec<f32>),
         amount: f32,
     ) -> (Vec<f32>, Vec<f32>) {
-        let ku = self.upsample_gate(amount);
+        let eps = self.upsample_eps(amount);
         let (w, cw) = (self.w, coarse.w);
         let mut out_r = vec![0.0f32; w * self.h];
         let mut out_b = vec![0.0f32; w * self.h];
@@ -3253,7 +3253,7 @@ impl ChromaPlanes {
                 let mut x0 = 0;
                 while x0 < w {
                     let n = ChromaPlanes::CHUNK.min(w - x0);
-                    let up = upsample_chunk(rows, &q_row[x0..x0 + n], x0, cw, ku);
+                    let up = upsample_chunk(rows, &q_row[x0..x0 + n], x0, cw, eps);
                     row_r[x0..x0 + n].copy_from_slice(&up.r[..n]);
                     row_b[x0..x0 + n].copy_from_slice(&up.b[..n]);
                     x0 += n;
@@ -3304,7 +3304,7 @@ fn upsample_chunk(
     qc: &[f32],
     x0: usize,
     cw: usize,
-    ku: f32,
+    eps: f32,
 ) -> UpsampledChunk {
     let n = qc.len().min(ChromaPlanes::CHUNK);
     let mut out = UpsampledChunk {
@@ -3318,7 +3318,10 @@ fn upsample_chunk(
     };
     let mut q_min = [f32::MAX; ChromaPlanes::CHUNK];
     let mut q_max = [f32::MIN; ChromaPlanes::CHUNK];
-    let mut weight = [0.0f32; ChromaPlanes::CHUNK];
+    let mut sd = [0.0f32; ChromaPlanes::CHUNK];
+    let mut sdd = [0.0f32; ChromaPlanes::CHUNK];
+    let mut sdr = [0.0f32; ChromaPlanes::CHUNK];
+    let mut sdb = [0.0f32; ChromaPlanes::CHUNK];
     for (q_row, r_row, b_row, wy) in rows {
         for side in 0..2 {
             let mut gq = [0.0f32; ChromaPlanes::CHUNK];
@@ -3334,11 +3337,13 @@ fn upsample_chunk(
             }
             for k in 0..n {
                 let d = gq[k] - qc[k];
-                let t = (1.0 - d * d * ku).max(0.0);
-                let wt = gw[k] * (t * t + 1e-3);
-                out.r[k] += wt * gr[k];
-                out.b[k] += wt * gb[k];
-                weight[k] += wt;
+                let wd = gw[k] * d;
+                out.r[k] += gw[k] * gr[k];
+                out.b[k] += gw[k] * gb[k];
+                sd[k] += wd;
+                sdd[k] += wd * d;
+                sdr[k] += wd * gr[k];
+                sdb[k] += wd * gb[k];
                 q_min[k] = q_min[k].min(gq[k]);
                 q_max[k] = q_max[k].max(gq[k]);
                 out.r_min[k] = out.r_min[k].min(gr[k]);
@@ -3349,9 +3354,11 @@ fn upsample_chunk(
         }
     }
     for k in 0..n {
-        let inv = 1.0 / weight[k];
-        out.r[k] *= inv;
-        out.b[k] *= inv;
+        let var = (sdd[k] - sd[k] * sd[k]).max(0.0) + eps;
+        let slope_r = (sdr[k] - out.r[k] * sd[k]) / var;
+        let slope_b = (sdb[k] - out.b[k] * sd[k]) / var;
+        out.r[k] -= slope_r * sd[k];
+        out.b[k] -= slope_b * sd[k];
         out.q_range[k] = q_max[k] - q_min[k];
     }
     out
@@ -3380,8 +3387,8 @@ fn reduce_raw_chroma_noise(buffer: &mut Rgb32FImage, amount: f32) -> Vec<f32> {
 
     let pixel = |i: usize| ChromaPlanes::stabilize([src[i * 3], src[i * 3 + 1], src[i * 3 + 2]]);
     let noise_c_full = estimate_noise(w, h, &[&|i| pixel(i).1, &|i| pixel(i).2]).max(1e-3);
-    let ku = half.upsample_gate(amount);
-    let edge_scale = ku.sqrt();
+    let eps = half.upsample_eps(amount);
+    let edge_scale = 0.5 / eps.sqrt();
     let inv_core = 1.0 / ((2.0 + 2.0 * amount) * noise_c_full);
     let (hw, hh) = (half.w, half.h);
 
@@ -3423,7 +3430,7 @@ fn reduce_raw_chroma_noise(buffer: &mut Rgb32FImage, amount: f32) -> Vec<f32> {
                 }
 
                 luma_row[x0..x0 + n].copy_from_slice(&qc[..n]);
-                let up = upsample_chunk(low_rows, &qc[..n], x0, hw, ku);
+                let up = upsample_chunk(low_rows, &qc[..n], x0, hw, eps);
 
                 for k in 0..n {
                     let er = cr[k] - up.r[k];
@@ -3526,6 +3533,7 @@ fn apply_gentle_detail_enhance(buffer: &mut Rgb32FImage, q: &[f32], amount: f32)
     let noise = *samples.select_nth_unstable_by(mid, f32::total_cmp).1 * 1.4826;
     let threshold = (1.5 * noise).powi(2).max(1e-12);
     let strength = 4.5 * amount;
+    let taper = 0.3 / threshold.sqrt();
     let floor = ChromaPlanes::FLOOR;
 
     buffer.par_chunks_mut(w * 3).enumerate().for_each_init(
@@ -3550,6 +3558,7 @@ fn apply_gentle_detail_enhance(buffer: &mut Rgb32FImage, q: &[f32], amount: f32)
                 let qc = center[x];
                 let d = qc - blur[x];
                 let d = d * d * d / (d * d + threshold);
+                let d = d / (1.0 + d.abs() * taper);
                 let min = lo[x].min(lo[x + 1]).min(lo[x + 2]);
                 let max = hi[x].max(hi[x + 1]).max(hi[x + 2]);
                 let qn = (qc + strength * d).clamp(min, max);
