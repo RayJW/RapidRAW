@@ -492,6 +492,14 @@ pub fn default_ai_gpu_acceleration() -> bool {
     true
 }
 
+fn default_ai_cache_limit_gb() -> u32 {
+    4
+}
+
+fn default_thumbnail_cache_limit_gb() -> u32 {
+    10
+}
+
 pub fn default_tagging_shortcuts_option() -> Option<Vec<String>> {
     Some(vec![
         "portrait".to_string(),
@@ -610,6 +618,12 @@ pub struct AppSettings {
     pub thumbnail_worker_threads: Option<u32>,
     #[serde(default)]
     pub image_cache_size: Option<u32>,
+    #[serde(default = "default_ai_cache_limit_gb")]
+    pub ai_cache_limit_gb: u32,
+    #[serde(default = "default_thumbnail_cache_limit_gb")]
+    pub thumbnail_cache_limit_gb: u32,
+    #[serde(default = "default_ai_cache_limit_gb")]
+    pub ai_maps_cache_limit_gb: u32,
     #[serde(default)]
     pub export_worker_threads: Option<u32>,
     #[serde(default)]
@@ -748,6 +762,9 @@ impl Default for AppSettings {
             image_cache_size: Some(2),
             #[cfg(not(target_os = "android"))]
             image_cache_size: Some(5),
+            ai_cache_limit_gb: default_ai_cache_limit_gb(),
+            thumbnail_cache_limit_gb: default_thumbnail_cache_limit_gb(),
+            ai_maps_cache_limit_gb: default_ai_cache_limit_gb(),
             export_worker_threads: None,
             export_memory_limit: None,
             enable_baseline_exposure: false,
@@ -900,6 +917,7 @@ pub fn save_settings(settings: AppSettings, app_handle: AppHandle) -> Result<(),
         .lock()
         .unwrap()
         .set_capacity(cache_size);
+    crate::storage::apply_cache_limits(&settings);
 
     if previous_gpu_acceleration != Some(settings.ai_gpu_acceleration) {
         crate::ai_processing::reset_ai_sessions(&state.ai_state);

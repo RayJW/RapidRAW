@@ -115,6 +115,10 @@ fn cache_dir(app_handle: &AppHandle, settings: &ImmichSettings) -> Result<PathBu
     Ok(config::default_cache_dir(app_handle)?.join(&server_id[..16]))
 }
 
+pub fn clear_cache(app_handle: &AppHandle) -> Result<(), String> {
+    files::clear_originals(&config::default_cache_dir(app_handle)?)
+}
+
 pub fn is_placeholder(path: &Path) -> bool {
     registry::is_placeholder(path)
 }

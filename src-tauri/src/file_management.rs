@@ -1927,6 +1927,7 @@ fn generate_single_thumbnail_and_cache(
     let medium_path = thumb_cache_dir.join(format!("{}_medium.jpg", cache_hash));
 
     if !force_regenerate && small_path.exists() && medium_path.exists() {
+        crate::storage::mark_used(&small_path);
         return Some((
             small_path.to_string_lossy().into_owned(),
             medium_path.to_string_lossy().into_owned(),
@@ -1968,6 +1969,7 @@ fn generate_single_thumbnail_and_cache(
     {
         let _ = fs::write(&small_path, &small_data);
         let _ = fs::write(&medium_path, &medium_data);
+        crate::storage::record_thumbnail_write((small_data.len() + medium_data.len()) as u64);
         return Some((
             small_path.to_string_lossy().into_owned(),
             medium_path.to_string_lossy().into_owned(),
@@ -3620,6 +3622,7 @@ pub fn clear_thumbnail_cache(app_handle: AppHandle) -> Result<(), String> {
 
     fs::create_dir_all(&thumb_cache_dir)
         .map_err(|e| format!("Failed to recreate thumbnail cache directory: {}", e))?;
+    crate::storage::reset_thumbnail_estimate();
 
     Ok(())
 }
@@ -3902,6 +3905,7 @@ pub fn get_cached_or_generate_thumbnail_image(
 
         if cache_path.exists() {
             if let Ok(image) = image::open(&cache_path) {
+                crate::storage::mark_used(&cache_path);
                 return Ok(image);
             }
             eprintln!(
@@ -3923,6 +3927,7 @@ pub fn get_cached_or_generate_thumbnail_image(
                 thumb_cache_dir.join(format!("{}_medium.jpg", cache_hash)),
                 &medium_data,
             );
+            crate::storage::record_thumbnail_write((small_data.len() + medium_data.len()) as u64);
         }
 
         Ok(thumb_image)

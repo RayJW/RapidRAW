@@ -95,13 +95,34 @@ pub fn flush_all_dirty_caches() {
         }
     }
 
-    drop(state);
-
     for (path, map) in to_write {
         if let Ok(json) = serde_json::to_string(&map) {
             let _ = file_management::write_file_atomic(&path, json.as_bytes());
         }
     }
+    drop(state);
+}
+
+pub fn clear_disk_cache() -> Result<(), String> {
+    let mut state = get_exif_cache()
+        .lock()
+        .unwrap_or_else(PoisonError::into_inner);
+    state.cache.clear();
+    state.dirty.clear();
+    let Some(read_dir) = state
+        .cache_dir
+        .as_ref()
+        .and_then(|dir| fs::read_dir(dir).ok())
+    else {
+        return Ok(());
+    };
+    for path in read_dir.filter_map(|e| e.ok()).map(|e| e.path()) {
+        if path.is_file() {
+            fs::remove_file(&path)
+                .map_err(|e| format!("Failed to remove {}: {}", path.display(), e))?;
+        }
+    }
+    Ok(())
 }
 
 fn load_rrcache_for_folder(folder: &Path) {

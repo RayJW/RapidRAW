@@ -89,6 +89,48 @@ fn modified_ms(path: &Path) -> Option<u64> {
     Some(modified.duration_since(UNIX_EPOCH).ok()?.as_millis() as u64)
 }
 
+fn is_original(name: &str) -> bool {
+    !(name.starts_with('.') || name.ends_with(".rrdata") || name.ends_with(".rrexif"))
+}
+
+fn an_hour_ago_ms() -> u64 {
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map(|d| d.as_millis() as u64)
+        .unwrap_or(0)
+        .saturating_sub(3_600_000)
+}
+
+pub fn clear_originals(cache_root: &Path) -> Result<(), String> {
+    let an_hour_ago = an_hour_ago_ms();
+    let Ok(servers) = std::fs::read_dir(cache_root) else {
+        return Ok(());
+    };
+    for server in servers.filter_map(Result::ok) {
+        let Ok(folders) = std::fs::read_dir(server.path()) else {
+            continue;
+        };
+        for folder in folders.filter_map(Result::ok) {
+            if !folder.file_name().to_str().is_some_and(is_asset_id) {
+                continue;
+            }
+            let last_used = modified_ms(&folder.path().join(LAST_USED));
+            let Ok(files) = std::fs::read_dir(folder.path()) else {
+                continue;
+            };
+            for file in files.filter_map(Result::ok) {
+                let used = last_used.max(modified_ms(&file.path())).unwrap_or(0);
+                if is_original(&file.file_name().to_string_lossy()) && used <= an_hour_ago {
+                    std::fs::remove_file(file.path()).map_err(|e| {
+                        format!("Failed to remove {}: {}", file.path().display(), e)
+                    })?;
+                }
+            }
+        }
+    }
+    Ok(())
+}
+
 fn prune_cache(cache_dir: &Path, limit_bytes: u64) {
     let Ok(folders) = std::fs::read_dir(cache_dir) else {
         return;
@@ -105,8 +147,7 @@ fn prune_cache(cache_dir: &Path, limit_bytes: u64) {
         let last_used = modified_ms(&folder.path().join(LAST_USED));
         for file in files.filter_map(Result::ok) {
             let path = file.path();
-            let name = file.file_name().to_string_lossy().into_owned();
-            if name.starts_with('.') || name.ends_with(".rrdata") || name.ends_with(".rrexif") {
+            if !is_original(&file.file_name().to_string_lossy()) {
                 continue;
             }
             let Ok(meta) = file.metadata() else { continue };
@@ -119,11 +160,7 @@ fn prune_cache(cache_dir: &Path, limit_bytes: u64) {
         return;
     }
 
-    let an_hour_ago = SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .map(|d| d.as_millis() as u64)
-        .unwrap_or(0)
-        .saturating_sub(3_600_000);
+    let an_hour_ago = an_hour_ago_ms();
     originals.sort_by_key(|(used, ..)| *used);
     for (used, size, path) in originals {
         if total <= limit_bytes {

@@ -31,6 +31,7 @@ pub fn placeholder_thumbnail(
         )
     };
     if small.exists() && medium.exists() {
+        crate::storage::mark_used(&small);
         return Some(Some(as_strings(&small, &medium)));
     }
 
@@ -94,6 +95,7 @@ async fn fetch(
                 .map_err(|e| e.to_string())?;
             crate::file_management::write_file_atomic(target, &encoded)
                 .map_err(|e| e.to_string())?;
+            crate::storage::record_thumbnail_write(encoded.len() as u64);
         }
         Ok::<(), String>(())
     })

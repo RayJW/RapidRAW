@@ -48,11 +48,9 @@ export default function ImmichSettings() {
   const [keyInfo, setKeyInfo] = useState<ImmichApiKeyInfo | null>(null);
   const [serverUrl, setServerUrl] = useState('');
   const [apiKey, setApiKey] = useState('');
-  const [draft, setDraft] = useState<Partial<ImmichSettingsValues>>({});
   const [status, setStatus] = useState<Status>({ kind: 'idle' });
 
   const saved: ImmichSettingsValues = { ...DEFAULT_IMMICH_SETTINGS, ...appSettings?.immich };
-  const shown: ImmichSettingsValues = { ...saved, ...draft };
 
   const savedServerUrl = appSettings?.immich?.serverUrl?.trim() ?? '';
 
@@ -77,15 +75,6 @@ export default function ImmichSettings() {
   }, [appSettings?.immich?.serverUrl]);
 
   if (!appSettings || !keyInfo) return null;
-
-  const saveOption = (changes: Partial<ImmichSettingsValues>) => {
-    setDraft({});
-    const keys = Object.keys(changes) as (keyof ImmichSettingsValues)[];
-    if (keys.every((key) => changes[key] === saved[key])) return;
-    handleSettingsChange({ ...appSettings, immich: { ...saved, ...changes } })
-      .then(refreshImmich)
-      .catch((err) => setStatus({ kind: 'error', message: String(err) }));
-  };
 
   const saveConnection = async () => {
     setStatus({ kind: 'busy' });
@@ -161,17 +150,6 @@ export default function ImmichSettings() {
           </div>
           <StatusLine status={status} />
         </div>
-
-        <Item label={t('immich.settings.cacheLimit')} description={t('immich.settings.cacheLimitDesc')}>
-          <Input
-            type="number"
-            value={String(shown.cacheLimitGb)}
-            onChange={(e) => setDraft({ ...draft, cacheLimitGb: Number(e.target.value) })}
-            onBlur={() => saveOption({ cacheLimitGb: Math.max(1, Math.round(shown.cacheLimitGb || 1)) })}
-            className="max-w-32"
-            bgClassName="bg-bg-primary"
-          />
-        </Item>
       </div>
     </div>
   );

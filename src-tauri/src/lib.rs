@@ -65,6 +65,7 @@ mod panorama_utils;
 mod preset_converter;
 mod raw_processing;
 mod relight;
+mod storage;
 mod tagging;
 mod tagging_utils;
 mod white_balance;
@@ -2159,7 +2160,8 @@ pub fn run() {
             if let Ok(cache_dir) = app_handle.path().app_cache_dir() {
                 crate::ai_denoise::initialize_cache_dir(cache_dir.clone());
                 crate::effect_maps::initialize_cache_dir(cache_dir.clone());
-                crate::exif_processing::initialize_cache_dir(cache_dir);
+                crate::exif_processing::initialize_cache_dir(cache_dir.clone());
+                crate::storage::initialize_thumbnail_cache(cache_dir);
             }
 
             {
@@ -2186,6 +2188,7 @@ pub fn run() {
                 let cache_size = settings.image_cache_size.unwrap_or(5) as usize;
                 state.decoded_image_cache.lock().unwrap().set_capacity(cache_size);
             }
+            crate::storage::apply_cache_limits(&settings);
 
             if crash_flag_path.exists() {
                 log::warn!("GPU Driver crash detected on last run! Falling back to OpenGL backend.");
@@ -2571,7 +2574,6 @@ pub fn run() {
             ai_commands::test_ai_connector_connection,
             ai_commands::generate_full_image_depth_map,
             ai_commands::generate_relight_normal_map,
-            ai_denoise::get_ai_denoise_cache_size,
             ai_denoise::clear_ai_denoise_cache,
             ai_jobs::get_ai_jobs_status,
             ai_jobs::get_pending_ai_paths,
@@ -2634,6 +2636,11 @@ pub fn run() {
             file_management::save_community_preset,
             file_management::clear_all_sidecars,
             file_management::clear_thumbnail_cache,
+            storage::get_storage_usage,
+            storage::clear_ai_maps_cache,
+            storage::clear_metadata_cache,
+            storage::clear_immich_cache,
+            storage::clear_ai_models,
             file_management::set_color_label_for_paths,
             file_management::set_rating_for_paths,
             file_management::set_flag_for_paths,
