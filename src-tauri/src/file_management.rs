@@ -2494,7 +2494,11 @@ fn find_all_associated_files(source_image_path: &Path) -> Result<Vec<PathBuf>, S
 }
 
 #[tauri::command]
-pub fn copy_files(source_paths: Vec<String>, destination_folder: String) -> Result<(), String> {
+pub async fn copy_files(
+    source_paths: Vec<String>,
+    destination_folder: String,
+    app_handle: AppHandle,
+) -> Result<(), String> {
     let dest_path = Path::new(&destination_folder);
     if !dest_path.is_dir() {
         return Err(format!(
@@ -2507,6 +2511,10 @@ pub fn copy_files(source_paths: Vec<String>, destination_folder: String) -> Resu
         .iter()
         .map(|p| parse_virtual_path(p).0)
         .collect();
+
+    for source_image_path in &unique_source_images {
+        crate::immich::ensure_local(&app_handle, source_image_path).await?;
+    }
 
     let mut operations_to_perform = Vec::new();
 
@@ -2574,7 +2582,7 @@ pub fn copy_files(source_paths: Vec<String>, destination_folder: String) -> Resu
 }
 
 #[tauri::command]
-pub fn move_files(
+pub async fn move_files(
     source_paths: Vec<String>,
     destination_folder: String,
     app_handle: AppHandle,
@@ -2592,6 +2600,10 @@ pub fn move_files(
         .map(|p| parse_virtual_path(p).0)
         .collect();
 
+    for source_image_path in &unique_source_images {
+        crate::immich::ensure_local(&app_handle, source_image_path).await?;
+    }
+
     let mut operations_to_perform = Vec::new();
     let mut renames = HashMap::new();
 
@@ -2605,6 +2617,7 @@ pub fn move_files(
         }
 
         let all_files_to_move = find_all_associated_files(source_image_path)?;
+        let is_remote = crate::immich::is_remote(source_image_path);
 
         for file_to_move in &all_files_to_move {
             if let Some(file_name) = file_to_move.file_name() {
@@ -2617,10 +2630,13 @@ pub fn move_files(
                     ));
                 }
 
-                operations_to_perform.push((file_to_move.clone(), dest_file_path));
+                operations_to_perform.push((file_to_move.clone(), dest_file_path, is_remote));
             }
         }
 
+        if is_remote {
+            continue;
+        }
         let dest_image_path = dest_path.join(source_image_path.file_name().unwrap());
         renames.insert(
             source_image_path.to_string_lossy().into_owned(),
@@ -2628,8 +2644,11 @@ pub fn move_files(
         );
     }
 
-    for (source, dest) in operations_to_perform {
-        if fs::rename(&source, &dest).is_err() {
+    for (source, dest, is_remote) in operations_to_perform {
+        if is_remote {
+            fs::copy(&source, &dest)
+                .map_err(|e| format!("Copy failed for {}: {}", source.display(), e))?;
+        } else if fs::rename(&source, &dest).is_err() {
             fs::copy(&source, &dest)
                 .map_err(|e| format!("Move failed during copy for {}: {}", source.display(), e))?;
 
