@@ -129,7 +129,18 @@ async fn upload_export(
             .await?;
     }
     if let Some(original) = original {
-        client.create_stack(&[new_id.clone(), original]).await?;
+        let mut ids = vec![new_id.clone(), original];
+        let stacked = client
+            .stacks()
+            .await?
+            .into_iter()
+            .find(|stack| stack.assets.iter().any(|asset| asset.id == ids[1]));
+        for asset in stacked.map(|stack| stack.assets).unwrap_or_default() {
+            if !ids.contains(&asset.id) {
+                ids.push(asset.id);
+            }
+        }
+        client.create_stack(&ids).await?;
     }
     if entry.is_some() {
         registry::set_listed_asset(source, &new_id);
